@@ -51,7 +51,7 @@
         for (const c of cards) { assert(c.p.lv <= m, 'a card above the student\'s level ' + where); if (c.spell) assert(learned.includes(c.spell.id), 'a card for a spell that is not learned'); }
         if (w < CB.CFG.TWO_GOOD_FROM) assert(cards.filter(c => c.rel === 'weak').length === 1, 'a beginner set has exactly 1 attack option ' + where);
         const support = learned.some(id => ['defense', 'heal'].includes(SB.BY_ID[id].type) && CB.relation(SB.BY_ID[id], el) === 'util');
-        if (support && CB.cardsFor(w) >= 4 && cards.length >= 4) assert(cards.some(c => c.spell && ['defense', 'heal'].includes(c.spell.type)), 'a set of 4+ cards has a shield or healing card ' + where);
+        if (support && CB.cardsFor(w) >= 4 && cards.length >= 4) assert(cards.some(c => c.spell && ['defense', 'heal', 'control'].includes(c.spell.type)), 'a set of 4+ cards has a support card (shield, healing, or a control spell in its place) ' + where);
       }
     }
     assert(sets > 500, 'sets tested: ' + sets);
@@ -63,6 +63,10 @@
       if (h && e) { both++; if (h.spell.power >= 2 * e.spell.power) strong++; assert(h.p.lv === m || h.p.src === 'review', 'the hard card comes from the student\'s level'); }
     }
     assert(both > 80, 'easy + hard sets: ' + both); assert(strong / both > .7, 'hard is at least ×2 in ' + strong + ' of ' + both);
+  });
+  test('Shadow Snare sometimes takes the support card\'s place (before 5 cards)', () => {
+    let ctl = 0, all = 0; for (let k = 0; k < 300; k++) { const cards = CB.buildSet({ mlvl: 9, wlvl: 10, learned: learnedAt(9, 10), monEl: 'fire', rnd }); all++; if (cards.some(c => c.spell && c.spell.type === 'control')) ctl++; }
+    assert(ctl / all > .2 && ctl / all < .5, 'control share ' + (ctl / all).toFixed(2));
   });
   test('no healing card when the wizard has full HP', () => {
     let heals = 0;

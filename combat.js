@@ -23,9 +23,10 @@
     HARD_MIN_RATIO: 2,                         // the hard card's spell has at least twice the power of the easy card's
     REVIEW: 0.2, WEAK: 0.25,                   // review cards and weak spots (spec 01 §5)
     INCANT_FROM: 5, NUMPAD_FROM: 21,           // the incantation step from math level 5; a number pad (whole numbers and decimals) from level 21
-    INCANT_BONUS: 1.1,                         // (p) a right incantation adds 10% power (spec 00 §4.1 asks for "a small power bonus")
-    HEART_POT_HEAL: 0.3, REST_HEAL: 0.25,      // Heart potion; (p) a campfire on the path gives back 25% of max HP
-    SHRINK: 0.5                                // (p) Shrinking Hex: the monster's attack is halved for 3 turns
+    INCANT_BONUS: 1,                           // owner decision: no power bonus for a right incantation for now (spec 00 §4.1 suggested a small one); 1 = off
+    HEART_POT_HEAL: 0.3, REST_HEAL: 0.25,      // Heart potion; a campfire on the path gives back 25% of max HP (owner approved)
+    SHRINK: 0.5,                               // Shrinking Hex: the monster's attack is halved for 3 turns (owner approved)
+    CONTROL_IN_SUPPORT: 1 / 3                  // (p) owner decision: a control spell (Shadow Snare, Time Freeze) may take the support card's place; this is how often, when one is learned and HP is not low
   };
 
   /* ---- elements (spec 02 §2) ---- */
@@ -110,7 +111,8 @@
     }
     // the support card (4+ cards): a shield or healing, so the player chooses between attacking and defending; with low HP healing comes first
     if (n >= CFG.SUPPORT_FROM_CARDS && supportS.length) {
-      const heals = supportS.filter(s => s.type === 'heal'), pool = o.hpLow && heals.length ? heals : supportS;
+      const heals = supportS.filter(s => s.type === 'heal'), ctl = otherS.filter(s => s.type === 'control');
+      const pool = o.hpLow && heals.length ? heals : ctl.length && rnd() < CFG.CONTROL_IN_SUPPORT ? ctl : supportS;
       for (const s of shuffleBy(pool, rnd)) if (add(s, 'util', levelFor(s.v, mlvl, rnd))) break;
     }
     if (n >= CFG.OTHER_UTIL_FROM_CARDS && otherS.length && cards.length < n - 1) for (const s of shuffleBy(otherS, rnd)) if (add(s, 'util', levelFor(s.v, mlvl, rnd))) break;

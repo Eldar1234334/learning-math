@@ -150,7 +150,7 @@ What was done in each step, how to check it on the test site, and what is still 
 
 ---
 
-## Step 4: Fights with spell cards ✅ (on the test site, waiting for your check)
+## Step 4: Fights with spell cards ✅ (checked by the owner)
 
 **Goal:** the real fight of spec 00 §3 and spec 03: pick a problem card, its answer is the spell that is cast, the element decides what happens, then the monster attacks. This fixes the issue you found in step 3 (the right element always flew).
 
@@ -161,8 +161,8 @@ What was done in each step, how to check it on the test site, and what is still 
   - The good card is built backward from the spell number at the student's level (for example at level 21: `3731 − 3724` → 7, Stone Throw). About 1 in 5 good cards is review from an earlier level.
   - From wizard level 15 there are two good cards: an easy one (a weaker spell) and a hard one (a spell at least twice as strong, from the top of the level).
   - From 4 cards (wizard level 3) every set has one **support card**: a shield or healing spell, so the player chooses between attacking and defending (your decision). With low HP it is a healing spell; at full HP never a healing spell.
-  - From 5 cards (wizard level 15) one more utility card can join: control, summon, buff or a special spell (my proposal, see below).
-- **The incantation (from math level 5):** after picking a card, the student says its answer (spec 00 §4.1). A right answer casts the spell 10% stronger; a wrong answer makes it fizzle. The first time, a short story moment explains this. Levels 1–4 cast straight from the pick.
+  - From 5 cards (wizard level 15) one more utility card can join: summon, buff or a special spell. A control spell (Shadow Snare) can already take the support card's place from 4 cards.
+- **The incantation (from math level 5):** after picking a card, the student says its answer (spec 00 §4.1). A right answer casts the spell; a wrong answer makes it fizzle. The first time, a short story moment explains this. Levels 1–4 cast straight from the pick.
   - Answer buttons (the right answer and 3 sensible wrong ones), and from **level 21 a number pad** for whole numbers and decimals (the keyboard works too: digits, Backspace, Enter).
 - **Scoring:** at levels 1–4 the pick is the math answer (a good pick is right). From level 5 the incantation is the math answer, and the pick is only tactics: a bad pick wastes the turn but does not count against the math level. (The game already counts bad picks; step 5 uses them in the rewards.)
 - **HP instead of hearts:** the wizard has 20 HP + 2 per wizard level, shown as a bar and numbers. Monsters have HP for about 3 good casts at the student's level (spec 03 §3.1), and attack for 1 HP (+1 every 6 wizard levels). Bosses have 3× HP and attack 2×.
@@ -177,13 +177,10 @@ What was done in each step, how to check it on the test site, and what is still 
   - 🌟 Super: finishes the fight at once (once per chapter; it does not count for the math level).
 - **Tests:** 11 new fight tests (78 in all): elements, damage and healing, monster HP, the monster turn with every effect, card sets over many levels (always a good card, a trap, different answers), no dark monster before a light spell, no healing card at full HP.
 
-**My proposals (please approve or change)**
-- The incantation bonus: a right spoken answer makes the spell **10% stronger**.
-- The campfire heals **25%** of your HP.
-- Shrink (Shrink Ray) makes the monster's attacks **half** as strong.
-- Control, summon, buff and special spells (Shadow Snare, familiars, Arcane Echo …) get their own card slot from 5 cards (wizard level 15). Before that only the attack card and the support card are offered, so Shadow Snare (learned at wizard level 8) waits until wizard level 15.
-
 **Your decisions (from your check)**
+- No power bonus for a right spoken answer for now (it only casts the spell).
+- Approved: the campfire heals 25% of your HP; Shrink makes the monster's attacks half as strong.
+- Shadow Snare (and Time Freeze) may take the support card's place, about 1 time in 3 (never when HP is low). Familiars, buffs and special spells get their own card slot from 5 cards (wizard level 15).
 - Every set of 4+ cards has one support card (shield or healing); the utility card no longer replaces the attack card.
 - The ratio problems are removed. Level 35 is now "Harder percentages" / "אחוזים מתקדמים" (for example `15% of 60`, `125% of 80`).
 - A wrong incantation: the spell fizzles (nothing is cast, and it counts as a math mistake). A spoken number is never cast as a different spell.
