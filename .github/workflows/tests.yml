@@ -17,3 +17,5 @@ jobs:
         run: node tests/math.test.js
       - name: Run the spell book tests
         run: node tests/spells.test.js
+      - name: Run the fight rules tests
+        run: node tests/combat.test.js

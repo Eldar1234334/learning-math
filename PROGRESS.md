@@ -112,7 +112,7 @@ What was done in each step, how to check it on the test site, and what is still 
 
 ---
 
-## Step 3: The spell book ✅ (on the test site, waiting for your check)
+## Step 3: The spell book ✅ (checked by the owner)
 
 **Goal:** the spell book of spec 02: every spell with its fixed number, the two gates (math level and wizard level), sealed spells, and the "new spell" moments.
 
@@ -140,9 +140,57 @@ What was done in each step, how to check it on the test site, and what is still 
 **Fixed after your check**
 - The stone 🪨 (and the coin 🪙, the potted plant 🪴 and other newer emoji) showed as an empty square on Windows 10, whose emoji font is older. The game now loads Google's free color-emoji font, so every device draws every emoji.
 - Your question: in fights, the spell that flies is still always the right element, whatever answer you pick. That is the stand-in from step 0: the real casting (the answer is the spell number; a wrong element does nothing or heals the monster) comes in **step 4**.
+
 **How to check**
 1. Create a new hero (grade 1): open 📖 on the map. Four spells: 2, 3, 4, 5.
 2. Teacher area → demo run → 🧪 Demo: choose math level 3, then wizard level 3. Back on the map: "You learned new spells" (1, 6, 7). Open the book: 8 and 9 are sealed (wizard levels 5 and 8).
 3. In the demo choose math level 7: "Your spells became enhanced!" (10, 20, 30 …).
 4. Choose math level 26 and wizard level 18, open the book, tab Special: the fraction spells ½, ¼, ¾, ⅓, 1½.
 5. In a fight, tap 📖: the book opens over the fight; close it and the same question is waiting.
+
+---
+
+## Step 4: Fights with spell cards ✅ (on the test site, waiting for your check)
+
+**Goal:** the real fight of spec 00 §3 and spec 03: pick a problem card, its answer is the spell that is cast, the element decides what happens, then the monster attacks. This fixes the issue you found in step 3 (the right element always flew).
+
+**What changed**
+- **Problem cards:** each turn shows 3 cards (4 from wizard level 3, 5 from 15, 6 from 22). The answers are hidden. The answer of the card is the number of the spell that is cast.
+  - One card makes a spell the monster is weak to (the good card). The weakness is shown under the monster's name (for example "🌿 PLANT · weak to 🔥 ⚡").
+  - At least one card is a trap: a spell of the monster's own element (it **heals** the monster), a spell of another element (**no effect**), or a number that is no spell (**fizzles** 💨). The game explains why in one short line.
+  - The good card is built backward from the spell number at the student's level (for example at level 21: `3731 − 3724` → 7, Stone Throw). About 1 in 5 good cards is review from an earlier level.
+  - From wizard level 15 there are two good cards: an easy one (a weaker spell) and a hard one (a spell at least twice as strong, from the top of the level).
+  - From wizard level 22 a utility card (shield, healing, control) can also be offered. A healing card is not offered while the wizard has full HP.
+- **The incantation (from math level 5):** after picking a card, the student says its answer (spec 00 §4.1). A right answer casts the spell 10% stronger; a wrong answer makes it fizzle. The first time, a short story moment explains this. Levels 1–4 cast straight from the pick.
+  - Answer buttons (the right answer and 3 sensible wrong ones), and from **level 21 a number pad** for whole numbers and decimals (the keyboard works too: digits, Backspace, Enter).
+- **Scoring:** at levels 1–4 the pick is the math answer (a good pick is right). From level 5 the incantation is the math answer, and the pick is only tactics: a bad pick wastes the turn but does not count against the math level. (The game already counts bad picks; step 5 uses them in the rewards.)
+- **HP instead of hearts:** the wizard has 20 HP + 2 per wizard level, shown as a bar and numbers. Monsters have HP for about 3 good casts at the student's level (spec 03 §3.1), and attack for 1 HP (+1 every 6 wizard levels). Bosses have 3× HP and attack 2×.
+  - After a victory you catch your breath: +20% HP. The campfire on the path heals 25%. HP carries over between the fights of a quest.
+  - A knockout: start the quest again (with full HP; after 2 restarts in a row, a lucky charm gives +25% extra HP for that try).
+- **Spell effects in fights** (spec 02): shields block, healing heals, Shadow Snare and Time Freeze make the monster skip turns (a boss once at most), familiars attack every turn, Mirror Ward reflects, Phoenix Feather revives, Half-Moon Hex halves the monster's HP (a quarter for a boss), Arcane Echo doubles the next spell, area spells hit hard.
+- **Potions in fights** (spec 03 §6.2), one per turn:
+  - ❤️ Heart: heals 30% of your HP.
+  - 💡 Hint: shows the answers on the cards (that turn skips the incantation and does not count for the math level).
+  - 💥 Power: the next spell has double power.
+  - ⏪ Second chance: undoes your last cast (HP, the monster and the statistics go back).
+  - 🌟 Super: finishes the fight at once (once per chapter; it does not count for the math level).
+- **Tests:** 11 new fight tests (78 in all): elements, damage and healing, monster HP, the monster turn with every effect, card sets over many levels (always a good card, a trap, different answers), no dark monster before a light spell, no healing card at full HP.
+
+**My proposals (please approve or change)**
+- The incantation bonus: a right spoken answer makes the spell **10% stronger**.
+- The campfire heals **25%** of your HP.
+- Shrink (Shrink Ray) makes the monster's attacks **half** as strong.
+- A utility card (instead of the attack card) comes about **15%** of the time.
+
+**Good to know**
+- At the fraction levels (25–27, 31–32) the good card is often a review problem from an earlier level, because the spell numbers are whole numbers and fractions there rarely have a whole answer. The fraction spells (½, ¼ …) join from wizard level 18.
+- Until step 5 the XP, coins and loot still follow the reading game's numbers.
+
+**How to check**
+1. Create a hero (grade 1). Walk to the city gate and fight: 3 cards, answers hidden. Pick the card whose answer is a spell the monster is weak to (look at the weakness under its name): damage. Pick another card: no effect, the monster heals, or the spell fizzles, with a short explanation.
+2. Watch the HP bars: the monster attacks after every cast. Win a fight: +20% HP. Lose all HP (or 🧪 Demo → 💥 Lose all HP): knocked out, start again.
+3. Teacher area → demo run → 🧪 Demo → math level 9 → ⚔️ Start monster quest. The first fight shows the incantation moment; then pick a card and choose its answer. Choose a wrong answer once: the spell fizzles.
+4. In the demo choose math level 21 and start a quest: the number pad. Type the answer (or use the keyboard) and tap Cast.
+5. In a fight, 🧪 Demo → 🧪 5 of each potion, then try each potion (one per turn): Hint shows the answers on the cards, Second chance undoes the last cast, Super ends the fight.
+6. Switch to עברית in the middle of a fight: the cards stay, the words change, the number pad keeps the phone layout.
+7. Try it on a phone: the cards fit in a row (3) or a grid (4–6).

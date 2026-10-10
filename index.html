@@ -441,6 +441,25 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .langBtn{font:600 .85rem 'Fredoka',system-ui,sans-serif,'Noto Color Emoji';background:#fff1;color:#fff;border:1px solid #fff4;border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
 .langBtn:hover{background:#fff2}
 @media (max-width:560px){.langBtn{padding:5px 8px;font-size:.75rem}#game .vslider,#journey .vslider{display:none}}
+/* ----- the fight: problem cards, HP bars, the weakness badge, the number pad ----- */
+.opts.cards{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.opt.card{font-size:1.9rem;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:linear-gradient(#fff8e6,#f1dfb5);box-shadow:0 5px 0 #a9824a;color:#3a2610;border:2px solid #d8b878}
+.opt.card::before{content:'✦';position:absolute;top:4px;inset-inline-start:8px;font-size:.8rem;color:#b68a3e}
+.opt.card.chosen{outline:4px solid var(--gold);transform:translateY(-3px)}
+.opt.card:disabled:not(.chosen){opacity:.45}
+.cardAns{font-size:1rem;color:#6b3a10;font-weight:700}
+.opts.cards>.opt:last-child:nth-child(odd){width:auto}
+.weakBadge{font-size:.78rem;margin-top:4px;background:#0006;border-radius:999px;padding:3px 10px;display:inline-block}
+.heroHp{width:96px;height:9px;background:#0007;border-radius:6px;overflow:hidden;margin:2px auto 1px;border:1px solid #fff4}
+.heroHp i{display:block;height:100%;background:linear-gradient(90deg,#3ddc97,#7dffb0);transition:width .4s}
+.heroHp.low i{background:linear-gradient(90deg,#ff5d73,#ff9a8a)}
+.hpNum{font-size:.78rem;font-weight:600;opacity:.95;white-space:nowrap}
+#hearts .hpNum{display:block;text-align:center}
+.opts.pad{grid-template-columns:repeat(4,1fr);max-width:380px;margin:0 auto;gap:8px;direction:ltr}
+.padShow{grid-column:1 / -1;background:#fff;color:#2a2050;border-radius:14px;font-size:2rem;font-weight:700;text-align:center;padding:4px;border:3px solid #6b5ca8;min-height:54px}
+.opt.padKey{font-size:1.7rem;min-height:50px;padding:4px}
+.padGo{grid-column:1 / -1;font-size:1.3rem}
+@media (max-width:560px){.opt.card{font-size:1.35rem;min-height:72px;padding:6px 4px}}
 /* ----- the spell book ----- */
 .bookOv{position:fixed;inset:0;z-index:60;background:#0b0820cc;display:flex;align-items:center;justify-content:center;padding:12px}
 .bookOv[hidden]{display:none}
@@ -765,6 +784,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 
 <script src="math.js"></script>
 <script src="spells.js"></script>
+<script src="combat.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -797,12 +817,13 @@ if (APP) CFG.SCRIPT_URL = '';        // the app never saves any game data online
 // The emoji that flies at the monster for a spell of each element (the spell book itself comes in phase 3).
 const SPELL_EM = { water: '💧', rain: '🌧️', snow: '🌨️', ice: '🧊', fire: '🔥', sun: '☀️', light: '💡', dark: '🌑', lightning: '⚡', wind: '💨', stone: '🪨' };
 const EL = {
- fire:{label:['FIRE','אש'],badge:'🔥',weak:['water','rain','snow','ice'],heal:['fire','sun','wind'],why:['Fire monsters hate water and cold!','מפלצות אש שונאות מים וקור!']},
- ice:{label:['ICE','קרח'],badge:'❄️',weak:['fire','sun'],heal:['ice','snow'],why:['Ice melts in the heat!','קרח נמס בחום!']},
- dark:{label:['SHADOW','צל'],badge:'🌑',weak:['light','sun','lightning'],heal:['dark'],why:['Shadows are scared of light!','צללים מפחדים מאור!']},
- plant:{label:['PLANT','צמח'],badge:'🌿',weak:['fire','lightning'],heal:['water','rain','sun'],why:['Plants burn, but water and sun help them grow!','צמחים נשרפים, אבל מים ושמש עוזרים להם לגדול!']},
- storm:{label:['STORM','סערה'],badge:'⛈️',weak:['stone','ice'],heal:['lightning','wind','rain'],why:['Storms crash against hard stone and freeze in the cold!','סערות מתנפצות על אבן קשה וקופאות בקור!']},
- stone:{label:['STONE','אבן'],badge:'🪨',weak:['water','rain','lightning'],heal:['stone','dark'],why:['Water and lightning crack stone, but more stone and shadow make it stronger!','מים וברק סודקים אבן, אבל עוד אבן וצל מחזקים אותה!']}
+ // weak/heal: the spec 02 §2 table (the same as CB.MON_EL in combat.js); why: the short reason shown after a cast
+ fire:{label:['FIRE','אש'],badge:'🔥',weak:['water','ice'],heal:['fire','light'],why:['Water and ice put out fire, but fire and light make it stronger!','מים וקרח מכבים אש, אבל אש ואור מחזקים אותה!']},
+ ice:{label:['ICE','קרח'],badge:'❄️',weak:['fire','light'],heal:['ice'],why:['Fire and light melt ice, but more ice makes it stronger!','אש ואור ממיסים קרח, אבל עוד קרח מחזק אותו!']},
+ dark:{label:['SHADOW','צל'],badge:'🌑',weak:['light','lightning'],heal:[],why:['Light and lightning chase shadows away!','אור וברק מגרשים צללים!']},
+ plant:{label:['PLANT','צמח'],badge:'🌿',weak:['fire','lightning'],heal:['water','light'],why:['Fire and lightning beat plants, but water and light help them grow!','אש וברק מנצחים צמחים, אבל מים ואור עוזרים להם לגדול!']},
+ storm:{label:['STORM','סערה'],badge:'⛈️',weak:['stone','ice'],heal:['lightning','water'],why:['Stone and ice stop a storm, but lightning and water make it stronger!','אבן וקרח עוצרים סערה, אבל ברק ומים מחזקים אותה!']},
+ stone:{label:['STONE','אבן'],badge:'🪨',weak:['water','lightning'],heal:['stone'],why:['Water and lightning crack stone, but more stone makes it stronger!','מים וברק סודקים אבן, אבל עוד אבן מחזקת אותה!']}
 };
 // Every monster has an element (it decides which spells work) and a drawing in MON_ART. Each area has its own monsters and its own boss. nm = [English, Hebrew].
 const MON_DEF = {
@@ -999,14 +1020,14 @@ const STR = {
   // fights and the journey map
   abandon_title: ['Abandon the quest', 'עזיבת המסע'], continue: ['Continue ▶', 'המשך ◀'], walk_on: ['Walk on ▶', 'ממשיכים ללכת ◀'], journey_map: ['Journey map', 'מפת המסע'],
   j_next_aria: ['Walk to the next stop', 'הליכה לתחנה הבאה'], j_boss_near: ['⚠️ Something big is waiting just ahead…', '⚠️ משהו גדול מחכה ממש לפנינו…'], j_stronger: ['The monsters are getting stronger…', 'המפלצות נעשות חזקות יותר…'],
-  rest_t: ['⛺ A quiet campfire', '⛺ מדורה שקטה'], rest_b: ['You rest by the fire and feel better.', 'נחים ליד האש ומרגישים טוב יותר.'],
+  rest_t: ['⛺ A quiet campfire', '⛺ מדורה שקטה'], rest_b: ['You rest by the fire and feel better: +{h} HP.', 'נחים ליד האש ומרגישים טוב יותר: ‎+{h} חיים.'],
   chest_t: ['🎁 A treasure chest', '🎁 תיבת אוצר'], coins_plus: ['🪙 +{c} coins', '🪙 ‎+{c} מטבעות'], sign_t: ['🪧 A signpost', '🪧 שלט דרכים'],
-  lucky_heart: ['🍀 A lucky charm gives you one extra heart!', '🍀 קמע מזל נותן לכם לב נוסף!'], boss_pre: ['👑 BOSS: ', '👑 בוס: '],
+  lucky_heart: ['🍀 A lucky charm gives you extra HP for this try!', '🍀 קמע מזל נותן לכם חיים נוספים לניסיון הזה!'], boss_pre: ['👑 BOSS: ', '👑 בוס: '],
   abandon_t: ['🏳️ Abandon this quest?', '🏳️ לעזוב את המסע?'],
   abandon_b: ['<p>You will leave the quest. Then you can go home or to the shop.</p><p>✅ You <b>keep</b> all the coins and ingredients you already have.<br>⚠️ Next time the quest starts again <b>from the beginning</b>.</p>', '<p>תעזבו את המסע, ואז תוכלו ללכת הביתה או לחנות.</p><p>✅ כל המטבעות והמרכיבים שכבר יש לכם <b>נשארים</b> אצלכם.<br>⚠️ בפעם הבאה המסע יתחיל שוב <b>מההתחלה</b>.</p>'],
   abandon_yes: ['Yes, abandon it', 'כן, לעזוב'], keep_playing: ['Keep playing', 'להמשיך לשחק'], abandoned: ['🏳️ You left the quest. Your coins and ingredients are safe.', '🏳️ עזבתם את המסע. המטבעות והמרכיבים שלכם שמורים.'],
   level_up: ['⬆️ Level up! Level {n}: {name}', '⬆️ עליתם שלב! שלב {n}: {name}'], level_down: ["Let's practice a bit more. Level {n}: {name}", 'בואו נתרגל עוד קצת. שלב {n}: {name}'],
-  fb_stronger: ['The monster got stronger!', 'המפלצת התחזקה!'], fb_nothing: ['Nothing happens.', 'לא קרה כלום.'], fb_attack: ['💥 The monster attacks! −1 ❤️', '💥 המפלצת תוקפת! ‎−1 ❤️'],
+  fb_stronger: ['The monster got stronger!', 'המפלצת התחזקה!'], fb_nothing: ['Nothing happens.', 'לא קרה כלום.'], fb_attack: ['💥 The monster attacks!', '💥 המפלצת תוקפת!'],
   fb_turn: ['👉 Your turn! Pick another spell.', '👉 תורכם! בחרו כישוף אחר.'],
   mq_battle_t: ['Solve it to cast your spell at the {mon}!', 'פתרו כדי להטיל כישוף על {mon}!'], mq_battle_s: ['Pick the right answer. A wrong answer lets the monster attack!', 'בחרו את התשובה הנכונה. תשובה שגויה נותנת למפלצת לתקוף!'],
   mq_vill_t: ['{name} needs your help!', '{name} צריך עזרה!'], mq_pick: ['Pick the right answer!', 'בחרו את התשובה הנכונה!'], mq_not: ['{e} is not {x}.', '{e} זה לא {x}.'],
@@ -1023,11 +1044,39 @@ const STR = {
   enhanced_b: ['The same digits ×10 are stronger versions of your spells: 3 Fire Bolt → 30 Enhanced Fire Bolt.', 'אותן ספרות ×10 הן גרסאות חזקות יותר של הכישופים שלכם: 3 חץ אש ← 30 חץ אש מוגבר.'],
   new_spell_tip: ['Find them in your spell book 📖. A spell’s number never changes!', 'תמצאו אותם בספר הכישופים 📖. המספר של כישוף לעולם לא משתנה!'], open_book: ['Open the book 📖', 'לפתוח את הספר 📖'],
   wiz_up: ['🧙 Wizard level {n}!', '🧙 דרגת קוסם {n}!'],
+  // the fight (step 4): cards, the incantation, the results and the monster's turn
+  pick_t: ['Pick a card to cast a spell at the {mon}!', 'בחרו קלף כדי להטיל כישוף על {mon}!'],
+  pick_s: ['Solve the problems. The answer is the number of the spell you cast.', 'פתרו את התרגילים. התשובה היא מספר הכישוף שתטילו.'],
+  weak_badge: ['{badge} {label} · weak to {weak}', '{badge} {label} · חלש מול {weak}'],
+  say_t: ['Say the spell! What is the answer?', 'אמרו את הכישוף! מה התשובה?'], say_s: ['A right answer casts the spell. A wrong answer makes it fizzle.', 'תשובה נכונה מטילה את הכישוף. תשובה שגויה גורמת לו להתפוגג.'],
+  say_go: ['Cast ✨', 'להטיל ✨'], erase: ['⌫', '⌫'],
+  cast_line: ['{eq} → {spell}!', '{eq} ← {spell}!'], fizzle_line: ['{eq} → no spell has this number. It fizzles! 💨', '{eq} ← אין כישוף עם המספר הזה. הוא מתפוגג! 💨'],
+  sealed_line: ['{eq} → {spell} is still sealed 🔒. It fizzles! 💨', '{eq} ← {spell} עדיין נעול 🔒. הוא מתפוגג! 💨'],
+  wrong_say: ['❌ {eq}, not {x}. The spell fizzles! 💨', '❌ {eq}, ולא {x}. הכישוף מתפוגג! 💨'],
+  r_weak: ['Super effective! −{d}', 'אפקטיבי מאוד! ‎−{d}'], r_heal: ['Oh no! The monster gets stronger: +{h}', 'אוי לא! המפלצת מתחזקת: ‎+{h}'], r_none: ['No effect!', 'אין השפעה!'],
+  r_shield: ['🛡️ A shield protects you from the next attack.', '🛡️ מגן שומר עליכם מההתקפה הבאה.'], r_heal_me: ['💚 You heal: +{h}', '💚 התרפאתם: ‎+{h}'],
+  r_skip: ['⏸️ The monster cannot move for {n}.', '⏸️ המפלצת לא יכולה לזוז במשך {n}.'], turns_1: ['1 turn', 'תור אחד'], turns_n: ['{n} turns', '{n} תורות'],
+  r_boss_resist: ['The boss shakes it off! (A boss can be stopped only once per fight.)', 'הבוס מתנער מזה! (אפשר לעצור בוס רק פעם אחת בקרב.)'],
+  r_buff: ['💫 Your next spell will be stronger!', '💫 הכישוף הבא שלכם יהיה חזק יותר!'], r_summon: ['{em} A familiar joins the fight!', '{em} חיה מלווה מצטרפת לקרב!'],
+  r_reflect: ['🪞 Your mirror waits for the next attack.', '🪞 המראה מחכה להתקפה הבאה.'], r_drain: ['🧛 −{d} to the monster, +{h} to you!', '🧛 ‎−{d} למפלצת, ‎+{h} לכם!'],
+  r_revive: ['🪶 The phoenix feather glows. It will save you once in this fight.', '🪶 נוצת עוף החול זוהרת. היא תציל אתכם פעם אחת בקרב הזה.'], r_halve: ['🌗 The monster loses {d}!', '🌗 המפלצת מאבדת {d}!'],
+  r_weaken: ['🌫️ The next monster attack will be very weak.', '🌫️ ההתקפה הבאה של המפלצת תהיה חלשה מאוד.'], r_shrink: ['🔻 The monster shrinks!', '🔻 המפלצת מתכווצת!'],
+  m_attack: ['💥 The monster attacks! −{d}', '💥 המפלצת תוקפת! ‎−{d}'], m_blocked: ['🛡️ Your shield blocks the attack!', '🛡️ המגן חוסם את ההתקפה!'],
+  m_skip: ['⏸️ The monster cannot move!', '⏸️ המפלצת לא יכולה לזוז!'], m_reflect: ['🪞 The attack bounces back at the monster! −{d}', '🪞 ההתקפה חוזרת אל המפלצת! ‎−{d}'],
+  m_fam: ['{em} Your familiar attacks! −{d}', '{em} החיה המלווה תוקפת! ‎−{d}'], m_fam_none: ['{em} Your familiar’s attack has no effect.', '{em} להתקפה של החיה המלווה אין השפעה.'],
+  m_revive: ['🪶 The phoenix feather brings you back!', '🪶 נוצת עוף החול מחזירה אתכם!'], your_turn: ['👉 Your turn! Pick a card.', '👉 תורכם! בחרו קלף.'],
+  incant_t: ['🗣️ You are ready to speak spells yourself!', '🗣️ אתם מוכנים להגיד כישופים בעצמכם!'],
+  incant_b: ['<p>From now on, after you pick a card, you <b>say its answer</b>.</p><p>✨ A right answer casts the spell, and makes it a bit stronger!<br>💨 A wrong answer makes the spell fizzle.</p>', '<p>מעכשיו, אחרי שבוחרים קלף, <b>אומרים את התשובה שלו</b>.</p><p>✨ תשובה נכונה מטילה את הכישוף, ומחזקת אותו קצת!<br>💨 תשובה שגויה גורמת לכישוף להתפוגג.</p>'],
+  lets_go: ["Let's go! ✨", 'יאללה! ✨'],
+  hint_used: ['💡 The answers are on the cards! (This turn does not count for your level.)', '💡 התשובות על הקלפים! (התור הזה לא נספר לשלב שלכם.)'],
+  heart_heal: ['❤️ +{h} HP!', '❤️ ‎+{h} חיים!'], hp_full: ['Your HP is already full!', 'החיים שלכם כבר מלאים!'], power_used: ['💥 Your next spell has double power!', '💥 לכישוף הבא שלכם יש עוצמה כפולה!'],
+  second_none: ['Use this after a cast, to undo it.', 'השתמשו בזה אחרי שהטלתם כישוף, כדי לבטל אותו.'], second_undo: ['⏪ Your last cast is undone. Try again! (This turn does not count for your level.)', '⏪ הכישוף האחרון בוטל. נסו שוב! (התור הזה לא נספר לשלב שלכם.)'],
+  pick_first: ['Use potions when you pick a card.', 'משתמשים בשיקויים בזמן בחירת קלף.'], hp: ['HP', 'חיים'],
   // words inside math problems
   m_of: ['{a} of {b}', '{a} מ־{b}'], m_double: ['double {a}', 'פי 2 מ־{a}'], m_half: ['half of {a}', 'חצי מ־{a}'], m_ratio: ['first part of {a} in the ratio {b}', 'החלק הראשון של {a} ביחס {b}'],
   // potions
-  pot_heart: ['Heart', 'לב'], pot_heart_d: ['Gives one more heart (up to 5)', 'נותן עוד לב (עד 5)'], pot_sound: ['Hint', 'רמז'], pot_sound_d: ['Shows the answers on the spell cards (coming soon)', 'מראה את התשובות על קלפי הכישוף (בקרוב)'],
-  pot_power: ['Power', 'עוצמה'], pot_power_d: ['The enemy needs one right answer less', 'צריך תשובה נכונה אחת פחות כדי לנצח'], pot_second: ['Second chance', 'הזדמנות שנייה'], pot_second_d: ['Undo a mistake and answer again', 'מבטל טעות ומאפשר לענות שוב'],
+  pot_heart: ['Heart', 'לב'], pot_heart_d: ['Heals 30% of your HP', 'מרפא 30% מהחיים שלכם'], pot_sound: ['Hint', 'רמז'], pot_sound_d: ['Shows the answers on the cards', 'מראה את התשובות על הקלפים'],
+  pot_power: ['Power', 'עוצמה'], pot_power_d: ['Your next spell has double power', 'לכישוף הבא שלכם יש עוצמה כפולה'], pot_second: ['Second chance', 'הזדמנות שנייה'], pot_second_d: ['Undoes your last cast', 'מבטל את הכישוף האחרון שלכם'],
   pot_super: ['Super', 'על'], pot_super_d: ['Finishes the fight at once (once per chapter)', 'מסיים את הקרב מיד (פעם אחת בכל פרק)'], pot_name: ['{n} potion', 'שיקוי {n}'],
   pack_t: ['🧪 Pack your potions', '🧪 אורזים שיקויים'], pack_b: ['You can carry <b>{n}</b> potions on a quest. Once you start, you cannot go home until the quest is finished.', 'אפשר לקחת <b>{n}</b> שיקויים למסע. אחרי שיוצאים, אי אפשר לחזור הביתה עד סוף המסע.'],
   pouch: ['Pouch: {a} / {b}', 'בכיס: {a} / {b}'], at_home: ['🏡 {n} at home', '🏡 {n} בבית'], start_quest: ['Start the quest ▶', 'יוצאים למסע ◀'],
@@ -1036,7 +1085,7 @@ const STR = {
   second_after: ['Use this after a mistake, to try the same question again.', 'השתמשו בזה אחרי טעות, כדי לנסות שוב את אותה שאלה.'],
   second_done: ['⏪ Your mistake is gone. Try again! (This question will not count for your level.)', '⏪ הטעות נמחקה. נסו שוב! (השאלה הזאת לא נספרת לשלב שלכם.)'],
   super_used: ['The {p} was already used in this chapter.', '{p} כבר שימש בפרק הזה.'], wait_turn: ['Wait for your turn first.', 'חכו לתור שלכם.'], one_moment: ['One moment…', 'רגע אחד…'],
-  second_t: ['⏪ Second chance!', '⏪ הזדמנות שנייה!'], second_b: ['<p>You are out of hearts, but you have a Second chance potion. Drink it to undo your mistake and try this question again?</p>', '<p>נגמרו הלבבות, אבל יש לכם שיקוי הזדמנות שנייה. לשתות אותו כדי לבטל את הטעות ולנסות שוב?</p>'],
+  second_t: ['⏪ Second chance!', '⏪ הזדמנות שנייה!'], second_b: ['<p>You are out of HP, but you have a Second chance potion. Drink it to undo your last cast and try again?</p>', '<p>נגמרו החיים, אבל יש לכם שיקוי הזדמנות שנייה. לשתות אותו כדי לבטל את הכישוף האחרון ולנסות שוב?</p>'],
   drink: ['Drink it ⏪', 'לשתות ⏪'], no_thanks: ['No thanks', 'לא תודה'],
   // home and brewing
   caul_0: ['Clay pot', 'סיר חרס'], caul_1: ['Iron cauldron', 'קדרת ברזל'], caul_2: ['Silver cauldron', 'קדרת כסף'],
@@ -1079,7 +1128,7 @@ const STR = {
   staff_b: ['<p>This monster disappears at once, and the path goes on. You get no coins or loot for it.</p><p class="small">You have {u} left in this quest.</p>', '<p>המפלצת הזאת נעלמת מיד, והדרך ממשיכה. לא מקבלים עליה מטבעות או שלל.</p><p class="small">נשארו לכם {u} במסע הזה.</p>'],
   banish: ['Banish it! 🪄', 'לגרש! 🪄'], gone_t: ['🪄 Gone!', '🪄 נעלם!'], gone_b: ['<p>Your staff sent it away. The path goes on.</p>', '<p>המטה שלכם שלח אותו משם. הדרך ממשיכה.</p>'],
   back_path: ['Back to the path ▶', 'חזרה לדרך ◀'], banished: ['🪄 Banished! The path goes on.', '🪄 גורש! הדרך ממשיכה.'], fog_clear: ['🎗️ The fog clears! You can see the way ahead.', '🎗️ הערפל התפזר! אפשר לראות את הדרך.'],
-  amulet_t: ['🔮 Your amulet protects you!', '🔮 הקמע מגן עליכם!'], amulet_b: ['<p>You would have been knocked out, but the amulet keeps you going with 1 heart. Be careful now!</p>', '<p>כמעט הובסתם, אבל הקמע משאיר אתכם עם לב אחד. היזהרו עכשיו!</p>'], keep_going: ['Keep going ▶', 'ממשיכים ◀'],
+  amulet_t: ['🔮 Your amulet protects you!', '🔮 הקמע מגן עליכם!'], amulet_b: ['<p>You would have been knocked out, but the amulet keeps you going with 1 HP. Be careful now!</p>', '<p>כמעט הובסתם, אבל הקמע משאיר אתכם עם נקודת חיים אחת. היזהרו עכשיו!</p>'], keep_going: ['Keep going ▶', 'ממשיכים ◀'],
   // the shop
   unlock_caul1: ['the Power and Second chance potions', 'את שיקויי העוצמה וההזדמנות השנייה'], unlock_caul2: ['the Super potion', 'את שיקוי העל'], unlocks: ['Unlocks {x}', 'פותח {x}'],
   have_it: ['You have it ✓', 'יש לכם ✓'], buy_iron_first: ['🔒 Buy the iron cauldron first', '🔒 קודם קונים את קדרת הברזל'], need_coins: ['You need {n} more 🪙', 'חסרים לכם {n} 🪙'],
@@ -1095,7 +1144,7 @@ const STR = {
   double_coins: ['(double coins: first 10 minutes!)', '(מטבעות כפולים: 10 הדקות הראשונות!)'], no_coins: ['No coins this time. Fewer mistakes means more coins!', 'הפעם בלי מטבעות. פחות טעויות, יותר מטבעות!'],
   boss_reward: ['👑 Boss reward: 🪙 ~{c} <small>(×3–5)</small>', '👑 פרס בוס: 🪙 ~{c} <small>(×3–5)</small>'], reward: ['🪙 Reward: {c}', '🪙 פרס: {c}'],
   boss_def: ['👑 Boss defeated!', '👑 הבוס הובס!'], victory: ['🎉 Victory!', '🎉 ניצחון!'], defeated: ['<p>You defeated <b>{m}</b>! +{x} XP</p>', '<p>ניצחתם את <b>{m}</b>! ‎+{x} XP</p>'],
-  chapter_done: ['<p>🏆 Chapter complete! A new land awaits: <b>{a}</b></p>', '<p>🏆 הפרק הושלם! ארץ חדשה מחכה: <b>{a}</b></p>'], feel_stronger: ['<p>❤️ You feel a bit stronger.</p>', '<p>❤️ אתם מרגישים קצת חזקים יותר.</p>'],
+  chapter_done: ['<p>🏆 Chapter complete! A new land awaits: <b>{a}</b></p>', '<p>🏆 הפרק הושלם! ארץ חדשה מחכה: <b>{a}</b></p>'], feel_stronger: ['<p>❤️ You catch your breath: +{h} HP.</p>', '<p>❤️ אתם נושמים לרווחה: ‎+{h} חיים.</p>'],
   next_ch: ['Next chapter ⚔️', 'לפרק הבא ⚔️'], ko_t: ['😵 Knocked out!', '😵 הובסתם!'],
   ko_b: ['<p>Even great heroes fall sometimes. Take a breath, then start the quest again. You keep everything you collected, and you learn more every time!</p>', '<p>גם גיבורים גדולים נופלים לפעמים. קחו נשימה ונסו את המסע שוב. כל מה שאספתם נשאר אצלכם, ובכל פעם לומדים עוד!</p>'],
   start_again: ['Start again 💪', 'מתחילים שוב 💪'],
@@ -2181,8 +2230,10 @@ function ensurePath(q) {   // returns true when a brand-new run was rolled
   const qs = P.quest[q]; let fresh = false;
   if (!qs.len) {   // a new run: roll how many normal encounters come before the boss, and keep it in the profile so a refresh can't re-roll it
     const lo = CFG.MIN_FIGHTS, hi = CFG.MAX_FIGHTS; qs.len = lo + Math.floor(Math.random() * (hi - lo + 1)); fresh = true; qs.path = null;
-    if (CFG.SAFETY_RESTARTS && qs.restarts >= CFG.SAFETY_RESTARTS) { qs.hearts = CFG.MAX_HEARTS + 1; qs.restarts = 0; setTimeout(() => toast(t('lucky_heart')), 500); }   // safety net: one free extra heart
+    const max = CB.wizMaxHP(wizLvl()); qs.hp = max;   // a new run starts with full HP (spec 03 §3.2)
+    if (CFG.SAFETY_RESTARTS && qs.restarts >= CFG.SAFETY_RESTARTS) { qs.hearts = CFG.MAX_HEARTS + 1; qs.hp = Math.round(max * (1 + CB.CFG.SAFETY_HP_BONUS)); qs.restarts = 0; setTimeout(() => toast(t('lucky_heart')), 500); }   // safety net: +25% HP after repeated restarts
   }
+  if (q === 'battle' && !(qs.hp > 0)) qs.hp = CB.wizMaxHP(wizLvl());
   if (qs.enc > qs.len) qs.len = qs.enc;
   if (!(qs.hearts > 0)) qs.hearts = CFG.MAX_HEARTS;
   if (!Array.isArray(qs.path) || !qs.path.length) buildPath(q);
@@ -2290,7 +2341,7 @@ function jDraw() {
 }
 function jHud() {
   const qs = P.quest[J.q], v = jVillage(), hs = Math.max(0, qs.hearts), mx = Math.max(CFG.MAX_HEARTS, hs), th = jTheme(), nodes = jNodes(), next = nodes[(qs.at || 0) + 1];
-  $('#jHearts').textContent = v ? '😊'.repeat(hs) + '😐'.repeat(mx - hs) : '❤️'.repeat(hs) + '🖤'.repeat(mx - hs);
+  $('#jHearts').textContent = v ? '😊'.repeat(hs) + '😐'.repeat(mx - hs) : `❤️ ${qs.hp}/${CB.wizMaxHP(wizLvl())}`;
   $('#jArea').textContent = v ? VILLAGES[(qs.ch - 1) % 6] : areaName(qs.ch); $('#jStory').textContent = Array.isArray(th.story) ? tl(th.story) : th.story;
   const b = $('#jBanner');
   if (next && next[0] === 'B') { b.textContent = v ? '🎉 The festival hall is just ahead!' : t('j_boss_near'); b.className = 'jBanner warn'; }
@@ -2331,7 +2382,10 @@ function jArrive(i) {
   if (kind === 'm' || kind === 's' || kind === 'B') { jDraw(); jHud(); enterFight(); return; }   // the normal fight / village screen
   qs.at = i; J.wizLen = null;   // a special stop is done the moment you arrive (so a refresh can not repeat it)
   let title, body;
-  if (kind === 'r') { qs.hearts = Math.min(CFG.MAX_HEARTS, qs.hearts + 1); title = v ? '🪑 A shady bench' : t('rest_t'); body = `<p>${v ? 'You sit for a moment. A villager smiles at you.' : t('rest_b')}</p><p dir="ltr">+1 ${v ? '😊' : '❤️'}</p>`; }
+  if (kind === 'r') {
+    if (v) { qs.hearts = Math.min(CFG.MAX_HEARTS, qs.hearts + 1); title = '🪑 A shady bench'; body = '<p>You sit for a moment. A villager smiles at you.</p><p dir="ltr">+1 😊</p>'; }
+    else { const max = CB.wizMaxHP(wizLvl()), h = Math.min(Math.max(0, max - qs.hp), Math.ceil(max * CB.CFG.REST_HEAL)); qs.hp += h; title = t('rest_t'); body = `<p>${t('rest_b', { h })}</p>`; }
+  }
   else if (kind === 'c') { const c = jCoins(2 + Math.floor(Math.random() * 3)); title = v ? '🧺 A basket of gifts' : t('chest_t'); body = `<p style="font-size:1.3rem">${t('coins_plus', { c })}</p>`; }
   else { const sg = J_SIGNS[J.q][+code.slice(1)]; title = t('sign_t'); body = `<p>${Array.isArray(sg) ? tl(sg) : sg}</p>`; }
   sfx.ok(); saveSoon(true); jDraw(); jHud();
@@ -2365,11 +2419,18 @@ function newEncounter() {   // the stop the wizard just walked to: a monster or 
   const stop = qs.path[qs.at || 0] || 'm', boss = stop[0] === 'B';
   G.site = stop[0] === 's' ? SITES[+stop.slice(1)] : null;
   G.hearts = qs.hearts; G.helped = 0; G.lastKey = null; G.mist = 0; G.fightLvl = P.mlvl; G.potUsed = false; G.snap = null; G.noCount = false; G.projs = (G.quest === 'peace' && P.mlvl >= 8) ? (boss ? finaleProjects() : [pickProject(G.site ? G.site.bg : 'bakery')]) : null; G.need = G.projs ? G.projs.length * 3 : G.quest === 'peace' ? (boss ? CFG.BIG_NEED : CFG.VILLAGE_NEED) : 0;   // mistakes in this fight (G.mist) lower the coins and the rarity of the loot
-  if (G.quest === 'battle') {
-    const ar = AREA_MON[(qs.ch - 1) % 6], mk = window.__forceMon || (boss ? ar.b : rnd(ar.n)), def = { ...MON_DEF[mk], key: mk };
-    const isBoss = !!def.boss; G.mon = { ...def, boss: isBoss, max: isBoss ? 6 : 3, hp: isBoss ? 6 : 3 };
+  if (G.quest === 'battle') {   // a monster the student can beat with a learned spell (spec 03 §3.4); its HP follows the math level (spec 03 §3.1)
+    const ar = AREA_MON[(qs.ch - 1) % 6], beat = k => CB.canBeat(MON_DEF[k].el, P.spells, P.mlvl);
+    const bosses = Object.keys(MON_DEF).filter(k => MON_DEF[k].boss);
+    const mk = window.__forceMon || (boss ? (beat(ar.b) ? ar.b : rnd(bosses.filter(beat).length ? bosses.filter(beat) : bosses)) : rnd(ar.n.filter(beat).length ? ar.n.filter(beat) : ar.n));
+    const def = { ...MON_DEF[mk], key: mk }, isBoss = !!def.boss, g = wizLvl(), hp = CB.monsterHP(P.mlvl, P.spells, g, isBoss);
+    G.mon = { ...def, boss: isBoss, max: hp, hp };
+    const max = CB.wizMaxHP(g); if (!(qs.hp > 0)) qs.hp = max;
+    G.st = { g, hero: { hp: Math.min(qs.hp, Math.round(max * (1 + CB.CFG.SAFETY_HP_BONUS))), max }, mon: G.mon, fx: CB.newFx() };
+    G.badPicks = 0; G.lastSnap = null; G.recent = G.recent || [];
   } else { const f0 = boss ? '👵' : rnd(FOLK); G.fname = FOLK_NAMES[f0] || 'The villager'; G.folk = tonedEmoji(f0, nextTone()); G.big = boss; G.mon = null; G.vkey = boss ? 'library' : (G.site ? G.site.bg : rnd(Object.keys(VNAMES))); G.fname = VNAMES[G.vkey]; }
-  drawScene(); nextQuestion();
+  drawScene();
+  if (G.quest === 'battle') { if (P.mlvl >= CB.CFG.INCANT_FROM && !P.incantSeen) incantIntro(); else nextTurn(); } else nextQuestion();
 }
 // Each element has its own battlefield colours, glow and drifting particles (flames, snowflakes, wisps, leaves).
 const AURA = { fire: { em: ['🔥', '🔥', '✨', '🔥'], mode: 'up', y: [38, 85] }, ice: { em: ['❄️', '❄️', '✨', '🧊'], mode: 'down', y: [0, 35] },
@@ -2441,10 +2502,14 @@ function drawScene() {
   }
   updateBars(); updateReward();
 }
-function fightHeader() { $('#foeName').textContent = (G.mon.boss ? t('boss_pre') : '') + monName(G.mon); $('#mid').innerHTML = `<b>${areaName(P.quest.battle.ch)}</b>`; }
+function fightHeader() {   // the monster's name and HP, the area, and the weakness badge (always visible, spec 00 §6)
+  const e = EL[G.mon.el];
+  $('#foeName').innerHTML = esc((G.mon.boss ? t('boss_pre') : '') + monName(G.mon)) + ` <small class="hpNum">${Math.max(0, G.mon.hp)}/${G.mon.max}</small>`;
+  $('#mid').innerHTML = `<b>${areaName(P.quest.battle.ch)}</b><div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>`;
+}
 // A language switch during a fight, brewing, forging or shopping: the same question and state, new words.
 function relabelGame() {
-  if (G.quest === 'battle' && G.mon) fightHeader();
+  if (G.quest === 'battle' && G.mon) { fightHeader(); updateBars(); renderPotBar(); renderItemBar(); if (G.phase === 'pick') renderCards(); else if (G.phase === 'say') renderSay(); return; }
   else if (G.quest === 'craft') { craftHeader(); craftNote(); }
   else if (G.quest === 'forge') forgeHeader();
   else if (G.quest === 'shop') shopHeader();
@@ -2454,10 +2519,13 @@ function relabelGame() {
 function updateBars() {
   if (inCraft()) return;
   const b = G.quest === 'battle';
-  const hs = Math.max(0, G.hearts), mx = Math.max(CFG.MAX_HEARTS, hs);
-  $('#hearts').textContent = b ? '❤️'.repeat(hs) + '🖤'.repeat(mx - hs) : '😊'.repeat(hs) + '😐'.repeat(mx - hs);
+  if (b && G.st) {   // the wizard's HP bar (it replaces the hearts) and the monster's
+    const h = G.st.hero, pc = Math.max(0, h.hp) / h.max * 100;
+    $('#hearts').innerHTML = `<div class="heroHp${pc <= 30 ? ' low' : ''}"><i style="width:${Math.min(100, pc)}%"></i></div><small class="hpNum">❤️ ${Math.max(0, h.hp)}/${h.max}</small>`;
+    $('#foeName').querySelector('.hpNum') && ($('#foeName').querySelector('.hpNum').textContent = `${Math.max(0, G.mon.hp)}/${G.mon.max}`);
+  } else { const hs = Math.max(0, G.hearts), mx = Math.max(CFG.MAX_HEARTS, hs); $('#hearts').textContent = b ? '' : '😊'.repeat(hs) + '😐'.repeat(mx - hs); }
   $('#heroBox').classList.toggle('heroGlow', b && G.combo >= 3);   // on a hot streak the hero glows
-  $('#hpFill').style.width = (b ? G.mon.hp / G.mon.max * 100 : G.helped / G.need * 100) + '%';
+  $('#hpFill').style.width = (b ? Math.max(0, G.mon.hp) / G.mon.max * 100 : G.helped / G.need * 100) + '%';
   $('#tierLbl').textContent = levelLbl(P.mlvl);
   $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
 }
@@ -2465,7 +2533,7 @@ function updateBars() {
 function abandonQuest(q) {
   const qs = P.quest[q]; if (!qs || !qs.act) return;
   modal(t('abandon_t'), t('abandon_b'),
-    [[t('abandon_yes'), () => { qs.enc = 0; qs.len = 0; qs.path = null; qs.at = 0; qs.hearts = CFG.MAX_HEARTS; qs.act = false; P.abandons = (P.abandons || 0) + 1; saveSoon(true); openMenu(); toast(t('abandoned')); }], [t('keep_playing'), null, true]]);
+    [[t('abandon_yes'), () => { qs.enc = 0; qs.len = 0; qs.path = null; qs.at = 0; qs.hearts = CFG.MAX_HEARTS; qs.hp = null; qs.act = false; G.phase = 'done'; P.abandons = (P.abandons || 0) + 1; saveSoon(true); openMenu(); toast(t('abandoned')); }], [t('keep_playing'), null, true]]);
 }
 $('#abandonBtn').onclick = () => abandonQuest(G.quest);
 $('#abandonMapBtn').onclick = () => abandonQuest(runOf());
@@ -2482,7 +2550,7 @@ function showQuestion() {   // draws G.q (a Second chance potion draws the same 
   $('#qSub').textContent = q.sub();
   $('#fb').innerHTML = ''; $('#nextBtn').classList.add('hidden');
   const bub = $('#bubble'); if (bub) { bub.style.visibility = q.speech ? 'visible' : 'hidden'; bub.textContent = q.speech || ''; }
-  const opts = $('#opts'); opts.innerHTML = '';
+  const opts = $('#opts'); opts.innerHTML = ''; opts.className = 'opts'; opts.style.gridTemplateColumns = '';
   q.options.forEach((o, i) => {
     const b = document.createElement('button'); b.className = 'opt ' + (o.cls || ''); b.innerHTML = o.html; b.onclick = () => pickOption(i, b);
     opts.appendChild(b);
@@ -2533,6 +2601,157 @@ function toast(msg) {
   const e = document.createElement('div');
   e.style.cssText = 'position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#ffd166;color:#3a2300;padding:10px 18px;border-radius:14px;font-weight:600;z-index:70;box-shadow:0 4px 0 #9b6411;max-width:92vw;text-align:center';
   e.textContent = msg; document.body.appendChild(e); setTimeout(() => e.remove(), 2800);
+}
+
+/* ====================== THE FIGHT (spec 00 §3, combat.js) ====================== */
+// A turn: pick one of the problem cards (answers hidden) → from math level 5, say the answer (the incantation) → the answer is cast as the spell
+// with that number (weakness: damage · own element: the monster heals · other element: no effect · no spell: fizzle) → the monster's turn.
+// Scoring (spec 01 §6.1): math levels 1–4 score the pick (an effective pick is right); from level 5 the incantation is the math score and the pick is only tactics.
+const stage2 = () => P.mlvl >= CB.CFG.INCANT_FROM;
+const cardQ = c => ({ key: c.p.key, p: c.p, src: c.p.src || 'cur' });   // a card in the shape record() expects
+function incantIntro() {   // the story moment when the incantation step starts (spec 00 §4.1)
+  P.incantSeen = true; saveSoon(); sfx.up();
+  modal(t('incant_t'), t('incant_b'), [[t('lets_go'), nextTurn]]);
+}
+function nextTurn() {
+  if (!G.st || G.st.mon.hp <= 0) return;
+  const h = G.st.hero;
+  G.cards = CB.buildSet({ mlvl: P.mlvl, wlvl: wizLvl(), learned: P.spells, monEl: G.mon.el, avoid: new Set(G.recent || []), facts: P.mfacts, hpLow: h.hp <= h.max * 0.35, hpFull: h.hp >= h.max });
+  G.recent = (G.recent || []).concat(G.cards.map(c => c.p.key)).slice(-CFG.RECENT * 2);
+  G.turnSnap = snapTurn(); G.phase = 'pick'; G.pick = null; G.hint = false; G.noCount = false; G.potUsed = false; G.locked = false; G.typed = '';
+  $('#fb').innerHTML = ''; renderCards();
+}
+function renderCards() {
+  $('#abandonBtn').style.display = ''; $('#nextBtn').classList.add('hidden'); const cp = $('#craftPic'); if (cp) cp.style.display = 'none';
+  $('#qTitle').textContent = t('pick_t', { mon: monName(G.mon) }); $('#qSub').textContent = t('pick_s');
+  $('#qBig').innerHTML = ''; $('#qBig').classList.remove('sm');
+  const opts = $('#opts'); opts.className = 'opts cards'; opts.innerHTML = '';
+  const n = G.cards.length; opts.style.gridTemplateColumns = `repeat(${n <= 3 ? n : n === 4 ? 2 : 3}, 1fr)`;   // 3 in a row, 4 as 2 × 2, 5–6 in rows of 3
+  G.cards.forEach((c, i) => {
+    const b = document.createElement('button'); b.className = 'opt card'; b.disabled = G.locked;
+    b.innerHTML = `<span class="cardEx">${exprHtml(c.p.e)}</span>` + (G.hint ? `<span class="cardAns">= ${ME.fmtHtml(c.p.a)}</span>` : '');
+    b.onclick = () => pickCard(i); opts.appendChild(b);
+  });
+  renderPotBar(); renderItemBar(); updateBars();
+}
+async function pickCard(i) {
+  if (G.locked || G.phase !== 'pick') return;
+  G.pick = G.cards[i]; G.locked = true;
+  document.querySelectorAll('#opts .card').forEach((b, k) => { b.disabled = true; b.classList.toggle('chosen', k === i); });
+  sfx.ok(); await sleep(250);
+  if (stage2() && !G.hint) { G.phase = 'say'; G.locked = false; renderSay(); return; }
+  resolveCast(G.pick.p.a, true);
+}
+// the incantation: answer buttons (the right answer and 3 close wrong ones), or a number pad from level 21 for whole numbers and decimals (spec 01 §4.2)
+function renderSay() {
+  const c = G.pick, usePad = P.mlvl >= CB.CFG.NUMPAD_FROM && (ME.isWhole(c.p.a) || c.p.a.k === 'dec');
+  $('#qTitle').textContent = t('say_t'); $('#qSub').textContent = t('say_s');
+  $('#qBig').innerHTML = exprHtml(c.p.e); $('#qBig').classList.toggle('sm', exprText(c.p.e).length > 9);
+  const opts = $('#opts'); opts.innerHTML = ''; opts.style.gridTemplateColumns = '';
+  if (!usePad) {
+    opts.className = 'opts';
+    if (!G.sayVals || G.sayFor !== c) { G.sayVals = shuffle([c.p.a, ...ME.distractors(c.p, 3)]); G.sayFor = c; }
+    G.sayVals.forEach(v => { const b = document.createElement('button'); b.className = 'opt num'; b.innerHTML = ME.fmtHtml(v); b.onclick = () => sayAnswer(v); opts.appendChild(b); });
+  } else {
+    opts.className = 'opts pad';
+    opts.innerHTML = `<div class="padShow" dir="ltr" id="padShow">${esc(G.typed) || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" id="padGo">${t('say_go')}</button>`;
+    opts.querySelectorAll('.padKey').forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === '⌫') G.typed = G.typed.slice(0, -1); else if (G.typed.length < 8 && !(k === '.' && G.typed.includes('.'))) G.typed += k; $('#padShow').textContent = G.typed || '…'; });
+    $('#padGo').onclick = () => { const v = ME.parse(G.typed); if (v) sayAnswer(v); };
+  }
+  renderPotBar();
+}
+document.addEventListener('keydown', e => {   // typing on a keyboard also works for the number pad
+  if (G.phase !== 'say' || !$('#padShow') || G.locked || !$('#game').classList.contains('on')) return;
+  if (/^[0-9.]$/.test(e.key) && G.typed.length < 8 && !(e.key === '.' && G.typed.includes('.'))) G.typed += e.key; else if (e.key === 'Backspace') G.typed = G.typed.slice(0, -1); else if (e.key === 'Enter') { $('#padGo').click(); return; } else return;
+  $('#padShow').textContent = G.typed || '…';
+});
+function sayAnswer(v) {
+  if (G.locked || G.phase !== 'say') return;
+  G.locked = true; resolveCast(v, ME.eq(v, G.pick.p.a));
+}
+// cast the chosen card: right (or stage 1) → the spell with that number; a wrong incantation → it fizzles. Then the monster's turn.
+async function resolveCast(said, sayOk) {
+  const c = G.pick, q = cardQ(c), st = G.st, s2 = stage2() && !G.hint;
+  G.phase = 'cast'; G.sayVals = null;
+  document.querySelectorAll('#opts .opt').forEach(b => { b.disabled = true; });
+  let spell = null, line;
+  const eq = exprHtml(c.p.e, c.p.a);
+  if (s2 && !sayOk) line = t('wrong_say', { eq, x: ME.fmtHtml(said) });
+  else {
+    spell = SB.cast(c.p.a, P.spells);
+    const any = SB.SPELLS.find(x => ME.eq(x.v, c.p.a));
+    line = spell ? t('cast_line', { eq, spell: `<b>${tl(spell.nm)}</b>` }) : any ? t('sealed_line', { eq, spell: `<b>${tl(any.nm)}</b>` }) : t('fizzle_line', { eq });
+  }
+  // scoring: the math (stage 1: the pick; stage 2: the incantation) and the tactics (a pick that does not help)
+  const good = CB.isGood(c.rel), mathOk = s2 ? sayOk : good;
+  let tr = '';
+  if (mathOk) { G.combo++; } else { G.combo = 0; G.mist++; }
+  if (!good) G.badPicks++;
+  tr = record(q, mathOk); const xp = mathOk ? gainXp(true) : 0;
+  const ev = CB.cast(st, spell, s2 && sayOk ? CB.CFG.INCANT_BONUS : 1);
+  if (mathOk) sfx.ok(); else sfx.bad();
+  $('#qBig').innerHTML = ''; $('#qTitle').innerHTML = line; $('#qSub').textContent = '';
+  await flySpell(spell ? SB.ELEMENTS[spell.el].em : '💨');
+  $('#fb').innerHTML = castResult(ev) + (xp ? ` <small>+${xp} XP</small>` : '');
+  after(tr); updateBars(); fightHeader(); updateReward();
+  G.lastSnap = G.turnSnap; G.potUsed = false; renderPotBar();
+  await sleep(1100);
+  if (st.mon.hp <= 0) return victory();
+  await monsterTurnUI();
+}
+function castResult(ev) {   // what the spell did, with the short "why" for elements
+  const r = ev.rel, e = EL[G.mon.el];
+  if (ev.k === 'fizzle') return '💨';
+  switch (ev.k) {
+    case 'dmg': case 'area': case 'multi':
+      if (r === 'weak' || ev.k === 'multi') { $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); sfx.hit(); burst(SB.ELEMENTS[ev.spell.el].em, 9); burst('💥', 3); floatText('−' + ev.dmg, '#ffd166'); return t('r_weak', { d: ev.dmg }); }
+      if (r === 'heal') { burst('💚', 8); floatText('+' + ev.monHeal, '#7dffb0'); return t('r_heal', { h: ev.monHeal }) + `<br><small>${tl(e.why)}</small>`; }
+      burst('💨', 5); floatText('0', '#d6d6e6'); return t('r_none') + `<br><small>${tl(e.why)}</small>`;
+    case 'shield': return t('r_shield');
+    case 'heal': case 'healPart': case 'fullHeal': burst('💚', 6); return t('r_heal_me', { h: ev.heal });
+    case 'skip': return t('r_skip', { n: plural(ev.n, 'turns_1', 'turns_n') });
+    case 'bossResist': return t('r_boss_resist');
+    case 'buff': return t('r_buff');
+    case 'summon': return t('r_summon', { em: G.st.fx.summon ? G.st.fx.summon.em : '' });
+    case 'reflect': return t('r_reflect');
+    case 'drain': floatText('−' + ev.dmg, '#ffd166'); return t('r_drain', { d: ev.dmg, h: ev.heal });
+    case 'revive': return t('r_revive');
+    case 'halve': floatText('−' + ev.dmg, '#ffd166'); return t('r_halve', { d: ev.dmg });
+    case 'weaken': return t('r_weaken');
+    case 'shrink': return t('r_shrink');
+  }
+  return '';
+}
+async function monsterTurnUI() {
+  const st = G.st, ev = CB.monsterTurn(st), lines = [];
+  if (ev.familiar) { lines.push(ev.familiar.dmg ? t('m_fam', { em: ev.familiar.em, d: ev.familiar.dmg }) : t('m_fam_none', { em: ev.familiar.em })); if (ev.familiar.dmg) { burst(ev.familiar.em, 6); floatText('−' + ev.familiar.dmg, '#ffd166'); } }
+  if (st.mon.hp <= 0) { $('#fb').innerHTML += '<br>' + lines.join('<br>'); updateBars(); await sleep(800); return victory(); }
+  if (ev.skipped) lines.push(t('m_skip'));
+  else if (ev.reflected) { lines.push(t('m_reflect', { d: ev.reflected })); burst('🪞', 6); }
+  else {
+    $('#foeBody').classList.add('atk'); await sleep(250);
+    if (ev.dmg > 0) { sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); lines.push(t('m_attack', { d: ev.dmg })); }
+    else lines.push(t('m_blocked'));
+    setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500);
+    if (ev.revived) lines.push(t('m_revive'));
+  }
+  $('#fb').innerHTML += '<br>' + lines.join('<br>');
+  P.quest.battle.hp = st.hero.hp; saveSoon(); updateBars(); fightHeader();
+  if (st.mon.hp <= 0) { await sleep(800); return victory(); }
+  if (st.hero.hp <= 0) { await sleep(1200); return endOrSecond(knockout); }
+  await sleep(1300); nextTurn();
+}
+// Second chance (spec 03 §6.2): undoes the last cast: HP, the monster and the cards go back (also the statistics of that turn)
+function snapTurn() {
+  return { st: JSON.parse(JSON.stringify({ hero: G.st.hero, mon: G.st.mon, fx: G.st.fx })), cards: G.cards, mist: G.mist, combo: G.combo, badPicks: G.badPicks,
+    P: JSON.parse(JSON.stringify({ stats: P.stats, n: P.n, ok: P.ok, mhist: P.mhist, mlvl: P.mlvl, mplace: P.mplace, mfacts: P.mfacts, xp: P.xp, hp: P.quest.battle.hp })) };
+}
+function undoLastCast() {
+  const s = G.lastSnap; if (!s) return false;
+  Object.assign(G.st.hero, s.st.hero); Object.assign(G.mon, s.st.mon); G.st.fx = s.st.fx; G.mist = s.mist; G.combo = s.combo; G.badPicks = s.badPicks;
+  Object.assign(P, { stats: s.P.stats, n: s.P.n, ok: s.P.ok, mhist: s.P.mhist, mlvl: s.P.mlvl, mplace: s.P.mplace, mfacts: s.P.mfacts, xp: s.P.xp }); P.quest.battle.hp = s.P.hp;
+  G.cards = s.cards; G.turnSnap = s; G.lastSnap = null; G.phase = 'pick'; G.pick = null; G.locked = false; G.noCount = true;
+  $('#modal').classList.remove('on'); $('#fb').innerHTML = ''; renderCards(); fightHeader(); return true;
 }
 
 /* ----- answering ----- */
@@ -2670,7 +2889,26 @@ function restoreSnap() {
   P.n = s.n; P.ok = s.ok; P.mhist = s.mhist; P.mlvl = s.mlvl; P.mplace = s.mplace; P.mfacts = s.mfacts; P.xp = s.xp; G.hearts = s.hearts; P.quest[G.quest].hearts = s.qhearts; G.mist = s.mist; G.combo = s.combo;
   if (G.mon) G.mon.hp = s.mhp; G.snap = null;
 }
+// Potions in a fight (spec 03 §6.2): Heart heals 30% of max HP · Hint shows the answers on the cards · Power doubles the next spell ·
+// Second chance undoes the last cast · Super ends the fight at once (once per chapter). One potion per turn, while picking a card.
+async function battlePotion(id) {
+  const st = G.st, qs = P.quest.battle, spend = () => { P.carry[id]--; G.potUsed = true; saveSoon(true); renderPotBar(); updateBars(); updateReward(); };
+  if (id === 'second') { if (!G.lastSnap) { toast(t('second_none')); return; } spend(); undoLastCast(); toast(t('second_undo')); return; }
+  if (G.phase !== 'pick' || G.locked) { toast(t('pick_first')); return; }
+  if (id === 'heart') {
+    if (st.hero.hp >= st.hero.max) { toast(t('hp_full')); return; }
+    const h = Math.min(st.hero.max - st.hero.hp, Math.ceil(st.hero.max * CB.CFG.HEART_POT_HEAL)); st.hero.hp += h; qs.hp = st.hero.hp;
+    spend(); sfx.up(); burst('💖', 8); toast(t('heart_heal', { h }));
+  } else if (id === 'power') { st.fx.buff = Math.max(st.fx.buff, 2); spend(); sfx.up(); burst('💥', 8); toast(t('power_used')); }
+  else if (id === 'sound') { G.hint = true; G.noCount = true; spend(); sfx.ok(); renderCards(); toast(t('hint_used')); }
+  else if (id === 'super') {
+    if (qs.ch === P.superCh) { toast(t('super_used', { p: pBoth('super') })); return; }
+    P.superCh = qs.ch; G.noCount = true; G.locked = true; spend(); sfx.win(); confetti(['🌟', '✨', '💫']);
+    await sleep(700); G.mon.hp = 0; updateBars(); return victory();
+  }
+}
 async function usePotion(id) {
+  if (G.quest === 'battle' && G.st) { if (!G.potUsed && (P.carry || {})[id] > 0) return battlePotion(id); return; }
   if (G.potUsed || !((P.carry || {})[id] > 0) || !G.q) return;
   const battle = G.quest === 'battle', qs = P.quest[G.quest], spend = () => { P.carry[id]--; G.potUsed = true; saveSoon(true); renderPotBar(); updateBars(); updateReward(); };
   if (id === 'heart') {
@@ -2701,9 +2939,10 @@ async function usePotion(id) {
     G.helped = G.need; updateBars(); return villageDone();
   }
 }
-function endOrSecond(fail) {   // out of hearts: the amulet saves you first; then, if a Second chance potion is in the pouch, it is offered before the quest restarts
+function endOrSecond(fail) {   // out of HP: the amulet saves you first; then, if a Second chance potion is in the pouch, it is offered before the quest restarts
   if (amuletReady()) { amuletSave(); return; }
-  if (!G.potUsed && (P.carry.second || 0) > 0 && G.snap) modal(t('second_t'), t('second_b'), [[t('drink'), () => usePotion('second')], [t('no_thanks'), fail, true]]);
+  const snap = G.quest === 'battle' ? G.lastSnap : G.snap;
+  if ((P.carry.second || 0) > 0 && snap) modal(t('second_t'), t('second_b'), [[t('drink'), () => { G.potUsed = false; usePotion('second'); }], [t('no_thanks'), fail, true]]);
   else fail();
 }
 /* ====================== THE SPELL BOOK (spec 02) ====================== */
@@ -3047,7 +3286,7 @@ function craftNext() {
 // A fifth place on the world map. It is shut until the student can read words (level 8). The artificer builds three magic items from rare ingredients and coins:
 // an amulet of protection (neck), a staff of banishing (hand) and a belt of seeing (belt). Each is made first as an EPIC item and can be upgraded to LEGENDARY. (Their powers are added in the next step.)
 const MAGIC = {
-  amulet: { id: 'amulet', he: 'קמע ההגנה', em: '🔮', en: 'amulet of protection', does: ['If you would be knocked out, you keep 1 heart and the quest goes on.', 'אם הייתם מובסים, נשאר לכם לב אחד והמסע ממשיך.'] },
+  amulet: { id: 'amulet', he: 'קמע ההגנה', em: '🔮', en: 'amulet of protection', does: ['If you would be knocked out, you keep 1 HP and the quest goes on.', 'אם הייתם מובסים, נשארת לכם נקודת חיים אחת והמסע ממשיך.'] },
   staff: { id: 'staff', he: 'מטה הגירוש', em: '🪄', en: 'staff of banishing', does: ['Sends one monster away at once (never a boss).', 'שולח מפלצת אחת מיד (אף פעם לא בוס).'] },
   belt: { id: 'belt', he: 'חגורת הראייה', em: '', en: 'belt of seeing', does: ['Clears the fog: you see the next four stops, even the boss.', 'מפזר את הערפל: רואים את ארבע התחנות הבאות, אפילו את הבוס.'] }
 };
@@ -3207,9 +3446,10 @@ function useBelt() {
   useItem(q, 'belt'); qs.seeTo = (qs.at || 0) + 4; sfx.ok(); J.fogF = null; jDraw(); jHud(); toast(t('fog_clear'));
 }
 function amuletReady() { return itemLeft(G.quest, 'amulet') > 0; }
-function amuletSave() {   // you would be knocked out: keep 1 heart and go on (the same quest, no restart)
-  useItem(G.quest, 'amulet'); G.hearts = 1; P.quest[G.quest].hearts = 1; saveSoon(true); sfx.win(); updateBars(); burst('🔮', 10);
-  modal(t('amulet_t'), t('amulet_b'), [[t('keep_going'), nextQuestion]]);
+function amuletSave() {   // you would be knocked out: keep 1 HP and go on (the same quest, no restart)
+  useItem(G.quest, 'amulet'); saveSoon(true); sfx.win(); burst('🔮', 10);
+  if (G.quest === 'battle' && G.st) { G.st.hero.hp = 1; P.quest.battle.hp = 1; updateBars(); modal(t('amulet_t'), t('amulet_b'), [[t('keep_going'), nextTurn]]); return; }
+  G.hearts = 1; P.quest[G.quest].hearts = 1; updateBars(); modal(t('amulet_t'), t('amulet_b'), [[t('keep_going'), nextQuestion]]);
 }
 document.addEventListener('click', e => { const b = e.target.closest('.itemBtn'); if (b) itemTap(b.dataset.item, b.dataset.where); });
 /* ====================== SHOP ====================== */
@@ -3434,27 +3674,30 @@ function updateReward() {
 function advanceQuest() {
   const qs = P.quest[G.quest]; qs.enc++;
   let chapterDone = false;
-  if (qs.enc > qs.len) {   // the boss / big request is done: the next chapter starts fresh (new length is rolled, hearts refilled)
-    qs.enc = 0; qs.ch++; qs.len = 0; qs.path = null; qs.at = 0; qs.hearts = CFG.MAX_HEARTS; qs.restarts = 0; qs.act = false; chapterDone = true; (P.itemUses = P.itemUses || {})[G.quest] = blankUses();   // a finished quest refreshes the item powers
+  if (qs.enc > qs.len) {   // the boss / big request is done: the next chapter starts fresh (new length is rolled, HP refilled)
+    qs.enc = 0; qs.ch++; qs.len = 0; qs.path = null; qs.at = 0; qs.hearts = CFG.MAX_HEARTS; qs.hp = null; qs.restarts = 0; qs.act = false; chapterDone = true; (P.itemUses = P.itemUses || {})[G.quest] = blankUses();   // a finished quest refreshes the item powers
   } else qs.at = (qs.at || 0) + 1;   // the wizard has finished this stop
-  if (!chapterDone) qs.hearts = Math.max(qs.hearts || 0, Math.min(CFG.MAX_HEARTS, (qs.hearts || 0) + 1));   // a win restores one heart (or smiley), up to the maximum
+  if (!chapterDone) {
+    if (G.quest === 'battle' && G.st) { const h = G.st.hero, back = Math.min(Math.max(0, h.max - h.hp), Math.ceil(h.max * CB.CFG.WIN_REGEN)); h.hp += back; qs.hp = h.hp; G.regen = back; }   // catching your breath: 20% of max HP back (spec 03 §3.2)
+    else qs.hearts = Math.max(qs.hearts || 0, Math.min(CFG.MAX_HEARTS, (qs.hearts || 0) + 1));
+  }
   return chapterDone;
 }
 // Losing every heart restarts the quest from its first encounter with a newly rolled length. Loot, coins and potions are kept.
 function restartQuest() {
-  const qs = P.quest[G.quest]; qs.enc = 0; qs.len = 0; qs.path = null; qs.at = 0; qs.hearts = CFG.MAX_HEARTS; qs.restarts = (qs.restarts || 0) + 1; P.restartsTotal = (P.restartsTotal || 0) + 1; qs.act = false; saveSoon(true);
+  const qs = P.quest[G.quest]; qs.enc = 0; qs.len = 0; qs.path = null; qs.at = 0; qs.hearts = CFG.MAX_HEARTS; qs.hp = null; qs.restarts = (qs.restarts || 0) + 1; P.restartsTotal = (P.restartsTotal || 0) + 1; qs.act = false; saveSoon(true);
 }
 function victory() {
   const boss = G.mon.boss; $('#foeBody').classList.add('die'); $('#aura').style.display = 'none'; burst('✨', 14); sfx.win(); confetti();
-  const bonus = boss ? 80 : 30; P.xp += bonus; const loot = giveLoot(G.mon.el, boss, G.mist);
+  G.phase = 'done'; G.regen = 0; const bonus = boss ? 80 : 30; P.xp += bonus; const loot = giveLoot(G.mon.el, boss, G.mist);
   const done = advanceQuest(); saveSoon(true);
   
   modal(boss ? t('boss_def') : t('victory'),
-    t('defeated', { m: esc(monName(G.mon)), x: bonus }) + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) : t('feel_stronger')),
+    t('defeated', { m: esc(monName(G.mon)), x: bonus }) + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
     [[done ? t('next_ch') : t('back_path'), nextRun], [t('back_map'), openMenu, true]]);
 }
 function knockout() {
-  sfx.bad(); restartQuest();
+  G.phase = 'done'; sfx.bad(); restartQuest();
   modal(t('ko_t'), t('ko_b'), [[t('start_again'), nextRun], [t('back_map'), openMenu, true]]);
 }
 function villageFail() {
@@ -3505,6 +3748,7 @@ function startDemo() {
   const D = {
     level(lv) { P.mlvl = +lv; P.mhist = []; P.mplace = 0; saveSoon(); goMenu(); toast(levelLbl(+lv)); },
     wiz(n) { P.xp = SB.xpFor(+n); saveSoon(); goMenu(); },
+    pots() { for (const id of POTION_IDS) P.carry[id] = 5; renderPotBar(); toast('🧪 5 of each potion in the pouch'); },
     book() { document.querySelector('#demoPanel').classList.remove('on'); openBook(); },
     stuff() { for (const id of ['star', 'moon', 'comet', 'rainbow', 'cloud', 'diamond', 'pearl', 'crown', 'dragonegg', 'leaf', 'seed', 'flower', 'root']) P.inv[id] = (P.inv[id] || 0) + 3; P.coins += 500; saveSoon(); toast('🎁 +500 coins and lots of ingredients'); if ($('#workshop').classList.contains('on')) renderWorkshop(); },
     items(v) { P.items = { amulet: v, staff: v, belt: v }; P.itemUses = { battle: blank(), peace: blank() }; saveSoon(); toast(v ? (v === 2 ? '🌟 All three items: legendary' : '💠 All three items: epic') : 'Items removed'); },
@@ -3515,7 +3759,7 @@ function startDemo() {
     clearMon() { window.__forceMon = null; },
     area(n) { window.__forceMon = null; P.quest.battle.ch = n; act('battle', ['m', 'm', 'B']); toast(areaName(n)); },
     nearBoss() { const q = G.quest === 'peace' || J.q === 'peace' ? 'peace' : 'battle'; if (!P.quest[q].path) { toast('Start a quest first'); return; } P.quest[q].at = P.quest[q].path.length - 2; P.quest[q].enc = P.quest[q].len; openJourney(q); },
-    ko() { if (!$('#game').classList.contains('on') || !(G.quest === 'battle' || G.quest === 'peace')) { toast('Open a fight first'); return; } G.hearts = 0; P.quest[G.quest].hearts = 0; endOrSecond(G.quest === 'battle' ? knockout : villageFail); },
+    ko() { if (!$('#game').classList.contains('on') || !(G.quest === 'battle' || G.quest === 'peace')) { toast('Open a fight first'); return; } if (G.st) { G.st.hero.hp = 0; P.quest.battle.hp = 0; updateBars(); } G.hearts = 0; P.quest[G.quest].hearts = 0; endOrSecond(G.quest === 'battle' ? knockout : villageFail); },
     win() { if (!$('#game').classList.contains('on') || !G.mon && G.quest === 'battle') { toast('Open a fight first'); return; } if (G.quest === 'battle') { G.mon.hp = 0; victory(); } else { G.helped = G.need; villageDone(); } },
     exit() { location.reload(); },
     fresh() { P.ws = { on: false, hi: false }; P.mlvl = 7; P.mhist = []; P.mplace = 0; saveSoon(); goMenu(); toast('Level 7: the workshop is shuttered. Pick level 8 to see it light up.'); }
@@ -3532,7 +3776,7 @@ function startDemo() {
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Fight areas (backgrounds)</h4>' + [1, 2, 3, 4, 5, 6].map(n => B(areaName(n), `area(${n})`)).join('') + '<h4>Monsters</h4>' + Object.keys(MON_DEF).map(k => B(monName(MON_DEF[k]) + (MON_DEF[k].boss ? ' 👑' : ''), `mon("${k}")`)).join('') +
-    '<h4>In a fight</h4>' + B('💥 Lose all hearts (test amulet)', 'ko()') + B('🏆 Win this fight', 'win()') +
+    '<h4>In a fight</h4>' + B('💥 Lose all HP (test amulet)', 'ko()') + B('🏆 Win this fight', 'win()') + B('🧪 5 of each potion', 'pots()') +
     '<h4>Items and stuff</h4>' + B('💠 All items epic', 'items(1)') + B('🌟 All items legendary', 'items(2)') + B('❌ No items', 'items(0)') + B('♻️ Refill powers', 'refill()') + B('🎁 Coins + ingredients', 'stuff()');
   panel.onclick = e => { const b = e.target.closest('[data-d]'); if (!b) return; try { new Function('demo', 'with(demo){' + b.dataset.d + '}')(D); } catch (x) { toast('Demo error: ' + x.message); } };
   const tab = document.createElement('button'); tab.id = 'demoTab'; tab.textContent = '🧪 Demo'; tab.onclick = () => panel.classList.toggle('on');
