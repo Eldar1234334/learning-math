@@ -207,3 +207,48 @@ What was done in each step, how to check it on the test site, and what is still 
 6. Switch to עברית in the middle of a fight: the cards stay, the words change, the number pad keeps the phone layout.
 7. Try it on a phone: the cards fit in a row (3) or a grid (4–6).
 8. Demo → wizard level 10 → a fight: every turn has 4 cards, one of them a shield (6, 60) or healing (8, 80) spell. Cast the shield: the bubble. Cast Shadow Snare (9) when it comes from 5 cards (wizard level 15): the shadow bonds.
+
+---
+
+## Step 5: Wizard progression and monster abilities ✅ (on the test site, waiting for your check)
+
+**Goal:** spec 03 §4–5: XP from fights, a wizard level that brings something new every session or two, and 7 kinds of special monsters.
+
+**What changed**
+- **XP (spec 03 §5.1):** XP now comes from winning, not from single answers.
+  - Win a fight: +10 XP. Win a boss: +40 XP.
+  - **Perfect tactics** (no bad card picks in the fight): +5, or +20 for a boss.
+  - Brewing a potion, buying in the shop, forging an item: +3 XP each.
+  - The bar under the name (in fights, Home, the shop) now shows the progress to the next wizard level.
+- **A new wizard level** shows a window with what it brings:
+  - New kinds of spells (defense 3, heal 5, control 8, summon 10, buff 12, area 15, special 18) together with the new spells.
+  - More cards (4 at level 3, 5 at 15, 6 at 22), two good cards from level 15.
+  - New kinds of monsters (see below) and heavy armor (16).
+  - **Levels without a main unlock** (spec 03 §5.2) give a **title** or a **gift**:
+    - Titles: Number Apprentice (1), Spark Counter (2), Rune Reader (7), Spell Scribe (14), Sage of Sums (21), Master of Numbers (25), Number Legend (29), Archmage of Numbers (30). In Hebrew a witch gets the feminine form. The title shows on the map next to the wizard level.
+    - Gifts: a free decoration for Home (levels 4, 17, 23, 27) or a wardrobe item (19, 24, 26, 28), one the student does not own yet.
+- **Monster abilities (spec 03 §4):** from wizard level 6, some monsters have a special ability: 30% of monsters at level 6, growing to 60% at level 20. A boss always has one ability (two from level 20). The first time each kind appears, a **"New monster!"** card explains it and gives a tip. The ability shows as a tag under the weakness badge.
+  - 🛡️ **Armored** (6): a grey armor bar over the HP bar and an armor tag ("🪵 Bark armor · breaks with 🔥"). While the armor is up, attacks do half damage; a spell of the armor's element hits the armor at full power (and never heals the monster). The cards offer the armor-breaking spell first. Types: bark (🔥 fire), ice (🔥 fire or ✨ light), stone (💧 water), iron (⚡ lightning), shadow (✨ light), never one that breaks with the monster's own element. From level 16 some armors are heavy (2 casts).
+  - 🌱 **Regenerating** (9): heals 10% of its HP every turn.
+  - ⚡ **Charging** (11): every 3rd turn a huge attack (×3). The ⚡ tag lights up yellow one turn before, and that turn the support card is a shield or a control spell.
+  - 🎭 **Shapeshifter** (13): changes element every 2 turns (the battlefield colour, the badge and the weakness change).
+  - 👥 **Group** (15): 2–3 monsters. The others wait behind, smaller, with their own HP bars. A spell hits the one in front; area spells hit all of them. When the front one falls, the next one steps forward.
+  - 🔮 **Shielded** (18): a purple magic shield takes the first hit of the fight (any attack spell breaks it).
+  - 💢 **Double attack** (20): attacks twice every turn.
+- **Tests:** 9 new tests (87 in all) for the abilities, the armor, groups and the card sets.
+
+**My proposals (please approve or change)**
+- A group: each monster has **half** the HP of a single monster and attacks with **40%** of its strength (so 3 monsters together hit a bit harder than one, and take about 1.5 fights to beat).
+- Heavy armor: **half** of the armors from wizard level 16.
+- The titles and the gift levels listed above.
+- The ability names in Hebrew are the spec's (משוריין, מתחדש, טוען, משנה צורה, קבוצה, מוגן, התקפה כפולה).
+
+**Good to know**
+- The fight lengths are not tuned yet (some fights at higher levels take 6–7 casts). That is step 6: a fight simulator plays thousands of fights and the numbers get tuned to "about 3 good casts".
+
+**How to check**
+1. Win a fight: the victory window shows +10 XP, and "Perfect tactics: +5 XP" when you picked no bad card. Brew a potion: +3 XP.
+2. Teacher area → demo run → 🧪 Demo → wizard level 10: the window lists what levels 8–10 bring (control, Regenerating monsters, summon) and the new spells. Try 24: a title, 6 cards and gifts (look at Home and the wardrobe).
+3. Demo → **Monster abilities** → 🛡️ Armored → a monster from the Monsters list: the "New monster!" card, the armor tag and the grey bar. Break the armor with its element, then attack the weakness.
+4. The same with the other abilities (they open at their wizard level in real play, but the demo can force any of them): ⚡ Charging (watch for the yellow tag), 🎭 Shapeshifter (the badge changes), 👥 Group (the monsters behind), 🔮 Shielded (the purple bubble), 💢 Double attack. Tap 🎲 Random again to go back to normal.
+5. Demo → wizard level 20 → a boss: it has two abilities.

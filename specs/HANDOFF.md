@@ -105,6 +105,8 @@ The reading game deploys with `.github/workflows/pages.yml`: `main` is the **liv
 - 2026-10-10: card sets (owner decision, changes spec 02 §4 "defense option from wizard level 22"): every set of 4 or more cards (wizard level 3+) has one support card, a shield or healing spell, so the player chooses between attacking and defending. With low HP it is a healing spell; at full HP never a healing spell. The utility card no longer replaces the attack card. Other utility spells (control, summon, buff, special) get one more slot from 5 cards (wizard level 15). A control spell (Shadow Snare, Time Freeze) may also take the support card's place (owner decision), about 1 time in 3 when HP is not low.
 - 2026-10-10: no power bonus for a right incantation for now (owner decision; spec 00 §4.1 suggested a small one; `CB.CFG.INCANT_BONUS = 1`). Approved by the owner: the campfire heals 25% of max HP; Shrinking Hex halves the monster's attack.
 
+- 2026-10-10 (phase 5, proposals waiting for the owner): a group's monsters each have half the HP and 40% of the attack of a single monster (`GROUP_HP_EACH`, `GROUP_ATK_EACH`); heavy armor on half of the armors from wizard level 16; titles at wizard levels 1, 2, 7, 14, 21, 25, 29, 30 and gifts (decoration 4, 17, 23, 27; wardrobe item 19, 24, 26, 28) on the other gap levels; armor and shapeshifting never on the same monster; a magic shield (Shielded) is broken by any attack spell, also one of an element that has no effect.
+
 ## 9. Questions and changes
 
 The design session stays open for new ideas and design questions. Bring back:

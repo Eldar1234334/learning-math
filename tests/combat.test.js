@@ -107,6 +107,58 @@
     const s = st({ mhp: CB.monsterHP(1, ['2', '3', '4', '5'], 1, false, () => .5), mmax: 6 }); let casts = 0; while (s.mon.hp > 0 && casts < 10) { CB.cast(s, SB.BY_ID['2']); casts++; } assert(casts === 3, 'casts ' + casts);
   });
 
+  // ---- monster abilities (spec 03 §4) ----
+  const mon = (o = {}) => Object.assign({ hp: 20, max: 20, el: 'fire', boss: false, ab: [], armor: null, shield: false, charge: 0, shift: 0, pack: [], shiftEls: [] }, o);
+  const stm = (m, o = {}) => ({ g: o.g || 1, hero: { hp: o.hp || 40, max: o.max || 40 }, mon: m, fx: CB.newFx() });
+  test('ability chance: none before wizard level 6, 30% at 6, 60% at 20', () => {
+    assert(CB.abilityChance(5) === 0 && Math.abs(CB.abilityChance(6) - .3) < 1e-9 && Math.abs(CB.abilityChance(20) - .6) < 1e-9 && Math.abs(CB.abilityChance(30) - .6) < 1e-9, 'chance');
+    assert(CB.abilitiesAt(5).length === 0 && CB.abilitiesAt(6).join() === 'armored' && CB.abilitiesAt(20).length === 7, 'unlocks');
+  });
+  test('rolling abilities: a boss always has one (two from level 20), never a group; armor never breaks with the own element and can always be broken', () => {
+    for (let k = 0; k < 200; k++) {
+      const el = ['fire', 'ice', 'plant', 'storm', 'stone', 'dark'][k % 6], learned = learnedAt(21, 20);
+      const b = CB.rollAbilities({ g: k % 2 ? 20 : 9, boss: true, el, learned, mlvl: 21, rnd });
+      assert(b.ab.length === (k % 2 ? 2 : 1) && !b.ab.includes('group'), 'boss abilities ' + b.ab);
+      assert(!(b.ab.includes('armored') && b.ab.includes('shifter')), 'armor and shapeshifting never together');
+      const n = CB.rollAbilities({ g: 20, boss: false, el, learned, mlvl: 21, rnd }); assert(n.ab.length <= 1, 'one ability at most');
+      for (const r of [b, n]) if (r.armor) { assert(!(el === 'fire' && r.armor === 'bark') && !(el === 'storm' && r.armor === 'iron'), 'own element ' + el + ' ' + r.armor); assert(CB.armorsFor(el, learned, 21).includes(r.armor), 'breakable'); }
+    }
+    assert(CB.rollAbilities({ g: 5, boss: true, el: 'fire', learned: learnedAt(3, 5), mlvl: 3, rnd }).ab.length === 0, 'nothing before level 6');
+  });
+  test('armor: a weakness hit does half damage; the breaking element hits the armor and never heals; then the fight is as usual', () => {
+    const m = mon({ el: 'plant', armor: { type: 'stone', hp: 4, max: 4 } }), s = stm(m);   // stone armor breaks with water (water heals a plant!)
+    assert(CB.relation(SB.BY_ID['2'], 'plant', m) === 'break' && CB.isGood('break'), 'water breaks stone armor');
+    let e = CB.cast(s, SB.BY_ID['3']); assert(e.dmg === 1 && m.hp === 19, 'Fire Bolt on an armored plant: half of 2');
+    e = CB.cast(s, SB.BY_ID['2']); assert(e.armorHit === 2 && m.armor.hp === 2 && !e.monHeal && m.hp === 19, 'water hits the armor, no healing');
+    CB.cast(s, SB.BY_ID['2']); assert(m.armor.hp === 0 && CB.relation(SB.BY_ID['2'], 'plant', m) === 'heal', 'armor broken: water heals the plant again');
+    e = CB.cast(s, SB.BY_ID['3']); assert(e.dmg === 2, 'full damage after the armor');
+  });
+  test('the cards break the armor first', () => {
+    const m = mon({ el: 'plant', armor: { type: 'stone', hp: 4, max: 4 } });
+    for (let k = 0; k < 40; k++) { const cards = CB.buildSet({ mlvl: 3, wlvl: 3, learned: learnedAt(3, 3), monEl: 'plant', mon: m, rnd }); assert(cards.some(c => c.rel === 'break'), 'a breaking card: ' + cards.map(c => ME.fmt(c.p.a) + c.rel).join(' ')); }
+  });
+  test('a big attack is coming: the support card is a shield or a control spell', () => {
+    for (let k = 0; k < 60; k++) { const cards = CB.buildSet({ mlvl: 9, wlvl: 10, learned: learnedAt(9, 10), monEl: 'fire', charging: true, rnd }); assert(cards.some(c => c.spell && ['defense', 'control'].includes(c.spell.type)), 'guard card: ' + cards.map(c => ME.fmt(c.p.a)).join(' ')); }
+  });
+  test('shielded: the first hit only breaks the shield', () => {
+    const m = mon({ shield: true }), s = stm(m); let e = CB.cast(s, SB.BY_ID['6']); assert(!e.popped && m.shield, 'a shield spell is no hit');
+    e = CB.cast(s, SB.BY_ID['4']); assert(e.popped && !m.shield && m.hp === 20, 'any hit breaks it'); e = CB.cast(s, SB.BY_ID['2']); assert(e.dmg === 2, 'then as usual');
+  });
+  test('regenerating, charging, double attack, shapeshifter', () => {
+    let m = mon({ hp: 10, ab: ['regen'] }), s = stm(m); let e = CB.monsterTurn(s); assert(e.regen === 2 && m.hp === 12, 'regen 10%');
+    m = mon({ ab: ['charging'] }); s = stm(m); e = CB.monsterTurn(s); assert(e.dmg === 1 && !e.warn, 'turn 1'); e = CB.monsterTurn(s); assert(e.dmg === 1 && e.warn && CB.charging(m), 'turn 2 warns');
+    e = CB.monsterTurn(s); assert(e.dmg === 3 && e.big, 'turn 3: ×3'); assert(CB.monsterTurn(s).dmg === 1, 'and again small');
+    m = mon({ ab: ['charging'], charge: 1 }); s = stm(m); s.fx.skip = 1; e = CB.monsterTurn(s); assert(e.skipped && m.charge === 2, 'charging while snared'); CB.cast(s, SB.BY_ID['6']); e = CB.monsterTurn(s); assert(e.big && e.dmg === 1, 'a shield halves the big attack');
+    m = mon({ ab: ['double'] }); s = stm(m); e = CB.monsterTurn(s); assert(e.hits.length === 2 && e.dmg === 2, 'two attacks');
+    m = mon({ ab: ['shifter'], shiftEls: ['fire', 'ice', 'plant'] }); s = stm(m); e = CB.monsterTurn(s); assert(!e.shifted && m.el === 'fire', 'not yet'); e = CB.monsterTurn(s); assert(e.shifted && m.el !== 'fire' && ['ice', 'plant'].includes(m.el), 'every 2 turns');
+  });
+  test('a group: single spells hit the front monster, area spells hit all, the next one steps forward', () => {
+    const m = CB.newMonster({ g: 15, el: 'fire', learned: learnedAt(13, 15), mlvl: 13, ab: ['group'], rnd: () => .99 }); assert(m.pack.length === 2, 'three monsters');
+    const s = stm(m, { g: 15 }); const e = CB.monsterTurn(s); assert(e.hits.length === 3, '3 attacks (each 40%)');
+    m.hp = 1; CB.cast(s, SB.BY_ID['2']); assert(m.hp === 0 && !CB.defeated(s) && CB.nextFront(s) && m.hp === m.max && m.pack.length === 1, 'the next one steps forward');
+    const area = SB.SPELLS.find(x => x.fx.k === 'area' && ['water', 'ice'].includes(x.el)); if (area) { const before = m.hp + m.pack[0].hp; CB.cast(s, area); assert(m.hp + m.pack[0].hp < before && m.pack[0].hp < m.pack[0].max, 'area hits the pack too'); }
+  });
+
   const failed = results.filter(r => !r.ok);
   if (isNode) { for (const r of results) console.log((r.ok ? 'ok   ' : 'FAIL ') + r.name + (r.ok ? '' : '\n      ' + r.msg)); console.log(`\n${results.length - failed.length} of ${results.length} combat tests passed`); if (failed.length) process.exitCode = 1; }
   else globalThis.COMBAT_TEST_RESULTS = results;

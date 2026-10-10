@@ -459,6 +459,17 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .foeWrap.resist .mnWrap{filter:grayscale(1) brightness(1.4);transition:filter .1s}
 .fxIcons{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;gap:3px;font-size:1.1rem;pointer-events:none;z-index:6;filter:drop-shadow(0 1px 2px #000c)}
 .fxIcons b{font-size:.75rem;color:#fff;align-self:flex-end}
+/* monster abilities (spec 03 §4): the armor bar, ability tags, the rest of a group behind the front monster */
+.armorBar{display:none;height:9px;margin-top:-1px}.armorBar.on{display:block}.armorBar>i{background:linear-gradient(90deg,#9aa7b8,#dfe7f1)}
+.abTags{font-size:.74rem;margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.abTag{background:#0006;border-radius:999px;padding:2px 8px;white-space:nowrap}.abTag.warn{background:#ffd166;color:#3a2300;font-weight:700;animation:bubble 1s ease-in-out infinite}
+.packMon{position:absolute;bottom:14%;width:58%;z-index:1;filter:brightness(.72) saturate(.85);pointer-events:none;transition:opacity .4s}
+.packMon svg{display:block;width:100%;height:auto;overflow:visible}.packMon.p0{left:-42%}.packMon.p1{left:-22%;bottom:42%;width:46%;filter:brightness(.6) saturate(.8)}
+.packHp{display:block;height:5px;border-radius:4px;background:#0008;overflow:hidden;margin:0 auto;width:70%}.packHp>b{display:block;height:100%;background:#ff7a7a}
+.foeWrap.popShield .mnWrap{filter:drop-shadow(0 0 12px #c99bff) drop-shadow(0 0 22px #c99bff)}
+.foeWrap.magicShield::before{content:'';position:absolute;inset:-4% 2% 0;border-radius:50%;border:3px solid #c99bff;box-shadow:0 0 18px #c99bffaa,inset 0 0 14px #c99bff77;z-index:4;pointer-events:none;animation:bubble 1.8s ease-in-out infinite}
+.unlocks{list-style:none;padding:0;margin:6px 0;text-align:start}.unlocks li{background:#ffffff14;border-radius:12px;padding:7px 12px;margin:5px 0}
+.unlH{margin:12px 0 4px;font-size:1.1rem}
 @keyframes bubble{50%{transform:scale(1.04);opacity:.7}}
 @keyframes snare{50%{transform:scaleY(1.15)}}
 @keyframes spinSlow{to{transform:rotate(360deg)}}
@@ -738,7 +749,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <svg class="stageBg" id="stageBg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg><div class="stageVig" id="stageVig" style="display:none"></div>
     <div class="side hero" id="heroBox"><div id="heroSvg"></div><div class="hearts" id="hearts"></div></div>
     <div class="mid" id="mid"></div>
-    <div class="side foe"><div id="foeName" class="small"></div><div class="hpbar"><i id="hpFill"></i></div><div class="foeWrap"><div class="aura" id="aura"></div><div class="foeBody" id="foeBody"></div></div></div>
+    <div class="side foe"><div id="foeName" class="small"></div><div class="hpbar"><i id="hpFill"></i></div><div class="hpbar armorBar" id="armorBar"><i></i></div><div class="foeWrap"><div class="aura" id="aura"></div><div class="foeBody" id="foeBody"></div></div></div>
   </div>
   <div class="potBar" id="potBar" style="display:none"></div>
   <div class="itemBar" id="itemBar" style="display:none"></div>
@@ -924,7 +935,6 @@ const TIERS = [['', ''],
 const tierName = lv => tl(TIERS[lv] || TIERS[0]).replace(/÷/g, MATH_DIV());
 const levelLbl = lv => t('level_lbl', { n: lv, name: tierName(lv) });
 // Titles by XP (the new math titles come with the wizard levels in step 5).
-const RANKS = [['Apprentice', 'שוליה'], ['Spark Mage', 'קוסם ניצוצות'], ['Rune Reader', 'קורא רונות'], ['Spell Scribe', 'כותב לחשים'], ['Sage', 'חכם'], ['Archmage', 'ראש הקוסמים'], ['Number Legend', 'אגדת המספרים']];
 const COLORS = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#ff6fb5','#34495e'];
 
 /* ====================== HELPERS ====================== */
@@ -1057,6 +1067,32 @@ const STR = {
   enhanced_b: ['The same digits ×10 are stronger versions of your spells: 3 Fire Bolt → 30 Enhanced Fire Bolt.', 'אותן ספרות ×10 הן גרסאות חזקות יותר של הכישופים שלכם: 3 חץ אש ← 30 חץ אש מוגבר.'],
   new_spell_tip: ['Find them in your spell book 📖. A spell’s number never changes!', 'תמצאו אותם בספר הכישופים 📖. המספר של כישוף לעולם לא משתנה!'], open_book: ['Open the book 📖', 'לפתוח את הספר 📖'],
   wiz_up: ['🧙 Wizard level {n}!', '🧙 דרגת קוסם {n}!'],
+  // what a new wizard level brings (spec 03 §5)
+  un_type: ['{em} A new kind of spell: {name}', '{em} סוג כישוף חדש: {name}'], un_cards: ['🃏 {n} cards every turn', '🃏 {n} קלפים בכל תור'],
+  un_support: ['(one of them is always a shield or healing spell)', '(אחד מהם תמיד כישוף מגן או ריפוי)'],
+  un_two: ['⚖️ Two good cards each turn: an easy one and a strong one', '⚖️ שני קלפים טובים בכל תור: אחד קל ואחד חזק'],
+  un_ab: ['{name}: a new kind of monster appears', '{name}: סוג חדש של מפלצת מופיע'], un_heavy: ['🛡️ Heavy armor: some armors need 2 casts to break', '🛡️ שריון כבד: יש שריונות שצריך 2 הטלות כדי לשבור'],
+  un_title: ['🏅 A new title: {name}', '🏅 תואר חדש: {name}'], un_gift: ['🎁 A gift: {em} {name}!', '🎁 מתנה: {em} {name}!'], un_gift_coins: ['🎁 A gift: +50 🪙', '🎁 מתנה: ‎+50 🪙'],
+  xp_perfect: ['⭐ Perfect tactics: +{x} XP', '⭐ טקטיקה מושלמת: ‎+{x} XP'],
+  // monster abilities (spec 03 §4): the tag, what it does, and the tip on the "New monster!" card
+  newmon_t: ['🆕 New monster: {name}', '🆕 מפלצת חדשה: {name}'],
+  ab_armored: ['🛡️ Armored', '🛡️ משוריין'], ab_regen: ['🌱 Regenerating', '🌱 מתחדש'], ab_charging: ['⚡ Charging', '⚡ טוען'], ab_shifter: ['🎭 Shapeshifter', '🎭 משנה צורה'],
+  ab_group: ['👥 Group', '👥 קבוצה'], ab_shielded: ['🔮 Shielded', '🔮 מוגן'], ab_double: ['💢 Double attack', '💢 התקפה כפולה'],
+  abd_armored: ['An armor bar protects this monster. Your spells do only half damage until the armor breaks.', 'פס שריון מגן על המפלצת הזאת. הכישופים עושים רק חצי נזק עד שהשריון נשבר.'],
+  abt_armored: ['Look at the armor tag: break the armor with that element first, then attack the weakness.', 'הסתכלו בתג השריון: קודם שברו את השריון ביסוד הזה, ואחר כך תקפו בנקודת התורפה.'],
+  abd_regen: ['It heals 10% of its HP every turn.', 'היא מרפאת 10% מהחיים שלה בכל תור.'], abt_regen: ['Strong spells finish it before it heals.', 'כישופים חזקים גומרים אותה לפני שהיא מתרפאת.'],
+  abd_charging: ['Every third turn it attacks three times as hard. The ⚡ tag lights up one turn before.', 'בכל תור שלישי היא תוקפת פי 3 חזק. תג ה־⚡ נדלק תור אחד לפני.'],
+  abt_charging: ['When ⚡ lights up, cast a shield or a control spell.', 'כשה־⚡ נדלק, הטילו מגן או כישוף שליטה.'],
+  abd_shifter: ['Every 2 turns it changes its element, and its weakness changes too.', 'כל 2 תורות היא מחליפה יסוד, וגם נקודת התורפה שלה משתנה.'], abt_shifter: ['Read the weakness badge every turn!', 'קראו את תג נקודת התורפה בכל תור!'],
+  abd_group: ['2 or 3 monsters fight together. A spell hits the monster in front.', '2 או 3 מפלצות נלחמות ביחד. כישוף פוגע במפלצת שבחזית.'], abt_group: ['Area spells hit all of them at once.', 'כישופים אזוריים פוגעים בכולן בבת אחת.'],
+  abd_shielded: ['A magic shield takes the first hit of the fight.', 'מגן קסם סופג את המכה הראשונה בקרב.'], abt_shielded: ['Break it with any attack spell, then fight as usual.', 'שברו אותו בכל כישוף התקפה, ואז הילחמו כרגיל.'],
+  abd_double: ['It attacks twice every turn.', 'היא תוקפת פעמיים בכל תור.'], abt_double: ['Shields, healing and control spells help a lot.', 'מגנים, ריפוי וכישופי שליטה עוזרים מאוד.'],
+  arm_bark: ['Bark armor', 'שריון קליפה'], arm_ice: ['Ice armor', 'שריון קרח'], arm_stone: ['Stone armor', 'שריון אבן'], arm_iron: ['Iron armor', 'שריון ברזל'], arm_shadow: ['Shadow armor', 'שריון צל'],
+  arm_heavy: ['(heavy)', '(כבד)'], arm_breaks: ['breaks with', 'נשבר עם'],
+  r_pop: ['🔮 The magic shield breaks! No damage this time.', '🔮 מגן הקסם נשבר! הפעם בלי נזק.'], r_break: ['💥 The armor cracks: −{d}', '💥 השריון נסדק: ‎−{d}'],
+  r_broken: ['💥 The armor breaks! Now attack the weakness.', '💥 השריון נשבר! עכשיו תקפו בנקודת התורפה.'], r_half: ['(the armor stops half)', '(השריון עוצר חצי)'],
+  m_big: ['⚡ A HUGE attack! −{d}', '⚡ התקפה ענקית! ‎−{d}'], m_attack_n: ['💥 {n} attacks! −{d}', '💥 {n} התקפות! ‎−{d}'], m_warn: ['⚡ The monster is charging a huge attack for its next turn!', '⚡ המפלצת טוענת התקפה ענקית לתור הבא!'],
+  m_regen: ['🌱 The monster heals: +{h}', '🌱 המפלצת מתרפאת: ‎+{h}'], m_shift: ['🎭 The monster changes into {el}!', '🎭 המפלצת הופכת ל{el}!'], m_next: ['👥 The next monster steps forward!', '👥 המפלצת הבאה מתקדמת!'],
   // the fight (step 4): cards, the incantation, the results and the monster's turn
   pick_t: ['Pick a card to cast a spell at the {mon}!', 'בחרו קלף כדי להטיל כישוף על {mon}!'],
   pick_s: ['Solve the problems. The answer is the number of the spell you cast.', 'פתרו את התרגילים. התשובה היא מספר הכישוף שתטילו.'],
@@ -1624,15 +1660,22 @@ $('#createBtn').onclick = () => {
 };
 
 /* ====================== MENU ====================== */
-function rankOf(xp) { return tl(RANKS[Math.min(RANKS.length - 1, Math.floor(xp / 400))]); }
+// Titles (spec 03 §5.2): earned at wizard levels that have no main unlock. [wizard level, English, Hebrew (wizard), Hebrew (witch)]
+const TITLES = [[1, 'Number Apprentice', 'שוליית המספרים', 'שוליית המספרים'], [2, 'Spark Counter', 'סופר הניצוצות', 'סופרת הניצוצות'], [7, 'Rune Reader', 'קורא הרונות', 'קוראת הרונות'],
+  [14, 'Spell Scribe', 'כותב הלחשים', 'כותבת הלחשים'], [21, 'Sage of Sums', 'חכם החשבון', 'חכמת החשבון'], [25, 'Master of Numbers', 'אמן המספרים', 'אמנית המספרים'],
+  [29, 'Number Legend', 'אגדת המספרים', 'אגדת המספרים'], [30, 'Archmage of Numbers', 'ארכי־קוסם המספרים', 'ארכי־קוסמת המספרים']];
+const titleAt = (wl, gender) => { const r = TITLES.filter(x => x[0] <= wl).pop(); return LANG === 'he' ? r[gender === 'f' ? 3 : 2] : r[1]; };
+function rankOf(xp, gender) { return titleAt(SB.wizLevel(xp || 0), gender); }
 const wizLvl = () => SB.wizLevel(P.xp || 0);
+function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1); return wl >= SB.MAX_WIZ ? 100 : 100 * (P.xp - x0) / (x1 - x0); }   // progress to the next wizard level
+const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>`;
 function openMenu() {
   G.quest = null; show('menu');
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
   $('#menuWho').textContent = P.nick;
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
-  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
-  $('#menuXp').style.width = (wl >= SB.MAX_WIZ ? 100 : 100 * (P.xp - x0) / (x1 - x0)) + '%';   // progress to the next wizard level
+  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
+  $('#menuXp').style.width = xpPct() + '%';
   $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
   $('#menuToday').textContent = t('min_today', { m: Math.min(10, Math.floor(sec / 60)) }) + (sec >= CFG.DAILY_SEC ? ' ⭐' : '');
@@ -2436,14 +2479,46 @@ function newEncounter() {   // the stop the wizard just walked to: a monster or 
     const ar = AREA_MON[(qs.ch - 1) % 6], beat = k => CB.canBeat(MON_DEF[k].el, P.spells, P.mlvl);
     const bosses = Object.keys(MON_DEF).filter(k => MON_DEF[k].boss);
     const mk = window.__forceMon || (boss ? (beat(ar.b) ? ar.b : rnd(bosses.filter(beat).length ? bosses.filter(beat) : bosses)) : rnd(ar.n.filter(beat).length ? ar.n.filter(beat) : ar.n));
-    const def = { ...MON_DEF[mk], key: mk }, isBoss = !!def.boss, g = wizLvl(), hp = CB.monsterHP(P.mlvl, P.spells, g, isBoss);
-    G.mon = { ...def, boss: isBoss, max: hp, hp };
+    const def = { ...MON_DEF[mk], key: mk }, isBoss = !!def.boss, g = wizLvl();
+    // its abilities (spec 03 §4) by the wizard level, its HP by the math level (§3.1); the demo can force one ability
+    const o = { g, boss: isBoss, el: def.el, learned: P.spells, mlvl: P.mlvl }, fa = window.__forceAb;
+    const roll = fa ? { ab: fa === 'armored' && !CB.armorsFor(def.el, P.spells, P.mlvl).length ? [] : [fa], armor: fa === 'armored' ? CB.armorsFor(def.el, P.spells, P.mlvl)[0] || null : null } : CB.rollAbilities(o);
+    G.mon = Object.assign(def, CB.newMonster(Object.assign(o, roll)));
+    if (G.mon.ab.includes('shifter') && G.mon.shiftEls.length < 2) G.mon.ab = G.mon.ab.filter(k => k !== 'shifter');
     const max = CB.wizMaxHP(g); if (!(qs.hp > 0)) qs.hp = max;
     G.st = { g, hero: { hp: Math.min(qs.hp, Math.round(max * (1 + CB.CFG.SAFETY_HP_BONUS))), max }, mon: G.mon, fx: CB.newFx() };
     G.badPicks = 0; G.lastSnap = null; G.recent = G.recent || [];
   } else { const f0 = boss ? '👵' : rnd(FOLK); G.fname = FOLK_NAMES[f0] || 'The villager'; G.folk = tonedEmoji(f0, nextTone()); G.big = boss; G.mon = null; G.vkey = boss ? 'library' : (G.site ? G.site.bg : rnd(Object.keys(VNAMES))); G.fname = VNAMES[G.vkey]; }
   drawScene();
-  if (G.quest === 'battle') { if (P.mlvl >= CB.CFG.INCANT_FROM && !P.incantSeen) incantIntro(); else nextTurn(); } else nextQuestion();
+  if (G.quest === 'battle') fightIntro(); else nextQuestion();
+}
+// Story moments before the first turn, once each: the incantation (math level 5) and every new kind of monster ("New monster!", spec 03 §4)
+function fightIntro() {
+  if (P.mlvl >= CB.CFG.INCANT_FROM && !P.incantSeen) return incantIntro();
+  const k = (G.mon.ab || []).find(a => !(P.abSeen || []).includes(a));
+  if (k) { P.abSeen = (P.abSeen || []).concat(k); saveSoon(); sfx.up(); return modal(t('newmon_t', { name: abName(k) }), `<p>${t('abd_' + k)}</p><p>💡 ${t('abt_' + k)}</p>`, [[t('lets_go'), fightIntro]]); }
+  nextTurn();
+}
+const abName = k => t('ab_' + k);
+const armorName = a => t('arm_' + a.type) + (a.heavy ? ' ' + t('arm_heavy') : '');
+function abTags() {   // the monster's abilities as small tags under the weakness badge
+  const m = G.mon, out = [];
+  for (const k of m.ab || []) {
+    if (k === 'armored') { if (CB.armorUp(m)) out.push(`<span class="abTag">${CB.ARMOR[m.armor.type].em} ${armorName(m.armor)} · ${t('arm_breaks')} ${CB.ARMOR[m.armor.type].breaks.map(e => SB.ELEMENTS[e].em).join(' ')}</span>`); }
+    else if (k === 'shielded') { if (m.shield) out.push(`<span class="abTag">${abName(k)}</span>`); }
+    else if (k === 'group') { const n = 1 + CB.packLeft(m).length; if (n > 1) out.push(`<span class="abTag">${abName(k)} ×${n}</span>`); }
+    else if (k === 'charging') out.push(`<span class="abTag${CB.charging(m) ? ' warn' : ''}">${abName(k)}${CB.charging(m) ? ' ❗' : ''}</span>`);
+    else out.push(`<span class="abTag">${abName(k)}</span>`);
+  }
+  return out;
+}
+function drawPack() {   // the rest of a group, smaller and darker behind the monster in front
+  const w = $('.foeWrap'); w.querySelectorAll('.packMon').forEach(e => e.remove());
+  const m = G.quest === 'battle' && G.mon; if (!m || !m.pack) return;
+  CB.packLeft(m).slice(0, 2).forEach((p, i) => w.insertAdjacentHTML('beforeend', `<div class="packMon p${i}"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART[m.boss ? 'BOSS' : 'MON'][m.key]()}</svg><i class="packHp"><b style="width:${100 * p.hp / p.max}%"></b></i></div>`));
+}
+function applyEl() {   // a shapeshifter changed its element: the battlefield, the glow and the badge follow
+  $('#stage').className = 'stage el-' + G.mon.el; setAura(G.mon.el); fightHeader();
 }
 // Each element has its own battlefield colours, glow and drifting particles (flames, snowflakes, wisps, leaves).
 const AURA = { fire: { em: ['🔥', '🔥', '✨', '🔥'], mode: 'up', y: [38, 85] }, ice: { em: ['❄️', '❄️', '✨', '🧊'], mode: 'down', y: [0, 35] },
@@ -2504,10 +2579,10 @@ function drawScene() {
   $('#foeBody').className = 'foeBody' + (b ? ' art' : '') + (b && G.mon.boss ? ' boss' : '');
   // element-coloured glow around every monster; the fire lizard is also tinted orange-red
   $('#foeBody').style.filter = b ? `${G.mon.tint || ''} drop-shadow(0 0 14px var(--aura)) drop-shadow(0 0 28px var(--aura)) drop-shadow(0 6px 8px #0008)` : '';
-  $('#heroBox').classList.remove('hurt'); fxStatus();
+  $('#heroBox').classList.remove('hurt'); fxStatus(); drawPack();
   if (b) {
     $('#foeBody').innerHTML = `<div class="mnWrap"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART[G.mon.boss ? 'BOSS' : 'MON'][G.mon.key]()}</svg></div>`;
-    fightHeader(); setMood('');
+    fightHeader(); setMood(''); drawPack();
   } else {
     G.vskin = rnd(STAGE_BG.SKINS); G.vmood = ''; G.vkeyState = ''; $('#foeBody').textContent = '';
     $('#foeName').textContent = G.big ? '📜 ' + G.fname + ': big request!' : G.fname; setMood('😟');
@@ -2518,7 +2593,7 @@ function drawScene() {
 function fightHeader() {   // the monster's name and HP, the area, and the weakness badge (always visible, spec 00 §6)
   const e = EL[G.mon.el];
   $('#foeName').innerHTML = esc((G.mon.boss ? t('boss_pre') : '') + monName(G.mon)) + ` <small class="hpNum">${Math.max(0, G.mon.hp)}/${G.mon.max}</small>`;
-  $('#mid').innerHTML = `<b>${areaName(P.quest.battle.ch)}</b><div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>`;
+  $('#mid').innerHTML = `<b>${areaName(P.quest.battle.ch)}</b><div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>` + (abTags().length ? `<div class="abTags">${abTags().join('')}</div>` : '');
 }
 // A language switch during a fight, brewing, forging or shopping: the same question and state, new words.
 function relabelGame() {
@@ -2540,8 +2615,11 @@ function updateBars() {
   $('#heroBox').classList.toggle('heroGlow', b && G.combo >= 3);   // on a hot streak the hero glows
   fxStatus();
   $('#hpFill').style.width = (b ? Math.max(0, G.mon.hp) / G.mon.max * 100 : G.helped / G.need * 100) + '%';
+  const ar = b && G.mon && CB.armorUp(G.mon) ? G.mon.armor : null;   // the armor bar over the HP bar (spec 03 §4.1)
+  $('#armorBar').classList.toggle('on', !!ar); if (ar) $('#armorBar > i').style.width = (100 * ar.hp / ar.max) + '%';
+  if (b && G.mon && G.mon.pack) document.querySelectorAll('.packMon').forEach((e, i) => { const p = CB.packLeft(G.mon)[i]; if (p) e.querySelector('.packHp > b').style.width = (100 * p.hp / p.max) + '%'; });
   $('#tierLbl').textContent = levelLbl(P.mlvl);
-  $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
+  $('#xpFill').style.width = xpPct() + '%';
 }
 /* ----- abandoning a quest: leave the run, keep coins and ingredients, start from the beginning next time ----- */
 function abandonQuest(q) {
@@ -2620,13 +2698,13 @@ async function castFx(ev, spell) {
   if (!spell) { burst('💨', 6, '#heroSvg'); $('#heroBox').classList.add('fizzle'); setTimeout(() => $('#heroBox').classList.remove('fizzle'), 450); await sleep(500); return; }
   const em = SB.ELEMENTS[spell.el].em;
   if (SELF_FX.includes(ev.k)) { burst(em, 8, '#heroSvg'); burst('✨', 5, '#heroSvg'); fxStatus(); await sleep(450); return; }
-  await flySpell(em, ev.rel === 'none' && (ev.k === 'dmg' || ev.k === 'area'));
+  await flySpell(em, ev.rel === 'none' && !ev.popped && (ev.k === 'dmg' || ev.k === 'area'));
   if (ev.k === 'skip') { burst('🌑', 7); fxStatus(); }
 }
 function fxStatus() {   // the spell effects that last, drawn on the wizard and the monster, with small icons
   const fx = G.quest === 'battle' && G.st ? G.st.fx : null, hb = $('#heroBox'), fw = $('.foeWrap');
   hb.classList.toggle('shielded', !!fx && fx.shields.length > 0); hb.classList.toggle('mirrored', !!fx && fx.reflect);
-  fw.classList.toggle('snared', !!fx && fx.skip > 0);
+  fw.classList.toggle('snared', !!fx && fx.skip > 0); fw.classList.toggle('magicShield', !!fx && !!G.mon && !!G.mon.shield);
   const icons = (el, list) => { let d = el.querySelector(':scope > .fxIcons'); if (!d) { d = document.createElement('div'); d.className = 'fxIcons'; el.appendChild(d); } d.innerHTML = list.join(''); };
   const n = (em, k) => em + (k > 1 ? `<b>×${k}</b>` : '');
   icons(hb, !fx ? [] : [fx.shields.length ? n('🛡️', fx.shields.reduce((a, s) => a + s.n, 0)) : '', fx.reflect ? '🪞' : '', fx.revive ? '🪶' : '', fx.buff > 1 ? n('💪', fx.buff) : '', fx.summon ? n(fx.summon.em, fx.summon.turns) : ''].filter(Boolean));
@@ -2651,12 +2729,12 @@ const stage2 = () => P.mlvl >= CB.CFG.INCANT_FROM;
 const cardQ = c => ({ key: c.p.key, p: c.p, src: c.p.src || 'cur' });   // a card in the shape record() expects
 function incantIntro() {   // the story moment when the incantation step starts (spec 00 §4.1)
   P.incantSeen = true; saveSoon(); sfx.up();
-  modal(t('incant_t'), t('incant_b'), [[t('lets_go'), nextTurn]]);
+  modal(t('incant_t'), t('incant_b'), [[t('lets_go'), fightIntro]]);
 }
 function nextTurn() {
-  if (!G.st || G.st.mon.hp <= 0) return;
+  if (!G.st || CB.defeated(G.st)) return;
   const h = G.st.hero;
-  G.cards = CB.buildSet({ mlvl: P.mlvl, wlvl: wizLvl(), learned: P.spells, monEl: G.mon.el, avoid: new Set(G.recent || []), facts: P.mfacts, hpLow: h.hp <= h.max * 0.35, hpFull: h.hp >= h.max });
+  G.cards = CB.buildSet({ mlvl: P.mlvl, wlvl: wizLvl(), learned: P.spells, monEl: G.mon.el, avoid: new Set(G.recent || []), facts: P.mfacts, hpLow: h.hp <= h.max * 0.35, hpFull: h.hp >= h.max, mon: G.mon, charging: CB.charging(G.mon) });
   G.recent = (G.recent || []).concat(G.cards.map(c => c.p.key)).slice(-CFG.RECENT * 2);
   G.turnSnap = snapTurn(); G.phase = 'pick'; G.pick = null; G.hint = false; G.noCount = false; G.potUsed = false; G.locked = false; G.typed = '';
   $('#fb').innerHTML = ''; renderCards();
@@ -2722,29 +2800,39 @@ async function resolveCast(said, sayOk) {
     const any = SB.SPELLS.find(x => ME.eq(x.v, c.p.a));
     line = spell ? t('cast_line', { eq, spell: `<b>${tl(spell.nm)}</b>` }) : any ? t('sealed_line', { eq, spell: `<b>${tl(any.nm)}</b>` }) : t('fizzle_line', { eq });
   }
-  // scoring: the math (stage 1: the pick; stage 2: the incantation) and the tactics (a pick that does not help)
-  const good = CB.isGood(c.rel), mathOk = s2 ? sayOk : good;
-  let tr = '';
+  const ev = CB.cast(st, spell, s2 && sayOk ? CB.CFG.INCANT_BONUS : 1);
+  // scoring: the math (stage 1: the pick; stage 2: the incantation) and the tactics (a pick that does not help; breaking a magic shield helps)
+  const good = CB.isGood(c.rel) || !!ev.popped, mathOk = s2 ? sayOk : good;
   if (mathOk) { G.combo++; } else { G.combo = 0; G.mist++; }
   if (!good) G.badPicks++;
-  tr = record(q, mathOk); const xp = mathOk ? gainXp(true) : 0;
-  const ev = CB.cast(st, spell, s2 && sayOk ? CB.CFG.INCANT_BONUS : 1);
+  const tr = record(q, mathOk);   // XP comes from winning fights (spec 03 §5.1), not from single answers
   if (mathOk) sfx.ok(); else sfx.bad();
   $('#qBig').innerHTML = ''; $('#qTitle').innerHTML = line; $('#qSub').textContent = '';
   await castFx(ev, spell);
-  $('#fb').innerHTML = castResult(ev) + (xp ? ` <small>+${xp} XP</small>` : '');
+  $('#fb').innerHTML = castResult(ev);
   after(tr); updateBars(); fightHeader(); updateReward();
   G.lastSnap = G.turnSnap; G.potUsed = false; renderPotBar();
   await sleep(1100);
-  if (st.mon.hp <= 0) return victory();
+  if (CB.defeated(st)) return victory();
+  if (CB.nextFront(st)) await frontFalls();
   await monsterTurnUI();
+}
+async function frontFalls() {   // a group: the monster in front is beaten, the next one steps forward
+  sfx.win(); burst('✨', 10); $('#foeBody').classList.add('die'); await sleep(650);
+  $('#foeBody').classList.remove('die'); drawPack(); updateBars(); fightHeader(); fxStatus();
+  $('#fb').innerHTML += '<br>' + t('m_next'); await sleep(500);
 }
 function castResult(ev) {   // what the spell did, with the short "why" for elements
   const r = ev.rel, e = EL[G.mon.el];
   if (ev.k === 'fizzle') return '💨';
+  if (ev.popped) { burst('🔮', 8); $('.foeWrap').classList.add('popShield'); setTimeout(() => $('.foeWrap').classList.remove('popShield'), 500); fxStatus(); return t('r_pop'); }
   switch (ev.k) {
     case 'dmg': case 'area': case 'multi':
-      if (r === 'weak' || ev.k === 'multi') { $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); sfx.hit(); burst(SB.ELEMENTS[ev.spell.el].em, 9); burst('💥', 3); floatText('−' + ev.dmg, '#ffd166'); return t('r_weak', { d: ev.dmg }); }
+      if (ev.armorHit) {   // the spell hit the armor (spec 03 §4.1)
+        burst(CB.ARMOR[G.mon.armor.type].em, 7); floatText('−' + ev.armorHit, '#dfe7f1'); $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); sfx.hit();
+        return ev.armorBroken ? t('r_broken') : t('r_break', { d: ev.armorHit });
+      }
+      if (r === 'weak' || ev.k === 'multi') { $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); sfx.hit(); burst(SB.ELEMENTS[ev.spell.el].em, 9); burst('💥', 3); floatText('−' + ev.dmg, '#ffd166'); return t('r_weak', { d: ev.dmg }) + (CB.armorUp(G.mon) ? ' ' + t('r_half') : ''); }
       if (r === 'heal') { burst('💚', 8); floatText('+' + ev.monHeal, '#7dffb0'); return t('r_heal', { h: ev.monHeal }) + `<br><small>${tl(e.why)}</small>`; }
       floatText('0', '#d6d6e6'); return t('r_none') + `<br><small>${tl(e.why)}</small>`;
     case 'shield': return t('r_shield');
@@ -2765,22 +2853,30 @@ function castResult(ev) {   // what the spell did, with the short "why" for elem
 async function monsterTurnUI() {
   const st = G.st, ev = CB.monsterTurn(st), lines = [];
   if (ev.familiar) { lines.push(ev.familiar.dmg ? t('m_fam', { em: ev.familiar.em, d: ev.familiar.dmg }) : t('m_fam_none', { em: ev.familiar.em })); if (ev.familiar.dmg) { burst(ev.familiar.em, 6); floatText('−' + ev.familiar.dmg, '#ffd166'); } }
-  if (st.mon.hp <= 0) { $('#fb').innerHTML += '<br>' + lines.join('<br>'); updateBars(); await sleep(800); return victory(); }
+  if (CB.defeated(st)) { $('#fb').innerHTML += '<br>' + lines.join('<br>'); updateBars(); await sleep(800); return victory(); }
   if (ev.skipped) { lines.push(t('m_skip')); $('#foeBody').classList.add('hit'); burst('⛓️', 4); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); }
-  else if (ev.reflected) { lines.push(t('m_reflect', { d: ev.reflected })); burst('🪞', 6); }
-  else {
-    $('#foeBody').classList.add('atk'); await sleep(250);
-    if (ev.blocked) burst('🛡️', 5, '#heroSvg');
-    if (ev.dmg > 0) { sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); lines.push(t('m_attack', { d: ev.dmg })); }
-    else lines.push(t('m_blocked'));
-    setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500);
+  else if (ev.hits.length) {
+    if (ev.reflected) { lines.push(t('m_reflect', { d: ev.reflected })); burst('🪞', 6); }
+    const dealt = ev.hits.filter(h => h.dmg != null);
+    if (dealt.length) {
+      $('#foeBody').classList.add('atk'); await sleep(250);
+      if (ev.big) { burst('⚡', 10, '#heroSvg'); flashStage(); }
+      if (ev.blocked) burst('🛡️', 5, '#heroSvg');
+      if (ev.dmg > 0) { sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); lines.push(ev.big ? t('m_big', { d: ev.dmg }) : dealt.length > 1 ? t('m_attack_n', { n: dealt.length, d: ev.dmg }) : t('m_attack', { d: ev.dmg })); }
+      else lines.push(t('m_blocked'));
+      setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500);
+    }
     if (ev.revived) lines.push(t('m_revive'));
   }
+  if (ev.next) { lines.push(t('m_next')); drawPack(); }
+  if (ev.regen) { lines.push(t('m_regen', { h: ev.regen })); burst('🌱', 6); }
+  if (ev.shifted) { lines.push(t('m_shift', { el: tl(EL[ev.shifted].label).toLowerCase() })); applyEl(); burst(EL[ev.shifted].badge, 8); }
+  if (ev.warn) lines.push(t('m_warn'));
   $('#fb').innerHTML += '<br>' + lines.join('<br>');
   P.quest.battle.hp = st.hero.hp; saveSoon(); updateBars(); fightHeader();
-  if (st.mon.hp <= 0) { await sleep(800); return victory(); }
+  if (CB.defeated(st)) { await sleep(800); return victory(); }
   if (st.hero.hp <= 0) { await sleep(1200); return endOrSecond(knockout); }
-  await sleep(1300); nextTurn();
+  await sleep(ev.warn || ev.shifted ? 1900 : 1300); nextTurn();
 }
 // Second chance (spec 03 §6.2): undoes the last cast: HP, the monster and the cards go back (also the statistics of that turn)
 function snapTurn() {
@@ -3014,22 +3110,45 @@ document.addEventListener('click', e => { if (e.target.closest('[data-book]')) {
 $('#bookClose').onclick = closeBook;
 $('#book').onclick = e => { const tb = e.target.closest('.bookTab'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
-// New spells: when the math level or the wizard level opens spells the student did not have, they are learned and celebrated
-// ("You learned a new spell!", spec 02 §8). The first enhanced spells (math level 7) get their own story moment. Called on the map and on the path.
+// New spells and a new wizard level: when the math level or the wizard level opens spells the student did not have, they are learned and celebrated
+// ("You learned a new spell!", spec 02 §8); a new wizard level also lists what it brings (spec 03 §5): spell types, cards, kinds of monsters,
+// and on the levels without a main unlock a title or a gift (§5.2). The first enhanced spells (math level 7) get their own story moment. Called on the map and on the path.
+const GIFTS = { 4: 'decor', 17: 'decor', 23: 'decor', 27: 'decor', 19: 'wear', 24: 'wear', 26: 'wear', 28: 'wear' };   // the other gap levels give a title (TITLES)
+function giveGift(lv) {   // a free decoration or wardrobe item the student does not own yet (coins if they own them all); once per level
+  P.gifts = P.gifts || {}; if (P.gifts[lv]) return '';
+  const kind = GIFTS[lv], free = Object.values(SHOP).filter(s => s.kind === kind && !owns(s)), s = free.length ? rnd(free) : null;
+  if (!s) { P.coins = (P.coins || 0) + 50; P.gifts[lv] = 'coins'; return t('un_gift_coins'); }
+  if (kind === 'decor') P.own.decor.push(s.id); else P.wd.push(s.id);
+  P.gifts[lv] = s.id; return t('un_gift', { em: s.em, name: nameOf(s) }) + t(kind === 'decor' ? 'bought_decor' : 'bought_wear');
+}
+function wizUnlocks(from, to) {
+  const out = [];
+  for (let lv = from + 1; lv <= to; lv++) {
+    for (const [k, ty] of Object.entries(SB.TYPES)) if (ty.greq === lv && lv > 1) out.push(t('un_type', { em: ty.em, name: tl(ty.nm) }));
+    const n = CB.cardsFor(lv); if (n > CB.cardsFor(lv - 1)) out.push(t('un_cards', { n }) + (n >= CB.CFG.SUPPORT_FROM_CARDS && CB.cardsFor(lv - 1) < CB.CFG.SUPPORT_FROM_CARDS ? ' ' + t('un_support') : ''));
+    if (lv === CB.CFG.TWO_GOOD_FROM) out.push(t('un_two'));
+    for (const [k, w] of CB.CFG.ABILITIES) if (w === lv) out.push(t('un_ab', { name: abName(k) }));
+    if (lv === CB.CFG.HEAVY_ARMOR_FROM) out.push(t('un_heavy'));
+    const ti = TITLES.find(x => x[0] === lv); if (ti) out.push(t('un_title', { name: titleAt(lv, P.gender) }));
+    if (GIFTS[lv]) { const g = giveGift(lv); if (g) out.push(g); }
+  }
+  return out;
+}
 function checkSpells() {
   if (!P || $('#modal').classList.contains('on') || !$('#book').hidden || TUT.on) return;
-  const wl = wizLvl(), wUp = wl > (P.wlvl || 1); P.wlvl = Math.max(P.wlvl || 1, wl);
+  const wl = wizLvl(), from = P.wlvl || 1, wUp = wl > from; P.wlvl = Math.max(from, wl);
+  const unl = wUp ? wizUnlocks(from, wl) : [];
   const learned = SB.book(P.mlvl, wl, P.spells).learned, fresh = learned.filter(s => !P.spells.includes(s.id));
-  if (!fresh.length) { if (wUp) { saveSoon(); toast(t('wiz_up', { n: wl })); } return; }
+  if (!fresh.length && !unl.length) { if (wUp) { saveSoon(); toast(t('wiz_up', { n: wl })); } return; }
   const firstEnh = fresh.some(s => s.tier === 'enhanced') && !P.spells.some(id => SB.BY_ID[id] && SB.BY_ID[id].tier === 'enhanced');
-  P.spells = P.spells.concat(fresh.map(s => s.id)); P.newSeen = fresh.map(s => s.id); saveSoon(true);
-  sfx.up(); confetti(['✨', '📖', '🪄', '⭐']);
+  P.spells = P.spells.concat(fresh.map(s => s.id)); if (fresh.length) P.newSeen = fresh.map(s => s.id); saveSoon(true);
+  sfx.up(); confetti(wUp ? ['🧙', '⭐', '✨', '🎉'] : ['✨', '📖', '🪄', '⭐']);
   const shown = fresh.slice().sort((x, y) => ME.num(x.v) - ME.num(y.v)), more = shown.length > 6 ? shown.length - 6 : 0;
-  const title = firstEnh ? t('enhanced_t') : fresh.length === 1 ? t('new_spell_t') : t('new_spells_t', { n: fresh.length });
-  modal((wUp ? t('wiz_up', { n: wl }) + ' ' : '') + title, (firstEnh ? `<p>${t('enhanced_b')}</p>` : '') + `<div class="newSpells">${shown.slice(0, 6).map(s => spellCard(s, false)).join('')}</div>` + (more ? `<p class="small">+${more}</p>` : '') + `<p class="small">${t('new_spell_tip')}</p>`,
-    [[t('open_book'), openBook], [t('ok'), null, true]]);
+  const spTitle = firstEnh ? t('enhanced_t') : fresh.length === 1 ? t('new_spell_t') : t('new_spells_t', { n: fresh.length });
+  const unlHtml = unl.length ? `<ul class="unlocks">${unl.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
+  const spHtml = fresh.length ? (wUp ? `<h3 class="unlH">${spTitle}</h3>` : '') + (firstEnh ? `<p>${t('enhanced_b')}</p>` : '') + `<div class="newSpells">${shown.slice(0, 6).map(s => spellCard(s, false)).join('')}</div>` + (more ? `<p class="small">+${more}</p>` : '') + `<p class="small">${t('new_spell_tip')}</p>` : '';
+  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + spHtml, fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]]);
 }
-
 /* ====================== HOME & CRAFTING ====================== */
 // A recipe lists the RARITY of each ingredient it needs (0 common ... 4 legendary), not the exact item. Every ingredient must be a different item.
 const caulName = c => t('caul_' + c);   // 0 clay pot, 1 iron cauldron, 2 silver cauldron
@@ -3292,7 +3411,7 @@ function craftHeader() {   // the brewing screen's labels (also redrawn after a 
   const C = G.craft;
   $('#foeName').textContent = `${caulName(P.own.caul || 0)} · ${pBoth(C.potion)}`;
   $('#mid').innerHTML = `<b>${t('brewing')}</b><br>${C.ings.map((id, k) => k < C.i ? '✅' : k === C.i ? '❓' : '▫️').join(' ')}<div class="runNote"></div>`;
-  $('#hpFill').style.width = (100 * C.i / C.ings.length) + '%'; $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
+  $('#hpFill').style.width = (100 * C.i / C.ings.length) + '%'; $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = xpPct() + '%';
 }
 const ingLabel = id => `${ING[id].em} ${nameOf(ING[id])}`;
 // A wrong answer while brewing burns one unit of the ingredient being worked on (and nothing else). If none is left for the potion, the brew fizzles.
@@ -3319,8 +3438,8 @@ function craftNext() {
   if (C.forge) { if (C.i <= C.ings.length) forgeQuestion(); else forgeDone(); return; }
   if (C.i < C.ings.length) { craftQuestion(); return; }
   C.ings.forEach(id => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - 1); });   // the ingredients are used up only now
-  P.pot[C.potion] = (P.pot[C.potion] || 0) + 1; saveSoon(true); sfx.win(); confetti(['🧪', '✨', '🫧', POTIONS[C.potion].em]);
-  modal(t('pot_ready_t'), `<div style="text-align:center"><div style="display:inline-block;transform:scale(2);margin:26px"><span class="packBottle">${potionSVG(C.potion)}<i>${POTIONS[C.potion].em}</i></span></div><p>${t('pot_ready_b', { name: pBoth(C.potion) })}</p></div>`,
+  P.pot[C.potion] = (P.pot[C.potion] || 0) + 1; P.xp += CB.CFG.XP_CRAFT; saveSoon(true);   // spec 03 §5.1: 3 XP for a brew, a purchase or a forging sfx.win(); confetti(['🧪', '✨', '🫧', POTIONS[C.potion].em]);
+  modal(t('pot_ready_t'), `<div style="text-align:center"><div style="display:inline-block;transform:scale(2);margin:26px"><span class="packBottle">${potionSVG(C.potion)}<i>${POTIONS[C.potion].em}</i></span></div><p>${t('pot_ready_b', { name: pBoth(C.potion) })}</p>${xpLine(CB.CFG.XP_CRAFT)}</div>`,
     [[t('back_home'), openHome], [t('back_map'), openMenu, true]]);
 }
 /* ====================== THE ARTIFICER'S WORKSHOP ====================== */
@@ -3445,14 +3564,14 @@ function forgeHeader() {   // the forging screen's labels (also redrawn after a 
   const C = G.craft, m = MAGIC[C.forge], last = C.i >= C.ings.length, total = C.ings.length + 1;
   $('#foeName').textContent = t('artificer'); $('#hpFill').style.width = (100 * C.i / total) + '%';
   $('#mid').innerHTML = `<b>${t('forging', { name: nameOf(m) })}</b><br>${Array.from({ length: total }, (_, k) => k < C.i ? '✅' : k === C.i ? '❓' : '▫️').join(' ')}<div class="runNote">${last ? t('forge_last') : t('forge_ing', { i: C.i + 1, n: C.ings.length })}</div>`;
-  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
+  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = xpPct() + '%';
 }
 function forgeDone() {
   const C = G.craft, slot = C.forge, v = itemVer(slot) + 1, rec = FORGE[v], m = MAGIC[slot];
   if (Math.floor(P.coins || 0) < rec.coins || C.ings.some(id => (P.inv[id] || 0) < 1)) { modal(t('missing_t'), t('missing_b'), [[t('back_ws'), openWorkshop]]); return; }
   C.ings.forEach(id => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - 1); }); P.coins = Math.round((P.coins - rec.coins) * 1000) / 1000;
-  P.items[slot] = v; saveSoon(true); sfx.win(); confetti(['🛠️', '✨', v === 2 ? '🌟' : '💠']);
-  modal(t('made_t', { icon: magicIcon(slot), ver: verName(v), name: nameOf(m) }), `<div style="text-align:center"><div style="width:6rem;margin:0 auto">${magicPic(slot, v)}</div><p><b style="font-size:1.4rem">${nameOf(m)}</b></p><p>${tl(m.does)}</p><p class="small">${t('wearing')}</p></div>`, [[t('back_ws_e'), openWorkshop], [t('back_map'), openMenu, true]]);
+  P.items[slot] = v; P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🛠️', '✨', v === 2 ? '🌟' : '💠']);
+  modal(t('made_t', { icon: magicIcon(slot), ver: verName(v), name: nameOf(m) }), `<div style="text-align:center"><div style="width:6rem;margin:0 auto">${magicPic(slot, v)}</div><p><b style="font-size:1.4rem">${nameOf(m)}</b></p><p>${tl(m.does)}</p><p class="small">${t('wearing')}</p>${xpLine(CB.CFG.XP_CRAFT)}</div>`, [[t('back_ws_e'), openWorkshop], [t('back_map'), openMenu, true]]);
 }
 /* ----- item powers: once per quest (twice for a legendary item). They never answer a question for the student: a banished stop is not logged at all. Uses come back only when the quest is FINISHED (a restart after a knockout is the same quest). ----- */
 const blankUses = () => ({ amulet: 0, staff: 0, belt: 0 });
@@ -3646,15 +3765,15 @@ function shopHeader() {   // the buying screen's labels (also redrawn after a la
   const s = SHOP[G.shop.id];
   $('#foeName').textContent = t('merchant');
   $('#mid').innerHTML = `<b>${t('the_shop')}</b><div class="runNote">${t('shop_note', { x: s.kind === 'wear' && s.wtype !== 'acc' ? t('this_robe') : s.em })}</div>`;
-  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
+  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = xpPct() + '%';
 }
 function shopBought() {
   const s = SHOP[G.shop.id];
   if (Math.floor(P.coins || 0) < s.price || owns(s)) { openShop(); return; }
   P.coins = Math.round((P.coins - s.price) * 1000) / 1000;
   if (s.kind === 'caul') P.own.caul = s.lv; else if (s.kind === 'potion') P.pot[s.pid] = (P.pot[s.pid] || 0) + 1; else if (s.kind === 'wear') P.wd.push(s.id); else P.own.decor.push(s.id);
-  saveSoon(true); sfx.win(); confetti(['🪙', '✨', s.em]); $('#shopCoins').textContent =Math.floor(P.coins || 0); renderShop(); renderShopPanel();
-  modal(t('thanks_t'), `<p style="text-align:center;font-size:3rem;margin:6px">${s.em}</p><p style="text-align:center">${t('bought', { n: s.kind === 'potion' ? pBoth(s.pid) : nameOf(s) })}${t(s.kind === 'potion' ? 'bought_pot' : s.kind === 'decor' ? 'bought_decor' : s.kind === 'wear' ? 'bought_wear' : 'bought_caul')}</p>`,
+  P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🪙', '✨', s.em]); $('#shopCoins').textContent =Math.floor(P.coins || 0); renderShop(); renderShopPanel();
+  modal(t('thanks_t'), `<p style="text-align:center;font-size:3rem;margin:6px">${s.em}</p><p style="text-align:center">${t('bought', { n: s.kind === 'potion' ? pBoth(s.pid) : nameOf(s) })}${t(s.kind === 'potion' ? 'bought_pot' : s.kind === 'decor' ? 'bought_decor' : s.kind === 'wear' ? 'bought_wear' : 'bought_caul')}</p>${xpLine(CB.CFG.XP_CRAFT)}`,
     [[t('keep_shop'), openShop], [t('go_home'), openHome], [t('back_map'), openMenu, true]]);
 }
 /* ----- loot: coins (for the shop) and ingredients (for potions), both given at the END of a won fight ----- */
@@ -3730,11 +3849,12 @@ function restartQuest() {
 }
 function victory() {
   const boss = G.mon.boss; $('#foeBody').classList.add('die'); $('#aura').style.display = 'none'; burst('✨', 14); sfx.win(); confetti();
-  G.phase = 'done'; G.regen = 0; const bonus = boss ? 80 : 30; P.xp += bonus; const loot = giveLoot(G.mon.el, boss, G.mist);
+  // XP (spec 03 §5.1): 10 for a fight, 40 for a boss, and a bonus for perfect tactics (no bad picks)
+  const C = CB.CFG, bonus = boss ? C.XP_BOSS : C.XP_FIGHT, perfect = !G.badPicks ? (boss ? C.XP_BOSS_PERFECT : C.XP_FIGHT_PERFECT) : 0;
+  G.phase = 'done'; G.regen = 0; P.xp += bonus + perfect; const loot = giveLoot(G.mon.el, boss, G.mist);
   const done = advanceQuest(); saveSoon(true);
-  
   modal(boss ? t('boss_def') : t('victory'),
-    t('defeated', { m: esc(monName(G.mon)), x: bonus }) + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
+    t('defeated', { m: esc(monName(G.mon)), x: bonus }) + (perfect ? `<p>${t('xp_perfect', { x: perfect })}</p>` : '') + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
     [[done ? t('next_ch') : t('back_path'), nextRun], [t('back_map'), openMenu, true]]);
 }
 function knockout() {
@@ -3798,6 +3918,7 @@ function startDemo() {
     fight() { window.__forceMon = null; act('battle'); },
     mon(k) { window.__forceMon = k; P.quest.battle.ch = 1; act('battle', ['m', 'B']); toast(monName(MON_DEF[k])); },
     clearMon() { window.__forceMon = null; },
+    ab(k) { window.__forceAb = k; toast(k ? '🧪 Next monsters: ' + abName(k) : '🧪 Monster abilities: random again'); },
     area(n) { window.__forceMon = null; P.quest.battle.ch = n; act('battle', ['m', 'm', 'B']); toast(areaName(n)); },
     nearBoss() { const q = G.quest === 'peace' || J.q === 'peace' ? 'peace' : 'battle'; if (!P.quest[q].path) { toast('Start a quest first'); return; } P.quest[q].at = P.quest[q].path.length - 2; P.quest[q].enc = P.quest[q].len; openJourney(q); },
     ko() { if (!$('#game').classList.contains('on') || !(G.quest === 'battle' || G.quest === 'peace')) { toast('Open a fight first'); return; } if (G.st) { G.st.hero.hp = 0; P.quest.battle.hp = 0; updateBars(); } G.hearts = 0; P.quest[G.quest].hearts = 0; endOrSecond(G.quest === 'battle' ? knockout : villageFail); },
@@ -3817,6 +3938,7 @@ function startDemo() {
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Fight areas (backgrounds)</h4>' + [1, 2, 3, 4, 5, 6].map(n => B(areaName(n), `area(${n})`)).join('') + '<h4>Monsters</h4>' + Object.keys(MON_DEF).map(k => B(monName(MON_DEF[k]) + (MON_DEF[k].boss ? ' 👑' : ''), `mon("${k}")`)).join('') +
+    '<h4>Monster abilities (next fights)</h4>' + CB.CFG.ABILITIES.map(([k, w]) => B(abName(k) + ' (' + w + ')', `ab('${k}')`)).join('') + B('🎲 Random again', 'ab(null)') +
     '<h4>In a fight</h4>' + B('💥 Lose all HP (test amulet)', 'ko()') + B('🏆 Win this fight', 'win()') + B('🧪 5 of each potion', 'pots()') +
     '<h4>Items and stuff</h4>' + B('💠 All items epic', 'items(1)') + B('🌟 All items legendary', 'items(2)') + B('❌ No items', 'items(0)') + B('♻️ Refill powers', 'refill()') + B('🎁 Coins + ingredients', 'stuff()');
   panel.onclick = e => { const b = e.target.closest('[data-d]'); if (!b) return; try { new Function('demo', 'with(demo){' + b.dataset.d + '}')(D); } catch (x) { toast('Demo error: ' + x.message); } };
@@ -3895,7 +4017,7 @@ async function adminStudent(id) {
     const sec2 = (title, html) => `<div class="stuSec"><b>${title}</b>${html}</div>`;
     box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div><b style="font-size:1.3rem">${esc(p.nick)}</b> <small style="opacity:.7">#${esc(p.id)}</small>
         <div>${p.real ? '👤 ' + esc(p.real) : '<span style="opacity:.6">(no real name saved: this student joined before names were asked)</span>'}${p.cls ? ' · 🏫 ' + esc(p.cls) : ''}</div></div><button class="ib" id="admDetailClose">✕</button></div>` +
-      sec2('Overview', `<div class="kv"><span>📖 ${esc(levelLbl(p.mlvl))}</span><span>🏅 ${rankOf(p.xp)} · ⭐ ${p.xp} XP</span><span>🎯 ${total} answers · ${pct(right, total)} correct</span><span>✅ ${mastered} items mastered</span>
+      sec2('Overview', `<div class="kv"><span>📖 ${esc(levelLbl(p.mlvl))}</span><span>🏅 ${rankOf(p.xp, p.gender)} · ⭐ ${p.xp} XP</span><span>🎯 ${total} answers · ${pct(right, total)} correct</span><span>✅ ${mastered} items mastered</span>
         <span>⏱️ ${totalMin} min in total</span><span>📅 ${daysPlayed.length} days played${daysPlayed.length ? ' · about ' + Math.round(totalMin / daysPlayed.length) + ' min a day' : ''}</span><span>🕒 Created ${p.created ? new Date(p.created).toLocaleDateString() : '?'} · last saved ${p.updated ? new Date(p.updated).toLocaleDateString() : '?'}</span></div>`) +
       sec2('Skills', skillRows ? `<div class="tblwrap"><table class="skillTbl"><thead><tr><th>Skill</th><th>Answers</th><th>Correct</th><th>Items seen</th><th>Mastered</th><th>Needs work</th></tr></thead><tbody>${skillRows}</tbody></table></div>` : '<p style="opacity:.7;margin:4px 0">No answers yet.</p>') +
       sec2('Practice time, last 14 days (minutes)', `<div class="days">${days.map(x => `<div title="${x.d.toLocaleDateString()}: ${Math.round(x.s / 60)} min" style="height:${Math.max(3, 100 * x.s / mx)}%"></div>`).join('')}</div><div class="dayLbl">${days.map(x => `<span>${x.d.getDate()}</span>`).join('')}</div>
