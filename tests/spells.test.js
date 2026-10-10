@@ -30,9 +30,10 @@
   test('a new student: the starting spells 2, 3, 4, 5 (spec 02 §6.1)', () => {
     const b = SB.book(1, 1); assert(ids(b.learned).join() === '2,3,4,5', 'learned ' + ids(b.learned)); assert(b.sealed.length === 0, 'nothing sealed at level 1');
   });
-  test('math level 2, wizard level 1: 1 and 7 learned; 6, 8, 9 sealed (their types open later)', () => {
+  test('math level 2, wizard level 1: 7 learned; 6, 8, 9 sealed (their types open later); 1 waits for level 3', () => {
     const b = SB.book(2, 1);
-    for (const id of ['1', '2', '3', '4', '5', '7']) assert(has(b.learned, id), id + ' learned');
+    for (const id of ['2', '3', '4', '5', '7']) assert(has(b.learned, id), id + ' learned');
+    assert(!has(b.learned, '1') && !has(b.sealed, '1') && has(SB.book(3, 1).learned, '1'), 'Light Spark opens at math level 3 (owner decision)');
     for (const id of ['6', '8', '9']) assert(has(b.sealed, id) && !has(b.learned, id), id + ' sealed');
     assert(SB.BY_ID['6'].greq === 3 && SB.BY_ID['8'].greq === 5 && SB.BY_ID['9'].greq === 8, 'defense 3, heal 5, control 8');
   });
@@ -73,8 +74,8 @@
     assert(SB.wizLevel(59) === 1 && SB.wizLevel(60) === 2 && SB.wizLevel(139) === 2 && SB.wizLevel(140) === 3, 'edges');
     assert(SB.wizLevel(1e9) === 30, 'maximum 30');
   });
-  test('every learned spell number can be reached by some problem up to its math level', () => {
-    for (const s of SB.SPELLS) { let ok = false; for (let n = s.mreq; n >= 1 && !ok; n--) { const vals = ME.answers(n); if (vals ? vals.some(v => ME.eq(v, s.v)) : ME.make(n, { target: s.v })) ok = true; } if (!ok) for (let n = s.mreq + 1; n <= 36 && !ok; n++) { const vals = ME.answers(n); if (vals && vals.some(v => ME.eq(v, s.v))) ok = n; } assert(ok, `spell ${s.id} (math gate ${s.mreq}) is never an answer`); }
+  test('every spell number is an answer at its own math level or below (so the cards can offer it)', () => {
+    for (const s of SB.SPELLS) { let ok = false; for (let n = s.mreq; n >= 1 && !ok; n--) { const vals = ME.answers(n); if (vals ? vals.some(v => ME.eq(v, s.v)) : ME.make(n, { target: s.v })) ok = true; } assert(ok, `spell ${s.id} (math gate ${s.mreq}) is not an answer at level ${s.mreq} or below`); }
   });
 
   const failed = results.filter(r => !r.ok);

@@ -11,19 +11,19 @@
 <title>Math Wizard</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+Hebrew:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+Hebrew:wght@400;700&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <style>
 :root{--bg1:#1b1340;--bg2:#3a1c71;--glow:#5b3aa8;--gold:#ffd166;--good:#3ddc97;--bad:#ff5d73;--accent:#8f7bff;--panel:rgba(255,255,255,.09)}
 body.peace{--bg1:#0e3b2c;--bg2:#2d6a4f;--glow:#3f9b6e;--accent:#ffd166}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{min-height:100vh;font-family:'Fredoka',system-ui,sans-serif;color:#fff;
+body{min-height:100vh;font-family:'Fredoka',system-ui,sans-serif,'Noto Color Emoji';color:#fff;
   background:radial-gradient(1100px 560px at 50% -10%,var(--glow) 0,transparent 62%),linear-gradient(160deg,var(--bg1),var(--bg2));background-attachment:fixed}
 button{font:inherit;color:inherit;cursor:pointer}
 .hidden{display:none!important}
 .screen{display:none;max-width:860px;margin:0 auto;padding:16px}
 .screen.on{display:block}
-.heb{font-family:'Noto Sans Hebrew','Arial Hebrew',Arial,sans-serif;direction:rtl;unicode-bidi:isolate}
+.heb{font-family:'Noto Sans Hebrew','Arial Hebrew',Arial,sans-serif,'Noto Color Emoji';direction:rtl;unicode-bidi:isolate}
 h1{font-size:2.6rem;margin:.2em 0;text-align:center;letter-spacing:.02em;text-shadow:0 3px 0 #0006}
 h2{margin:.2em 0}
 .sub{opacity:.85;text-align:center}
@@ -438,7 +438,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 @media (max-height:700px){.side svg{height:112px}.hearts{font-size:1.1rem}.mid{font-size:.8rem}.panel{padding:8px}.opt{min-height:52px;font-size:1.75rem}.opt.w{font-size:1.35rem}}
 /* ----- language: the Hebrew / English button, and right-to-left screens ----- */
 .langBar{display:flex;justify-content:flex-end}
-.langBtn{font:600 .85rem 'Fredoka',system-ui,sans-serif;background:#fff1;color:#fff;border:1px solid #fff4;border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.langBtn{font:600 .85rem 'Fredoka',system-ui,sans-serif,'Noto Color Emoji';background:#fff1;color:#fff;border:1px solid #fff4;border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
 .langBtn:hover{background:#fff2}
 @media (max-width:560px){.langBtn{padding:5px 8px;font-size:.75rem}#game .vslider,#journey .vslider{display:none}}
 /* ----- the spell book ----- */

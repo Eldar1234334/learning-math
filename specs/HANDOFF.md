@@ -99,6 +99,9 @@ The reading game deploys with `.github/workflows/pages.yml`: `main` is the **liv
 - 2026-10-10: "counts ½ toward moving up" (spec 01 §6.1) means a right shop, brewing, forging or review answer is worth half an answer in the window; a mistake always counts as a full answer (confirmed by the owner).
 - 2026-10-10: level 35 ratio problems are worded "the first part of 57 in the ratio 2:1" / "החלק הראשון של 57 ביחס 2:1" (confirmed by the owner).
 - 2026-10-10: the game keeps the name "Math Wizard" also in Hebrew mode for now (the owner may choose a Hebrew name later).
+- 2026-10-10: Light Spark (1) opens at math level 3, not 2: level 2 problems never have the answer 1 (owner decision; spec 02 §6.1 updated in spells.js).
+- 2026-10-10: effects of the higher tiers not given in spec 02 (owner approved): Wind Shield 600 blocks 2 attacks, 6000 blocks 3; Healing Leaf 800 heals 6, 8000 heals 8; Shadow Snare 900 2 turns, 9000 3 turns; Time Freeze 190 3 turns; Arcane Echo 160 triple power.
+- 2026-10-10: emoji are drawn with the Noto Color Emoji web font, so newer emoji (🪨 stone, 🪙 coin, 🪴 plant) also show on Windows 10.
 
 ## 9. Questions and changes
 

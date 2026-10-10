@@ -36,7 +36,7 @@
   // [number, English, Hebrew, Hebrew gender (m/f, for the tier adjective), element, type, math gate, effect by tier]
   // Effects of utility spells grow with the tier (spec 02 §6.3). Values marked (p) are proposals: the spec gives only 60, 80 and 90.
   const BASE = [
-    [1, 'Light Spark', 'ניצוץ אור', 'm', 'light', 'attack', 2],
+    [1, 'Light Spark', 'ניצוץ אור', 'm', 'light', 'attack', 3],   // math level 3 (owner decision): level 2 problems never have the answer 1
     [2, 'Water Splash', 'התזת מים', 'f', 'water', 'attack', 1],
     [3, 'Fire Bolt', 'חץ אש', 'm', 'fire', 'attack', 1],
     [4, 'Stone Throw', 'זריקת אבן', 'f', 'stone', 'attack', 1],

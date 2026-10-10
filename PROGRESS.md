@@ -132,18 +132,17 @@ What was done in each step, how to check it on the test site, and what is still 
 **Still to come**
 - Casting spells in fights (cards with hidden answers, elements, effects): step 4. Until then, fights still use answer buttons.
 
-**Please decide**
-1. **Light Spark (1) at math level 2.** Spec 02 opens it at level 2, but no level-2 problem has the answer 1 (level 2 is addition, sums 2–10). The first problems with the answer 1 are at level 3 (subtraction). Options: (a) keep it at level 2 (it is in the book, and the cards start offering it from level 3), or (b) move its math gate to level 3.
-2. **Effects of the higher tiers that the spec does not give** (my proposals, easy to change):
-   - Wind Shield: `6` halves the next attack (spec), `60` blocks it (spec), `600` blocks the next 2 attacks, `6000` the next 3.
-   - Healing Leaf: `8` heals 2 (spec), `80` heals 4 (spec), `800` heals 6, `8000` heals 8.
-   - Shadow Snare: `9` 1 turn (spec), `90` 2 turns (spec), `900` 2 turns, `9000` 3 turns. Time Freeze `19` 2 turns (spec), `190` 3 turns.
-   - Arcane Echo: `16` double power (spec), `160` triple power.
-3. **The Hebrew names of the tiers:** מוגבר / עליון / אגדי (from spec 02), with the adjective agreeing with the spell (חץ אש מוגבר, התזת מים מוגברת). Please check a few in the book.
+**Your decisions (from your check)**
+- Light Spark (1) now opens at math level 3 (level 2 problems never have the answer 1).
+- The higher-tier effects I proposed are approved: Wind Shield 600/6000 block 2/3 attacks, Healing Leaf 800/8000 heal 6/8, Shadow Snare 900/9000 2/3 turns, Time Freeze 190 3 turns, Arcane Echo 160 triple power.
+- The Hebrew tier names are approved.
 
+**Fixed after your check**
+- The stone 🪨 (and the coin 🪙, the potted plant 🪴 and other newer emoji) showed as an empty square on Windows 10, whose emoji font is older. The game now loads Google's free color-emoji font, so every device draws every emoji.
+- Your question: in fights, the spell that flies is still always the right element, whatever answer you pick. That is the stand-in from step 0: the real casting (the answer is the spell number; a wrong element does nothing or heals the monster) comes in **step 4**.
 **How to check**
 1. Create a new hero (grade 1): open 📖 on the map. Four spells: 2, 3, 4, 5.
-2. Teacher area → demo run → 🧪 Demo: choose math level 2, then wizard level 3. Back on the map: "You learned new spells" (1, 6, 7). Open the book: 8 and 9 are sealed (wizard levels 5 and 8).
+2. Teacher area → demo run → 🧪 Demo: choose math level 3, then wizard level 3. Back on the map: "You learned new spells" (1, 6, 7). Open the book: 8 and 9 are sealed (wizard levels 5 and 8).
 3. In the demo choose math level 7: "Your spells became enhanced!" (10, 20, 30 …).
 4. Choose math level 26 and wizard level 18, open the book, tab Special: the fraction spells ½, ¼, ¾, ⅓, 1½.
 5. In a fight, tap 📖: the book opens over the fight; close it and the same question is waiting.
