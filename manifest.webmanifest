@@ -1,0 +1,17 @@
+{
+  "name": "Math Wizard",
+  "short_name": "Math Wizard",
+  "description": "An adventure game for practicing math: cast spells, beat monsters.",
+  "start_url": "./?mode=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1b1340",
+  "theme_color": "#3a1c71",
+  "lang": "en",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
