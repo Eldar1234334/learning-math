@@ -40,8 +40,10 @@ th{background:#ffffff14;font-weight:600}
   <a href="tests/" style="color:var(--gold);margin-inline-start:auto">🧪 Run the tests</a>
 </div>
 <div class="info" id="info"></div>
+<details class="info" id="bookBox"><summary><b>📖 The spell book at this math level</b> · wizard level <select id="wl"></select></summary><div id="spells" style="margin-top:8px"></div></details>
 <table><thead><tr><th>#</th><th id="h1">Problem</th><th id="h2">Answer</th><th id="h3">Wrong answers</th><th id="h4">Form</th></tr></thead><tbody id="rows"></tbody></table>
 <script src="math.js"></script>
+<script src="spells.js"></script>
 <script>
 'use strict';
 let he = false;
@@ -63,6 +65,16 @@ function draw() {
   for (let k = 0; rows.length < 30 && k < 300; k++) { const p = ME.make(n, { avoid: seen }); if (seen.has(p.key)) continue; seen.add(p.key); rows.push(p); }
   document.getElementById('rows').innerHTML = rows.map((p, i) => `<tr><td>${i + 1}</td><td class="ex">${exprHtml(p.e)}</td><td class="ans">${ME.fmtHtml(p.a)}</td><td class="wr">${ME.distractors(p, 3).map(ME.fmtHtml).join(' · ')}</td><td><span class="tag">${p.form}</span></td></tr>`).join('');
   history.replaceState(null, '', '?level=' + n);
+  drawBook();
+}
+// the spell book for (math level, wizard level): learned spells, sealed spells (with the wizard level that opens them); hidden spells are not listed
+const wsel = document.getElementById('wl'); for (let w = 1; w <= SB.MAX_WIZ; w++) { const o = document.createElement('option'); o.value = w; o.textContent = w; wsel.appendChild(o); }
+wsel.onchange = drawBook; wsel.onclick = e => e.stopPropagation();
+function drawBook() {
+  const n = +sel.value, w = +wsel.value, b = SB.book(n, w), L = he ? 1 : 0, order = (x, y) => ME.num(x.v) - ME.num(y.v);
+  const row = (s, sealed) => `<tr style="${sealed ? 'opacity:.55' : ''}"><td class="ex">${ME.fmtHtml(s.v)}</td><td>${s.nm[L]}</td><td>${SB.ELEMENTS[s.el].em} ${SB.TYPES[s.type].nm[L]}</td><td>${SB.describe(s, he ? 'he' : 'en')}</td><td>${sealed ? '🔒 wizard ' + s.greq : '✔'}</td></tr>`;
+  document.getElementById('spells').innerHTML = `<p>${b.learned.length} learned · ${b.sealed.length} sealed · ${SB.SPELLS.length - b.learned.length - b.sealed.length} hidden (their math level is higher)</p>` +
+    `<table><thead><tr><th>#</th><th>Spell</th><th>Type</th><th>Effect</th><th></th></tr></thead><tbody>${b.learned.slice().sort(order).map(s => row(s)).join('')}${b.sealed.slice().sort(order).map(s => row(s, true)).join('')}</tbody></table>`;
 }
 sel.onchange = draw; document.getElementById('again').onclick = draw;
 document.getElementById('he').onclick = e => { he = !he; e.target.classList.toggle('on', he); e.target.textContent = he ? 'English' : 'עברית'; draw(); };

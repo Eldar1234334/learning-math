@@ -441,6 +441,27 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .langBtn{font:600 .85rem 'Fredoka',system-ui,sans-serif;background:#fff1;color:#fff;border:1px solid #fff4;border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
 .langBtn:hover{background:#fff2}
 @media (max-width:560px){.langBtn{padding:5px 8px;font-size:.75rem}#game .vslider,#journey .vslider{display:none}}
+/* ----- the spell book ----- */
+.bookOv{position:fixed;inset:0;z-index:60;background:#0b0820cc;display:flex;align-items:center;justify-content:center;padding:12px}
+.bookOv[hidden]{display:none}
+.bookBox{width:min(820px,100%);max-height:100%;overflow:auto;background:linear-gradient(#3b2a1a,#2b1d12);border:3px solid #c8a15a;border-radius:18px;box-shadow:0 10px 40px #000a;padding:14px}
+.bookTop{display:flex;align-items:center;justify-content:space-between;gap:8px}.bookTop h2{margin:0;color:#ffe2a0}
+.bookInfo{opacity:.85;font-size:.9rem;margin:4px 0 8px}
+.bookTabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.bookTab{font:inherit;color:#ffe2a0;background:#0003;border:1px solid #c8a15a88;border-radius:999px;padding:6px 12px;cursor:pointer}
+.bookTab.on{background:#c8a15a;color:#2b1d12;font-weight:600}.bookTab small{opacity:.75}
+.bookPages{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.spellCard{background:linear-gradient(#f6e7c4,#e8d3a3);color:#3a2610;border-radius:14px;padding:10px 12px;box-shadow:0 3px 0 #8a6a35;display:flex;flex-direction:column;gap:4px;position:relative}
+.spellCard .sNum{font-size:2.2rem;font-weight:700;line-height:1;direction:ltr;color:#6b3a10;align-self:flex-start}
+.spellCard .sName{font-weight:700;font-size:1.05rem}
+.spellCard .sTags{display:flex;flex-wrap:wrap;gap:4px;font-size:.78rem}.spellCard .sTags span{background:#0001;border-radius:999px;padding:2px 8px}
+.spellCard .sFx{font-size:.85rem;opacity:.9}
+.spellCard.sealed{background:linear-gradient(#cfc8bb,#b9b1a2);color:#4a4438;box-shadow:0 3px 0 #6d665b;filter:grayscale(.6)}
+.spellCard.sealed .sNum{color:#5d574c}.spellCard .sLock{font-size:.82rem;font-weight:600}
+.spellCard.new::after{content:'✨';position:absolute;top:6px;inset-inline-end:8px;font-size:1.2rem;animation:spellGlow 1.2s ease-in-out infinite}
+@keyframes spellGlow{50%{transform:scale(1.3);opacity:.6}}
+.newSpells{display:grid;gap:8px;margin-top:8px}.newSpells .spellCard{animation:spellIn .6s ease-out both}
+@keyframes spellIn{from{transform:scale(.6) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
 .expr{unicode-bidi:isolate;white-space:nowrap}
 /* fractions are written stacked (numerator over denominator), as at school; a mixed number has its whole part in front */
 .frw{display:inline-flex;align-items:center;gap:.06em;vertical-align:middle;direction:ltr}
@@ -575,7 +596,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div id="menuHero"></div>
     <div class="grow"><div class="who" id="menuWho" style="font-size:1.5rem"></div><div id="menuRank" class="small"></div>
       <div class="pbar" style="margin-top:6px"><i id="menuXp"></i></div></div>
-    <div class="vctl"><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
+    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
   </div>
   <div class="stat">
     <span>📖 <b id="menuTier"></b></span>
@@ -679,7 +700,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <button class="ib" id="homeBtn" data-tt="back_map">🗺️</button><button class="ib" id="abandonBtn" data-tt="abandon_title" style="display:none">🏳️</button>
     <div class="grow"><div class="who" id="who"></div><div class="small" id="tierLbl"></div><div class="pbar" style="height:8px;margin-top:4px"><i id="xpFill"></i></div></div>
     <span id="cloud" class="small"></span>
-    <div class="vctl"><button class="langBtn" data-lang-toggle></button><button class="ib" id="muteBtn" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
+    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="muteBtn" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
   </div>
   <div class="stage" id="stage">
     <svg class="stageBg" id="stageBg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg><div class="stageVig" id="stageVig" style="display:none"></div>
@@ -704,7 +725,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 
 <section id="journey" class="screen" style="max-width:760px">
   <div class="top"><button class="ib" id="jBack" data-tt="back_map">🗺️</button><button class="ib" id="jAbandon" data-tt="abandon_title" style="display:none">🏳️</button>
-    <div class="grow"><div class="who" id="jArea"></div><div class="small" id="jStory"></div></div><div class="jHearts" id="jHearts"></div><button class="langBtn" data-lang-toggle></button></div>
+    <div class="grow"><div class="who" id="jArea"></div><div class="small" id="jStory"></div></div><div class="jHearts" id="jHearts"></div><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="langBtn" data-lang-toggle></button></div>
   <div class="jBanner" id="jBanner" aria-live="polite"></div>
   <div class="jStage" id="jStage"><svg id="jMap" data-ta="journey_map"></svg></div>
   <div class="row" style="margin-top:10px;justify-content:center"><button class="btn" id="jWalk" data-t="walk_on"></button></div>
@@ -732,9 +753,18 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       <div class="coachBtns"><button class="btn" id="tutNext" hidden>Next</button><button class="btn ghost small" id="tutHear" title="Hear it again">🔊 Hear again</button><button class="btn ghost small" id="tutSound" aria-pressed="true">🔊 Voice on</button><button class="btn ghost small" id="tutSkip">Skip tutorial</button></div></div></div>
 </div>
 <div class="tutFin" id="tutFin"><div class="tutFinBox"><div id="tutFinOwl" style="width:90px;margin:0 auto"></div><h2>You're ready!</h2><p>Remember: Pip is on your shoulder. Tap the owl button on the map any time to see this again.</p><button class="btn" id="tutBegin">Start playing ▶</button></div></div>
+<div id="book" class="bookOv" hidden>
+  <div class="bookBox" role="dialog" aria-modal="true" aria-labelledby="bookTitle">
+    <div class="bookTop"><h2 id="bookTitle" data-t="book_t"></h2><button class="ib" id="bookClose" data-tt="close">✕</button></div>
+    <div class="bookInfo" id="bookInfo"></div>
+    <div class="bookTabs" id="bookTabs" role="tablist"></div>
+    <div class="bookPages" id="bookPages"></div>
+  </div>
+</div>
 <div id="modal"><div class="box"><h2 id="mTitle"></h2><div id="mBody"></div><div class="row" id="mBtns" style="margin-top:14px"></div></div></div>
 
 <script src="math.js"></script>
+<script src="spells.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -984,6 +1014,15 @@ const STR = {
   forge_t: ['🛠️ Solve it to put the ingredient in the forge!', '🛠️ פתרו כדי להכניס את המרכיב לכבשן!'], forge_t_last: ['🛠️ Solve it to bind the magic!', '🛠️ פתרו כדי לקשור את הקסם!'],
   forge_s: ['Pick the right answer. A wrong answer costs nothing.', 'בחרו את התשובה הנכונה. טעות לא עולה כלום.'],
   shop_t: ['🧙 The merchant asks you a question!', '🧙 המוכר שואל אתכם שאלה!'], shop_s: ['Pick the right answer to buy it. Wrong answers cost nothing!', 'בחרו את התשובה הנכונה כדי לקנות. טעויות לא עולות כלום!'],
+  // the spell book (spec 02)
+  book_t: ['📖 Spell book', '📖 ספר הכישופים'], book_btn: ['Spell book', 'ספר הכישופים'],
+  book_info: ['Every spell has a number that never changes. The answer to a problem casts the spell with that number. · Math level {m} · Wizard level {w}', 'לכל כישוף יש מספר שלעולם לא משתנה. התשובה לתרגיל מטילה את הכישוף עם המספר הזה. · שלב {m} · דרגת קוסם {w}'],
+  unlocks_at: ['🔒 Unlocks at wizard level {n}', '🔒 נפתח בדרגת קוסם {n}'], power: ['Power {p}', 'עוצמה {p}'], wiz_lvl: ['Wizard level {n}', 'דרגת קוסם {n}'],
+  new_spell_t: ['✨ You learned a new spell!', '✨ למדתם כישוף חדש!'], new_spells_t: ['✨ You learned {n} new spells!', '✨ למדתם {n} כישופים חדשים!'],
+  enhanced_t: ['✨ Your spells became enhanced!', '✨ הכישופים שלכם התחזקו!'],
+  enhanced_b: ['The same digits ×10 are stronger versions of your spells: 3 Fire Bolt → 30 Enhanced Fire Bolt.', 'אותן ספרות ×10 הן גרסאות חזקות יותר של הכישופים שלכם: 3 חץ אש ← 30 חץ אש מוגבר.'],
+  new_spell_tip: ['Find them in your spell book 📖. A spell’s number never changes!', 'תמצאו אותם בספר הכישופים 📖. המספר של כישוף לעולם לא משתנה!'], open_book: ['Open the book 📖', 'לפתוח את הספר 📖'],
+  wiz_up: ['🧙 Wizard level {n}!', '🧙 דרגת קוסם {n}!'],
   // words inside math problems
   m_of: ['{a} of {b}', '{a} מ־{b}'], m_double: ['double {a}', 'פי 2 מ־{a}'], m_half: ['half of {a}', 'חצי מ־{a}'], m_ratio: ['first part of {a} in the ratio {b}', 'החלק הראשון של {a} ביחס {b}'],
   // potions
@@ -1112,6 +1151,7 @@ function refreshScreen() {
   const on = id => $('#' + id).classList.contains('on');
   if (on('creator')) { drawCreator(); return; }
   if (!P) return;
+  if (!$('#book').hidden) openBook();
   if (on('menu')) openMenu();
   else if (on('home')) renderRoom(rmDisp);
   else if (on('wardrobe')) drawWardrobe();
@@ -1296,6 +1336,8 @@ function migrate(p) {
   if (p.mlvl == null) p.mlvl = Math.min(CFG.MAX_LEVEL, Math.max(1, p.tier || 1));   // test profiles from version 1
   delete p.tier; delete p.hist;
   p.mhist = Array.isArray(p.mhist) ? p.mhist : []; p.mfacts = p.mfacts || {}; p.mplace = p.mplace || 0; p.grade = p.grade || ME.gradeOf(p.mlvl);
+  if (!Array.isArray(p.spells)) p.spells = SB.book(p.mlvl, SB.wizLevel(p.xp || 0)).learned.map(s => s.id);   // the spells this student has learned (spec 01 §8); they are never taken away
+  p.wlvl = p.wlvl || SB.wizLevel(p.xp || 0);   // the wizard level last seen (to notice a new one)
   p.quest = p.quest || {};
   for (const k of ['battle', 'peace']) {   // len 0 = the run is not rolled yet; act = a quest run is in progress
     const q = p.quest[k] = p.quest[k] || {}; q.ch = q.ch || 1; q.enc = q.enc || 0; q.len = q.len || 0; q.hearts = q.hearts || CFG.MAX_HEARTS; q.restarts = q.restarts || 0; q.act = !!q.act;
@@ -1521,12 +1563,14 @@ $('#createBtn').onclick = () => {
 
 /* ====================== MENU ====================== */
 function rankOf(xp) { return tl(RANKS[Math.min(RANKS.length - 1, Math.floor(xp / 400))]); }
+const wizLvl = () => SB.wizLevel(P.xp || 0);
 function openMenu() {
   G.quest = null; show('menu');
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
   $('#menuWho').textContent = P.nick;
-  $('#menuRank').textContent = rankOf(P.xp) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
-  $('#menuXp').style.width = ((P.xp % 400) / 4) + '%';
+  const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
+  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
+  $('#menuXp').style.width = (wl >= SB.MAX_WIZ ? 100 : 100 * (P.xp - x0) / (x1 - x0)) + '%';   // progress to the next wizard level
   $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
   $('#menuToday').textContent = t('min_today', { m: Math.min(10, Math.floor(sec / 60)) }) + (sec >= CFG.DAILY_SEC ? ' ⭐' : '');
@@ -1538,7 +1582,7 @@ function openMenu() {
   $('#mapHero').innerHTML = heroOf(P); walking = false; placeHero(START.x, START.y); workshopState();
   setCloud(cloudState || (CFG.SCRIPT_URL ? 'ok' : 'none'));
   $('#abandonMapBtn').style.display = runOf() ? '' : 'none';
-  askLookOnce();
+  askLookOnce(); setTimeout(checkSpells, 400);
 }
 /* ----- the map: drag the hero onto a place, or tap the place; both end in the same walk-and-enter handler ----- */
 const START = { x: 50, y: 58 };
@@ -2262,7 +2306,7 @@ function openJourney(q) {
   G.quest = q; J.q = q; J.busy = false; const qs = P.quest[q], fresh = ensurePath(q);
   if (!qs.act) qs.act = true;   // (a run that reaches the map is a run in progress)
   J.wizLen = null; J.fogF = null; J.revealIdx = qs.at || 0; saveSoon(true);
-  show('journey'); jDraw(); jHud();
+  show('journey'); jDraw(); jHud(); setTimeout(checkSpells, 400);   // spells opened by the last fight are celebrated back on the path
 }
 function jWalk() {
   const qs = P.quest[J.q], at = qs.at || 0, nodes = jNodes(); if (J.busy || at >= nodes.length - 1) return;
@@ -2662,6 +2706,50 @@ function endOrSecond(fail) {   // out of hearts: the amulet saves you first; the
   if (!G.potUsed && (P.carry.second || 0) > 0 && G.snap) modal(t('second_t'), t('second_b'), [[t('drink'), () => usePotion('second')], [t('no_thanks'), fail, true]]);
   else fail();
 }
+/* ====================== THE SPELL BOOK (spec 02) ====================== */
+// The book shows the learned spells and the sealed ones (math gate open, wizard level too low). Spells whose math gate is closed are not shown.
+// It opens from the map, the journey map and the fight screen (a fight waits while the book is open).
+let bookTab = null;
+const spellNum = s => `<span class="sNum" dir="ltr">${ME.fmtHtml(s.v)}</span>`;
+function spellCard(s, sealed, isNew) {
+  const el = SB.ELEMENTS[s.el], ty = SB.TYPES[s.type];
+  return `<div class="spellCard${sealed ? ' sealed' : ''}${isNew ? ' new' : ''}">${spellNum(s)}<div class="sName">${tl(s.nm)}</div>
+    <div class="sTags"><span>${el.em} ${tl(el.nm)}</span><span>${ty.em} ${tl(ty.nm)}</span></div>
+    <div class="sFx">${SB.describe(s, LANG)}</div>${sealed ? `<div class="sLock">${t('unlocks_at', { n: s.greq })}</div>` : ''}</div>`;
+}
+function openBook() {
+  if (!P) return;
+  const b = SB.book(P.mlvl, wizLvl(), P.spells), tabs = SB.TABS.filter(([k]) => b.learned.some(s => SB.tabOf(s) === k) || b.sealed.some(s => SB.tabOf(s) === k));
+  if (!tabs.some(([k]) => k === bookTab)) bookTab = tabs.length ? tabs[0][0] : null;
+  $('#bookInfo').textContent = t('book_info', { m: P.mlvl, w: wizLvl() });
+  $('#bookTabs').innerHTML = tabs.map(([k, nm]) => { const n = b.learned.filter(s => SB.tabOf(s) === k).length, sl = b.sealed.filter(s => SB.tabOf(s) === k).length;
+    return `<button class="bookTab${k === bookTab ? ' on' : ''}" role="tab" aria-selected="${k === bookTab}" data-tab="${k}">${tl(nm)} <small>${n}${sl ? ' + 🔒' + sl : ''}</small></button>`; }).join('');
+  const order = (x, y) => ME.num(x.v) - ME.num(y.v), fresh = new Set(P.newSeen || []);
+  $('#bookPages').innerHTML = b.learned.filter(s => SB.tabOf(s) === bookTab).sort(order).map(s => spellCard(s, false, fresh.has(s.id))).join('') +
+    b.sealed.filter(s => SB.tabOf(s) === bookTab).sort(order).map(s => spellCard(s, true)).join('');
+  $('#book').hidden = false;
+}
+function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } }
+document.addEventListener('click', e => { if (e.target.closest('[data-book]')) { e.preventDefault(); openBook(); } });
+$('#bookClose').onclick = closeBook;
+$('#book').onclick = e => { const tb = e.target.closest('.bookTab'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
+// New spells: when the math level or the wizard level opens spells the student did not have, they are learned and celebrated
+// ("You learned a new spell!", spec 02 §8). The first enhanced spells (math level 7) get their own story moment. Called on the map and on the path.
+function checkSpells() {
+  if (!P || $('#modal').classList.contains('on') || !$('#book').hidden || TUT.on) return;
+  const wl = wizLvl(), wUp = wl > (P.wlvl || 1); P.wlvl = Math.max(P.wlvl || 1, wl);
+  const learned = SB.book(P.mlvl, wl, P.spells).learned, fresh = learned.filter(s => !P.spells.includes(s.id));
+  if (!fresh.length) { if (wUp) { saveSoon(); toast(t('wiz_up', { n: wl })); } return; }
+  const firstEnh = fresh.some(s => s.tier === 'enhanced') && !P.spells.some(id => SB.BY_ID[id] && SB.BY_ID[id].tier === 'enhanced');
+  P.spells = P.spells.concat(fresh.map(s => s.id)); P.newSeen = fresh.map(s => s.id); saveSoon(true);
+  sfx.up(); confetti(['✨', '📖', '🪄', '⭐']);
+  const shown = fresh.slice().sort((x, y) => ME.num(x.v) - ME.num(y.v)), more = shown.length > 6 ? shown.length - 6 : 0;
+  const title = firstEnh ? t('enhanced_t') : fresh.length === 1 ? t('new_spell_t') : t('new_spells_t', { n: fresh.length });
+  modal((wUp ? t('wiz_up', { n: wl }) + ' ' : '') + title, (firstEnh ? `<p>${t('enhanced_b')}</p>` : '') + `<div class="newSpells">${shown.slice(0, 6).map(s => spellCard(s, false)).join('')}</div>` + (more ? `<p class="small">+${more}</p>` : '') + `<p class="small">${t('new_spell_tip')}</p>`,
+    [[t('open_book'), openBook], [t('ok'), null, true]]);
+}
+
 /* ====================== HOME & CRAFTING ====================== */
 // A recipe lists the RARITY of each ingredient it needs (0 common ... 4 legendary), not the exact item. Every ingredient must be a different item.
 const caulName = c => t('caul_' + c);   // 0 clay pot, 1 iron cauldron, 2 silver cauldron
@@ -3384,7 +3472,7 @@ function villageDone() {
 /* ----- 10-minute daily goal ----- */
 let tick = 0;
 setInterval(() => {
-  if (!P || TUT.on || document.hidden || !$('#game').classList.contains('on') || $('#modal').classList.contains('on')) return;
+  if (!P || TUT.on || document.hidden || !$('#game').classList.contains('on') || $('#modal').classList.contains('on') || !$('#book').hidden) return;   // the clock waits while a message or the spell book is open
   const d = today(); P.sec[d] = (P.sec[d] || 0) + 1; G.sess++;
   if (!G.goalShown && P.sec[d] >= CFG.DAILY_SEC) {
     G.goalShown = true; sfx.win(); confetti(['⭐', '🌟', '🏅']); saveSoon(true);
@@ -3416,6 +3504,8 @@ function startDemo() {
   const act = (q, path) => { document.querySelector('#modal').classList.remove('on'); const qs = P.quest[q]; qs.act = true; qs.path = path || null; qs.len = path ? path.length - 1 : 0; qs.enc = 0; qs.at = 0; qs.seeTo = 0; qs.seed = qs.seed || 7; qs.hearts = 3; beginQuest(q); };
   const D = {
     level(lv) { P.mlvl = +lv; P.mhist = []; P.mplace = 0; saveSoon(); goMenu(); toast(levelLbl(+lv)); },
+    wiz(n) { P.xp = SB.xpFor(+n); saveSoon(); goMenu(); },
+    book() { document.querySelector('#demoPanel').classList.remove('on'); openBook(); },
     stuff() { for (const id of ['star', 'moon', 'comet', 'rainbow', 'cloud', 'diamond', 'pearl', 'crown', 'dragonegg', 'leaf', 'seed', 'flower', 'root']) P.inv[id] = (P.inv[id] || 0) + 3; P.coins += 500; saveSoon(); toast('🎁 +500 coins and lots of ingredients'); if ($('#workshop').classList.contains('on')) renderWorkshop(); },
     items(v) { P.items = { amulet: v, staff: v, belt: v }; P.itemUses = { battle: blank(), peace: blank() }; saveSoon(); toast(v ? (v === 2 ? '🌟 All three items: legendary' : '💠 All three items: epic') : 'Items removed'); },
     refill() { P.itemUses = { battle: blank(), peace: blank() }; saveSoon(); toast('♻️ Item powers refilled'); },
@@ -3438,6 +3528,7 @@ function startDemo() {
   const B = (label, call) => `<button data-d="${call}">${label}</button>`;
   panel.innerHTML = '<b>🧪 Demo run: a pretend student</b> ' + B('✖ Exit demo', 'exit()') +
     '<h4>Math level</h4>' + Array.from({ length: CFG.MAX_LEVEL }, (_, i) => B(i + 1, `level(${i + 1})`)).join('') + B('Show locked workshop', 'fresh()') +
+    '<h4>Wizard level (opens spell types)</h4>' + [1, 3, 5, 8, 10, 12, 15, 18, 22, 30].map(n => B(n, `wiz(${n})`)).join('') + B('📖 Open the spell book', 'book()') +
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Fight areas (backgrounds)</h4>' + [1, 2, 3, 4, 5, 6].map(n => B(areaName(n), `area(${n})`)).join('') + '<h4>Monsters</h4>' + Object.keys(MON_DEF).map(k => B(monName(MON_DEF[k]) + (MON_DEF[k].boss ? ' 👑' : ''), `mon("${k}")`)).join('') +

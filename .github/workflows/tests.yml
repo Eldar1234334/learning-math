@@ -1,5 +1,5 @@
-name: Math engine tests
-# Runs the math engine tests (tests/math.test.js) on every upload, so a broken generator is caught before it reaches the test site.
+name: Tests
+# Runs the math engine and spell book tests (tests/) on every upload, so a broken generator or spell gate is caught before it reaches the test site.
 on:
   push:
   workflow_dispatch:
@@ -13,5 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Run the tests
+      - name: Run the math engine tests
         run: node tests/math.test.js
+      - name: Run the spell book tests
+        run: node tests/spells.test.js

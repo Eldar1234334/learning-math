@@ -96,6 +96,9 @@ The reading game deploys with `.github/workflows/pages.yml`: `main` is the **liv
 
 - 2026-10-10: the installed app's e-mail code service (`VERIFY_URL`) is **separate from the reading game's**: Math Wizard gets its own small Apps Script service, set up in phase 11 together with the progress sheet (decided by the project owner). Until then the app offers offline play only.
 - 2026-10-10: the credit line is "Created by Dr. Dadon Eldar" only (no HLA line).
+- 2026-10-10: "counts ½ toward moving up" (spec 01 §6.1) means a right shop, brewing, forging or review answer is worth half an answer in the window; a mistake always counts as a full answer (confirmed by the owner).
+- 2026-10-10: level 35 ratio problems are worded "the first part of 57 in the ratio 2:1" / "החלק הראשון של 57 ביחס 2:1" (confirmed by the owner).
+- 2026-10-10: the game keeps the name "Math Wizard" also in Hebrew mode for now (the owner may choose a Hebrew name later).
 
 ## 9. Questions and changes
 

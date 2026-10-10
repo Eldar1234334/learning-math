@@ -18,15 +18,16 @@ li{margin:4px 0}small{display:block;opacity:.85;margin-inline-start:18px}
 <div class="sum" id="sum">Running…</div>
 <ul id="list"></ul>
 <script src="../math.js"></script>
+<script src="../spells.js"></script>
 <script>
-setTimeout(() => {
-  const s = document.createElement('script'); s.src = 'math.test.js';
-  s.onload = () => {
-    const r = window.MATH_TEST_RESULTS || [], bad = r.filter(x => !x.ok);
+const load = src => new Promise(res => { const s = document.createElement('script'); s.src = src; s.onload = res; document.body.appendChild(s); });
+setTimeout(async () => {
+  await load('math.test.js'); await load('spells.test.js');
+  {
+    const r = [...(window.MATH_TEST_RESULTS || []), ...(window.SPELL_TEST_RESULTS || [])], bad = r.filter(x => !x.ok);
     document.getElementById('sum').innerHTML = bad.length ? `<b class="bad">${bad.length} of ${r.length} tests failed</b>` : `<b class="ok">All ${r.length} tests passed ✔</b>`;
     document.getElementById('list').innerHTML = r.map(x => `<li class="${x.ok ? 'ok' : 'bad'}">${x.ok ? '✔' : '✘'} ${x.name}${x.ok ? '' : `<small>${x.msg.replace(/</g, '&lt;')}</small>`}</li>`).join('');
-  };
-  document.body.appendChild(s);
+  }
 }, 30);
 </script>
 </body>
