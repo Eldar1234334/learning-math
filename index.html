@@ -481,7 +481,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="center" id="adminWrap"><a href="#" id="adminLink" class="adminLink">🔧 Teacher area</a></div>
   <div class="credit" id="privNote" style="display:none">🔒 Your hero stays on this device. Nothing is sent online.</div>
   <div class="center"><button class="btn ghost" id="installBtn" style="display:none;margin-top:10px">📲 Install the game on this device</button></div>
-  <div class="credit">Created by Dr. Dadon Eldar<br>in collaboration with HLA Hebrew Public</div>
+  <div class="credit">Created by Dr. Dadon Eldar</div>
 </section>
 
 <section id="admin" class="screen" style="max-width:1000px">
@@ -620,7 +620,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   </div>
   <div class="row" style="margin-top:10px"><button class="btn ghost danger" id="abandonMapBtn" style="display:none">🏳️ Abandon quest</button></div>
   <button class="ghostSmall" id="logoutBtn" title="Switch student">🚪 Switch student</button>
-  <div class="credit small">Created by Dr. Dadon Eldar in collaboration with HLA Hebrew Public</div>
+  <div class="credit small">Created by Dr. Dadon Eldar</div>
 </section>
 
 <section id="home" class="screen" style="max-width:760px">
@@ -737,7 +737,7 @@ const CFG = {
   DOWN_ACC: 0.5, DOWN_WINDOW: 8,                  // math level down: below 50% over the last 8 answers
   MAX_LEVEL: 36
 };
-const VERIFY_URL = '';   // the installed app's e-mail code service. The reading game's service is not reused until the project owner decides (HANDOFF §4, phase 11). Empty: the app offers offline play only.
+const VERIFY_URL = 'https://script.google.com/macros/s/AKfycbzIuiBkwzq4w-qRp7npB04m6T61X2sOniQ3fP95A_amw0wuyjst3YHtJKfVGUAUL5As/exec';   // the installed app's e-mail code service, shared with the reading game (decided by the project owner). It only sends and checks the e-mail code and counts people. No game data goes there.
 if (APP) CFG.SCRIPT_URL = '';        // the app never saves any game data online
 
 /* ====================== CONTENT ====================== */

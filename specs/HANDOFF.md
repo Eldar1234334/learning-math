@@ -92,6 +92,11 @@ The reading game deploys with `.github/workflows/pages.yml`: `main` is the **liv
 - Put the new URL in `CFG.SCRIPT_URL` of the math game only.
 - Signing in to Google and deploying are done by the project owner in their own browser. The build session prepares the script code and step-by-step instructions.
 
+## 8a. Decisions made during the build
+
+- 2026-10-10: the installed app's e-mail code service (`VERIFY_URL`) is **shared with the reading game** (decided by the project owner). It only sends and checks the code and counts people; no game data goes there.
+- 2026-10-10: the credit line is "Created by Dr. Dadon Eldar" only (no HLA line).
+
 ## 9. Questions and changes
 
 The design session stays open for new ideas and design questions. Bring back:
