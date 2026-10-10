@@ -737,7 +737,7 @@ const CFG = {
   DOWN_ACC: 0.5, DOWN_WINDOW: 8,                  // math level down: below 50% over the last 8 answers
   MAX_LEVEL: 36
 };
-const VERIFY_URL = 'https://script.google.com/macros/s/AKfycbzIuiBkwzq4w-qRp7npB04m6T61X2sOniQ3fP95A_amw0wuyjst3YHtJKfVGUAUL5As/exec';   // the installed app's e-mail code service, shared with the reading game (decided by the project owner). It only sends and checks the e-mail code and counts people. No game data goes there.
+const VERIFY_URL = '';   // the installed app's e-mail code service: Math Wizard gets its OWN (never the reading game's), set up in phase 11. Empty: the app offers offline play only.
 if (APP) CFG.SCRIPT_URL = '';        // the app never saves any game data online
 
 /* ====================== CONTENT ====================== */
