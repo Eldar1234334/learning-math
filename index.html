@@ -172,7 +172,7 @@ body.peace .foeBody{font-size:6rem}
 .potIco{display:inline-block;vertical-align:middle;width:1.3em;height:1.7em}.potIco .potSvg{width:100%;height:100%;display:block}
 .shopRobe{display:block;height:4rem}.shopRobe svg{height:100%;width:auto;display:block;margin:0 auto}.shopRobe.big{height:6.4rem}
 .qRobe{display:inline-block;height:3.4rem}.qRobe svg{height:100%;width:auto;display:block}.craftEm .qRobe{height:5rem}
-.beardRow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:4px 0}
+.gradeRow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.beardRow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:4px 0}
 .beardBtn{font:inherit;font-size:.85rem;color:#fff;background:#fff1;border:2px solid #fff3;border-radius:12px;padding:5px 10px;cursor:pointer}.beardBtn.sel{border-color:var(--gold);background:#ffd16622}
 .wsMan{z-index:40;transform:translate(-50%,-100%)}.wsMan svg{display:block;height:calc(var(--u)*27);width:auto;filter:drop-shadow(0 calc(var(--u)*.5) calc(var(--u)*.5) #0007)}
 .wsEmpty{z-index:8;transform:translate(-50%,-50%);background:#0005;border-radius:calc(var(--u)*1);padding:calc(var(--u)*.6) calc(var(--u)*1.4);font-size:max(8px,calc(var(--u)*2));white-space:nowrap;opacity:.8}
@@ -442,6 +442,12 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .langBtn:hover{background:#fff2}
 @media (max-width:560px){.langBtn{padding:5px 8px;font-size:.75rem}#game .vslider,#journey .vslider{display:none}}
 .expr{unicode-bidi:isolate;white-space:nowrap}
+/* fractions are written stacked (numerator over denominator), as at school; a mixed number has its whole part in front */
+.frw{display:inline-flex;align-items:center;gap:.06em;vertical-align:middle;direction:ltr}
+.fr{display:inline-flex;flex-direction:column;align-items:center;line-height:1;font-size:.62em;margin:0 .06em}
+.frt{border-bottom:.1em solid currentColor;padding:0 .14em .05em}.frb{padding:.05em .14em 0}
+.opt .fr{font-size:.66em}
+.big .expr{white-space:normal}
 /* scenes keep their own layout in both languages: the wizard stays on the left facing the monster, and the drawn rooms do not flip */
 .stage,#world,.rScene,.shScene,.jStage{direction:ltr}
 .stage .mid,.stage #foeName{direction:inherit}
@@ -555,6 +561,8 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div style="margin-top:8px" data-t="cr_hair"></div>
     <div class="swatches" id="hairSw"></div>
     <div id="beardSw" style="margin-top:8px"></div>
+    <div style="margin-top:8px" data-t="cr_grade"></div>
+    <div class="gradeRow" id="gradeSw"></div>
     <div data-th="cr_nick"></div>
     <input id="nick" type="text" maxlength="12" data-tp="nick_ph" autocomplete="off" style="margin:8px 0">
     <div class="msg" id="creatorMsg"></div>
@@ -726,6 +734,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <div class="tutFin" id="tutFin"><div class="tutFinBox"><div id="tutFinOwl" style="width:90px;margin:0 auto"></div><h2>You're ready!</h2><p>Remember: Pip is on your shoulder. Tap the owl button on the map any time to see this again.</p><button class="btn" id="tutBegin">Start playing ▶</button></div></div>
 <div id="modal"><div class="box"><h2 id="mTitle"></h2><div id="mBody"></div><div class="row" id="mBtns" style="margin-top:14px"></div></div></div>
 
+<script src="math.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -740,17 +749,17 @@ const CFG = {
   MAX_HEARTS: 3,            // hearts (fights) or smileys (village) the student can have
   HINT_AFTER: 5,            // from this encounter on, tell the student the monsters are getting stronger
   VILLAGE_NEED: 3, BIG_NEED: 5, FINALE_FULL_FROM: 12,    // correct answers a villager needs; a big request needs more
-  COIN_BY_TIER: [0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4],   // coin "unit" by level (index = level): a won fight pays up to FIGHT_UNITS units, each mistake takes one unit away
+  COIN_BY_MLVL: [[1, 1], [7, 2], [19, 3], [31, 4]],   // the coin "unit" by math level (spec 03 §6.1): [from level, unit]. A won fight pays up to FIGHT_UNITS units, each mistake takes one unit away
   FIGHT_UNITS: 3,           // a normal fight or villager takes 3 right answers: maximum coins = 3 x the level base amount; each mistake takes one base amount away
   BOSS_MIN: 3, BOSS_MAX: 5, // a boss / big request pays the normal amount times a random number between these
   EARLY_MULT: 2,            // coins are doubled during the first 10 minutes of play each day
   ODDS_NORMAL: [60, 30, 10], ODDS_BOSS: [60, 30, 10],   // chance (%) of common/uncommon/rare in normal fights; rare/epic/legendary in boss fights
   POUCH: 5, MAX_HEARTS_POT: 5,   // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
-  UP_ACC: 0.85, MIN_WINDOW: 10, MAX_WINDOW: 12,   // math level up: at least 85% over the last 10-12 answers (spec 01 §6)
-  DOWN_ACC: 0.5, DOWN_WINDOW: 8,                  // math level down: below 50% over the last 8 answers
-  MAX_LEVEL: 36
+  MAX_LEVEL: 36,            // the math ladder; moving up and down follows spec 01 §6 (the rules are in math.js: ME.RULES)
+  RECENT: 10                // a problem is not repeated within this many turns (spec 01 §5.2)
 };
+const coinUnit = lv => CFG.COIN_BY_MLVL.reduce((u, [from, x]) => lv >= from ? x : u, 1);
 const VERIFY_URL = '';   // the installed app's e-mail code service: Math Wizard gets its OWN (never the reading game's), set up in phase 11. Empty: the app offers offline play only.
 if (APP) CFG.SCRIPT_URL = '';        // the app never saves any game data online
 
@@ -922,6 +931,7 @@ const STR = {
   cr_robe: ['Pick a robe color:', 'בחרו צבע גלימה:'], cr_skin: ['Pick the skin that looks like you:', 'בחרו את צבע העור שדומה לשלכם:'], cr_hair: ['Pick your hair and beard colour:', 'בחרו צבע שיער וזקן:'],
   cr_nick: ['Choose a fun nickname <small>(not your real name)</small>:', 'בחרו כינוי כיפי <small>(לא השם האמיתי)</small>:'], nick_ph: ['Nickname', 'כינוי'], cr_go: ['Start my adventure ▶', 'יוצאים להרפתקה ◀'],
   nick_short: ['Please choose a nickname (at least 2 letters).', 'בחרו כינוי (לפחות 2 אותיות).'], facial_c: ['Facial hair:', 'שיער פנים:'],
+  cr_grade: ['Which grade are you in?', 'באיזו כיתה אתם?'], grade_n: ['Grade {n}', 'כיתה {h}'],
   look_t: ['🎨 My look', '🎨 המראה שלי'], robe: ['Robe', 'גלימה'], skin: ['Skin', 'עור'], hair: ['Hair and beard', 'שיער וזקן'], facial: ['Facial hair', 'שיער פנים'],
   save: ['Save', 'שמירה'], cancel: ['Cancel', 'ביטול'],
   beard_none: ['No facial hair', 'בלי שיער פנים'], beard_mustache: ['Mustache', 'שפם'], beard_short: ['Short beard', 'זקן קצר'], beard_long: ['Long beard', 'זקן ארוך'],
@@ -974,8 +984,8 @@ const STR = {
   forge_t: ['🛠️ Solve it to put the ingredient in the forge!', '🛠️ פתרו כדי להכניס את המרכיב לכבשן!'], forge_t_last: ['🛠️ Solve it to bind the magic!', '🛠️ פתרו כדי לקשור את הקסם!'],
   forge_s: ['Pick the right answer. A wrong answer costs nothing.', 'בחרו את התשובה הנכונה. טעות לא עולה כלום.'],
   shop_t: ['🧙 The merchant asks you a question!', '🧙 המוכר שואל אתכם שאלה!'], shop_s: ['Pick the right answer to buy it. Wrong answers cost nothing!', 'בחרו את התשובה הנכונה כדי לקנות. טעויות לא עולות כלום!'],
-  // words inside math problems (stand-in problems until the math engine of step 2)
-  m_of: ['{a} of {b}', '{a} מ־{b}'], m_double: ['double {a}', 'פי 2 מ־{a}'], m_half: ['half of {a}', 'חצי מ־{a}'],
+  // words inside math problems
+  m_of: ['{a} of {b}', '{a} מ־{b}'], m_double: ['double {a}', 'פי 2 מ־{a}'], m_half: ['half of {a}', 'חצי מ־{a}'], m_ratio: ['first part of {a} in the ratio {b}', 'החלק הראשון של {a} ביחס {b}'],
   // potions
   pot_heart: ['Heart', 'לב'], pot_heart_d: ['Gives one more heart (up to 5)', 'נותן עוד לב (עד 5)'], pot_sound: ['Hint', 'רמז'], pot_sound_d: ['Shows the answers on the spell cards (coming soon)', 'מראה את התשובות על קלפי הכישוף (בקרוב)'],
   pot_power: ['Power', 'עוצמה'], pot_power_d: ['The enemy needs one right answer less', 'צריך תשובה נכונה אחת פחות כדי לנצח'], pot_second: ['Second chance', 'הזדמנות שנייה'], pot_second_d: ['Undo a mistake and answer again', 'מבטל טעות ומאפשר לענות שוב'],
@@ -1072,10 +1082,15 @@ const nameOf = x => LANG === 'he' ? x.he : cap(x.en);   // ingredients, shop ite
 const plural = (n, one, many) => n === 1 ? t(one) : t(many, { n });
 const MATH_DIV = () => LANG === 'he' ? ':' : '÷';
 // A math expression for the screen: pure math is always written left to right; problems with words ("¾ of 12") follow the language.
-// Expressions are stored with neutral tokens: ÷ is the division sign, {of:a|b}, {double:a} and {half:a} are the words.
-function exprText(e) { return e.replace(/÷/g, MATH_DIV()).replace(/\{(of|double|half):([^|}]*)(?:\|([^}]*))?\}/g, (m, w, a, b) => t('m_' + w, { a, b })); }
-const exprDir = e => /\{(of|double|half):/.test(e) && LANG === 'he' ? 'rtl' : 'ltr';
-const exprHtml = (e, ans) => `<span dir="${exprDir(e)}" class="expr">${esc(exprText(e))}${ans != null ? ' = ' + esc(ans) : ''}</span>`;
+// Expressions are stored with neutral tokens (math.js): ÷ is the division sign, [3/4] and [2 1/3] are fractions, {of:a|b}, {double:a}, {half:a} and {ratio:a|b} are the words.
+const WORDS = /\{(of|double|half|ratio):([^|}]*)(?:\|([^}]*))?\}/g;
+function exprText(e) { return e.replace(/÷/g, MATH_DIV()).replace(WORDS, (m, w, a, b) => t('m_' + w, { a, b })); }   // fraction tokens are kept
+const exprDir = e => /\{(of|double|half|ratio):/.test(e) && LANG === 'he' ? 'rtl' : 'ltr';
+// With an answer: the worked line. A problem with a missing number (□) shows the answer in the box's place ("⅓ = 8/24"); others end with "= answer".
+function exprHtml(e, ans) {
+  const filled = ans != null && e.includes('□'), body = filled ? e.replace('□', ME.isWhole(ans) ? String(ans.n) : ME.tok(ans)) : e;
+  return `<span dir="${exprDir(e)}" class="expr">${ME.tokHtml(esc(exprText(body)))}${ans != null && !filled ? ' = ' + ME.fmtHtml(ans) : ''}</span>`;
+}
 // Fill every tagged text on the page: data-t (text), data-th (HTML), data-tp (placeholder), data-tt (title), data-ta (aria-label).
 function applyLang() {
   const h = document.documentElement; h.lang = LANG; h.dir = LANG === 'he' ? 'rtl' : 'ltr';
@@ -1262,19 +1277,25 @@ let toneBag = []; const nextTone = () => { if (!toneBag.length) toneBag = shuffl
 let P = null;                // current profile
 let saveTimer = null, cloudState = '';
 
-function newProfile(id, nick, gender, color, real, cls, skin, hair) {
-  const p = migrate({ id, nick, gender, color, real: real || '', cls: cls || '', tier: 1, hist: [], xp: 0, n: 0, ok: 0, stats: {},
+function newProfile(id, nick, gender, color, real, cls, skin, hair, grade) {
+  const g = Math.min(6, Math.max(1, +grade || 1));
+  const p = migrate({ id, nick, gender, color, real: real || '', cls: cls || '', grade: g, mlvl: ME.gradeStart(g), xp: 0, n: 0, ok: 0, stats: {},
     sec: {}, created: Date.now(), updated: Date.now() });
+  p.mplace = ME.RULES.placeAnswers;   // the placement phase: the first answers move a misplaced student fast (spec 01 §6)
   p.pot = Object.assign({}, STARTER_POTIONS);   // a free starter set waits at Home
   p.tutorialDone = true;    // the reading game's tutorial is switched off; the new math tutorial comes in phase 10
   p.skin = skin || DEFAULT_SKIN; p.hair = hair || null; p.lookPrompt = false;   // a new hero chose their look already
   return p;
 }
-/* ---- profile versions: Math Wizard is a new game with new profiles, so it starts again at version 1. Missing fields are filled in with defaults. ---- */
-const PROFILE_V = 1;
+/* ---- profile versions: Math Wizard is a new game with new profiles, so it starts again at version 1. Missing fields are filled in with defaults.
+   Version 2: the math engine. tier → mlvl (math level 1–36), hist → mhist (the scored answers with their weights), mfacts (weak spots), mplace (placement answers left), grade. ---- */
+const PROFILE_V = 2;
 function migrate(p) {
   if (!p || typeof p !== 'object') return p;
   const blankUses = () => ({ amulet: 0, staff: 0, belt: 0 });
+  if (p.mlvl == null) p.mlvl = Math.min(CFG.MAX_LEVEL, Math.max(1, p.tier || 1));   // test profiles from version 1
+  delete p.tier; delete p.hist;
+  p.mhist = Array.isArray(p.mhist) ? p.mhist : []; p.mfacts = p.mfacts || {}; p.mplace = p.mplace || 0; p.grade = p.grade || ME.gradeOf(p.mlvl);
   p.quest = p.quest || {};
   for (const k of ['battle', 'peace']) {   // len 0 = the run is not rolled yet; act = a quest run is in progress
     const q = p.quest[k] = p.quest[k] || {}; q.ch = q.ch || 1; q.enc = q.enc || 0; q.len = q.len || 0; q.hearts = q.hearts || CFG.MAX_HEARTS; q.restarts = q.restarts || 0; q.act = !!q.act;
@@ -1284,7 +1305,7 @@ function migrate(p) {
   p.pot = p.pot || {}; p.carry = p.carry || {};           // potions at Home, and in the quest pouch
   p.coins = p.coins || 0; p.coinDay = p.coinDay || { d: '', c: 0 };   // balance, and coins earned today
   p.own = p.own || { caul: 0, decor: [] }; p.own.decor = p.own.decor || []; p.own.pos = p.own.pos || {};   // cauldron level, decorations and where they stand in the room
-  p.craft = p.craft || { n: 0, ok: 0 };                   // crafting and shop answers (kept apart from the level window)
+  p.craft = p.craft || { n: 0, ok: 0 };                   // crafting and shop answers (they also count toward the math level, with half weight up)
   p.superCh = p.superCh || 0;                             // chapter in which the super potion was last used
   p.style = p.style || null; p.acc = p.acc || {}; p.wd = p.wd || [];   // the wardrobe: robe style, accessories, and what you own of them
   p.beard = p.beard || (p.gender === 'f' ? 'none' : 'short');
@@ -1320,7 +1341,7 @@ function saveSoon(now) {
 async function cloudSave() {
   if (!P || !CFG.SCRIPT_URL) return;
   const total = Object.values(P.sec).reduce((a, b) => a + b, 0);
-  const body = JSON.stringify({ id: P.id, nick: P.nick, tier: P.tier, xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
+  const body = JSON.stringify({ id: P.id, nick: P.nick, mlvl: P.mlvl, tier: P.mlvl, xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
     min: Math.round(total / 60), coins: Math.floor(P.coins || 0), craftAcc: P.craft && P.craft.n ? Math.round(100 * P.craft.ok / P.craft.n) : 0, restarts: P.restartsTotal || 0, real: P.real || '', cls: P.cls || '', data: JSON.stringify(P) });
   try {
     const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body, keepalive: body.length < 60000 });
@@ -1481,20 +1502,21 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instal
 window.addEventListener('appinstalled', () => { installEvt = null; $('#installBtn').style.display = 'none'; toast(t('installed')); });
 $('#installBtn').onclick = async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('#installBtn').style.display = 'none'; };
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
-function openCreator() { cr = { g: 'm', color: rnd(COLORS), skin: SKINS[2], hair: null, beard: 'short' }; $('#nick').value = ''; $('#creatorMsg').textContent = ''; drawCreator(); show('creator'); }
+function openCreator() { cr = { g: 'm', color: rnd(COLORS), skin: SKINS[2], hair: null, beard: 'short', grade: 1 }; $('#nick').value = ''; $('#creatorMsg').textContent = ''; drawCreator(); show('creator'); }
 const swatchRow = (list, cur, key) => list.map((c, i) => `<button class="sw ${c === cur ? 'sel' : ''}" data-k="${key}" data-i="${i}" style="background:${c}" aria-label="${key}"></button>`).join('');
 function drawCreator() {
   $('#prevHero').innerHTML = heroSVG(cr.g, cr.color, cr.skin, cr.hair, { beard: cr.beard });
   $('#beardSw').innerHTML = cr.g === 'm' ? `<div>${t('facial_c')}</div>` + beardRow(cr.beard) : '';
   document.querySelectorAll('.gbtn').forEach(b => { b.classList.toggle('sel', b.dataset.g === cr.g); const tm = SKIN_MOD[SKINS.indexOf(cr.skin)] || '', zj = String.fromCharCode(0x200d); b.textContent = b.dataset.g === 'm' ? '🧙' + tm + zj + '♂️ ' + t('wizard') : '🧙' + tm + zj + '♀️ ' + t('witch'); });   // the icons wear the chosen skin tone
+  $('#gradeSw').innerHTML = [1, 2, 3, 4, 5, 6].map(g => `<button class="beardBtn ${g === cr.grade ? 'sel' : ''}" data-grade="${g}">${t('grade_n', { n: g, h: 'אבגדהו'[g - 1] + '׳' })}</button>`).join('');   // the student starts at the first level of this grade (spec 01 §6.2)
   $('#swatches').innerHTML = swatchRow(COLORS, cr.color, 'color'); $('#skinSw').innerHTML = swatchRow(SKINS, cr.skin, 'skin'); $('#hairSw').innerHTML = swatchRow(HAIRS, cr.hair || (cr.g === 'f' ? '#7a4a21' : '#f2f2f2'), 'hair');
 }
-$('#creator').onclick = e => { const bb = e.target.closest('.beardBtn'); if (bb) { cr.beard = bb.dataset.beard; drawCreator(); return; } const b = e.target.closest('.sw'); if (!b) return; const k = b.dataset.k, i = +b.dataset.i; cr[k] = k === 'color' ? COLORS[i] : k === 'skin' ? SKINS[i] : HAIRS[i]; drawCreator(); };
+$('#creator').onclick = e => { const gb = e.target.closest('[data-grade]'); if (gb) { cr.grade = +gb.dataset.grade; drawCreator(); return; } const bb = e.target.closest('.beardBtn'); if (bb) { cr.beard = bb.dataset.beard; drawCreator(); return; } const b = e.target.closest('.sw'); if (!b) return; const k = b.dataset.k, i = +b.dataset.i; cr[k] = k === 'color' ? COLORS[i] : k === 'skin' ? SKINS[i] : HAIRS[i]; drawCreator(); };
 document.querySelectorAll('.gbtn').forEach(b => b.onclick = () => { cr.g = b.dataset.g; drawCreator(); });
 $('#createBtn').onclick = () => {
   const nick = $('#nick').value.trim();
   if (nick.length < 2) { $('#creatorMsg').textContent = t('nick_short'); return; }
-  P = newProfile(pendingId, nick, cr.g, cr.color, pendingReal, pendingCls, cr.skin, cr.hair); P.lang = LANG; P.beard = cr.g === 'm' ? cr.beard : 'none'; if (APP) { P.app = true; if (pendingId.startsWith('local-')) P.local = true; } pendingReal = pendingCls = ''; saveSoon(true); openMenu(); if (!P.tutorialDone) startTutorial();
+  P = newProfile(pendingId, nick, cr.g, cr.color, pendingReal, pendingCls, cr.skin, cr.hair, cr.grade); P.lang = LANG; P.beard = cr.g === 'm' ? cr.beard : 'none'; if (APP) { P.app = true; if (pendingId.startsWith('local-')) P.local = true; } pendingReal = pendingCls = ''; saveSoon(true); openMenu(); if (!P.tutorialDone) startTutorial();
 };
 
 /* ====================== MENU ====================== */
@@ -1505,7 +1527,7 @@ function openMenu() {
   $('#menuWho').textContent = P.nick;
   $('#menuRank').textContent = rankOf(P.xp) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
   $('#menuXp').style.width = ((P.xp % 400) / 4) + '%';
-  $('#menuTier').textContent = levelLbl(P.tier);
+  $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
   $('#menuToday').textContent = t('min_today', { m: Math.min(10, Math.floor(sec / 60)) }) + (sec >= CFG.DAILY_SEC ? ' ⭐' : '');
   $('#menuStreak').textContent = plural(streak(), 'days_1', 'days_n');
@@ -1524,7 +1546,7 @@ const PLACES = { gate: { say: 'שער', door: [76, 52] }, board: { say: 'לוח'
 let walking = false;
 function tinker() { try { [0, .13, .3, .42, .6].forEach((d, i) => tone(i % 2 ? 520 : 380, .07, 'triangle', .05, d)); } catch (e) {} }   // a gentle tinkering from inside the shuttered workshop
 function workshopState() {   // the fifth place: shuttered until level 8, then it lights up (with a short celebration the first time)
-  const b = $('#placeWork'), open = P.tier >= 8;
+  const b = $('#placeWork'), open = P.mlvl >= 8;
   b.classList.toggle('shut', !open); b.querySelector('.pIcon').textContent = open ? '⚒️' : '🏚️';
   b.querySelector('.sign').innerHTML = open ? `<b>${t('pl_work')}</b><small>${t('pl_work_d')}</small>` : `<b>?</b><small>${t('pl_shut')}</small>`;
   if (open && !P.ws.on) { P.ws.on = true; saveSoon(true); setTimeout(() => { sfx.win(); confetti(['🛠️', '✨', '💡', '🔮']); modal(t('ws_light_t'), `<p style="text-align:center;font-size:3rem;margin:4px">⚒️</p><p style="text-align:center">${t('ws_light_b')}</p>`, [[t('go_ws'), () => walkTo('work')], [t('later'), null, true]]); }, 600); }
@@ -1541,7 +1563,7 @@ function enterPlace(id) {
 }
 function walkTo(id) {
   if (TUT.on) { if (walking) return; if (!TUT.allowed || !TUT.allowed.includes(id)) { const el = document.querySelector(`.place[data-p="${id}"]`); if (el) { el.classList.remove('tutShake'); void el.offsetWidth; el.classList.add('tutShake'); } placeHero(START.x, START.y); tutSay("Not yet! Let's try the glowing place first."); return; } }
-  if (id === 'work' && P.tier < 8) { placeHero(START.x, START.y); toast(t('ws_locked')); tinker(); return; }
+  if (id === 'work' && P.mlvl < 8) { placeHero(START.x, START.y); toast(t('ws_locked')); tinker(); return; }
   if (walking) return;
   if (isLocked(id)) { placeHero(START.x, START.y); toast(t('quest_locked')); return; }
   walking = true;
@@ -1570,64 +1592,26 @@ $('#logoutBtn').onclick = async () => { saveSoon(true); await sleep(300); P = nu
 $('#menuMute').onclick = $('#muteBtn').onclick = () => setMute(!muted);
 $('#homeBtn').onclick = () => { saveSoon(true); G.quest === 'shop' ? openShop() : G.quest === 'craft' ? openHome() : G.quest === 'forge' ? openWorkshop() : openMenu(); };
 
-/* ====================== QUESTIONS (temporary, phase 0) ====================== */
-// Question: {kind:'choice', title(), sub(), big, bigSm, options:[{html,cls,ok,fx,em,note()}], key, explain()}. The texts are functions, so a language switch can relabel an open question.
-// A PLACEHOLDER until the math engine (phase 2, spec 01): one whole-number problem in roughly the range of each math level, answered with number buttons.
-// Problems are stored with neutral tokens (÷, {of:a|b}, {double:a}, {half:a}); exprHtml() shows them in the student's language. The stored text is also the statistics key.
-const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-const MS = { plus: '+', minus: '−', times: '×', div: '÷' };
-function stubProblem(lv) {
-  const { plus, minus, times, div } = MS, coin = () => Math.random() < .5;
-  const sum = (a, b) => [`${a} ${plus} ${b}`, a + b], dif = (a, b) => [`${a} ${minus} ${b}`, a - b], mul = (a, b) => [`${a} ${times} ${b}`, a * b];
-  const FR = [['½', 1, 2], ['⅓', 1, 3], ['¼', 1, 4], ['¾', 3, 4], ['⅔', 2, 3], ['⅕', 1, 5]];
-  switch (true) {
-    case lv === 1: { const a = rint(1, 4); return sum(a, rint(1, 5 - a)); }
-    case lv === 2: { const a = rint(1, 9); return sum(a, rint(1, 10 - a)); }
-    case lv === 3: { const a = rint(2, 10); return dif(a, rint(1, a - 1)); }
-    case lv === 4: { const a = rint(1, 8), b = rint(1, 9 - a); return coin() ? [`${a} ${plus} □ = ${a + b}`, b] : stubProblem(rint(2, 3)); }
-    case lv === 5: { const t = rint(1, 8); return coin() ? sum(10 + t, rint(1, 9 - t)) : dif(10 + t + 1, rint(1, t + 1)); }
-    case lv === 6: { const a = rint(2, 9); if (coin()) return sum(a, rint(11 - a, 9)); const x = rint(11, 17); return dif(x, rint(x - 9, 9)); }
-    case lv === 7: { const a = rint(1, 9), x = rint(2, 10); return coin() ? sum(10 * a, 10 * rint(1, 10 - a)) : dif(10 * x, 10 * rint(1, x - 1)); }
-    case lv <= 9: { const a = rint(11, 89); return coin() ? sum(a, rint(1, 9)) : dif(a, rint(1, 9)); }
-    case lv === 10: { const a = rint(12, 80); return coin() ? sum(a, rint(11, 99 - a)) : dif(a + 15, rint(11, a)); }
-    case lv === 11: return mul(rnd([2, 5, 10]), rint(1, 10));
-    case lv === 12: { const k = rint(2, 10); return coin() ? mul(rnd([2, 3, 4, 5, 10]), rint(1, 10)) : coin() ? [`{double:${k}}`, 2 * k] : [`{half:${2 * k}}`, k]; }
-    case lv === 13: return mul(rint(1, 5), rint(1, 10));
-    case lv === 14: return mul(rint(6, 10), rint(1, 10));
-    case lv === 15: { const b = rint(2, 10), q = rint(1, 10); return [`${b * q} ${div} ${b}`, q]; }
-    case lv === 16: { const a = rint(2, 10), b = rint(1, 10); return coin() ? [`${a} ${times} □ = ${a * b}`, b] : [`□ ${div} ${a} = ${b}`, a * b]; }
-    case lv === 17: { const a = rint(100, 800); return coin() ? sum(a, rint(10, 999 - a)) : dif(a + 150, rint(10, a)); }
-    case lv === 18: return coin() ? mul(rint(2, 99), 10) : mul(rint(2, 9), 100);
-    case lv === 19: { const b = rint(2, 9); return mul(rint(11, Math.floor(999 / b)), b); }
-    case lv === 20: { const b = rint(2, 9), q = rint(11, Math.floor(999 / b)); return [`${b * q} ${div} ${b}`, q]; }
-    case lv === 21: { const a = 10 * rint(100, 800); return coin() ? sum(a, 10 * rint(10, 999 - a / 10)) : dif(a + 1500, 10 * rint(10, a / 10)); }
-    case lv === 22: { const [g, n, d] = rnd(FR.slice(0, 4)), k = d * rint(2, 8); return [`{of:${g}|${k}}`, k / d * n]; }
-    case lv === 23: { const [g, n, d] = rnd(FR), k = rint(2, 4); return [`${g} = □/${d * k}`, n * k]; }
-    case lv === 24: { const a = rint(1, 9), b = rint(2, 6), c = rint(2, 6); return coin() ? [`${a} ${plus} ${b} ${times} ${c}`, a + b * c] : [`(${a} ${plus} ${b}) ${times} ${c}`, (a + b) * c]; }
-    case lv <= 27: { const [g, n, d] = rnd(FR), k = d * rint(1, 4); return [`${g} ${times} ${k}`, k / d * n]; }
-    case lv <= 29: { let x; do x = rint(11, 99); while (x % 10 === 0); return coin() ? [`${x / 10} ${times} 10`, x] : [`${x / 100} ${times} 100`, x]; }
-    case lv === 30: return mul(rint(11, 25), rint(11, 19));
-    case lv <= 33: { const [g, n, d] = rnd(FR.slice(0, 4)), k = d * rint(2, 6); return [`${g} ${times} ${k}`, k / d * n]; }
-    case lv <= 35: { const p = rnd([10, 20, 25, 50, 75]), base = rnd([20, 40, 60, 80, 100, 120, 200]); return (p * base) % 100 ? stubProblem(lv) : [`{of:${p}%|${base}}`, p * base / 100]; }
-    default: { const k = 4 * rint(1, 5); return [`(½ ${plus} ¼) ${times} ${k}`, k * 3 / 4]; }
-  }
+/* ====================== QUESTIONS ====================== */
+// Question: {kind:'choice', title(), sub(), big, bigSm, p (the engine's problem), src, options:[{html,cls,ok,fx,em,note()}], key, explain()}.
+// The texts are functions, so a language switch can relabel an open question. The problems come from the math engine (math.js, spec 01).
+// For now the student picks the answer from number buttons; the spell cards (answers hidden) come in step 4.
+function mathQ(p, title, sub) {   // p: a problem from the math engine
+  const n = P.mlvl <= 4 ? 3 : 4, mon = G.mon, em = mon ? SPELL_EM[EL[mon.el].weak[0]] : '✨';
+  const vals = shuffle([p.a, ...ME.distractors(p, n - 1)]);
+  G.recent = (G.recent || []).concat(p.key).slice(-CFG.RECENT);
+  return { kind: 'choice', key: p.key, lastKey: p.key, p, src: p.src || 'cur', title, sub, big: p.e, bigSm: exprText(p.e).replace(/\[[^\]]*\]/g, 'xx').length > 9 || /\{/.test(p.e),
+    options: vals.map(v => ({ html: ME.fmtHtml(v), cls: 'num', ok: ME.eq(v, p.a), fx: 'none', em, note: () => t('mq_not', { e: exprHtml(p.e), x: ME.fmtHtml(v) }) })),
+    explain: () => exprHtml(p.e, p.a) };
 }
-function stubOptions(ans, n) {   // the right answer and close wrong ones (±1, ±2, ±10), all different and never below 0
-  const near = shuffle([1, -1, 2, -2, 10, -10, 3, -3]).map(d => ans + d).filter(x => x >= 0 && x !== ans);
-  return shuffle([ans, ...[...new Set(near)].slice(0, n - 1)]);
+const recentSet = () => new Set(G.recent || []);
+function makeQ() {   // a fight: the student's own level, with review cards and weak spots mixed in
+  const p = ME.next(P.mlvl, { facts: P.mfacts, avoid: recentSet() });
+  if (G.quest === 'battle') return mathQ(p, () => t('mq_battle_t', { mon: monName(G.mon) }), () => t('mq_battle_s'));
+  return mathQ(p, () => t('mq_vill_t', { name: G.fname || '' }), () => t('mq_pick'));
 }
-function mathQ(lv, title, sub) {   // title and sub are functions that return the text in the current language
-  const cand = Array.from({ length: 6 }, () => { const [expr, ans] = stubProblem(lv); return { expr, ans }; });
-  const p = wpick(cand, c => 'M:' + c.expr, G.lastKey);   // problems answered wrong before come back more often
-  const n = lv <= 4 ? 3 : 4, mon = G.mon, em = mon ? SPELL_EM[EL[mon.el].weak[0]] : '✨';
-  return { kind: 'choice', key: 'M:' + p.expr, lastKey: 'M:' + p.expr, title, sub, big: p.expr, bigSm: exprText(p.expr).length > 9,
-    options: stubOptions(p.ans, n).map(x => ({ html: String(x), cls: 'num', ok: x === p.ans, fx: 'none', em, note: () => t('mq_not', { e: exprHtml(p.expr), x }) })),
-    explain: () => exprHtml(p.expr, p.ans) };
-}
-function makeQ() {
-  if (G.quest === 'battle') return mathQ(P.tier, () => t('mq_battle_t', { mon: monName(G.mon) }), () => t('mq_battle_s'));
-  return mathQ(P.tier, () => t('mq_vill_t', { name: G.fname || '' }), () => t('mq_pick'));
-}
+// Brewing, the shop and the workshop use the easy step: one level below the student's (spec 01 §7). Their answers count with the 'craft' weight.
+const craftProblem = () => Object.assign({}, ME.next(Math.max(1, P.mlvl - 1), { facts: P.mfacts, avoid: recentSet(), noReview: true }), { src: 'craft' });
 
 /* ====================== MONSTER ARTWORK ====================== */
 // 14 monsters and 6 bosses drawn as cute-spooky animated characters (140x140 SVG). Reused from the approved preview.
@@ -2090,7 +2074,7 @@ const FINALE_PROJECTS = [
   { site: 'festival', name: 'The decorations', result: '🎊', needs: [['מנורה', 'Something to hold a light for the hall.'], ['דגל', 'A colourful cloth that waves on a pole.'], ['פרח', 'And something pretty from the garden.']] },
   { site: 'festival', name: 'The music', result: '🎶', needs: [['תוף', 'A round thing that you hit to go boom.'], ['חליל', 'A thin pipe that you blow into.'], ['פעמון', 'And something that goes ding.']] }
 ];
-const finaleProjects = () => P.tier >= CFG.FINALE_FULL_FROM ? FINALE_PROJECTS : [FINALE_PROJECTS[0], FINALE_PROJECTS[2]];   // the feast and the music (6 answers); from level 12 the decorations are added too (9 answers)
+const finaleProjects = () => P.mlvl >= CFG.FINALE_FULL_FROM ? FINALE_PROJECTS : [FINALE_PROJECTS[0], FINALE_PROJECTS[2]];   // the feast and the music (6 answers); from level 12 the decorations are added too (9 answers)
 let lastProj = {};   // the project each site had last, so it is not picked twice in a row
 function pickProject(bg) {
   const list = PROJECTS.filter(p => p.site === bg), pool = list.length > 1 ? list.filter(p => p !== lastProj[bg]) : list, p = rnd(pool.length ? pool : PROJECTS.filter(x => x.site === 'bakery'));
@@ -2297,7 +2281,7 @@ function jWalk() {
   };
   requestAnimationFrame(step);
 }
-function jCoins(units) { const c = Math.max(1, (CFG.COIN_BY_TIER[P.tier] || 1)) * units; P.coins = (P.coins || 0) + c; const d = today(); if (P.coinDay.d !== d) P.coinDay = { d, c: 0 }; P.coinDay.c += c; return c; }
+function jCoins(units) { const c = coinUnit(P.mlvl) * units; P.coins = (P.coins || 0) + c; const d = today(); if (P.coinDay.d !== d) P.coinDay = { d, c: 0 }; P.coinDay.c += c; return c; }
 function jArrive(i) {
   const qs = P.quest[J.q], code = qs.path[i - 1], kind = code[0], v = jVillage();
   if (kind === 'm' || kind === 's' || kind === 'B') { jDraw(); jHud(); enterFight(); return; }   // the normal fight / village screen
@@ -2336,7 +2320,7 @@ function newEncounter() {   // the stop the wizard just walked to: a monster or 
   const qs = P.quest[G.quest]; ensurePath(G.quest);
   const stop = qs.path[qs.at || 0] || 'm', boss = stop[0] === 'B';
   G.site = stop[0] === 's' ? SITES[+stop.slice(1)] : null;
-  G.hearts = qs.hearts; G.helped = 0; G.lastKey = null; G.mist = 0; G.fightTier = P.tier; G.potUsed = false; G.snap = null; G.noCount = false; G.projs = (G.quest === 'peace' && P.tier >= 8) ? (boss ? finaleProjects() : [pickProject(G.site ? G.site.bg : 'bakery')]) : null; G.need = G.projs ? G.projs.length * 3 : G.quest === 'peace' ? (boss ? CFG.BIG_NEED : CFG.VILLAGE_NEED) : 0;   // mistakes in this fight (G.mist) lower the coins and the rarity of the loot
+  G.hearts = qs.hearts; G.helped = 0; G.lastKey = null; G.mist = 0; G.fightLvl = P.mlvl; G.potUsed = false; G.snap = null; G.noCount = false; G.projs = (G.quest === 'peace' && P.mlvl >= 8) ? (boss ? finaleProjects() : [pickProject(G.site ? G.site.bg : 'bakery')]) : null; G.need = G.projs ? G.projs.length * 3 : G.quest === 'peace' ? (boss ? CFG.BIG_NEED : CFG.VILLAGE_NEED) : 0;   // mistakes in this fight (G.mist) lower the coins and the rarity of the loot
   if (G.quest === 'battle') {
     const ar = AREA_MON[(qs.ch - 1) % 6], mk = window.__forceMon || (boss ? ar.b : rnd(ar.n)), def = { ...MON_DEF[mk], key: mk };
     const isBoss = !!def.boss; G.mon = { ...def, boss: isBoss, max: isBoss ? 6 : 3, hp: isBoss ? 6 : 3 };
@@ -2430,7 +2414,7 @@ function updateBars() {
   $('#hearts').textContent = b ? '❤️'.repeat(hs) + '🖤'.repeat(mx - hs) : '😊'.repeat(hs) + '😐'.repeat(mx - hs);
   $('#heroBox').classList.toggle('heroGlow', b && G.combo >= 3);   // on a hot streak the hero glows
   $('#hpFill').style.width = (b ? G.mon.hp / G.mon.max * 100 : G.helped / G.need * 100) + '%';
-  $('#tierLbl').textContent = levelLbl(P.tier);
+  $('#tierLbl').textContent = levelLbl(P.mlvl);
   $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
 }
 /* ----- abandoning a quest: leave the run, keep coins and ingredients, start from the beginning next time ----- */
@@ -2462,15 +2446,19 @@ function showQuestion() {   // draws G.q (a Second chance potion draws the same 
 }
 
 /* ----- recording & adaptive difficulty ----- */
-function record(key, ok) {
+// One scored answer (spec 01 §6.1): per-problem statistics, the weak-spot memory, and the sliding window that moves the math level.
+// src: 'cur' (the student's level), 'review' (an earlier level), 'weak', 'hard', or 'craft' (shop, brewing, forging). Their weights are in ME.WEIGHT.
+function record(q, ok) {
   if (G.noCount) return '';   // a question touched by a potion never reaches the statistics
-  const s = P.stats[key] || (P.stats[key] = [0, 0]); s[ok ? 0 : 1]++;
+  const key = q.key, s = P.stats[key] || (P.stats[key] = [0, 0]); s[ok ? 0 : 1]++;
   P.n++; if (ok) P.ok++;
-  P.hist.push(ok ? 1 : 0); while (P.hist.length > CFG.MAX_WINDOW) P.hist.shift();
-  const len = P.hist.length, acc = P.hist.reduce((a, b) => a + b, 0) / len;
-  const down = P.hist.slice(-CFG.DOWN_WINDOW), downAcc = down.reduce((a, b) => a + b, 0) / down.length;
-  if (len >= CFG.MIN_WINDOW && acc >= CFG.UP_ACC && P.tier < CFG.MAX_LEVEL) { P.tier++; P.hist = []; return 'up'; }
-  if (down.length >= CFG.DOWN_WINDOW && downAcc < CFG.DOWN_ACC && P.tier > 1) { P.tier--; P.hist = []; return 'down'; }
+  if (q.p) ME.noteFact(P.mfacts, q.p, ok);
+  const w = ME.WEIGHT[q.src] || ME.WEIGHT.cur;
+  P.mhist.push({ ok: ok ? 1 : 0, u: w.u, d: w.d }); if (P.mhist.length > 40) P.mhist.splice(0, P.mhist.length - 40);
+  const placing = P.mplace > 0; if (placing) P.mplace--;
+  const move = ME.judge(P.mhist, placing ? P.mplace + 1 : 0);
+  if (move === 'up' && P.mlvl < CFG.MAX_LEVEL) { P.mlvl++; P.mhist = []; return 'up'; }
+  if (move === 'down' && P.mlvl > 1) { P.mlvl--; P.mhist = []; return 'down'; }
   return '';
 }
 function gainXp(ok) {
@@ -2493,8 +2481,8 @@ async function flySpell(emoji) {
   } catch (e) {}
 }
 function after(tier) {
-  if (tier === 'up') { sfx.up(); confetti(['⬆️', '⭐', '✨']); toast(t('level_up', { n: P.tier, name: tierName(P.tier) })); }
-  if (tier === 'down') toast(t('level_down', { n: P.tier, name: tierName(P.tier) }));
+  if (tier === 'up') { sfx.up(); confetti(['⬆️', '⭐', '✨']); toast(t('level_up', { n: P.mlvl, name: tierName(P.mlvl) })); }
+  if (tier === 'down') toast(t('level_down', { n: P.mlvl, name: tierName(P.mlvl) }));
   updateBars(); saveSoon();
 }
 function toast(msg) {
@@ -2513,7 +2501,7 @@ async function pickOption(i, btn) {
     G.locked = true; btn.classList.add('good');
     document.querySelectorAll('.opt').forEach(b => b.disabled = true);
     let tr = '';
-    if (first) { G.combo++; tr = record(q.key, true); }
+    if (first) { G.combo++; tr = record(q, true); }
     const xp = first ? gainXp(true) : 0;
     sfx.ok();
     $('#fb').innerHTML = `✅ ${q.explain()}`;
@@ -2534,7 +2522,7 @@ async function pickOption(i, btn) {
   } else {
     btn.classList.add('bad'); btn.disabled = true; sfx.bad(); takeSnap(); G.mist++; updateReward();
     let tr = '';
-    if (first) { G.combo = 0; tr = record(q.key, false); }
+    if (first) { G.combo = 0; tr = record(q, false); }
     $('#fb').innerHTML = `❌ ${o.note ? o.note() : ''}`;
     if (battle) {
       // A wrong spell passes the turn: it does nothing (or even heals the monster), then the monster attacks for 1.
@@ -2629,13 +2617,13 @@ const potionSVG = id => { const c = POTION_COL[id] || '#999'; return `<svg viewB
   <rect x="14" y="6.5" width="12" height="2.5" rx="1" fill="#ffffff55"/></svg>`; };
 function takeSnap() {   // just before the first mistake of a question, so a Second chance potion can undo it completely
   if (G.snap || !G.q) return; const k = G.q.key;
-  G.snap = { key: k, stat: P.stats[k] ? P.stats[k].slice() : null, n: P.n, ok: P.ok, hist: P.hist.slice(), tier: P.tier, xp: P.xp, hearts: G.hearts, qhearts: P.quest[G.quest].hearts,
+  G.snap = { key: k, stat: P.stats[k] ? P.stats[k].slice() : null, n: P.n, ok: P.ok, mhist: P.mhist.slice(), mlvl: P.mlvl, mplace: P.mplace, mfacts: JSON.parse(JSON.stringify(P.mfacts)), xp: P.xp, hearts: G.hearts, qhearts: P.quest[G.quest].hearts,
     mhp: G.mon ? G.mon.hp : 0, mist: G.mist, combo: G.combo };
 }
 function restoreSnap() {
   const s = G.snap; if (!s) return;
   if (s.stat) P.stats[s.key] = s.stat; else delete P.stats[s.key];
-  P.n = s.n; P.ok = s.ok; P.hist = s.hist; P.tier = s.tier; P.xp = s.xp; G.hearts = s.hearts; P.quest[G.quest].hearts = s.qhearts; G.mist = s.mist; G.combo = s.combo;
+  P.n = s.n; P.ok = s.ok; P.mhist = s.mhist; P.mlvl = s.mlvl; P.mplace = s.mplace; P.mfacts = s.mfacts; P.xp = s.xp; G.hearts = s.hearts; P.quest[G.quest].hearts = s.qhearts; G.mist = s.mist; G.combo = s.combo;
   if (G.mon) G.mon.hp = s.mhp; G.snap = null;
 }
 async function usePotion(id) {
@@ -2922,8 +2910,8 @@ function startCraft(potion, ings) {
 const itemEm = x => x.magic ? magicIcon(x.id) : (x.kind === 'wear' && x.wtype !== 'acc') ? `<span class="qRobe">${robePic(x)}</span>` : x.em;   // robes are drawn on the student's wizard, everything else is its emoji
 function nameQuestion(ing, universe, ctx) {
   const pic = $('#craftPic'); pic.style.display = ''; pic.innerHTML = `<span class="craftEm ${ing.r === 4 ? 'shine' : ''}">${itemEm(ing)}</span>`;
-  const q = mathQ(Math.max(1, P.tier - 1), () => t(ctx.title), () => t(ctx.sub));
-  G.q = q; G.lastKey = q.lastKey; G.noCount = true; G.snap = null; G.potUsed = true;
+  const q = mathQ(craftProblem(), () => t(ctx.title), () => t(ctx.sub));
+  G.q = q; G.lastKey = q.lastKey; G.noCount = false; G.snap = null; G.potUsed = true;   // these answers count toward the math level (spec 01 §6.1, weight 'craft')
   showQuestion();
 }
 function craftQuestion() {
@@ -2936,7 +2924,7 @@ function craftHeader() {   // the brewing screen's labels (also redrawn after a 
   const C = G.craft;
   $('#foeName').textContent = `${caulName(P.own.caul || 0)} · ${pBoth(C.potion)}`;
   $('#mid').innerHTML = `<b>${t('brewing')}</b><br>${C.ings.map((id, k) => k < C.i ? '✅' : k === C.i ? '❓' : '▫️').join(' ')}<div class="runNote"></div>`;
-  $('#hpFill').style.width = (100 * C.i / C.ings.length) + '%'; $('#tierLbl').textContent = levelLbl(P.tier); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
+  $('#hpFill').style.width = (100 * C.i / C.ings.length) + '%'; $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
 }
 const ingLabel = id => `${ING[id].em} ${nameOf(ING[id])}`;
 // A wrong answer while brewing burns one unit of the ingredient being worked on (and nothing else). If none is left for the potion, the brew fizzles.
@@ -2949,7 +2937,8 @@ function craftBurn() {
   setTimeout(() => modal(t('fizzled_t'), t('fizzled_b', { ing: `<b>${ingLabel(id)}</b>` }), [[t('back_home'), openHome]]), 700);
   return true;
 }
-function craftCount(first, ok) { if (first) { P.craft.n++; if (ok) P.craft.ok++; } }   // crafting answers are a separate figure; they never change the level
+// crafting answers: their own figure for the teacher, and (first tries only) a scored answer with the 'craft' weight: ½ toward moving up, 1 toward moving down
+function craftCount(first, ok) { if (!first) return; P.craft.n++; if (ok) P.craft.ok++; after(record(G.q, ok)); }
 async function craftPick(i, btn) {
   if (G.locked) return; const q = G.q, o = q.options[i], first = G.tries === 0; G.tries++;
   if (o.ok) {
@@ -3088,7 +3077,7 @@ function forgeHeader() {   // the forging screen's labels (also redrawn after a 
   const C = G.craft, m = MAGIC[C.forge], last = C.i >= C.ings.length, total = C.ings.length + 1;
   $('#foeName').textContent = t('artificer'); $('#hpFill').style.width = (100 * C.i / total) + '%';
   $('#mid').innerHTML = `<b>${t('forging', { name: nameOf(m) })}</b><br>${Array.from({ length: total }, (_, k) => k < C.i ? '✅' : k === C.i ? '❓' : '▫️').join(' ')}<div class="runNote">${last ? t('forge_last') : t('forge_ing', { i: C.i + 1, n: C.ings.length })}</div>`;
-  $('#tierLbl').textContent = levelLbl(P.tier); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
+  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
 }
 function forgeDone() {
   const C = G.craft, slot = C.forge, v = itemVer(slot) + 1, rec = FORGE[v], m = MAGIC[slot];
@@ -3288,7 +3277,7 @@ function shopHeader() {   // the buying screen's labels (also redrawn after a la
   const s = SHOP[G.shop.id];
   $('#foeName').textContent = t('merchant');
   $('#mid').innerHTML = `<b>${t('the_shop')}</b><div class="runNote">${t('shop_note', { x: s.kind === 'wear' && s.wtype !== 'acc' ? t('this_robe') : s.em })}</div>`;
-  $('#tierLbl').textContent = levelLbl(P.tier); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
+  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
 }
 function shopBought() {
   const s = SHOP[G.shop.id];
@@ -3304,7 +3293,7 @@ function shopBought() {
 // Losing a fight pays nothing (all or nothing). Potions will count as mistakes (step 5).
 const earlyBonus = () => (P.sec[today()] || 0) < CFG.DAILY_SEC;   // the first 10 minutes of the day pay double
 function fightCoins(mist, boss, rollBoss) {
-  const unit = CFG.COIN_BY_TIER[G.fightTier || P.tier] || 1;
+  const unit = coinUnit(G.fightLvl || P.mlvl);
   let c = Math.max(0, CFG.FIGHT_UNITS * unit - mist * unit);        // what a normal monster pays for this many mistakes
   if (boss) c = c * (rollBoss ? CFG.BOSS_MIN + Math.random() * (CFG.BOSS_MAX - CFG.BOSS_MIN) : (CFG.BOSS_MIN + CFG.BOSS_MAX) / 2);
   if (earlyBonus()) c *= CFG.EARLY_MULT;
@@ -3419,18 +3408,18 @@ function startDemo() {
   saveSoon = () => {}; cloudSave = async () => {};   // the demo student is never saved
   CFG.SCRIPT_URL = ''; window.__fast = false;
   const w = ms => new Promise(r => setTimeout(r, ms));
-  P = newProfile('demo', 'Demo', 'm', '#3498db'); P.beard = 'long'; P.tier = 9; P.coins = 900; P.xp = 640;
+  P = newProfile('demo', 'Demo', 'm', '#3498db'); P.beard = 'long'; P.mlvl = 9; P.coins = 900; P.xp = 640;
   P.inv = { star: 3, moon: 2, comet: 1, rainbow: 1, cloud: 1, diamond: 2, pearl: 1, crown: 1, leaf: 4, seed: 3, flower: 3, root: 2, mushroom: 2, g_fire: 2, g_water: 2, feather: 2 };
   P.pot = { heart: 2, sound: 2, power: 2, second: 2, super: 1 }; P.own.decor = ['d_plant', 'd_cat', 'd_candle', 'd_picture', 'd_clock', 'd_rug']; P.own.caul = 1;
   const blank = () => ({ amulet: 0, staff: 0, belt: 0 });
   const goMenu = () => { document.querySelector('#modal').classList.remove('on'); openMenu(); };
   const act = (q, path) => { document.querySelector('#modal').classList.remove('on'); const qs = P.quest[q]; qs.act = true; qs.path = path || null; qs.len = path ? path.length - 1 : 0; qs.enc = 0; qs.at = 0; qs.seeTo = 0; qs.seed = qs.seed || 7; qs.hearts = 3; beginQuest(q); };
   const D = {
-    level(lv) { P.tier = +lv; P.hist = []; saveSoon(); goMenu(); toast(levelLbl(+lv)); },
+    level(lv) { P.mlvl = +lv; P.mhist = []; P.mplace = 0; saveSoon(); goMenu(); toast(levelLbl(+lv)); },
     stuff() { for (const id of ['star', 'moon', 'comet', 'rainbow', 'cloud', 'diamond', 'pearl', 'crown', 'dragonegg', 'leaf', 'seed', 'flower', 'root']) P.inv[id] = (P.inv[id] || 0) + 3; P.coins += 500; saveSoon(); toast('🎁 +500 coins and lots of ingredients'); if ($('#workshop').classList.contains('on')) renderWorkshop(); },
     items(v) { P.items = { amulet: v, staff: v, belt: v }; P.itemUses = { battle: blank(), peace: blank() }; saveSoon(); toast(v ? (v === 2 ? '🌟 All three items: legendary' : '💠 All three items: epic') : 'Items removed'); },
     refill() { P.itemUses = { battle: blank(), peace: blank() }; saveSoon(); toast('♻️ Item powers refilled'); },
-    map() { goMenu(); }, workshop() { document.querySelector('#modal').classList.remove('on'); if (P.tier < 8) { P.tier = 8; P.hist = []; } openWorkshop(); }, home() { document.querySelector('#modal').classList.remove('on'); openHome(); }, shop() { document.querySelector('#modal').classList.remove('on'); openShop(); },
+    map() { goMenu(); }, workshop() { document.querySelector('#modal').classList.remove('on'); if (P.mlvl < 8) { P.mlvl = 8; P.mhist = []; P.mplace = 0; } openWorkshop(); }, home() { document.querySelector('#modal').classList.remove('on'); openHome(); }, shop() { document.querySelector('#modal').classList.remove('on'); openShop(); },
     fight() { window.__forceMon = null; act('battle'); },
     mon(k) { window.__forceMon = k; P.quest.battle.ch = 1; act('battle', ['m', 'B']); toast(monName(MON_DEF[k])); },
     clearMon() { window.__forceMon = null; },
@@ -3439,7 +3428,7 @@ function startDemo() {
     ko() { if (!$('#game').classList.contains('on') || !(G.quest === 'battle' || G.quest === 'peace')) { toast('Open a fight first'); return; } G.hearts = 0; P.quest[G.quest].hearts = 0; endOrSecond(G.quest === 'battle' ? knockout : villageFail); },
     win() { if (!$('#game').classList.contains('on') || !G.mon && G.quest === 'battle') { toast('Open a fight first'); return; } if (G.quest === 'battle') { G.mon.hp = 0; victory(); } else { G.helped = G.need; villageDone(); } },
     exit() { location.reload(); },
-    fresh() { P.ws = { on: false, hi: false }; P.tier = 7; P.hist = []; saveSoon(); goMenu(); toast('Level 7: the workshop is shuttered. Pick level 8 to see it light up.'); }
+    fresh() { P.ws = { on: false, hi: false }; P.mlvl = 7; P.mhist = []; P.mplace = 0; saveSoon(); goMenu(); toast('Level 7: the workshop is shuttered. Pick level 8 to see it light up.'); }
   };
   window.demo = D;
   const css = document.createElement('style');
@@ -3530,7 +3519,7 @@ async function adminStudent(id) {
     const sec2 = (title, html) => `<div class="stuSec"><b>${title}</b>${html}</div>`;
     box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div><b style="font-size:1.3rem">${esc(p.nick)}</b> <small style="opacity:.7">#${esc(p.id)}</small>
         <div>${p.real ? '👤 ' + esc(p.real) : '<span style="opacity:.6">(no real name saved: this student joined before names were asked)</span>'}${p.cls ? ' · 🏫 ' + esc(p.cls) : ''}</div></div><button class="ib" id="admDetailClose">✕</button></div>` +
-      sec2('Overview', `<div class="kv"><span>📖 ${esc(levelLbl(p.tier))}</span><span>🏅 ${rankOf(p.xp)} · ⭐ ${p.xp} XP</span><span>🎯 ${total} answers · ${pct(right, total)} correct</span><span>✅ ${mastered} items mastered</span>
+      sec2('Overview', `<div class="kv"><span>📖 ${esc(levelLbl(p.mlvl))}</span><span>🏅 ${rankOf(p.xp)} · ⭐ ${p.xp} XP</span><span>🎯 ${total} answers · ${pct(right, total)} correct</span><span>✅ ${mastered} items mastered</span>
         <span>⏱️ ${totalMin} min in total</span><span>📅 ${daysPlayed.length} days played${daysPlayed.length ? ' · about ' + Math.round(totalMin / daysPlayed.length) + ' min a day' : ''}</span><span>🕒 Created ${p.created ? new Date(p.created).toLocaleDateString() : '?'} · last saved ${p.updated ? new Date(p.updated).toLocaleDateString() : '?'}</span></div>`) +
       sec2('Skills', skillRows ? `<div class="tblwrap"><table class="skillTbl"><thead><tr><th>Skill</th><th>Answers</th><th>Correct</th><th>Items seen</th><th>Mastered</th><th>Needs work</th></tr></thead><tbody>${skillRows}</tbody></table></div>` : '<p style="opacity:.7;margin:4px 0">No answers yet.</p>') +
       sec2('Practice time, last 14 days (minutes)', `<div class="days">${days.map(x => `<div title="${x.d.toLocaleDateString()}: ${Math.round(x.s / 60)} min" style="height:${Math.max(3, 100 * x.s / mx)}%"></div>`).join('')}</div><div class="dayLbl">${days.map(x => `<span>${x.d.getDate()}</span>`).join('')}</div>

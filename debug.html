@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Math Wizard levels</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1b1340;--card:#2a1f5a;--gold:#ffd166;--ok:#7dffb0;--line:#ffffff22}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;font-family:'Fredoka',system-ui,sans-serif;background:var(--bg);color:#fff}
+h1{margin:0 0 4px;font-size:1.5rem}
+.sub{opacity:.8;margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+select,button{font:inherit;font-size:1rem;padding:8px 12px;border-radius:10px;border:1px solid #fff4;background:#fff1;color:#fff}
+select{max-width:100%;min-width:0;flex:1 1 260px}select option{color:#000}
+button{cursor:pointer}button.on{background:var(--gold);color:#3a2300;border-color:var(--gold)}
+.info{background:var(--card);border-radius:12px;padding:10px 14px;margin-bottom:12px;line-height:1.5}
+table{border-collapse:collapse;width:100%;background:var(--card);border-radius:12px;overflow:hidden}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:start;vertical-align:middle}
+th{background:#ffffff14;font-weight:600}
+.ex{font-size:1.25rem;white-space:nowrap}.ans{font-size:1.25rem;color:var(--ok);white-space:nowrap}.wr{opacity:.8;white-space:nowrap}
+.tag{font-size:.75rem;padding:2px 7px;border-radius:999px;background:#fff2}
+/* stacked fractions (same as the game) */
+.frw{display:inline-flex;align-items:center;gap:.08em;vertical-align:middle}
+.fr{display:inline-flex;flex-direction:column;align-items:center;line-height:1;font-size:.72em;margin:0 .06em}
+.frt{border-bottom:.08em solid currentColor;padding:0 .12em .04em}.frb{padding:.04em .12em 0}
+.expr{unicode-bidi:isolate}
+@media (max-width:560px){th:nth-child(4),td:nth-child(4){display:none}}
+</style>
+</head>
+<body>
+<h1>🧮 Math Wizard: the math levels</h1>
+<p class="sub">Sample problems from the math engine for any level, with the answer and the wrong answers the game would offer. Refresh or press <b>New samples</b> for different ones.</p>
+<div class="bar">
+  <select id="lv"></select>
+  <button id="again">🔄 New samples</button>
+  <button id="he">עברית</button>
+  <a href="tests/" style="color:var(--gold);margin-inline-start:auto">🧪 Run the tests</a>
+</div>
+<div class="info" id="info"></div>
+<table><thead><tr><th>#</th><th id="h1">Problem</th><th id="h2">Answer</th><th id="h3">Wrong answers</th><th id="h4">Form</th></tr></thead><tbody id="rows"></tbody></table>
+<script src="math.js"></script>
+<script>
+'use strict';
+let he = false;
+const W = { of: ['{a} of {b}', '{a} מ־{b}'], double: ['double {a}', 'פי 2 מ־{a}'], half: ['half of {a}', 'חצי מ־{a}'], ratio: ['first part of {a} in the ratio {b}', 'החלק הראשון של {a} ביחס {b}'] };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function exprHtml(e) {   // the same display rules as the game: words in the chosen language, ':' for division in Hebrew, math left to right (ratios are written 2:1)
+  const words = /\{(of|double|half|ratio):/.test(e);
+  const t = e.replace(/÷/g, he ? ':' : '÷').replace(/\{(of|double|half|ratio):([^|}]*)(?:\|([^}]*))?\}/g, (m, w, a, b) => W[w][he ? 1 : 0].replace('{a}', a).replace('{b}', b));
+  return `<span class="expr" dir="${words && he ? 'rtl' : 'ltr'}">${ME.tokHtml(esc(t))}</span>`;
+}
+const sel = document.getElementById('lv');
+for (let n = 1; n <= ME.MAX_LEVEL; n++) { const o = document.createElement('option'); o.value = n; o.textContent = `${n}. ${ME.LV[n].name[0]} · ${ME.LV[n].name[1]} (grade ${ME.gradeOf(n)})`; sel.appendChild(o); }
+const q = new URLSearchParams(location.search); sel.value = q.get('level') || 1;
+function draw() {
+  const n = +sel.value, L = ME.LV[n], vals = ME.answers(n), list = ME.all(n);
+  document.getElementById('info').innerHTML = `<b>Level ${n}: ${L.name[0]}</b> · <span dir="rtl">${L.name[1]}</span><br>Grade ${ME.gradeOf(n)} · answers: ${{ int: 'whole numbers', frac: 'fractions and mixed numbers', dec: 'decimals' }[L.type]}` +
+    (list ? ` · ${list.length} different problems, ${vals.length} different answers (from ${ME.fmtHtml(vals[0])} to ${ME.fmtHtml(vals[vals.length - 1])})` : ' · big numbers: problems are built around a random answer');
+  const seen = new Set(), rows = [];
+  for (let k = 0; rows.length < 30 && k < 300; k++) { const p = ME.make(n, { avoid: seen }); if (seen.has(p.key)) continue; seen.add(p.key); rows.push(p); }
+  document.getElementById('rows').innerHTML = rows.map((p, i) => `<tr><td>${i + 1}</td><td class="ex">${exprHtml(p.e)}</td><td class="ans">${ME.fmtHtml(p.a)}</td><td class="wr">${ME.distractors(p, 3).map(ME.fmtHtml).join(' · ')}</td><td><span class="tag">${p.form}</span></td></tr>`).join('');
+  history.replaceState(null, '', '?level=' + n);
+}
+sel.onchange = draw; document.getElementById('again').onclick = draw;
+document.getElementById('he').onclick = e => { he = !he; e.target.classList.toggle('on', he); e.target.textContent = he ? 'English' : 'עברית'; draw(); };
+draw();
+</script>
+</body>
+</html>

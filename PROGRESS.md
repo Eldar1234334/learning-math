@@ -39,7 +39,7 @@ What was done in each step, how to check it on the test site, and what is still 
 
 ---
 
-## Step 1: Hebrew and English ✅ (on the test site, waiting for your check)
+## Step 1: Hebrew and English ✅ (checked by the owner)
 
 **Goal:** every screen works in Hebrew (right to left) and English (left to right), with a language button, and the choice saved in the student's profile.
 
@@ -71,3 +71,41 @@ What was done in each step, how to check it on the test site, and what is still 
 3. In the middle of a fight, tap **English**, then **עברית** again: the question stays the same.
 4. Log out and log in again: the game opens in the language you chose.
 5. Visit Home, the Shop, the Workshop (Teacher area → demo run → 🧪 Demo → level 8 → ⚒️ Workshop) in both languages.
+
+---
+
+## Step 2: The math engine ✅ (on the test site, waiting for your check)
+
+**Goal:** real math for all 36 levels of the ladder (spec 01), checked by automatic tests, with a page to review the problems of any level.
+
+**New pages**
+- **The levels page:** https://eldar1234334.github.io/learning-math/test/debug.html. Choose a level and see 30 sample problems with the answer and the three wrong answers the game would offer. **עברית** shows them as a Hebrew student sees them. Add `?level=26` to the address to open a level directly.
+- **The tests page:** https://eldar1234334.github.io/learning-math/test/tests/. It runs all the tests in your browser (about 5 seconds). GitHub also runs them on every upload.
+
+**What changed**
+- **All 36 levels** produce their own problems: the forms and number ranges of spec 01 §3 (for example level 6 always crosses ten, level 22 uses ½ ⅓ ¼ ¾, level 33 has one decimal place in each number).
+- **Fractions are written stacked** (numerator over denominator), as at school, in the problems and on the answer buttons. Improper fractions are shown as mixed numbers (2⅔), always in simplest form. Decimals have no trailing zeros (2.5, not 2.50). Answers are compared by value, so ½ = 2/4 = 0.5.
+- **Wrong answers that make sense** (spec 01 §5.3): ±1, ±10, swapped digits (31/13), the wrong operation (8+5 → 3), and for fractions the classic mistakes (adding the denominators: ½ + ⅓ → 2/5). A wrong answer is never equal to the right one in value, and never negative.
+- **Built backward from the answer** (spec 01 §5.2): the engine can make a problem for a given answer at any level. The spell cards in step 4 need this.
+- **Review:** about 1 problem in 5 comes from earlier levels, mostly the recent ones.
+- **Weak spots:** a problem the student got wrong comes back more often, until it is answered right 3 times in a row.
+- **No repeats:** a problem does not come back within 10 turns.
+- **Choosing a grade:** a new hero picks a grade (1–6) and starts at the first level of that grade (spec 01 §6.2).
+- **Moving up and down** (spec 01 §6): up at 85% or more over the last 10–12 answers, down below 50% over the last 8. During the first 20 answers (placement) the window is only 5 answers, so a student who chose the wrong grade moves quickly.
+- **Shop, brewing and forging count too:** they use problems one level easier (spec 01 §7), and their answers count toward the level: a right answer counts ½ toward moving up, a mistake counts fully. Review problems also count ½ toward moving up.
+- Coins per fight follow the math level, as in spec 03 §6.1 (1 coin unit at levels 1–6, 2 at 7–18, 3 at 19–30, 4 at 31–36).
+
+**My reading of the spec (please confirm)**
+- "Counts ½ toward moving up" (spec 01 §6.1): I read it as "worth half an answer". So 10 right shop answers count like 5 fight answers, and 20 right shop answers alone can move a student up. A mistake always counts as a full answer.
+- Spec 01 says the incantation step (saying the answer) starts at level 5. For now every level picks from answer buttons; the incantation comes with the spell cards in step 4.
+
+**Please check (you are the math teacher)**
+- Open the levels page and look through the levels, especially grade 4–6 (fractions, decimals, percentages, ratios). Tell me any problem that does not fit its level, or a form that is missing.
+- Level 35's ratio problems are worded "the first part of 57 in the ratio 2:1" (החלק הראשון של 57 ביחס 2:1). Is that how you would ask it?
+- Level 36 (multi-step mix) uses three templates: (½ + ¼) × 8, ¾ × 12 − 5, and (1.5 + 2.5) × 4. More can be added.
+
+**How to check**
+1. Create a new hero and choose a grade (for example 3rd grade → level 13, times table 1–5).
+2. Fight: answer right 5 times in a row. During placement you move up a level quickly.
+3. Answer a problem wrong, then keep playing: the same problem comes back later (a weak spot).
+4. With a demo run (Teacher area), pick level 26 or 31 to see fractions in a fight, and level 33 for decimals.
