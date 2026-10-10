@@ -448,7 +448,20 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .opt.card.chosen{outline:4px solid var(--gold);transform:translateY(-3px)}
 .opt.card:disabled:not(.chosen){opacity:.45}
 .cardAns{font-size:1rem;color:#6b3a10;font-weight:700}
-.opts.cards>.opt:last-child:nth-child(odd){width:auto}
+.opts.cards>.opt:last-child:nth-child(odd){grid-column:auto;justify-self:stretch;width:auto}
+/* spell effects that last: a shield bubble and a mirror around the wizard, shadow bonds on a snared monster, small status icons */
+#heroSvg{position:relative}
+#heroBox.shielded #heroSvg::after{content:'';position:absolute;inset:-6% -10% 0;border-radius:50%;border:3px solid #9be7ff;background:radial-gradient(circle,#9be7ff00 55%,#9be7ff40 100%);box-shadow:0 0 18px #9be7ffaa,inset 0 0 14px #9be7ff88;animation:bubble 1.8s ease-in-out infinite;pointer-events:none}
+#heroBox.mirrored #heroSvg::before{content:'';position:absolute;inset:-2% -6% 4%;border-radius:50%;border:3px dashed #e6e9ff;box-shadow:0 0 14px #ffffffaa;animation:spinSlow 6s linear infinite;pointer-events:none}
+#heroBox.fizzle #heroSvg{animation:shake .4s}
+.foeWrap.snared .mnWrap{filter:saturate(.35) brightness(.7)}
+.foeWrap.snared::after{content:'';position:absolute;left:0;right:0;bottom:0;height:60%;background:radial-gradient(ellipse at 50% 100%,#1a0633f0,#4b1a8a99 45%,transparent 72%);animation:snare 1.4s ease-in-out infinite;transform-origin:50% 100%;pointer-events:none;z-index:3}
+.foeWrap.resist .mnWrap{filter:grayscale(1) brightness(1.4);transition:filter .1s}
+.fxIcons{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;gap:3px;font-size:1.1rem;pointer-events:none;z-index:6;filter:drop-shadow(0 1px 2px #000c)}
+.fxIcons b{font-size:.75rem;color:#fff;align-self:flex-end}
+@keyframes bubble{50%{transform:scale(1.04);opacity:.7}}
+@keyframes snare{50%{transform:scaleY(1.15)}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
 .weakBadge{font-size:.78rem;margin-top:4px;background:#0006;border-radius:999px;padding:3px 10px;display:inline-block}
 .heroHp{width:96px;height:9px;background:#0007;border-radius:6px;overflow:hidden;margin:2px auto 1px;border:1px solid #fff4}
 .heroHp i{display:block;height:100%;background:linear-gradient(90deg,#3ddc97,#7dffb0);transition:width .4s}
@@ -907,7 +920,7 @@ const TIERS = [['', ''],
   ['Times table 1–5', 'לוח הכפל 1–5'], ['Times table 6–10', 'לוח הכפל 6–10'], ['Division within the table', 'חילוק בלוח הכפל'], ['Missing factor', 'כפל וחילוק, גורם חסר'], ['Addition and subtraction up to 1000', 'חיבור וחיסור עד 1000'], ['Multiply by 10 and 100', 'כפל ב-10 וב-100'],
   ['Multiply by one digit', 'כפל במספר חד-ספרתי'], ['Divide by one digit', 'חילוק במספר חד-ספרתי'], ['Addition and subtraction up to 10,000', 'חיבור וחיסור עד 10,000'], ['Fraction of an amount', 'שבר מכמות'], ['Equivalent fractions', 'שברים שקולים'], ['Order of operations', 'סדר פעולות חשבון'],
   ['Fractions, same denominator', 'חיבור וחיסור שברים, מכנה שווה'], ['Fractions, different denominators', 'מכנים שונים, מספרים מעורבים'], ['Fraction × whole number', 'שבר כפול מספר שלם'], ['Add and subtract decimals', 'חיבור וחיסור עשרוניים'], ['Decimals × and ÷ 10, 100, 1000', 'כפל וחילוק עשרוני ב-10, 100, 1000'], ['Two-digit × two-digit; long division', 'כפל דו-ספרתי, חילוק ארוך'],
-  ['Multiply fractions', 'כפל שברים'], ['Divide fractions', 'חילוק שברים'], ['Multiply decimals', 'כפל עשרוניים'], ['Percent of an amount', 'אחוזים מכמות'], ['Percentages and ratios', 'אחוזים ויחס'], ['Multi-step mix', 'תרגילים משולבים']];
+  ['Multiply fractions', 'כפל שברים'], ['Divide fractions', 'חילוק שברים'], ['Multiply decimals', 'כפל עשרוניים'], ['Percent of an amount', 'אחוזים מכמות'], ['Harder percentages', 'אחוזים מתקדמים'], ['Multi-step mix', 'תרגילים משולבים']];
 const tierName = lv => tl(TIERS[lv] || TIERS[0]).replace(/÷/g, MATH_DIV());
 const levelLbl = lv => t('level_lbl', { n: lv, name: tierName(lv) });
 // Titles by XP (the new math titles come with the wizard levels in step 5).
@@ -2446,9 +2459,9 @@ function setAura(el) {
     p.style.setProperty('--dx', ((Math.random() - .5) * 60) + 'px'); a.appendChild(p);
   }
 }
-function burst(emoji, n = 8) {
+function burst(emoji, n = 8, at = '#foeBody') {   // at: '#foeBody' (the monster) or '#heroSvg' (the wizard)
   try {
-    const f = $('#foeBody').getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
+    const f = $(at).getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
     const cx = f.left - s.left + f.width / 2, cy = f.top - s.top + f.height / 2;
     for (let i = 0; i < n; i++) {
       const e = document.createElement('div'); e.className = 'burstP'; e.textContent = emoji; e.style.left = cx + 'px'; e.style.top = cy + 'px';
@@ -2491,7 +2504,7 @@ function drawScene() {
   $('#foeBody').className = 'foeBody' + (b ? ' art' : '') + (b && G.mon.boss ? ' boss' : '');
   // element-coloured glow around every monster; the fire lizard is also tinted orange-red
   $('#foeBody').style.filter = b ? `${G.mon.tint || ''} drop-shadow(0 0 14px var(--aura)) drop-shadow(0 0 28px var(--aura)) drop-shadow(0 6px 8px #0008)` : '';
-  $('#heroBox').classList.remove('hurt');
+  $('#heroBox').classList.remove('hurt'); fxStatus();
   if (b) {
     $('#foeBody').innerHTML = `<div class="mnWrap"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART[G.mon.boss ? 'BOSS' : 'MON'][G.mon.key]()}</svg></div>`;
     fightHeader(); setMood('');
@@ -2525,6 +2538,7 @@ function updateBars() {
     $('#foeName').querySelector('.hpNum') && ($('#foeName').querySelector('.hpNum').textContent = `${Math.max(0, G.mon.hp)}/${G.mon.max}`);
   } else { const hs = Math.max(0, G.hearts), mx = Math.max(CFG.MAX_HEARTS, hs); $('#hearts').textContent = b ? '' : '😊'.repeat(hs) + '😐'.repeat(mx - hs); }
   $('#heroBox').classList.toggle('heroGlow', b && G.combo >= 3);   // on a hot streak the hero glows
+  fxStatus();
   $('#hpFill').style.width = (b ? Math.max(0, G.mon.hp) / G.mon.max * 100 : G.helped / G.need * 100) + '%';
   $('#tierLbl').textContent = levelLbl(P.mlvl);
   $('#xpFill').style.width = ((P.xp % 400) / 4) + '%';
@@ -2583,14 +2597,40 @@ function floatText(txt, color) {
   e.style.left = (f.left - s.left + f.width / 2 - 20) + 'px'; e.style.top = (f.top - s.top) + 'px';
   $('#stage').appendChild(e); setTimeout(() => e.remove(), 1000);
 }
-async function flySpell(emoji) {
+async function flySpell(emoji, bounce) {   // bounce: the monster is not affected, the spell glances off and drops
   try {
     const h = $('#heroSvg').getBoundingClientRect(), f = $('#foeBody').getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
     const e = document.createElement('div'); e.textContent = emoji; e.style.cssText = `position:absolute;font-size:3rem;left:${h.left - s.left + h.width / 2}px;top:${h.top - s.top + h.height / 3}px;z-index:5;pointer-events:none;filter:drop-shadow(0 0 10px #ffd166) drop-shadow(0 0 20px #fff8)`;
     $('#stage').appendChild(e);
-    const a = e.animate([{ transform: 'translate(0,0) scale(.6)' }, { transform: `translate(${f.left - h.left}px,${f.top - h.top + 10}px) scale(1.4) rotate(360deg)` }], { duration: 450, easing: 'ease-in' });
-    await Promise.race([a.finished, new Promise(r => setTimeout(r, 700))]); e.remove();
+    const dx = f.left - h.left, dy = f.top - h.top + 10, end = `translate(${dx}px,${dy}px) scale(1.4) rotate(360deg)`;
+    const a = e.animate([{ transform: 'translate(0,0) scale(.6)' }, { transform: end }], { duration: 450, easing: 'ease-in', fill: 'forwards' });
+    await Promise.race([a.finished, new Promise(r => setTimeout(r, 700))]);
+    if (bounce) {
+      $('.foeWrap').classList.add('resist'); setTimeout(() => $('.foeWrap').classList.remove('resist'), 300);
+      const b = e.animate([{ transform: end, opacity: 1 }, { transform: `translate(${dx - 50}px,${dy - 30}px) scale(1) rotate(200deg)`, opacity: .8, offset: .35 }, { transform: `translate(${dx - 80}px,${dy + 70}px) scale(.6) rotate(120deg)`, opacity: 0 }], { duration: 600, easing: 'ease-out', fill: 'forwards' });
+      await Promise.race([b.finished, new Promise(r => setTimeout(r, 800))]);
+    }
+    e.remove();
   } catch (e) {}
+}
+// what a cast looks like: attacks and control fly to the monster (an element it ignores glances off), shields, healing and buffs glow
+// around the wizard, and no spell (a fizzle, a sealed spell, a wrong incantation) is only a puff of smoke at the staff
+const SELF_FX = ['shield', 'heal', 'healPart', 'fullHeal', 'buff', 'reflect', 'revive', 'summon'];
+async function castFx(ev, spell) {
+  if (!spell) { burst('💨', 6, '#heroSvg'); $('#heroBox').classList.add('fizzle'); setTimeout(() => $('#heroBox').classList.remove('fizzle'), 450); await sleep(500); return; }
+  const em = SB.ELEMENTS[spell.el].em;
+  if (SELF_FX.includes(ev.k)) { burst(em, 8, '#heroSvg'); burst('✨', 5, '#heroSvg'); fxStatus(); await sleep(450); return; }
+  await flySpell(em, ev.rel === 'none' && (ev.k === 'dmg' || ev.k === 'area'));
+  if (ev.k === 'skip') { burst('🌑', 7); fxStatus(); }
+}
+function fxStatus() {   // the spell effects that last, drawn on the wizard and the monster, with small icons
+  const fx = G.quest === 'battle' && G.st ? G.st.fx : null, hb = $('#heroBox'), fw = $('.foeWrap');
+  hb.classList.toggle('shielded', !!fx && fx.shields.length > 0); hb.classList.toggle('mirrored', !!fx && fx.reflect);
+  fw.classList.toggle('snared', !!fx && fx.skip > 0);
+  const icons = (el, list) => { let d = el.querySelector(':scope > .fxIcons'); if (!d) { d = document.createElement('div'); d.className = 'fxIcons'; el.appendChild(d); } d.innerHTML = list.join(''); };
+  const n = (em, k) => em + (k > 1 ? `<b>×${k}</b>` : '');
+  icons(hb, !fx ? [] : [fx.shields.length ? n('🛡️', fx.shields.reduce((a, s) => a + s.n, 0)) : '', fx.reflect ? '🪞' : '', fx.revive ? '🪶' : '', fx.buff > 1 ? n('💪', fx.buff) : '', fx.summon ? n(fx.summon.em, fx.summon.turns) : ''].filter(Boolean));
+  icons(fw, !fx ? [] : [fx.skip > 0 ? n('⛓️', fx.skip) : '', fx.shrink > 0 ? n('🔽', fx.shrink) : '', fx.weaken != null ? '🔽' : ''].filter(Boolean));
 }
 function after(tier) {
   if (tier === 'up') { sfx.up(); confetti(['⬆️', '⭐', '✨']); toast(t('level_up', { n: P.mlvl, name: tierName(P.mlvl) })); }
@@ -2691,7 +2731,7 @@ async function resolveCast(said, sayOk) {
   const ev = CB.cast(st, spell, s2 && sayOk ? CB.CFG.INCANT_BONUS : 1);
   if (mathOk) sfx.ok(); else sfx.bad();
   $('#qBig').innerHTML = ''; $('#qTitle').innerHTML = line; $('#qSub').textContent = '';
-  await flySpell(spell ? SB.ELEMENTS[spell.el].em : '💨');
+  await castFx(ev, spell);
   $('#fb').innerHTML = castResult(ev) + (xp ? ` <small>+${xp} XP</small>` : '');
   after(tr); updateBars(); fightHeader(); updateReward();
   G.lastSnap = G.turnSnap; G.potUsed = false; renderPotBar();
@@ -2706,9 +2746,9 @@ function castResult(ev) {   // what the spell did, with the short "why" for elem
     case 'dmg': case 'area': case 'multi':
       if (r === 'weak' || ev.k === 'multi') { $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); sfx.hit(); burst(SB.ELEMENTS[ev.spell.el].em, 9); burst('💥', 3); floatText('−' + ev.dmg, '#ffd166'); return t('r_weak', { d: ev.dmg }); }
       if (r === 'heal') { burst('💚', 8); floatText('+' + ev.monHeal, '#7dffb0'); return t('r_heal', { h: ev.monHeal }) + `<br><small>${tl(e.why)}</small>`; }
-      burst('💨', 5); floatText('0', '#d6d6e6'); return t('r_none') + `<br><small>${tl(e.why)}</small>`;
+      floatText('0', '#d6d6e6'); return t('r_none') + `<br><small>${tl(e.why)}</small>`;
     case 'shield': return t('r_shield');
-    case 'heal': case 'healPart': case 'fullHeal': burst('💚', 6); return t('r_heal_me', { h: ev.heal });
+    case 'heal': case 'healPart': case 'fullHeal': burst('💚', 6, '#heroSvg'); return t('r_heal_me', { h: ev.heal });
     case 'skip': return t('r_skip', { n: plural(ev.n, 'turns_1', 'turns_n') });
     case 'bossResist': return t('r_boss_resist');
     case 'buff': return t('r_buff');
@@ -2726,10 +2766,11 @@ async function monsterTurnUI() {
   const st = G.st, ev = CB.monsterTurn(st), lines = [];
   if (ev.familiar) { lines.push(ev.familiar.dmg ? t('m_fam', { em: ev.familiar.em, d: ev.familiar.dmg }) : t('m_fam_none', { em: ev.familiar.em })); if (ev.familiar.dmg) { burst(ev.familiar.em, 6); floatText('−' + ev.familiar.dmg, '#ffd166'); } }
   if (st.mon.hp <= 0) { $('#fb').innerHTML += '<br>' + lines.join('<br>'); updateBars(); await sleep(800); return victory(); }
-  if (ev.skipped) lines.push(t('m_skip'));
+  if (ev.skipped) { lines.push(t('m_skip')); $('#foeBody').classList.add('hit'); burst('⛓️', 4); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); }
   else if (ev.reflected) { lines.push(t('m_reflect', { d: ev.reflected })); burst('🪞', 6); }
   else {
     $('#foeBody').classList.add('atk'); await sleep(250);
+    if (ev.blocked) burst('🛡️', 5, '#heroSvg');
     if (ev.dmg > 0) { sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); lines.push(t('m_attack', { d: ev.dmg })); }
     else lines.push(t('m_blocked'));
     setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500);
@@ -3228,7 +3269,7 @@ function pickIngredients(potion) {   // the student chooses which ingredients to
 function startCraft(potion, ings) {
   G.quest = 'craft'; G.craft = { potion, ings, i: 0, done: [] }; G.sess = 0; G.combo = 0; G.potUsed = true; G.snap = null; G.noCount = false;
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted);
-  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt');
+  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt'); fxStatus();
   $('#foeBody').className = 'foeBody'; $('#foeBody').style.filter = 'drop-shadow(0 0 12px #ffd16688)'; $('#foeBody').textContent = '🫕';
   craftQuestion();
 }
@@ -3391,7 +3432,7 @@ function pickForge(slot) {   // choose which ingredients to use (one for each ne
 function startForge(slot, ings) {
   G.quest = 'forge'; G.craft = { forge: slot, ings, i: 0 }; G.sess = 0; G.combo = 0; G.potUsed = true; G.snap = null; G.noCount = false;
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted);
-  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt');
+  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt'); fxStatus();
   $('#foeBody').className = 'foeBody'; $('#foeBody').style.filter = ''; $('#foeBody').innerHTML = `<span class="shMerchBody">${artificerSVG(WS_SKINS[(shopShelf().skin + 2) % WS_SKINS.length])}</span>`;
   forgeQuestion();
 }
@@ -3596,7 +3637,7 @@ function buyStart(s) { G.shop = { id: s.id }; startShopBuy(s.id); }
 function startShopBuy(id) {
   const s = SHOP[id]; G.quest = 'shop'; G.shop = { id }; G.sess = 0; G.combo = 0; G.potUsed = true; G.snap = null; G.noCount = true;
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted);
-  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt');
+  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt'); fxStatus();
   $('#foeBody').className = 'foeBody'; $('#foeBody').style.filter = ''; $('#foeBody').innerHTML = `<span class="shMerchBody">${merchantSVG(SH_SKINS[shopShelf().skin % SH_SKINS.length])}</span>`;
   shopHeader(); $('#hearts').textContent = '🪙 ' + s.price; $('#heroBox').classList.remove('heroGlow'); $('#hpFill').style.width = '0%'; $('#potBar').style.display = 'none';
   nameQuestion(s, Object.values(SHOP), { title: 'shop_t', sub: 'shop_s' });

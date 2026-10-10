@@ -291,9 +291,8 @@
   lv(34, { name: ['Percent of an amount', 'אחוזים מכמות'], g: 6, type: 'int', all: () => {
     const o = []; for (const p of [10, 20, 25, 50, 75]) for (let m = 4; m <= 400; m += 2) if ((p * m) % 100 === 0 && p * m / 100 <= 100 && (m % 10 === 0 || p === 25 || p === 75 || p === 50)) o.push(P(34, `{of:${p}%|${m}}`, I(p * m / 100), 'p% of a', { a: m, b: p, op: '%' }));
     return o; } });
-  lv(35, { name: ['Percentages and ratios', 'אחוזים ויחס'], g: 6, type: 'int', all: () => {
+  lv(35, { name: ['Harder percentages', 'אחוזים מתקדמים'], g: 6, type: 'int', all: () => {   // owner decision: no ratio problems ("the first part of 9 in the ratio 1:2")
     const o = []; for (const p of [5, 15, 30, 40, 60, 80, 90, 110, 120, 125, 150]) for (let m = 10; m <= 200; m += 10) if ((p * m) % 100 === 0 && p * m / 100 <= 150) o.push(P(35, `{of:${p}%|${m}}`, I(p * m / 100), 'p% of a', { a: m, b: p, op: '%' }));
-    for (let x = 1; x <= 5; x++) for (let y = 1; y <= 5; y++) if (x !== y && gcd(x, y) === 1) for (let s = x + y; s <= 60; s += x + y) if (s > x + y) o.push(P(35, `{ratio:${s}|${x}:${y}}`, I(s * x / (x + y)), 'ratio', { a: s, b: x + y, op: 'ratio' }));
     return o; } });
   lv(36, { name: ['Multi-step mix', 'תרגילים משולבים'], g: 6, type: 'frac', all: () => {
     const o = [], FR = [[1, 2], [1, 3], [2, 3], [1, 4], [3, 4], [1, 5]];

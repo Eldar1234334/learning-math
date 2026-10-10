@@ -97,11 +97,12 @@ The reading game deploys with `.github/workflows/pages.yml`: `main` is the **liv
 - 2026-10-10: the installed app's e-mail code service (`VERIFY_URL`) is **separate from the reading game's**: Math Wizard gets its own small Apps Script service, set up in phase 11 together with the progress sheet (decided by the project owner). Until then the app offers offline play only.
 - 2026-10-10: the credit line is "Created by Dr. Dadon Eldar" only (no HLA line).
 - 2026-10-10: "counts ½ toward moving up" (spec 01 §6.1) means a right shop, brewing, forging or review answer is worth half an answer in the window; a mistake always counts as a full answer (confirmed by the owner).
-- 2026-10-10: level 35 ratio problems are worded "the first part of 57 in the ratio 2:1" / "החלק הראשון של 57 ביחס 2:1" (confirmed by the owner).
+- 2026-10-10: level 35 ratio problems are worded "the first part of 57 in the ratio 2:1" / "החלק הראשון של 57 ביחס 2:1" (confirmed by the owner). **Replaced later the same day:** the owner removed the ratio problems; level 35 is now "Harder percentages" / "אחוזים מתקדמים" (p% of a, p up to 150). This changes spec 01 §3 level 35.
 - 2026-10-10: the game keeps the name "Math Wizard" also in Hebrew mode for now (the owner may choose a Hebrew name later).
 - 2026-10-10: Light Spark (1) opens at math level 3, not 2: level 2 problems never have the answer 1 (owner decision; spec 02 §6.1 updated in spells.js).
 - 2026-10-10: effects of the higher tiers not given in spec 02 (owner approved): Wind Shield 600 blocks 2 attacks, 6000 blocks 3; Healing Leaf 800 heals 6, 8000 heals 8; Shadow Snare 900 2 turns, 9000 3 turns; Time Freeze 190 3 turns; Arcane Echo 160 triple power.
 - 2026-10-10: emoji are drawn with the Noto Color Emoji web font, so newer emoji (🪨 stone, 🪙 coin, 🪴 plant) also show on Windows 10.
+- 2026-10-10: card sets (owner decision, changes spec 02 §4 "defense option from wizard level 22"): every set of 4 or more cards (wizard level 3+) has one support card, a shield or healing spell, so the player chooses between attacking and defending. With low HP it is a healing spell; at full HP never a healing spell. The utility card no longer replaces the attack card. Other utility spells (control, summon, buff, special) get one more slot from 5 cards (wizard level 15), a proposal waiting for the owner.
 
 ## 9. Questions and changes
 

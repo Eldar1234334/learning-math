@@ -49,7 +49,9 @@
         if (cards.length >= 3) assert(cards.some(c => !CB.isGood(c.rel)), 'no trap ' + where);
         for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) assert(!ME.eq(cards[i].p.a, cards[j].p.a), 'two cards with the same answer ' + where);
         for (const c of cards) { assert(c.p.lv <= m, 'a card above the student\'s level ' + where); if (c.spell) assert(learned.includes(c.spell.id), 'a card for a spell that is not learned'); }
-        if (w < CB.CFG.TWO_GOOD_FROM) assert(cards.filter(c => CB.isGood(c.rel)).length === 1, 'a beginner set has exactly 1 good option ' + where);
+        if (w < CB.CFG.TWO_GOOD_FROM) assert(cards.filter(c => c.rel === 'weak').length === 1, 'a beginner set has exactly 1 attack option ' + where);
+        const support = learned.some(id => ['defense', 'heal'].includes(SB.BY_ID[id].type) && CB.relation(SB.BY_ID[id], el) === 'util');
+        if (support && CB.cardsFor(w) >= 4 && cards.length >= 4) assert(cards.some(c => c.spell && ['defense', 'heal'].includes(c.spell.type)), 'a set of 4+ cards has a shield or healing card ' + where);
       }
     }
     assert(sets > 500, 'sets tested: ' + sets);

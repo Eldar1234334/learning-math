@@ -160,7 +160,8 @@ What was done in each step, how to check it on the test site, and what is still 
   - At least one card is a trap: a spell of the monster's own element (it **heals** the monster), a spell of another element (**no effect**), or a number that is no spell (**fizzles** 💨). The game explains why in one short line.
   - The good card is built backward from the spell number at the student's level (for example at level 21: `3731 − 3724` → 7, Stone Throw). About 1 in 5 good cards is review from an earlier level.
   - From wizard level 15 there are two good cards: an easy one (a weaker spell) and a hard one (a spell at least twice as strong, from the top of the level).
-  - From wizard level 22 a utility card (shield, healing, control) can also be offered. A healing card is not offered while the wizard has full HP.
+  - From 4 cards (wizard level 3) every set has one **support card**: a shield or healing spell, so the player chooses between attacking and defending (your decision). With low HP it is a healing spell; at full HP never a healing spell.
+  - From 5 cards (wizard level 15) one more utility card can join: control, summon, buff or a special spell (my proposal, see below).
 - **The incantation (from math level 5):** after picking a card, the student says its answer (spec 00 §4.1). A right answer casts the spell 10% stronger; a wrong answer makes it fizzle. The first time, a short story moment explains this. Levels 1–4 cast straight from the pick.
   - Answer buttons (the right answer and 3 sensible wrong ones), and from **level 21 a number pad** for whole numbers and decimals (the keyboard works too: digits, Backspace, Enter).
 - **Scoring:** at levels 1–4 the pick is the math answer (a good pick is right). From level 5 the incantation is the math answer, and the pick is only tactics: a bad pick wastes the turn but does not count against the math level. (The game already counts bad picks; step 5 uses them in the rewards.)
@@ -180,7 +181,21 @@ What was done in each step, how to check it on the test site, and what is still 
 - The incantation bonus: a right spoken answer makes the spell **10% stronger**.
 - The campfire heals **25%** of your HP.
 - Shrink (Shrink Ray) makes the monster's attacks **half** as strong.
-- A utility card (instead of the attack card) comes about **15%** of the time.
+- Control, summon, buff and special spells (Shadow Snare, familiars, Arcane Echo …) get their own card slot from 5 cards (wizard level 15). Before that only the attack card and the support card are offered, so Shadow Snare (learned at wizard level 8) waits until wizard level 15.
+
+**Your decisions (from your check)**
+- Every set of 4+ cards has one support card (shield or healing); the utility card no longer replaces the attack card.
+- The ratio problems are removed. Level 35 is now "Harder percentages" / "אחוזים מתקדמים" (for example `15% of 60`, `125% of 80`).
+- A wrong incantation: the spell fizzles (nothing is cast, and it counts as a math mistake). A spoken number is never cast as a different spell.
+
+**Fixed after your check**
+- 3 cards: the third card was narrower, on its own row. Now the 3 cards are equal, in one row.
+- A sealed spell, a number that is no spell, or a wrong incantation: nothing flies to the monster any more. A puff of smoke comes from the staff and the wizard shakes.
+- A spell the monster ignores ("No effect"): it flies, glances off the monster and drops.
+- Shields, healing, buffs and familiars now glow around the wizard instead of flying at the monster.
+- Wind Shield: a blue bubble around the wizard (and a 🛡️ icon) until it blocks; it flashes when it blocks.
+- Shadow Snare: shadow bonds hold the monster (it turns grey and dark, with a ⛓️ icon and the number of turns), and it rattles in them on its skipped turn.
+- Small icons also show Mirror Ward 🪞, Phoenix Feather 🪶, a buff 💪 and a familiar, and Shrink 🔽 on the monster.
 
 **Good to know**
 - At the fraction levels (25–27, 31–32) the good card is often a review problem from an earlier level, because the spell numbers are whole numbers and fractions there rarely have a whole answer. The fraction spells (½, ¼ …) join from wizard level 18.
@@ -194,3 +209,4 @@ What was done in each step, how to check it on the test site, and what is still 
 5. In a fight, 🧪 Demo → 🧪 5 of each potion, then try each potion (one per turn): Hint shows the answers on the cards, Second chance undoes the last cast, Super ends the fight.
 6. Switch to עברית in the middle of a fight: the cards stay, the words change, the number pad keeps the phone layout.
 7. Try it on a phone: the cards fit in a row (3) or a grid (4–6).
+8. Demo → wizard level 10 → a fight: every turn has 4 cards, one of them a shield (6, 60) or healing (8, 80) spell. Cast the shield: the bubble. Cast Shadow Snare (9) when it comes from 5 cards (wizard level 15): the shadow bonds.

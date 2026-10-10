@@ -17,14 +17,15 @@
     HP_BASE: 20, HP_PER_LEVEL: 2, WIN_REGEN: 0.2, SAFETY_HP_BONUS: 0.25,
     MON_ATK_BASE: 1, MON_ATK_EVERY: 6, BOSS_HP_MULT: 3, BOSS_ATK_MULT: 2,
     CARDS: [[1, 3], [3, 4], [15, 5], [22, 6]],  // cards per turn by wizard level (spec 02 §4)
-    TWO_GOOD_FROM: 15, UTIL_IN_SET_FROM: 22,   // two good options (easy + hard) from wizard level 15; a defense/area option in the set from 22
+    TWO_GOOD_FROM: 15,                         // two good options (easy + hard) from wizard level 15
+    SUPPORT_FROM_CARDS: 4,                     // owner decision: every set of 4+ cards has one support card (a shield or healing), to choose between attacking and defending
+    OTHER_UTIL_FROM_CARDS: 5,                  // (p) from 5 cards, one more utility card (control, summon, buff, special) when one is learned
     HARD_MIN_RATIO: 2,                         // the hard card's spell has at least twice the power of the easy card's
     REVIEW: 0.2, WEAK: 0.25,                   // review cards and weak spots (spec 01 §5)
     INCANT_FROM: 5, NUMPAD_FROM: 21,           // the incantation step from math level 5; a number pad (whole numbers and decimals) from level 21
     INCANT_BONUS: 1.1,                         // (p) a right incantation adds 10% power (spec 00 §4.1 asks for "a small power bonus")
     HEART_POT_HEAL: 0.3, REST_HEAL: 0.25,      // Heart potion; (p) a campfire on the path gives back 25% of max HP
-    SHRINK: 0.5,                               // (p) Shrinking Hex: the monster's attack is halved for 3 turns
-    UTIL_GOOD: 0.15                            // (p) how often the one good card of a beginner's set is a utility spell (shield, heal…) instead of an attack
+    SHRINK: 0.5                                // (p) Shrinking Hex: the monster's attack is halved for 3 turns
   };
 
   /* ---- elements (spec 02 §2) ---- */
@@ -91,7 +92,9 @@
       used.push(p.a); avoid.add(p.key); cards.push({ p, spell: sp, rel: relation(sp, o.monEl), role }); return true;
     };
     const weakS = learned.filter(s => relation(s, o.monEl) === 'weak' && buildable(s, mlvl));
-    const utilS = learned.filter(s => relation(s, o.monEl) === 'util' && buildable(s, mlvl) && !(o.hpFull && /heal/i.test(s.fx.k)));   // no healing card at full HP
+    const utilS = learned.filter(s => relation(s, o.monEl) === 'util' && buildable(s, mlvl));
+    const isSupport = s => s.type === 'defense' || s.type === 'heal';
+    const supportS = utilS.filter(s => isSupport(s) && !(o.hpFull && s.type === 'heal')), otherS = utilS.filter(s => !isSupport(s));   // no healing card at full HP
     const badS = learned.filter(s => ['heal', 'none'].includes(relation(s, o.monEl)) && buildable(s, mlvl));
     // 1. the good card(s)
     if (o.wlvl >= CFG.TWO_GOOD_FROM && weakS.length) {   // an easy card (a weaker spell, the level below) and a hard card (a stronger spell, the top of the level)
@@ -102,12 +105,15 @@
       const e = easy.length ? pick(easy) : easyAny.length ? pick(easyAny) : null;
       if (e) add(e, 'easy', mlvl > 1 && canMake(e.v, mlvl - 1) ? mlvl - 1 : levelFor(e.v, mlvl, rnd));
     } else {
-      const useUtil = utilS.length && (rnd() < CFG.UTIL_GOOD || (o.hpLow && utilS.some(s => /heal/i.test(s.fx.k))));
-      const pool = useUtil ? (o.hpLow && utilS.some(s => /heal/i.test(s.fx.k)) ? utilS.filter(s => /heal/i.test(s.fx.k)) : utilS) : weakS;
-      for (const s of shuffleBy(pool, rnd)) if (add(s, useUtil ? 'util' : 'good', levelFor(s.v, mlvl, rnd))) break;
+      for (const s of shuffleBy(weakS, rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
       if (!cards.length) for (const s of shuffleBy(weakS.concat(utilS), rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
     }
-    if (o.wlvl >= CFG.UTIL_IN_SET_FROM && utilS.length && cards.length < n) for (const s of shuffleBy(utilS, rnd)) if (add(s, 'util', levelFor(s.v, mlvl, rnd))) break;
+    // the support card (4+ cards): a shield or healing, so the player chooses between attacking and defending; with low HP healing comes first
+    if (n >= CFG.SUPPORT_FROM_CARDS && supportS.length) {
+      const heals = supportS.filter(s => s.type === 'heal'), pool = o.hpLow && heals.length ? heals : supportS;
+      for (const s of shuffleBy(pool, rnd)) if (add(s, 'util', levelFor(s.v, mlvl, rnd))) break;
+    }
+    if (n >= CFG.OTHER_UTIL_FROM_CARDS && otherS.length && cards.length < n - 1) for (const s of shuffleBy(otherS, rnd)) if (add(s, 'util', levelFor(s.v, mlvl, rnd))) break;
     // 2. at least one trap: a spell the monster resists or that heals it, or a number that is no spell (fizzle)
     const fizzleCard = () => { for (let k = 0; k < 30; k++) { const p = ME.next(mlvl, { avoid, noReview: true }); if (!learned.some(s => ME.eq(s.v, p.a)) && add(null, 'trap', null, Object.assign({}, p, { src: 'cur' }))) return true; } return false; };
     const trapSpell = () => { for (const s of shuffleBy(badS, rnd)) if (add(s, 'trap', levelFor(s.v, mlvl, rnd))) return true; return false; };
