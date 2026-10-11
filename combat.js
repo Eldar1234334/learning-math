@@ -28,11 +28,14 @@
     SHRINK: 0.5,                               // Shrinking Hex: the monster's attack is halved for 3 turns (owner approved)
     CONTROL_IN_SUPPORT: 1 / 3,                 // (p) owner decision: a control spell (Shadow Snare, Time Freeze) may take the support card's place; this is how often, when one is learned and HP is not low
     // monster abilities (spec 03 §4): the wizard level that unlocks each one
-    ABILITIES: [['armored', 6], ['regen', 9], ['charging', 11], ['shifter', 13], ['group', 15], ['shielded', 18], ['double', 20]],
+    // owner decisions (step 5 check): shapeshifter from 9, magic shield from 13 and regenerating from 17 (when strong spells are on the cards every turn)
+    ABILITIES: [['armored', 6], ['shifter', 9], ['charging', 11], ['shielded', 13], ['group', 15], ['regen', 17], ['double', 20]],
+    TRAITS: { charging: 0.25, shielded: 0.2 },   // (p) on top of any ability: the chance that a monster charges / carries a magic shield (from their level; never in a group)
     ABILITY_CHANCE: [0.3, 0.6], ABILITY_FULL_AT: 20, BOSS_TWO_FROM: 20,   // 30% at the first unlock → 60% at wizard level 20; a boss always has one, two from level 20
-    ARMOR_DMG_MULT: 0.5, ARMOR_CASTS: 1, HEAVY_ARMOR_CASTS: 2, HEAVY_ARMOR_FROM: 16, HEAVY_ARMOR_CHANCE: 0.5,   // (p) heavy armor: half of the armors from level 16
+    ARMOR_DMG_MULT: 0.5, ARMOR_LAYERS: 2, HEAVY_ARMOR_LAYERS: 3, HEAVY_ARMOR_FROM: 16, HEAVY_ARMOR_CHANCE: 0.5,   // owner decision: an armor holds for at least 2 breaking hits (layers); heavy: 3 (half of the armors from level 16)
     REGEN: 0.1, CHARGE_EVERY: 3, CHARGE_MULT: 3, SHIFT_EVERY: 2,
-    GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.5, GROUP_ATK_EACH: 0.4,          // (p) each monster of a group has half the HP and 40% of the attack of a single monster
+    GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.5, GROUP_ATK_EACH: 0.4,          // each monster of a group has half the HP and 40% of the attack of a single monster (owner approved)
+    GROUP_CASTS: 2,                                                        // owner decision: in a group fight the student casts 2 spells every turn
     // XP (spec 03 §5.1)
     XP_FIGHT: 10, XP_FIGHT_PERFECT: 5, XP_BOSS: 40, XP_BOSS_PERFECT: 20, XP_CRAFT: 3
   };
@@ -95,7 +98,10 @@
   // always winnable (spec 03 §3.4): the student has at least one learned spell that hurts a monster of this element, and the cards can offer it
   const canBeat = (monEl, learnedIds, mlvl) => learnedIds.some(id => { const s = SB.BY_ID[id]; return s && relation(s, monEl) === 'weak' && buildable(s, mlvl); });
 
-  /* ---- monster abilities (spec 03 §4) ---- */
+  /* ---- monster abilities (spec 03 §4, with the owner's step 5 changes) ---- */
+  // A monster has at most one main ability (a boss: one, two from wizard level 20). The traits (charging, magic shield) come on top, by chance,
+  // on any monster from their level (owner decision), but never in a group.
+  const unlocked = (k, g) => CFG.ABILITIES.some(([a, w]) => a === k && g >= w);
   const abilitiesAt = g => CFG.ABILITIES.filter(([, w]) => g >= w).map(([k]) => k);
   function abilityChance(g) {
     const first = CFG.ABILITIES[0][1], [a, b] = CFG.ABILITY_CHANCE; if (g < first) return 0;
@@ -104,49 +110,63 @@
   // armors this monster may wear: never one that breaks with its own element, and only when the student can break it (always winnable)
   const armorsFor = (el, learnedIds, mlvl) => Object.keys(ARMOR).filter(a => !ARMOR[a].breaks.includes(OWN[el]) &&
     learnedIds.some(id => { const s = SB.BY_ID[id]; return s && elemental(s) && ARMOR[a].breaks.includes(s.el) && buildable(s, mlvl); }));
+  // the elements a shapeshifter may change into: ones the student can beat
+  const shiftEls = (el, learnedIds, mlvl) => Object.keys(MON_EL).filter(e => e !== el && canBeat(e, learnedIds, mlvl));
+  // a group's elements: 2–3 monsters the student can beat, at least two of them weak to the same element the student can cast (null: no group possible)
+  function groupEls(learnedIds, mlvl, rnd = Math.random) {
+    const atkEls = [...new Set(learnedIds.map(id => SB.BY_ID[id]).filter(s => s && elemental(s) && buildable(s, mlvl)).map(s => s.el))];
+    const beat = Object.keys(MON_EL).filter(e => canBeat(e, learnedIds, mlvl));
+    const shared = atkEls.map(w => beat.filter(e => MON_EL[e].weak.includes(w))).filter(es => es.length >= 2);
+    if (!shared.length) return null;
+    const els = shuffleBy(shared[Math.floor(rnd() * shared.length)], rnd).slice(0, 2);
+    const n = CFG.GROUP_SIZE[0] + Math.floor(rnd() * (CFG.GROUP_SIZE[1] - CFG.GROUP_SIZE[0] + 1));
+    while (els.length < n) els.push(beat[Math.floor(rnd() * beat.length)]);
+    return shuffleBy(els, rnd);
+  }
   // o: { g, boss, el, learned, mlvl, rnd } → { ab: [ability keys], armor: armor type or null }
   function rollAbilities(o) {
     const rnd = o.rnd || Math.random, pick = a => a[Math.floor(rnd() * a.length)], armors = armorsFor(o.el, o.learned, o.mlvl);
-    let open = abilitiesAt(o.g).filter(k => (k !== 'armored' || armors.length) && (k !== 'shifter' || shiftEls(o.el, o.learned, o.mlvl).length) && !(o.boss && k === 'group'));
+    let open = abilitiesAt(o.g).filter(k => !(k in CFG.TRAITS) && (k !== 'armored' || armors.length) && (k !== 'shifter' || shiftEls(o.el, o.learned, o.mlvl).length)
+      && (k !== 'group' || (!o.boss && groupEls(o.learned, o.mlvl, rnd))));
     const n = o.boss ? Math.min(open.length, o.g >= CFG.BOSS_TWO_FROM ? 2 : 1) : (open.length && rnd() < abilityChance(o.g) ? 1 : 0), ab = [];
     while (ab.length < n && open.length) {   // armor and shapeshifting never together (the armor is chosen for the element)
       const k = pick(open); ab.push(k); open = open.filter(x => x !== k && !(['armored', 'shifter'].includes(k) && ['armored', 'shifter'].includes(x)));
     }
+    if (!ab.includes('group')) for (const k of Object.keys(CFG.TRAITS)) if (unlocked(k, o.g) && rnd() < CFG.TRAITS[k]) ab.push(k);
     return { ab, armor: ab.includes('armored') ? pick(armors) : null };
   }
-  // the elements a shapeshifter may change into: ones the student can beat
-  const shiftEls = (el, learnedIds, mlvl) => Object.keys(MON_EL).filter(e => e !== el && canBeat(e, learnedIds, mlvl));
-  // a fight's monster: o = { g, boss, el, learned, mlvl, ab, armor, rnd } → { hp, max, el, boss, ab, armor, shield, charge, shift, shiftEls, pack }
-  // A group (spec 03 §4): the monster in front takes single spells; the others wait in the pack; area spells hit all of them.
+  // a fight's monster: o = { g, boss, el, learned, mlvl, ab, armor, rnd } → { hp, max, el, boss, ab, armor, shield, charge, shift, shiftEls, skip }
+  // A group member has a share of a single monster's HP (GROUP_HP_EACH).
   function newMonster(o) {
-    const rnd = o.rnd || Math.random, ab = o.ab || [], hp = monsterHP(o.mlvl, o.learned, o.g, o.boss, rnd);
-    const m = { hp, max: hp, el: o.el, boss: !!o.boss, ab, armor: null, shield: ab.includes('shielded'), charge: 0, shift: 0, pack: [],
+    const rnd = o.rnd || Math.random, ab = o.ab || [], hp0 = monsterHP(o.mlvl, o.learned, o.g, o.boss, rnd);
+    const hp = ab.includes('group') ? Math.max(2, Math.round(hp0 * CFG.GROUP_HP_EACH)) : hp0;
+    const m = { hp, max: hp, el: o.el, boss: !!o.boss, ab, armor: null, shield: ab.includes('shielded'), charge: 0, shift: 0, skip: 0,
       shiftEls: ab.includes('shifter') ? [o.el].concat(shiftEls(o.el, o.learned, o.mlvl)) : [] };
-    if (o.armor) {
-      const casts = o.g >= CFG.HEAVY_ARMOR_FROM && rnd() < CFG.HEAVY_ARMOR_CHANCE ? CFG.HEAVY_ARMOR_CASTS : CFG.ARMOR_CASTS;
-      const a = Math.max(1, Math.round(casts * pTyp(o.mlvl, o.learned) * S(o.g))); m.armor = { type: o.armor, hp: a, max: a, heavy: casts > 1 };
-    }
-    if (ab.includes('group')) {
-      const n = CFG.GROUP_SIZE[0] + Math.floor(rnd() * (CFG.GROUP_SIZE[1] - CFG.GROUP_SIZE[0] + 1)), each = Math.max(2, Math.round(hp * CFG.GROUP_HP_EACH));
-      m.hp = m.max = each; for (let i = 1; i < n; i++) m.pack.push({ hp: each, max: each });
-    }
+    if (o.armor) { const n = o.g >= CFG.HEAVY_ARMOR_FROM && rnd() < CFG.HEAVY_ARMOR_CHANCE ? CFG.HEAVY_ARMOR_LAYERS : CFG.ARMOR_LAYERS; m.armor = { type: o.armor, hp: n, max: n, heavy: n > CFG.ARMOR_LAYERS }; }
     return m;
   }
-  const packLeft = mon => (mon.pack || []).filter(m => m.hp > 0);
-  const defeated = st => st.mon.hp <= 0 && !packLeft(st.mon).length;
-  function nextFront(st) {   // the front monster of a group fell: the next one steps forward
-    if (st.mon.hp > 0) return false; const nx = packLeft(st.mon)[0]; if (!nx) return false;
-    st.mon.pack.splice(st.mon.pack.indexOf(nx), 1); st.mon.hp = nx.hp; st.mon.max = nx.max; return true;
+  // the fight's monsters: st.foes (one, or a group side by side) and st.mon, the one the student aims at
+  const foesOf = st => st.foes || [st.mon];
+  const alive = st => foesOf(st).filter(f => f.hp > 0);
+  const defeated = st => !alive(st).length;
+  function retarget(st, i) {   // aim at monster i; or, when the target fell, at the first one still standing. true = the target changed
+    const fs = foesOf(st);
+    if (i != null) { if (fs[i] && fs[i].hp > 0 && fs[i] !== st.mon) { st.mon = fs[i]; return true; } return false; }
+    if (st.mon.hp > 0) return false; const a = alive(st)[0]; if (!a) return false; st.mon = a; return true;
   }
   const charging = mon => (mon.ab || []).includes('charging') && mon.charge === CFG.CHARGE_EVERY - 1;   // the next monster turn is the big attack
 
   /* ---- a card set (spec 00 §3.4, spec 01 §5.2) ---- */
-  // o: { mlvl, wlvl, learned (ids), monEl, avoid (Set of recent keys), facts (weak spots), hpLow, hpFull, rnd }
+  // o: { mlvl, wlvl, learned (ids), monEl, mon (the target's state), foes (a group's monsters), avoid (Set of recent keys), facts (weak spots), hpLow, hpFull, charging, rnd }
   // returns cards [{ p (the problem, p.src = 'cur' | 'review' | 'hard' | 'weak'), spell (or null), rel, role: 'good' | 'easy' | 'hard' | 'util' | 'trap' | 'fill' }]
+  // In a group a card's rel is its best effect on any monster still standing (an area spell that hurts one of them is good).
+  const RANK = { weak: 5, break: 4, util: 3, none: 2, heal: 1, fizzle: 0 };
   function buildSet(o) {
     const rnd = o.rnd || Math.random, pick = a => a[Math.floor(rnd() * a.length)], mlvl = o.mlvl, n = cardsFor(o.wlvl);
     const learned = o.learned.map(id => SB.BY_ID[id]).filter(Boolean), cards = [], used = [], avoid = new Set(o.avoid || []);
-    const taken = v => used.some(u => ME.eq(u, v)), rel = s => relation(s, o.monEl, o.mon);
+    const fs = (o.foes || []).filter(f => f.hp > 0), group = fs.length > 1;
+    const taken = v => used.some(u => ME.eq(u, v));
+    const rel = s => group ? fs.map(f => relation(s, f.el, f)).sort((a, b) => RANK[b] - RANK[a])[0] : relation(s, o.monEl, o.mon);
     const add = (spell, role, level, p) => {
       if (!p) { if (level == null) return false; p = ME.make(level, { target: spell.v, avoid }); if (!p) return false; p = Object.assign({}, p, { src: level < mlvl ? 'review' : role === 'hard' ? 'hard' : 'cur' }); }
       if (taken(p.a)) return false;
@@ -154,7 +174,7 @@
       used.push(p.a); avoid.add(p.key); cards.push({ p, spell: sp, rel: rel(sp), role }); return true;
     };
     // while an armor is up, the good card breaks it (spec 03 §4.1: first the armor, then the weakness)
-    const goodRel = armorUp(o.mon) && learned.some(s => rel(s) === 'break' && buildable(s, mlvl)) ? 'break' : 'weak';
+    const goodRel = !group && armorUp(o.mon) && learned.some(s => rel(s) === 'break' && buildable(s, mlvl)) ? 'break' : 'weak';
     const weakS = learned.filter(s => rel(s) === goodRel && buildable(s, mlvl));
     const utilS = learned.filter(s => rel(s) === 'util' && buildable(s, mlvl));
     const isSupport = s => s.type === 'defense' || s.type === 'heal';
@@ -172,8 +192,19 @@
       for (const s of shuffleBy(weakS, rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
       if (!cards.length) for (const s of shuffleBy(weakS.concat(utilS), rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
     }
+    // a group: an area spell (the one that hurts the most monsters), then a good card for every monster (by element) that no card hurts yet
+    if (group && !cards.some(c => c.spell && c.spell.fx.k === 'area')) {
+      const hurts = s => fs.filter(f => relation(s, f.el, f) === 'weak').length;
+      const areaS = learned.filter(s => s.fx.k === 'area' && hurts(s) > 0 && buildable(s, mlvl)), best = Math.max(0, ...areaS.map(hurts));
+      for (const s of shuffleBy(areaS.filter(s => hurts(s) === best), rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
+    }
+    if (group) for (const f of fs) {
+      if (cards.length >= n - 1 || cards.some(c => relation(c.spell, f.el, f) === 'weak')) continue;
+      const mine = learned.filter(s => relation(s, f.el, f) === 'weak' && buildable(s, mlvl));
+      for (const s of shuffleBy(mine, rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
+    }
     // the support card (4+ cards): a shield or healing, so the player chooses between attacking and defending; with low HP healing comes first
-    if (n >= CFG.SUPPORT_FROM_CARDS && supportS.length) {
+    if (n >= CFG.SUPPORT_FROM_CARDS && supportS.length && cards.length < n - 1) {
       const heals = supportS.filter(s => s.type === 'heal'), ctl = otherS.filter(s => s.type === 'control');
       const guard = supportS.filter(s => s.type === 'defense').concat(ctl);   // a big attack is coming: a shield or a control spell is the answer
       const pool = o.hpLow && heals.length ? heals : o.charging && guard.length ? guard : ctl.length && rnd() < CFG.CONTROL_IN_SUPPORT ? ctl : supportS;
@@ -199,37 +230,48 @@
   function shuffleBy(a, rnd) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   /* ---- the fight state ---- */
-  // st = { g (wizard level), hero: { hp, max }, mon: { hp, max, el, boss }, fx: { … } }
-  const newFx = () => ({ shields: [], skip: 0, buff: 1, summon: null, reflect: false, revive: false, reviveUsed: false, weaken: null, shrink: 0, bossCtl: false });
+  // st = { g (wizard level), hero: { hp, max }, foes: [monsters], mon (the target, one of foes), fx: { … } }
+  const newFx = () => ({ shields: [], buff: 1, summon: null, reflect: false, revive: false, reviveUsed: false, weaken: null, shrink: 0, bossCtl: false });
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-  // cast a spell (or fizzle). bonus: a right incantation. Returns one event: { k, rel, dmg, heal, monHeal, popped, armorHit, armorBroken, … }
-  const HITS = ['dmg', 'area', 'multi', 'drain', 'halve'];   // spells that hit the monster
+  // cast a spell (or fizzle) at the target; an area spell hits every monster still standing. bonus: a right incantation.
+  // Returns { k, rel, dmg, heal, monHeal, popped, armorHit, armorBroken, per: [{ i, rel, dmg, monHeal, popped, armorHit, armorBroken }] (an area spell: each monster), … }
+  const HITS = ['dmg', 'area', 'multi', 'drain', 'halve'];   // spells that hit a monster
   function cast(st, spell, bonus = 1) {
-    const mon = st.mon, ev = { k: 'fizzle', rel: relation(spell, mon.el, mon), spell };
+    const mon = st.mon, fs = foesOf(st), ev = { k: 'fizzle', rel: relation(spell, mon.el, mon), spell };
     if (!spell) return ev;
     const f = spell.fx || {}, buff = st.fx.buff; st.fx.buff = 1;   // a buff works on the next spell only
     const mult = S(st.g) * buff * bonus;
     const hitOn = (m, x) => { const d = Math.max(1, Math.round(x * (armorUp(m) ? CFG.ARMOR_DMG_MULT : 1))); m.hp = Math.max(0, m.hp - d); return d; }, hit = x => hitOn(mon, x);   // an armor halves the damage
     const healOn = (m, x) => { const h = Math.min(Math.max(1, Math.round(x)), m.max - m.hp); m.hp += h; return h; };
+    const strike = m => {   // an attack spell meets one monster: a magic shield, an armor layer, damage, healing, or nothing
+      const r = relation(spell, m.el, m), o = { i: fs.indexOf(m), rel: r };
+      if (m.shield) { m.shield = false; o.popped = true; }   // Shielded: the first hit only breaks the shield
+      else if (r === 'break') { m.armor.hp -= 1; o.armorHit = 1; o.armorBroken = m.armor.hp <= 0; }   // the armor absorbs it (one layer, never heals)
+      else if (r === 'weak') o.dmg = hitOn(m, spell.power * mult);
+      else if (r === 'heal') o.monHeal = healOn(m, spell.power * S(st.g));
+      return o;
+    };
     ev.k = f.k;
-    if (mon.shield && HITS.includes(f.k)) { mon.shield = false; ev.popped = true; return ev; }   // Shielded: the first hit of the fight only breaks the shield
+    if (f.k === 'area') {
+      ev.per = alive(st).map(strike);
+      ev.rel = ev.per.map(o => o.rel).sort((a, b) => RANK[b] - RANK[a])[0] || ev.rel;
+      for (const o of ev.per) { if (o.dmg) ev.dmg = (ev.dmg || 0) + o.dmg; if (o.monHeal) ev.monHeal = (ev.monHeal || 0) + o.monHeal; if (o.popped) ev.popped = true; if (o.armorHit) { ev.armorHit = 1; ev.armorBroken = ev.armorBroken || o.armorBroken; } }
+      return ev;
+    }
+    if (mon.shield && HITS.includes(f.k)) { mon.shield = false; ev.popped = true; return ev; }
     switch (f.k) {
-      case 'dmg': case 'area': {
-        if (ev.rel === 'break') { const d = Math.max(1, Math.round(spell.power * mult)); mon.armor.hp = Math.max(0, mon.armor.hp - d); ev.armorHit = d; ev.armorBroken = mon.armor.hp <= 0; }   // the armor absorbs it (never heals)
-        else if (ev.rel === 'weak') ev.dmg = hit(spell.power * mult);
-        else if (ev.rel === 'heal') ev.monHeal = healOn(mon, spell.power * S(st.g));
-        if (f.k === 'area') {   // the rest of a group: the same element rules (they wear no armor)
-          const r = relation(spell, mon.el);
-          for (const m of packLeft(mon)) { if (r === 'weak') ev.dmg = (ev.dmg || 0) + hitOn(m, spell.power * mult); else if (r === 'heal') ev.monHeal = (ev.monHeal || 0) + healOn(m, spell.power * S(st.g)); }
-        }
-        break;
-      }
+      case 'dmg': Object.assign(ev, strike(mon)); delete ev.i; break;
       case 'multi': ev.dmg = hit(f.hits * f.pw * mult); break;
       case 'shield': st.fx.shields.push({ part: f.part, n: f.n || 1 }); break;
       case 'heal': ev.heal = Math.min(st.hero.max - st.hero.hp, Math.max(1, Math.round(f.n * S(st.g)))); st.hero.hp += ev.heal; break;
       case 'healPart': ev.heal = Math.min(st.hero.max - st.hero.hp, Math.ceil(st.hero.max * f.part)); st.hero.hp += ev.heal; break;
       case 'fullHeal': ev.heal = st.hero.max - st.hero.hp; st.hero.hp = st.hero.max; st.fx.shrink = 0; st.fx.weaken = null; break;
-      case 'skip': if (mon.boss) { if (!st.fx.bossCtl) { st.fx.skip = Math.max(st.fx.skip, 1); st.fx.bossCtl = true; ev.n = 1; } else ev.k = 'bossResist'; } else { st.fx.skip += f.n; ev.n = f.n; } break;
+      case 'skip': {   // Shadow Snare holds the target; Time Freeze (all) every monster. A boss: one turn at most, once per fight
+        const ts = f.all ? alive(st) : [mon]; ev.n = 0;
+        for (const m of ts) { if (m.boss) { if (!st.fx.bossCtl) { m.skip = Math.max(m.skip || 0, 1); st.fx.bossCtl = true; ev.n = Math.max(ev.n, 1); } } else { m.skip = (m.skip || 0) + f.n; ev.n = Math.max(ev.n, f.n); } }
+        if (!ev.n) ev.k = 'bossResist'; else ev.all = !!f.all && ts.length > 1;
+        break;
+      }
       case 'buff': st.fx.buff = f.x; ev.x = f.x; break;
       case 'summon': st.fx.summon = { turns: f.turns, pw: f.pw, el: f.el, em: f.em }; break;
       case 'reflect': st.fx.reflect = true; break;
@@ -241,49 +283,55 @@
     }
     return ev;
   }
-  // the monster's turn (spec 03 §4): a familiar attacks first; then the monster (and the rest of its group) attacks, unless it skips.
-  // Charging: every 3rd turn the first attack is ×3. Double attack: two attacks. Then a regenerating monster heals and a shapeshifter may change element.
-  // Returns { familiar, next, skipped, hits: [{ dmg, blocked, reflected, big }], dmg, blocked, reflected, big, revived, regen, shifted, warn }
+  // the monsters' turn (spec 03 §4): a familiar attacks the target first; then every monster still standing attacks, one after the other, unless it is held.
+  // Charging: every 3rd turn its first attack is ×3. Double attack: two attacks. Then regenerating monsters heal and shapeshifters may change element.
+  // Returns { familiar, next, skipped, skips: [i], hits: [{ who, dmg, blocked, reflected, big }], dmg, blocked, reflected, big, revived, regen, regens: [{ i, h }], shifted, shifts: [{ i, el }], warn }
   function monsterTurn(st, rnd = Math.random) {
-    const ev = { hits: [], dmg: 0 }, mon = st.mon, ab = mon.ab || [], fam = st.fx.summon;
+    const ev = { hits: [], dmg: 0, skips: [], regens: [], shifts: [] }, fs = foesOf(st), fam = st.fx.summon;
     if (fam && fam.turns > 0) {
-      const rel = fam.el === 'arcane' ? 'weak' : (MON_EL[mon.el].weak.includes(fam.el) ? 'weak' : MON_EL[mon.el].heal.includes(fam.el) ? 'heal' : 'none');
-      ev.familiar = { em: fam.em, rel, dmg: 0 };
+      const mon = st.mon, rel = fam.el === 'arcane' ? 'weak' : (MON_EL[mon.el].weak.includes(fam.el) ? 'weak' : MON_EL[mon.el].heal.includes(fam.el) ? 'heal' : 'none');
+      ev.familiar = { em: fam.em, rel, dmg: 0, i: fs.indexOf(mon) };
       if (rel === 'weak') { ev.familiar.dmg = Math.max(1, Math.round(fam.pw * S(st.g))); mon.hp = Math.max(0, mon.hp - ev.familiar.dmg); }
       fam.turns--; if (fam.turns <= 0) st.fx.summon = null;
-      if (mon.hp <= 0) { if (!nextFront(st)) return ev; ev.next = true; }
+      if (retarget(st)) ev.next = true;
+      if (defeated(st)) return ev;
     }
-    let big = false;
-    if (ab.includes('charging') && ++mon.charge >= CFG.CHARGE_EVERY) { big = true; mon.charge = 0; }   // a big attack lost to a control spell is lost
-    if (st.fx.skip > 0) { st.fx.skip--; ev.skipped = true; }
-    else {
-      const base = monAttack(st.g, mon.boss), each = ab.includes('group') ? Math.max(1, base * CFG.GROUP_ATK_EACH) : base, atks = [];
-      for (let i = 0; i < (ab.includes('double') ? 2 : 1); i++) atks.push(each * (big && i === 0 ? CFG.CHARGE_MULT : 1));
-      for (let i = 0; i < packLeft(mon).length; i++) atks.push(each);
-      if (big) ev.big = true;
-      let mult = 1, reducedAll = false;
-      if (st.fx.shrink > 0) { mult *= CFG.SHRINK; st.fx.shrink--; reducedAll = true; }
-      if (st.fx.weaken != null) { mult *= st.fx.weaken; st.fx.weaken = null; reducedAll = true; }
-      for (let i = 0; i < atks.length; i++) {
-        let a = atks[i] * mult, reduced = reducedAll; const h = big && i === 0 ? { big: true } : {};
-        if (st.fx.reflect) { st.fx.reflect = false; h.reflected = Math.max(1, Math.round(a)); mon.hp = Math.max(0, mon.hp - h.reflected); ev.reflected = (ev.reflected || 0) + h.reflected; ev.hits.push(h); continue; }
+    let mult = 1, reducedAll = false;   // Shrinking Hex and Mist of Tenths weaken this whole turn
+    if (st.fx.shrink > 0) { mult *= CFG.SHRINK; st.fx.shrink--; reducedAll = true; }
+    if (st.fx.weaken != null) { mult *= st.fx.weaken; st.fx.weaken = null; reducedAll = true; }
+    let down = false;
+    for (const m of fs) {
+      if (m.hp <= 0 || down) continue;
+      const ab = m.ab || [], i = fs.indexOf(m);
+      let big = false;
+      if (ab.includes('charging') && ++m.charge >= CFG.CHARGE_EVERY) { big = true; m.charge = 0; }   // a big attack lost to a control spell is lost
+      if (m.skip > 0) { m.skip--; ev.skips.push(i); continue; }
+      const base = monAttack(st.g, m.boss), each = ab.includes('group') ? Math.max(1, base * CFG.GROUP_ATK_EACH) : base;
+      for (let k = 0; k < (ab.includes('double') ? 2 : 1); k++) {
+        let a = each * (big && k === 0 ? CFG.CHARGE_MULT : 1) * mult, reduced = reducedAll; const h = { who: i };
+        if (big && k === 0) { h.big = true; ev.big = true; }
+        if (st.fx.reflect) { st.fx.reflect = false; h.reflected = Math.max(1, Math.round(a)); m.hp = Math.max(0, m.hp - h.reflected); ev.reflected = (ev.reflected || 0) + h.reflected; ev.hits.push(h); if (m.hp <= 0) break; continue; }
         if (st.fx.shields.length) { const s = st.fx.shields[0]; a *= (1 - s.part); reduced = true; h.blocked = s.part; if (ev.blocked == null) ev.blocked = s.part; if (--s.n <= 0) st.fx.shields.shift(); }
         h.dmg = reduced ? Math.floor(a + 1e-9) : Math.round(a);
         st.hero.hp = Math.max(0, st.hero.hp - h.dmg); ev.dmg += h.dmg; ev.hits.push(h);
         if (st.hero.hp <= 0 && st.fx.revive && !st.fx.reviveUsed) { st.fx.revive = false; st.fx.reviveUsed = true; st.hero.hp = Math.ceil(st.hero.max / 2); ev.revived = true; }
-        if (st.hero.hp <= 0) break;
+        if (st.hero.hp <= 0) { down = true; break; }
       }
     }
-    if (mon.hp <= 0 && nextFront(st)) ev.next = true;
-    if (mon.hp > 0 && ab.includes('regen')) { const h = Math.min(mon.max - mon.hp, Math.max(1, Math.round(mon.max * CFG.REGEN))); if (h > 0) { mon.hp += h; ev.regen = h; } }
-    if (mon.hp > 0 && ab.includes('shifter') && ++mon.shift >= CFG.SHIFT_EVERY) {
-      mon.shift = 0; const opts = (mon.shiftEls || []).filter(e => e !== mon.el); if (opts.length) { mon.el = opts[Math.floor(rnd() * opts.length)]; ev.shifted = mon.el; }
+    ev.skipped = ev.skips.length > 0 && !ev.hits.length;
+    for (const m of fs) {
+      if (m.hp <= 0) continue; const ab = m.ab || [], i = fs.indexOf(m);
+      if (ab.includes('regen')) { const h = Math.min(m.max - m.hp, Math.max(1, Math.round(m.max * CFG.REGEN))); if (h > 0) { m.hp += h; ev.regens.push({ i, h }); ev.regen = (ev.regen || 0) + h; } }
+      if (ab.includes('shifter') && ++m.shift >= CFG.SHIFT_EVERY) {
+        m.shift = 0; const opts = (m.shiftEls || []).filter(e => e !== m.el); if (opts.length) { m.el = opts[Math.floor(rnd() * opts.length)]; ev.shifts.push({ i, el: m.el }); ev.shifted = m.el; }
+      }
     }
-    ev.warn = charging(mon);
+    if (retarget(st)) ev.next = true;
+    ev.warn = alive(st).some(charging);
     return ev;
   }
 
   const CB = { CFG, MON_EL, ARMOR, relation, isGood, elemental, S, wizMaxHP, monAttack, cardsFor, canMake, levelFor, pTyp, monsterHP, canBeat,
-    abilitiesAt, abilityChance, armorsFor, rollAbilities, newMonster, packLeft, defeated, nextFront, charging, armorUp, buildSet, newFx, cast, monsterTurn, clamp };
+    abilitiesAt, abilityChance, armorsFor, groupEls, rollAbilities, newMonster, foesOf, alive, defeated, retarget, charging, armorUp, buildSet, newFx, cast, monsterTurn, clamp };
   if (typeof module === 'object' && module.exports) module.exports = CB; else root.CB = CB;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

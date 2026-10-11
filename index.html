@@ -454,22 +454,35 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 #heroBox.shielded #heroSvg::after{content:'';position:absolute;inset:-6% -10% 0;border-radius:50%;border:3px solid #9be7ff;background:radial-gradient(circle,#9be7ff00 55%,#9be7ff40 100%);box-shadow:0 0 18px #9be7ffaa,inset 0 0 14px #9be7ff88;animation:bubble 1.8s ease-in-out infinite;pointer-events:none}
 #heroBox.mirrored #heroSvg::before{content:'';position:absolute;inset:-2% -6% 4%;border-radius:50%;border:3px dashed #e6e9ff;box-shadow:0 0 14px #ffffffaa;animation:spinSlow 6s linear infinite;pointer-events:none}
 #heroBox.fizzle #heroSvg{animation:shake .4s}
-.foeWrap.snared .mnWrap{filter:saturate(.35) brightness(.7)}
-.foeWrap.snared::after{content:'';position:absolute;left:0;right:0;bottom:0;height:60%;background:radial-gradient(ellipse at 50% 100%,#1a0633f0,#4b1a8a99 45%,transparent 72%);animation:snare 1.4s ease-in-out infinite;transform-origin:50% 100%;pointer-events:none;z-index:3}
-.foeWrap.resist .mnWrap{filter:grayscale(1) brightness(1.4);transition:filter .1s}
+.snared .mnWrap,.snared .gArt{filter:saturate(.35) brightness(.7)!important}
+.snared::after{content:'';position:absolute;left:0;right:0;bottom:0;height:60%;background:radial-gradient(ellipse at 50% 100%,#1a0633f0,#4b1a8a99 45%,transparent 72%);animation:snare 1.4s ease-in-out infinite;transform-origin:50% 100%;pointer-events:none;z-index:3}
+.resist .mnWrap,.resist .gArt{filter:grayscale(1) brightness(1.4);transition:filter .1s}
 .fxIcons{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;gap:3px;font-size:1.1rem;pointer-events:none;z-index:6;filter:drop-shadow(0 1px 2px #000c)}
 .fxIcons b{font-size:.75rem;color:#fff;align-self:flex-end}
 /* monster abilities (spec 03 §4): the armor bar, ability tags, the rest of a group behind the front monster */
 .armorBar{display:none;height:9px;margin-top:-1px}.armorBar.on{display:block}.armorBar>i{background:linear-gradient(90deg,#9aa7b8,#dfe7f1)}
 .abTags{font-size:.74rem;margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
 .abTag{background:#0006;border-radius:999px;padding:2px 8px;white-space:nowrap}.abTag.warn{background:#ffd166;color:#3a2300;font-weight:700;animation:bubble 1s ease-in-out infinite}
-.packMon{position:absolute;bottom:14%;width:58%;z-index:1;filter:brightness(.72) saturate(.85);pointer-events:none;transition:opacity .4s}
-.packMon svg{display:block;width:100%;height:auto;overflow:visible}.packMon.p0{left:-42%}.packMon.p1{left:-22%;bottom:42%;width:46%;filter:brightness(.6) saturate(.8)}
+.foeWrap.isGroup{display:block;width:100%;padding:4px 0}.foeWrap.isGroup .foeBody{display:none}
+.stage.grpFight{grid-template-columns:.9fr .75fr 1.7fr}@media (max-width:560px){.stage.grpFight{grid-template-columns:.8fr .55fr 2fr;padding-inline:6px}.gMon.n2{width:54%}.gMon.n3{width:46%}}.grp{position:relative;width:100%;height:190px;margin:0 auto}
+.gMon{position:absolute;bottom:0;width:50%;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit;transition:opacity .4s,filter .4s}
+.gMon .gArt{display:block;animation:bob 2.6s ease-in-out infinite}.gMon svg{display:block;width:100%;height:auto;overflow:visible}
+.gMon.n2.gm0{left:0}.gMon.n2.gm1{right:0}.gMon.n3{width:42%}.gMon.n3.gm0{left:0;bottom:2%}.gMon.n3.gm1{left:29%;bottom:32%;z-index:0}.gMon.n3.gm2{right:0;bottom:0;z-index:2}
+.gMon.tgt{z-index:3}.gMon.tgt::after{content:'▼';position:absolute;top:-16px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:1.2rem;text-shadow:0 0 6px #000;animation:bob 1.2s ease-in-out infinite}
+.gMon.tgt .packHp{outline:2px solid var(--gold)}.gMon.down{opacity:.12;pointer-events:none;filter:grayscale(1)}
+.gEl{position:absolute;top:2px;left:2px;font-size:1rem;background:#000a;border-radius:50%;padding:1px 3px;z-index:4}
+.gMon.hit{animation:shake .4s}.gMon.atk{animation:lunge .5s}
+.gMon.die{animation:die .7s forwards}
 .packHp{display:block;height:5px;border-radius:4px;background:#0008;overflow:hidden;margin:0 auto;width:70%}.packHp>b{display:block;height:100%;background:#ff7a7a}
-.foeWrap.popShield .mnWrap{filter:drop-shadow(0 0 12px #c99bff) drop-shadow(0 0 22px #c99bff)}
-.foeWrap.magicShield::before{content:'';position:absolute;inset:-4% 2% 0;border-radius:50%;border:3px solid #c99bff;box-shadow:0 0 18px #c99bffaa,inset 0 0 14px #c99bff77;z-index:4;pointer-events:none;animation:bubble 1.8s ease-in-out infinite}
+.popShield .mnWrap,.popShield .gArt{filter:drop-shadow(0 0 12px #c99bff) drop-shadow(0 0 22px #c99bff)}
+.magicShield::before{content:'';position:absolute;inset:-4% 2% 0;border-radius:50%;border:3px solid #c99bff;box-shadow:0 0 18px #c99bffaa,inset 0 0 14px #c99bff77;z-index:4;pointer-events:none;animation:bubble 1.8s ease-in-out infinite}
 .unlocks{list-style:none;padding:0;margin:6px 0;text-align:start}.unlocks li{background:#ffffff14;border-radius:12px;padding:7px 12px;margin:5px 0}
 .unlH{margin:12px 0 4px;font-size:1.1rem}
+.opt.card.used{opacity:.25;transform:scale(.94)}.manualOffer{background:#ffd16622;border:1px solid #ffd16688;border-radius:12px;padding:6px 12px;margin:8px 0}#manualBtn.off{opacity:.5}
+.armorBar{position:relative}.armorBar::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--seg,2) - 2px),#1b1340 calc(100% / var(--seg,2) - 2px) calc(100% / var(--seg,2)))}.refreshBtn{grid-column:1 / -1;justify-self:center;font-size:.95rem;padding:8px 16px}
+.morph{animation:morph .7s ease-in-out}@keyframes morph{0%{transform:scale(1)}30%{transform:scaleX(.4) scaleY(1.3);filter:blur(3px)}60%{transform:scaleX(1.3) scaleY(.8)}100%{transform:scale(1)}}
+.shifter .mnWrap,.shifter .gArt{animation:shimmer 2.6s ease-in-out infinite}@keyframes shimmer{0%,100%{opacity:1;transform:translateY(0)}50%{opacity:.72;transform:translateY(-4px) skewX(-4deg)}}
+.shifter::before{content:'';position:absolute;inset:10% 5% 0;border-radius:50%;background:radial-gradient(circle,#00000000 40%,#1a0b2e88 75%,transparent 80%);filter:blur(6px);animation:bubble 2.2s ease-in-out infinite;pointer-events:none;z-index:3}
 @keyframes bubble{50%{transform:scale(1.04);opacity:.7}}
 @keyframes snare{50%{transform:scaleY(1.15)}}
 @keyframes spinSlow{to{transform:rotate(360deg)}}
@@ -493,6 +506,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .bookTabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .bookTab{font:inherit;color:#ffe2a0;background:#0003;border:1px solid #c8a15a88;border-radius:999px;padding:6px 12px;cursor:pointer}
 .bookTab.on{background:#c8a15a;color:#2b1d12;font-weight:600}.bookTab small{opacity:.75}
+.bookSort{align-items:center;font-size:.85rem;color:#ffe2a0}.bookSort .bookTab{padding:4px 10px}
 .bookPages{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
 .spellCard{background:linear-gradient(#f6e7c4,#e8d3a3);color:#3a2610;border-radius:14px;padding:10px 12px;box-shadow:0 3px 0 #8a6a35;display:flex;flex-direction:column;gap:4px;position:relative}
 .spellCard .sNum{font-size:2.2rem;font-weight:700;line-height:1;direction:ltr;color:#6b3a10;align-self:flex-start}
@@ -639,7 +653,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div id="menuHero"></div>
     <div class="grow"><div class="who" id="menuWho" style="font-size:1.5rem"></div><div id="menuRank" class="small"></div>
       <div class="pbar" style="margin-top:6px"><i id="menuXp"></i></div></div>
-    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
+    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="ib" id="manualBtn" data-tt="manual_btn" hidden>📕</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
   </div>
   <div class="stat">
     <span>📖 <b id="menuTier"></b></span>
@@ -800,6 +814,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="bookBox" role="dialog" aria-modal="true" aria-labelledby="bookTitle">
     <div class="bookTop"><h2 id="bookTitle" data-t="book_t"></h2><button class="ib" id="bookClose" data-tt="close">✕</button></div>
     <div class="bookInfo" id="bookInfo"></div>
+    <div class="bookTabs bookSort" id="bookSort"></div>
     <div class="bookTabs" id="bookTabs" role="tablist"></div>
     <div class="bookPages" id="bookPages"></div>
   </div>
@@ -828,7 +843,8 @@ const CFG = {
   BOSS_MIN: 3, BOSS_MAX: 5, // a boss / big request pays the normal amount times a random number between these
   EARLY_MULT: 2,            // coins are doubled during the first 10 minutes of play each day
   ODDS_NORMAL: [60, 30, 10], ODDS_BOSS: [60, 30, 10],   // chance (%) of common/uncommon/rare in normal fights; rare/epic/legendary in boss fights
-  POUCH: 5, MAX_HEARTS_POT: 5,   // potions that can be carried on a quest run; most hearts with a Heart potion
+  POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
+    // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
   MAX_LEVEL: 36,            // the math ladder; moving up and down follows spec 01 §6 (the rules are in math.js: ME.RULES)
   RECENT: 10                // a problem is not repeated within this many turns (spec 01 §5.2)
@@ -1067,6 +1083,15 @@ const STR = {
   enhanced_b: ['The same digits ×10 are stronger versions of your spells: 3 Fire Bolt → 30 Enhanced Fire Bolt.', 'אותן ספרות ×10 הן גרסאות חזקות יותר של הכישופים שלכם: 3 חץ אש ← 30 חץ אש מוגבר.'],
   new_spell_tip: ['Find them in your spell book 📖. A spell’s number never changes!', 'תמצאו אותם בספר הכישופים 📖. המספר של כישוף לעולם לא משתנה!'], open_book: ['Open the book 📖', 'לפתוח את הספר 📖'],
   wiz_up: ['🧙 Wizard level {n}!', '🧙 דרגת קוסם {n}!'],
+  manual_t: ['The monster manual', 'ספר המפלצות'], manual_btn: ['The monster manual', 'ספר המפלצות'],
+  manual_offer: ['You know the monsters well now! You may leave your monster manual at home: the fights will not show the weaknesses any more, and you can carry {n} potions instead of 5. You can always take it back from the map (📕).', 'אתם כבר מכירים את המפלצות היטב! אפשר להשאיר את ספר המפלצות בבית: בקרבות לא יופיעו יותר נקודות התורפה, ובמקום זה אפשר לקחת {n} שיקויים במקום 5. תמיד אפשר לקחת אותו בחזרה מהמפה (📕).'],
+  manual_is_carried: ['You carry the monster manual: the fights show each monster’s weakness.', 'ספר המפלצות איתכם: בקרבות מופיעה נקודת התורפה של כל מפלצת.'],
+  manual_is_home: ['Your monster manual is at home: the fights show no weaknesses, and you carry one more potion.', 'ספר המפלצות נמצא בבית: בקרבות לא מופיעות נקודות התורפה, ואתם לוקחים שיקוי אחד נוסף.'],
+  manual_deal: ['Without the manual you can carry {n} potions on a quest.', 'בלי הספר אפשר לקחת {n} שיקויים למסע.'], manual_quest: ['Finish or leave your quest first, then you can change this.', 'קודם סיימו או עזבו את המסע, ואז אפשר לשנות.'],
+  manual_leave: ['📕 Leave it at home', '📕 להשאיר בבית'], manual_keep: ['Keep carrying it', 'להמשיך לקחת אותו'], manual_take: ['📕 Take it with me', '📕 לקחת אותו איתי'],
+  manual_left: ['📕 The manual stays at home. +1 potion in your pouch!', '📕 הספר נשאר בבית. ‎+1 שיקוי בתיק!'], manual_taken: ['📕 The manual is back in your bag.', '📕 הספר חזר לתיק.'],
+  un_manual: ['📕 You may leave the monster manual at home', '📕 אפשר להשאיר את ספר המפלצות בבית'],
+  sort_by: ['Sort:', 'מיון:'], sort_tier: ['By tier', 'לפי דרגה'], sort_num: ['By number', 'לפי מספר'], sort_type: ['By type', 'לפי סוג'],
   // what a new wizard level brings (spec 03 §5)
   un_type: ['{em} A new kind of spell: {name}', '{em} סוג כישוף חדש: {name}'], un_cards: ['🃏 {n} cards every turn', '🃏 {n} קלפים בכל תור'],
   un_support: ['(one of them is always a shield or healing spell)', '(אחד מהם תמיד כישוף מגן או ריפוי)'],
@@ -1076,20 +1101,24 @@ const STR = {
   xp_perfect: ['⭐ Perfect tactics: +{x} XP', '⭐ טקטיקה מושלמת: ‎+{x} XP'],
   // monster abilities (spec 03 §4): the tag, what it does, and the tip on the "New monster!" card
   newmon_t: ['🆕 New monster: {name}', '🆕 מפלצת חדשה: {name}'],
+  pick_group: ['Pick a card: spell {k} of {n}', 'בחרו קלף: כישוף {k} מתוך {n}'], pick_group_s: ['Tap a monster to aim at it. An area spell hits them all.', 'הקישו על מפלצת כדי לכוון אליה. כישוף אזורי פוגע בכולן.'],
+  refresh_btn: ['🔄 New cards (once per turn)', '🔄 קלפים חדשים (פעם אחת בתור)'],
+  r_area: ['☄️ It hits {n}: −{d}', '☄️ פוגע ב־{n}: ‎−{d}'], r_area_none: ['No monster was hurt!', 'אף מפלצת לא נפגעה!'], r_area_heal: ['💚 It made some stronger: +{h}', '💚 חלק מהן התחזקו: ‎+{h}'],
+  r_skip_all: ['⏸️ Every monster is frozen for {n}.', '⏸️ כל המפלצות קפואות במשך {n}.'], m_skip_n: ['⏸️ {n} monsters cannot move!', '⏸️ {n} מפלצות לא יכולות לזוז!'], m_down: ['💥 {name} is defeated!', '💥 {name} הובסה!'],
   ab_armored: ['🛡️ Armored', '🛡️ משוריין'], ab_regen: ['🌱 Regenerating', '🌱 מתחדש'], ab_charging: ['⚡ Charging', '⚡ טוען'], ab_shifter: ['🎭 Shapeshifter', '🎭 משנה צורה'],
   ab_group: ['👥 Group', '👥 קבוצה'], ab_shielded: ['🔮 Shielded', '🔮 מוגן'], ab_double: ['💢 Double attack', '💢 התקפה כפולה'],
-  abd_armored: ['An armor bar protects this monster. Your spells do only half damage until the armor breaks.', 'פס שריון מגן על המפלצת הזאת. הכישופים עושים רק חצי נזק עד שהשריון נשבר.'],
-  abt_armored: ['Look at the armor tag: break the armor with that element first, then attack the weakness.', 'הסתכלו בתג השריון: קודם שברו את השריון ביסוד הזה, ואחר כך תקפו בנקודת התורפה.'],
-  abd_regen: ['It heals 10% of its HP every turn.', 'היא מרפאת 10% מהחיים שלה בכל תור.'], abt_regen: ['Strong spells finish it before it heals.', 'כישופים חזקים גומרים אותה לפני שהיא מתרפאת.'],
-  abd_charging: ['Every third turn it attacks three times as hard. The ⚡ tag lights up one turn before.', 'בכל תור שלישי היא תוקפת פי 3 חזק. תג ה־⚡ נדלק תור אחד לפני.'],
+  abd_armored: ['An armor protects this monster (the grey bar: one part for each layer). Your spells do only half damage until the armor breaks.', 'שריון מגן על המפלצת הזאת (הפס האפור: חלק לכל שכבה). הכישופים עושים רק חצי נזק עד שהשריון נשבר.'],
+  abt_armored: ['Look at the armor tag: every hit with that element breaks one layer. Then attack the weakness.', 'הסתכלו בתג השריון: כל פגיעה ביסוד הזה שוברת שכבה אחת. אחר כך תקפו בנקודת התורפה.'],
+  abd_regen: ['It heals 10% of its HP every turn.', 'היא מרפאת 10% מהחיים שלה בכל תור.'], abt_regen: ['Strong spells defeat it before it heals.', 'כישופים חזקים מביסים אותה לפני שהיא מתרפאת.'],
+  abd_charging: ['Every third turn it attacks three times harder. The ⚡ tag lights up one turn before.', 'בכל תור שלישי היא תוקפת פי 3 יותר חזק. תג ה־⚡ נדלק תור אחד לפני.'],
   abt_charging: ['When ⚡ lights up, cast a shield or a control spell.', 'כשה־⚡ נדלק, הטילו מגן או כישוף שליטה.'],
   abd_shifter: ['Every 2 turns it changes its element, and its weakness changes too.', 'כל 2 תורות היא מחליפה יסוד, וגם נקודת התורפה שלה משתנה.'], abt_shifter: ['Read the weakness badge every turn!', 'קראו את תג נקודת התורפה בכל תור!'],
-  abd_group: ['2 or 3 monsters fight together. A spell hits the monster in front.', '2 או 3 מפלצות נלחמות ביחד. כישוף פוגע במפלצת שבחזית.'], abt_group: ['Area spells hit all of them at once.', 'כישופים אזוריים פוגעים בכולן בבת אחת.'],
+  abd_group: ['2 or 3 monsters fight together, and each one attacks. Tap a monster to aim at it. In a group fight you cast 2 spells every turn, and you may change the cards once per turn.', '2 או 3 מפלצות נלחמות ביחד, וכל אחת תוקפת. הקישו על מפלצת כדי לכוון אליה. בקרב קבוצה מטילים 2 כישופים בכל תור, ואפשר להחליף את הקלפים פעם אחת בתור.'], abt_group: ['Area spells (11–19) hit all of them at once. Use a shield or healing as one of your two spells when you need it.', 'כישופים אזוריים (11–19) פוגעים בכולן בבת אחת. כשצריך, אחד משני הכישופים יכול להיות מגן או ריפוי.'],
   abd_shielded: ['A magic shield takes the first hit of the fight.', 'מגן קסם סופג את המכה הראשונה בקרב.'], abt_shielded: ['Break it with any attack spell, then fight as usual.', 'שברו אותו בכל כישוף התקפה, ואז הילחמו כרגיל.'],
   abd_double: ['It attacks twice every turn.', 'היא תוקפת פעמיים בכל תור.'], abt_double: ['Shields, healing and control spells help a lot.', 'מגנים, ריפוי וכישופי שליטה עוזרים מאוד.'],
   arm_bark: ['Bark armor', 'שריון קליפה'], arm_ice: ['Ice armor', 'שריון קרח'], arm_stone: ['Stone armor', 'שריון אבן'], arm_iron: ['Iron armor', 'שריון ברזל'], arm_shadow: ['Shadow armor', 'שריון צל'],
   arm_heavy: ['(heavy)', '(כבד)'], arm_breaks: ['breaks with', 'נשבר עם'],
-  r_pop: ['🔮 The magic shield breaks! No damage this time.', '🔮 מגן הקסם נשבר! הפעם בלי נזק.'], r_break: ['💥 The armor cracks: −{d}', '💥 השריון נסדק: ‎−{d}'],
+  r_pop: ['🔮 The magic shield breaks! No damage this time.', '🔮 מגן הקסם נשבר! הפעם בלי נזק.'], r_break: ['💥 The armor cracks! One layer is broken.', '💥 השריון נסדק! שכבה אחת נשברה.'],
   r_broken: ['💥 The armor breaks! Now attack the weakness.', '💥 השריון נשבר! עכשיו תקפו בנקודת התורפה.'], r_half: ['(the armor stops half)', '(השריון עוצר חצי)'],
   m_big: ['⚡ A HUGE attack! −{d}', '⚡ התקפה ענקית! ‎−{d}'], m_attack_n: ['💥 {n} attacks! −{d}', '💥 {n} התקפות! ‎−{d}'], m_warn: ['⚡ The monster is charging a huge attack for its next turn!', '⚡ המפלצת טוענת התקפה ענקית לתור הבא!'],
   m_regen: ['🌱 The monster heals: +{h}', '🌱 המפלצת מתרפאת: ‎+{h}'], m_shift: ['🎭 The monster changes into {el}!', '🎭 המפלצת הופכת ל{el}!'], m_next: ['👥 The next monster steps forward!', '👥 המפלצת הבאה מתקדמת!'],
@@ -1676,6 +1705,7 @@ function openMenu() {
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
   $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
   $('#menuXp').style.width = xpPct() + '%';
+  $('#manualBtn').hidden = wizLvl() < CFG.MANUAL_FROM; $('#manualBtn').classList.toggle('off', P.manual === 'home');
   $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
   $('#menuToday').textContent = t('min_today', { m: Math.min(10, Math.floor(sec / 60)) }) + (sec >= CFG.DAILY_SEC ? ' ⭐' : '');
@@ -2483,10 +2513,19 @@ function newEncounter() {   // the stop the wizard just walked to: a monster or 
     // its abilities (spec 03 §4) by the wizard level, its HP by the math level (§3.1); the demo can force one ability
     const o = { g, boss: isBoss, el: def.el, learned: P.spells, mlvl: P.mlvl }, fa = window.__forceAb;
     const roll = fa ? { ab: fa === 'armored' && !CB.armorsFor(def.el, P.spells, P.mlvl).length ? [] : [fa], armor: fa === 'armored' ? CB.armorsFor(def.el, P.spells, P.mlvl)[0] || null : null } : CB.rollAbilities(o);
-    G.mon = Object.assign(def, CB.newMonster(Object.assign(o, roll)));
-    if (G.mon.ab.includes('shifter') && G.mon.shiftEls.length < 2) G.mon.ab = G.mon.ab.filter(k => k !== 'shifter');
+    const els = roll.ab.includes('group') && !isBoss ? CB.groupEls(P.spells, P.mlvl) : null;
+    if (els) {   // a group: 2–3 monsters side by side, each with its own element (at least two share a weakness)
+      const keyFor = el => { const here = ar.n.filter(k => MON_DEF[k].el === el), any = Object.keys(MON_DEF).filter(k => !MON_DEF[k].boss && MON_DEF[k].el === el); return rnd(here.length ? here : any); };
+      G.foes = els.map(el => { const k = keyFor(el); return Object.assign({ ...MON_DEF[k], key: k }, CB.newMonster(Object.assign({}, o, { el, ab: ['group'], armor: null }))); });
+    } else {
+      if (roll.ab.includes('group')) roll.ab = roll.ab.filter(k => k !== 'group');
+      const m = Object.assign(def, CB.newMonster(Object.assign(o, roll)));
+      if (m.ab.includes('shifter') && m.shiftEls.length < 2) m.ab = m.ab.filter(k => k !== 'shifter');
+      G.foes = [m];
+    }
+    G.mon = G.foes[0]; G.group = G.foes.length > 1;
     const max = CB.wizMaxHP(g); if (!(qs.hp > 0)) qs.hp = max;
-    G.st = { g, hero: { hp: Math.min(qs.hp, Math.round(max * (1 + CB.CFG.SAFETY_HP_BONUS))), max }, mon: G.mon, fx: CB.newFx() };
+    G.st = { g, hero: { hp: Math.min(qs.hp, Math.round(max * (1 + CB.CFG.SAFETY_HP_BONUS))), max }, foes: G.foes, mon: G.mon, fx: CB.newFx() };
     G.badPicks = 0; G.lastSnap = null; G.recent = G.recent || [];
   } else { const f0 = boss ? '👵' : rnd(FOLK); G.fname = FOLK_NAMES[f0] || 'The villager'; G.folk = tonedEmoji(f0, nextTone()); G.big = boss; G.mon = null; G.vkey = boss ? 'library' : (G.site ? G.site.bg : rnd(Object.keys(VNAMES))); G.fname = VNAMES[G.vkey]; }
   drawScene();
@@ -2501,24 +2540,41 @@ function fightIntro() {
 }
 const abName = k => t('ab_' + k);
 const armorName = a => t('arm_' + a.type) + (a.heavy ? ' ' + t('arm_heavy') : '');
-function abTags() {   // the monster's abilities as small tags under the weakness badge
-  const m = G.mon, out = [];
+function abTags() {   // the target's abilities as small tags under the weakness badge
+  const m = G.mon, out = [], manual = P.manual !== 'home';
   for (const k of m.ab || []) {
-    if (k === 'armored') { if (CB.armorUp(m)) out.push(`<span class="abTag">${CB.ARMOR[m.armor.type].em} ${armorName(m.armor)} · ${t('arm_breaks')} ${CB.ARMOR[m.armor.type].breaks.map(e => SB.ELEMENTS[e].em).join(' ')}</span>`); }
+    if (k === 'armored') { if (CB.armorUp(m)) out.push(`<span class="abTag">${CB.ARMOR[m.armor.type].em} ${armorName(m.armor)}${manual ? ` · ${t('arm_breaks')} ${CB.ARMOR[m.armor.type].breaks.map(e => SB.ELEMENTS[e].em).join(' ')}` : ''}</span>`); }
     else if (k === 'shielded') { if (m.shield) out.push(`<span class="abTag">${abName(k)}</span>`); }
-    else if (k === 'group') { const n = 1 + CB.packLeft(m).length; if (n > 1) out.push(`<span class="abTag">${abName(k)} ×${n}</span>`); }
+    else if (k === 'group') { const n = CB.alive(G.st).length; if (n > 1) out.push(`<span class="abTag">${abName(k)} ×${n}</span>`); }
     else if (k === 'charging') out.push(`<span class="abTag${CB.charging(m) ? ' warn' : ''}">${abName(k)}${CB.charging(m) ? ' ❗' : ''}</span>`);
     else out.push(`<span class="abTag">${abName(k)}</span>`);
   }
   return out;
 }
-function drawPack() {   // the rest of a group, smaller and darker behind the monster in front
-  const w = $('.foeWrap'); w.querySelectorAll('.packMon').forEach(e => e.remove());
-  const m = G.quest === 'battle' && G.mon; if (!m || !m.pack) return;
-  CB.packLeft(m).slice(0, 2).forEach((p, i) => w.insertAdjacentHTML('beforeend', `<div class="packMon p${i}"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART[m.boss ? 'BOSS' : 'MON'][m.key]()}</svg><i class="packHp"><b style="width:${100 * p.hp / p.max}%"></b></i></div>`));
+// A group fight: the monsters stand side by side; tap one to aim at it (the target has a gold ring and ▼). Single spells hit the target, area spells all of them.
+const foeIdx = (m = G.mon) => G.st && G.st.foes ? G.st.foes.indexOf(m) : 0;
+const foeNode = (m = G.mon) => G.group ? document.querySelector(`.gMon[data-i="${foeIdx(m)}"]`) || $('#foeBody') : $('#foeBody');
+function drawGroup() {
+  const w = $('.foeWrap'); w.querySelectorAll('.grp').forEach(e => e.remove());
+  w.classList.toggle('isGroup', !!G.group && G.quest === 'battle'); $('#stage').classList.toggle('grpFight', !!G.group && G.quest === 'battle'); if (!G.group || G.quest !== 'battle') return;
+  const fs = G.st.foes, html = fs.map((f, i) => `<button class="gMon gm${i} n${fs.length}${f === G.mon ? ' tgt' : ''}${f.hp <= 0 ? ' down' : ''}" data-i="${i}" aria-label="${esc(monName(f))}">
+    <span class="gEl">${EL[f.el].badge}</span><span class="gArt" style="filter:${f.tint || ''} drop-shadow(0 0 10px ${EL[f.el].glow || '#fff8'})"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART.MON[f.key]()}</svg></span>
+    <i class="packHp"><b style="width:${100 * Math.max(0, f.hp) / f.max}%"></b></i></button>`).join('');
+  w.insertAdjacentHTML('beforeend', `<div class="grp">${html}</div>`);
 }
-function applyEl() {   // a shapeshifter changed its element: the battlefield, the glow and the badge follow
-  $('#stage').className = 'stage el-' + G.mon.el; setAura(G.mon.el); fightHeader();
+function aimAt(i) {   // tap a monster of a group to aim at it
+  if (!G.group || !G.st || !['pick', 'say'].includes(G.phase) || G.locked) return;
+  if (CB.retarget(G.st, i)) { G.mon = G.st.mon; sfx.ok(); drawGroup(); fightHeader(); updateBars(); }
+}
+document.addEventListener('click', e => { const g = e.target.closest('.gMon'); if (g) aimAt(+g.dataset.i); });
+function syncTarget() {   // the target fell: aim at the next monster still standing
+  if (CB.retarget(G.st)) { G.mon = G.st.mon; drawGroup(); fightHeader(); updateBars(); return true; } return false;
+}
+// a shapeshifter's colours follow its element (its art is tinted); every monster glows in its element's colour
+const SHIFT_HUE = { fire: 0, ice: 185, dark: 250, plant: 95, storm: 55, stone: 25 };
+const monFilter = m => `${(m.ab || []).includes('shifter') ? `hue-rotate(${(SHIFT_HUE[m.el] - SHIFT_HUE[MON_DEF[m.key] ? MON_DEF[m.key].el : m.el] + 360) % 360}deg) ` : ''}${m.tint || ''} drop-shadow(0 0 14px var(--aura)) drop-shadow(0 0 28px var(--aura)) drop-shadow(0 6px 8px #0008)`;
+function applyEl() {   // a shapeshifter changed its element: the battlefield, the glow, its colours and the badge follow
+  $('#stage').className = 'stage el-' + G.mon.el; setAura(G.mon.el); $('#foeBody').style.filter = monFilter(G.mon); fightHeader();
 }
 // Each element has its own battlefield colours, glow and drifting particles (flames, snowflakes, wisps, leaves).
 const AURA = { fire: { em: ['🔥', '🔥', '✨', '🔥'], mode: 'up', y: [38, 85] }, ice: { em: ['❄️', '❄️', '✨', '🧊'], mode: 'down', y: [0, 35] },
@@ -2534,9 +2590,10 @@ function setAura(el) {
     p.style.setProperty('--dx', ((Math.random() - .5) * 60) + 'px'); a.appendChild(p);
   }
 }
-function burst(emoji, n = 8, at = '#foeBody') {   // at: '#foeBody' (the monster) or '#heroSvg' (the wizard)
+function burst(emoji, n = 8, at) {   // at: a monster's node (default: the target, or #foeBody) or '#heroSvg' (the wizard)
   try {
-    const f = $(at).getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
+    const node = !at ? (G.quest === 'battle' && G.group ? foeNode() : $('#foeBody')) : typeof at === 'string' ? $(at) : at;
+    const f = node.getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
     const cx = f.left - s.left + f.width / 2, cy = f.top - s.top + f.height / 2;
     for (let i = 0; i < n; i++) {
       const e = document.createElement('div'); e.className = 'burstP'; e.textContent = emoji; e.style.left = cx + 'px'; e.style.top = cy + 'px';
@@ -2578,11 +2635,11 @@ function drawScene() {
   setAura(b ? G.mon.el : null);
   $('#foeBody').className = 'foeBody' + (b ? ' art' : '') + (b && G.mon.boss ? ' boss' : '');
   // element-coloured glow around every monster; the fire lizard is also tinted orange-red
-  $('#foeBody').style.filter = b ? `${G.mon.tint || ''} drop-shadow(0 0 14px var(--aura)) drop-shadow(0 0 28px var(--aura)) drop-shadow(0 6px 8px #0008)` : '';
-  $('#heroBox').classList.remove('hurt'); fxStatus(); drawPack();
+  $('#foeBody').style.filter = b ? monFilter(G.mon) : '';
+  $('#heroBox').classList.remove('hurt'); drawGroup(); fxStatus();
   if (b) {
     $('#foeBody').innerHTML = `<div class="mnWrap"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART[G.mon.boss ? 'BOSS' : 'MON'][G.mon.key]()}</svg></div>`;
-    fightHeader(); setMood(''); drawPack();
+    fightHeader(); setMood(''); drawGroup(); fxStatus();
   } else {
     G.vskin = rnd(STAGE_BG.SKINS); G.vmood = ''; G.vkeyState = ''; $('#foeBody').textContent = '';
     $('#foeName').textContent = G.big ? '📜 ' + G.fname + ': big request!' : G.fname; setMood('😟');
@@ -2593,7 +2650,8 @@ function drawScene() {
 function fightHeader() {   // the monster's name and HP, the area, and the weakness badge (always visible, spec 00 §6)
   const e = EL[G.mon.el];
   $('#foeName').innerHTML = esc((G.mon.boss ? t('boss_pre') : '') + monName(G.mon)) + ` <small class="hpNum">${Math.max(0, G.mon.hp)}/${G.mon.max}</small>`;
-  $('#mid').innerHTML = `<b>${areaName(P.quest.battle.ch)}</b><div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>` + (abTags().length ? `<div class="abTags">${abTags().join('')}</div>` : '');
+  const badge = P.manual === 'home' ? `<div class="weakBadge">${e.badge} ${tl(e.label)}</div>` : `<div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>`;   // the manual at home: no weakness hint
+  $('#mid').innerHTML = `<b>${areaName(P.quest.battle.ch)}</b>${badge}` + (abTags().length ? `<div class="abTags">${abTags().join('')}</div>` : '');
 }
 // A language switch during a fight, brewing, forging or shopping: the same question and state, new words.
 function relabelGame() {
@@ -2616,8 +2674,8 @@ function updateBars() {
   fxStatus();
   $('#hpFill').style.width = (b ? Math.max(0, G.mon.hp) / G.mon.max * 100 : G.helped / G.need * 100) + '%';
   const ar = b && G.mon && CB.armorUp(G.mon) ? G.mon.armor : null;   // the armor bar over the HP bar (spec 03 §4.1)
-  $('#armorBar').classList.toggle('on', !!ar); if (ar) $('#armorBar > i').style.width = (100 * ar.hp / ar.max) + '%';
-  if (b && G.mon && G.mon.pack) document.querySelectorAll('.packMon').forEach((e, i) => { const p = CB.packLeft(G.mon)[i]; if (p) e.querySelector('.packHp > b').style.width = (100 * p.hp / p.max) + '%'; });
+  $('#armorBar').classList.toggle('on', !!ar); if (ar) { $('#armorBar > i').style.width = (100 * ar.hp / ar.max) + '%'; $('#armorBar').style.setProperty('--seg', ar.max); }   // one part per armor layer
+  if (b && G.group) G.st.foes.forEach(f => { const e = foeNode(f); if (e) { e.querySelector('.packHp > b').style.width = (100 * Math.max(0, f.hp) / f.max) + '%'; e.classList.toggle('down', f.hp <= 0); e.classList.toggle('tgt', f === G.mon); } });
   $('#tierLbl').textContent = levelLbl(P.mlvl);
   $('#xpFill').style.width = xpPct() + '%';
 }
@@ -2669,46 +2727,72 @@ function gainXp(ok) {
   if (!ok || G.noCount) return 0;
   const g = 10 + Math.min(G.combo, 5) * 2; P.xp += g; return g;
 }
-function floatText(txt, color) {
+function floatText(txt, color, at) {   // at: a monster's node (default: the target) or '#heroSvg'
   const e = document.createElement('div'); e.className = 'float'; e.textContent = txt; e.style.color = color;
-  const f = $('#foeBody').getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
+  const node = !at ? (G.quest === 'battle' && G.group ? foeNode() : $('#foeBody')) : typeof at === 'string' ? $(at) : at;
+  const f = node.getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
   e.style.left = (f.left - s.left + f.width / 2 - 20) + 'px'; e.style.top = (f.top - s.top) + 'px';
   $('#stage').appendChild(e); setTimeout(() => e.remove(), 1000);
 }
-async function flySpell(emoji, bounce) {   // bounce: the monster is not affected, the spell glances off and drops
+// Spell looks (owner request): the element's emoji and glow; bigger and brighter for stronger tiers; a trail behind single-target spells;
+// area spells rain down on every monster; a monster shoots its element at the wizard.
+const EL_GLOW = { fire: '#ff7a3d', water: '#4ab8ff', ice: '#9be7ff', stone: '#d6a46a', light: '#ffe066', lightning: '#ffd84a', wind: '#c8fff4', nature: '#7dff9a', shadow: '#a070ff', arcane: '#d18bff' };
+const tierSize = p => p >= 16 ? 4.4 : p >= 10 ? 3.8 : p >= 6 ? 3.2 : p >= 4 ? 2.8 : 2.4;   // rem, by spell power
+const ptIn = (node, s) => { const r = node.getBoundingClientRect(); return { x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2 }; };
+async function fly(emoji, from, to, o = {}) {   // a projectile from one node to another. o: { size (rem), glow, bounce, trail }
   try {
-    const h = $('#heroSvg').getBoundingClientRect(), f = $('#foeBody').getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
-    const e = document.createElement('div'); e.textContent = emoji; e.style.cssText = `position:absolute;font-size:3rem;left:${h.left - s.left + h.width / 2}px;top:${h.top - s.top + h.height / 3}px;z-index:5;pointer-events:none;filter:drop-shadow(0 0 10px #ffd166) drop-shadow(0 0 20px #fff8)`;
-    $('#stage').appendChild(e);
-    const dx = f.left - h.left, dy = f.top - h.top + 10, end = `translate(${dx}px,${dy}px) scale(1.4) rotate(360deg)`;
-    const a = e.animate([{ transform: 'translate(0,0) scale(.6)' }, { transform: end }], { duration: 450, easing: 'ease-in', fill: 'forwards' });
-    await Promise.race([a.finished, new Promise(r => setTimeout(r, 700))]);
-    if (bounce) {
-      $('.foeWrap').classList.add('resist'); setTimeout(() => $('.foeWrap').classList.remove('resist'), 300);
-      const b = e.animate([{ transform: end, opacity: 1 }, { transform: `translate(${dx - 50}px,${dy - 30}px) scale(1) rotate(200deg)`, opacity: .8, offset: .35 }, { transform: `translate(${dx - 80}px,${dy + 70}px) scale(.6) rotate(120deg)`, opacity: 0 }], { duration: 600, easing: 'ease-out', fill: 'forwards' });
-      await Promise.race([b.finished, new Promise(r => setTimeout(r, 800))]);
+    const s = $('#stage').getBoundingClientRect(), a = ptIn(from, s), b = ptIn(to, s), size = o.size || 3, glow = o.glow || '#ffd166';
+    const mk = (sz, op) => { const e = document.createElement('div'); e.textContent = emoji; e.style.cssText = `position:absolute;font-size:${sz}rem;left:${a.x}px;top:${a.y}px;z-index:5;pointer-events:none;opacity:${op};transform:translate(-50%,-50%);filter:drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 22px ${glow})`; $('#stage').appendChild(e); return e; };
+    const dx = b.x - a.x, dy = b.y - a.y, end = `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1.3) rotate(${dx < 0 ? -360 : 360}deg)`;
+    const run = (e, delay, sc) => e.animate([{ transform: `translate(-50%,-50%) scale(${sc})` }, { transform: end }], { duration: 450, delay, easing: 'ease-in', fill: 'forwards' });
+    const trail = o.trail ? [1, 2, 3].map(k => { const t = mk(size * (1 - k * .18), .5 - k * .12); run(t, k * 45, .5); return t; }) : [];
+    const e = mk(size, 1), an = run(e, 0, .6);
+    await Promise.race([an.finished, new Promise(r => setTimeout(r, 700))]); trail.forEach(t => setTimeout(() => t.remove(), 200));
+    if (o.bounce) {
+      to.classList.add('resist'); setTimeout(() => to.classList.remove('resist'), 300);
+      const back = dx > 0 ? -1 : 1, bb = e.animate([{ transform: end, opacity: 1 }, { transform: `translate(calc(-50% + ${dx + back * 50}px),calc(-50% + ${dy - 30}px)) scale(1) rotate(200deg)`, opacity: .8, offset: .35 }, { transform: `translate(calc(-50% + ${dx + back * 80}px),calc(-50% + ${dy + 70}px)) scale(.6) rotate(120deg)`, opacity: 0 }], { duration: 600, easing: 'ease-out', fill: 'forwards' });
+      await Promise.race([bb.finished, new Promise(r => setTimeout(r, 800))]);
     }
     e.remove();
   } catch (e) {}
 }
-// what a cast looks like: attacks and control fly to the monster (an element it ignores glances off), shields, healing and buffs glow
-// around the wizard, and no spell (a fizzle, a sealed spell, a wrong incantation) is only a puff of smoke at the staff
-const SELF_FX = ['shield', 'heal', 'healPart', 'fullHeal', 'buff', 'reflect', 'revive', 'summon'];
-async function castFx(ev, spell) {
-  if (!spell) { burst('💨', 6, '#heroSvg'); $('#heroBox').classList.add('fizzle'); setTimeout(() => $('#heroBox').classList.remove('fizzle'), 450); await sleep(500); return; }
-  const em = SB.ELEMENTS[spell.el].em;
-  if (SELF_FX.includes(ev.k)) { burst(em, 8, '#heroSvg'); burst('✨', 5, '#heroSvg'); fxStatus(); await sleep(450); return; }
-  await flySpell(em, ev.rel === 'none' && !ev.popped && (ev.k === 'dmg' || ev.k === 'area'));
-  if (ev.k === 'skip') { burst('🌑', 7); fxStatus(); }
+const flySpell = (emoji, bounce, to) => fly(emoji, $('#heroSvg'), to || (G.quest === 'battle' && G.group ? foeNode() : $('#foeBody')), { bounce, trail: true });   // (the tutorial uses it too)
+async function rainOn(emoji, nodes, o = {}) {   // an area spell: its element falls on every monster
+  const s = $('#stage').getBoundingClientRect(), size = o.size || 3, glow = o.glow || '#ffd166', anims = [];
+  nodes.forEach((node, i) => { for (let k = 0; k < 3; k++) {
+    const b = ptIn(node, s), e = document.createElement('div'); e.textContent = emoji;
+    e.style.cssText = `position:absolute;font-size:${size * (k ? .7 : 1)}rem;left:${b.x + (k - 1) * 22}px;top:${b.y}px;z-index:5;pointer-events:none;filter:drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 20px ${glow})`;
+    $('#stage').appendChild(e);
+    const an = e.animate([{ transform: `translate(-50%,calc(-50% - ${b.y + 40}px)) rotate(-30deg)`, opacity: .2 }, { transform: 'translate(-50%,-50%) rotate(0)', opacity: 1, offset: .8 }, { transform: 'translate(-50%,-50%) scale(1.5)', opacity: 0 }], { duration: 650, delay: i * 120 + k * 70, easing: 'ease-in', fill: 'forwards' });
+    anims.push(an.finished.then(() => e.remove()));
+  } });
+  flashStage(); await Promise.race([Promise.all(anims), new Promise(r => setTimeout(r, 1300))]);
 }
-function fxStatus() {   // the spell effects that last, drawn on the wizard and the monster, with small icons
+// what a cast looks like: attacks and control fly to the target (an element it ignores glances off), area spells rain on all monsters,
+// shields, healing and buffs glow around the wizard, and no spell (a fizzle, a sealed spell, a wrong incantation) is only a puff of smoke at the staff
+const SELF_FX = ['shield', 'heal', 'healPart', 'fullHeal', 'buff', 'reflect', 'revive', 'summon'];
+async function castFx(ev, spell, target) {
+  if (!spell) { burst('💨', 6, '#heroSvg'); $('#heroBox').classList.add('fizzle'); setTimeout(() => $('#heroBox').classList.remove('fizzle'), 450); await sleep(500); return; }
+  const em = SB.ELEMENTS[spell.el].em, glow = EL_GLOW[spell.el], size = tierSize(spell.power);
+  if (SELF_FX.includes(ev.k)) { burst(em, 8, '#heroSvg'); burst('✨', 5, '#heroSvg'); fxStatus(); await sleep(450); return; }
+  if (ev.k === 'area') { await rainOn(em, (ev.per || []).map(o => foeNode(G.st.foes[o.i])).filter(Boolean), { size, glow }); return; }
+  await fly(em, $('#heroSvg'), foeNode(target), { size, glow, trail: true, bounce: ev.rel === 'none' && !ev.popped && ev.k === 'dmg' });
+  if (ev.k === 'skip') { (ev.all ? CB.alive(G.st) : [target]).forEach(m => burst('🌑', 7, foeNode(m))); fxStatus(); }
+}
+async function monsterShot(m, big) {   // a monster attacks: it lunges and shoots its element at the wizard
+  const node = foeNode(m); node.classList.add('atk'); setTimeout(() => node.classList.remove('atk'), 500);
+  await fly(EL[m.el].badge, node, $('#heroSvg'), { size: big ? 3.6 : 2.2, glow: big ? '#ffd84a' : '#ff8b99' });
+}
+function fxStatus() {   // the spell effects that last, drawn on the wizard and the monsters, with small icons
   const fx = G.quest === 'battle' && G.st ? G.st.fx : null, hb = $('#heroBox'), fw = $('.foeWrap');
   hb.classList.toggle('shielded', !!fx && fx.shields.length > 0); hb.classList.toggle('mirrored', !!fx && fx.reflect);
-  fw.classList.toggle('snared', !!fx && fx.skip > 0); fw.classList.toggle('magicShield', !!fx && !!G.mon && !!G.mon.shield);
+  const pairs = fx && G.group ? G.st.foes.map(f => [f, foeNode(f)]) : [[fx ? G.mon : null, fw]];
+  if (G.group) fw.classList.remove('snared', 'magicShield');
+  for (const [f, node] of pairs) if (node) { node.classList.toggle('snared', !!f && f.skip > 0); node.classList.toggle('magicShield', !!f && !!f.shield); node.classList.toggle('shifter', !!f && (f.ab || []).includes('shifter')); }
   const icons = (el, list) => { let d = el.querySelector(':scope > .fxIcons'); if (!d) { d = document.createElement('div'); d.className = 'fxIcons'; el.appendChild(d); } d.innerHTML = list.join(''); };
   const n = (em, k) => em + (k > 1 ? `<b>×${k}</b>` : '');
   icons(hb, !fx ? [] : [fx.shields.length ? n('🛡️', fx.shields.reduce((a, s) => a + s.n, 0)) : '', fx.reflect ? '🪞' : '', fx.revive ? '🪶' : '', fx.buff > 1 ? n('💪', fx.buff) : '', fx.summon ? n(fx.summon.em, fx.summon.turns) : ''].filter(Boolean));
-  icons(fw, !fx ? [] : [fx.skip > 0 ? n('⛓️', fx.skip) : '', fx.shrink > 0 ? n('🔽', fx.shrink) : '', fx.weaken != null ? '🔽' : ''].filter(Boolean));
+  icons(fw, !fx ? [] : [!G.group && G.mon.skip > 0 ? n('⛓️', G.mon.skip) : '', fx.shrink > 0 ? n('🔽', fx.shrink) : '', fx.weaken != null ? '🔽' : ''].filter(Boolean));
 }
 function after(tier) {
   if (tier === 'up') { sfx.up(); confetti(['⬆️', '⭐', '✨']); toast(t('level_up', { n: P.mlvl, name: tierName(P.mlvl) })); }
@@ -2731,30 +2815,40 @@ function incantIntro() {   // the story moment when the incantation step starts 
   P.incantSeen = true; saveSoon(); sfx.up();
   modal(t('incant_t'), t('incant_b'), [[t('lets_go'), fightIntro]]);
 }
+function dealCards() {
+  const h = G.st.hero;
+  G.cards = CB.buildSet({ mlvl: P.mlvl, wlvl: wizLvl(), learned: P.spells, monEl: G.mon.el, mon: G.mon, foes: G.st.foes, avoid: new Set(G.recent || []), facts: P.mfacts,
+    hpLow: h.hp <= h.max * 0.35, hpFull: h.hp >= h.max, charging: CB.alive(G.st).some(CB.charging) });
+  G.recent = (G.recent || []).concat(G.cards.map(c => c.p.key)).slice(-CFG.RECENT * 2); G.used = [];
+}
+// A turn: pick a card (in a group fight: two cards, one after the other, and the cards may be changed once per turn), then the monsters attack
 function nextTurn() {
   if (!G.st || CB.defeated(G.st)) return;
-  const h = G.st.hero;
-  G.cards = CB.buildSet({ mlvl: P.mlvl, wlvl: wizLvl(), learned: P.spells, monEl: G.mon.el, avoid: new Set(G.recent || []), facts: P.mfacts, hpLow: h.hp <= h.max * 0.35, hpFull: h.hp >= h.max, mon: G.mon, charging: CB.charging(G.mon) });
-  G.recent = (G.recent || []).concat(G.cards.map(c => c.p.key)).slice(-CFG.RECENT * 2);
+  dealCards(); G.castN = 0; G.casts = G.group ? CB.CFG.GROUP_CASTS : 1; G.refreshUsed = false;
   G.turnSnap = snapTurn(); G.phase = 'pick'; G.pick = null; G.hint = false; G.noCount = false; G.potUsed = false; G.locked = false; G.typed = '';
   $('#fb').innerHTML = ''; renderCards();
 }
 function renderCards() {
   $('#abandonBtn').style.display = ''; $('#nextBtn').classList.add('hidden'); const cp = $('#craftPic'); if (cp) cp.style.display = 'none';
-  $('#qTitle').textContent = t('pick_t', { mon: monName(G.mon) }); $('#qSub').textContent = t('pick_s');
+  $('#qTitle').textContent = G.group ? t('pick_group', { k: G.castN + 1, n: G.casts }) : t('pick_t', { mon: monName(G.mon) }); $('#qSub').textContent = G.group ? t('pick_group_s') : t('pick_s');
   $('#qBig').innerHTML = ''; $('#qBig').classList.remove('sm');
   const opts = $('#opts'); opts.className = 'opts cards'; opts.innerHTML = '';
   const n = G.cards.length; opts.style.gridTemplateColumns = `repeat(${n <= 3 ? n : n === 4 ? 2 : 3}, 1fr)`;   // 3 in a row, 4 as 2 × 2, 5–6 in rows of 3
   G.cards.forEach((c, i) => {
-    const b = document.createElement('button'); b.className = 'opt card'; b.disabled = G.locked;
+    const used = (G.used || []).includes(i), b = document.createElement('button'); b.className = 'opt card' + (used ? ' used' : ''); b.disabled = G.locked || used;
     b.innerHTML = `<span class="cardEx">${exprHtml(c.p.e)}</span>` + (G.hint ? `<span class="cardAns">= ${ME.fmtHtml(c.p.a)}</span>` : '');
     b.onclick = () => pickCard(i); opts.appendChild(b);
   });
+  if (G.group && !G.refreshUsed) { const r = document.createElement('button'); r.className = 'btn ghost refreshBtn'; r.textContent = t('refresh_btn'); r.disabled = G.locked; r.onclick = refreshCards; opts.appendChild(r); }
   renderPotBar(); renderItemBar(); updateBars();
 }
+function refreshCards() {   // a group fight: new cards, once per turn
+  if (G.locked || G.phase !== 'pick' || G.refreshUsed) return;
+  G.refreshUsed = true; sfx.ok(); dealCards(); renderCards();
+}
 async function pickCard(i) {
-  if (G.locked || G.phase !== 'pick') return;
-  G.pick = G.cards[i]; G.locked = true;
+  if (G.locked || G.phase !== 'pick' || (G.used || []).includes(i)) return;
+  G.pick = G.cards[i]; G.pickI = i; G.locked = true;
   document.querySelectorAll('#opts .card').forEach((b, k) => { b.disabled = true; b.classList.toggle('chosen', k === i); });
   sfx.ok(); await sleep(250);
   if (stage2() && !G.hint) { G.phase = 'say'; G.locked = false; renderSay(); return; }
@@ -2787,11 +2881,14 @@ function sayAnswer(v) {
   if (G.locked || G.phase !== 'say') return;
   G.locked = true; resolveCast(v, ME.eq(v, G.pick.p.a));
 }
-// cast the chosen card: right (or stage 1) → the spell with that number; a wrong incantation → it fizzles. Then the monster's turn.
+const RANK = { weak: 5, break: 4, util: 3, none: 2, heal: 1, fizzle: 0 };
+const bestRel = (s, fs) => fs.map(f => CB.relation(s, f.el, f)).sort((a, b) => RANK[b] - RANK[a])[0] || 'fizzle';
+// cast the chosen card: right (or stage 1) → the spell with that number at the target (an area spell: at all of them); a wrong incantation → it fizzles.
+// Then the second card of a group turn, or the monsters' turn.
 async function resolveCast(said, sayOk) {
-  const c = G.pick, q = cardQ(c), st = G.st, s2 = stage2() && !G.hint;
+  const c = G.pick, q = cardQ(c), st = G.st, s2 = stage2() && !G.hint, target = st.mon;
   G.phase = 'cast'; G.sayVals = null;
-  document.querySelectorAll('#opts .opt').forEach(b => { b.disabled = true; });
+  document.querySelectorAll('#opts .opt, #opts .refreshBtn').forEach(b => { b.disabled = true; });
   let spell = null, line;
   const eq = exprHtml(c.p.e, c.p.a);
   if (s2 && !sayOk) line = t('wrong_say', { eq, x: ME.fmtHtml(said) });
@@ -2800,95 +2897,119 @@ async function resolveCast(said, sayOk) {
     const any = SB.SPELLS.find(x => ME.eq(x.v, c.p.a));
     line = spell ? t('cast_line', { eq, spell: `<b>${tl(spell.nm)}</b>` }) : any ? t('sealed_line', { eq, spell: `<b>${tl(any.nm)}</b>` }) : t('fizzle_line', { eq });
   }
+  // the tactics: how the picked card meets the target (an area spell: the monsters still standing)
+  const pre = !c.spell ? 'fizzle' : c.spell.fx.k === 'area' ? bestRel(c.spell, CB.alive(st)) : CB.relation(c.spell, target.el, target);
   const ev = CB.cast(st, spell, s2 && sayOk ? CB.CFG.INCANT_BONUS : 1);
   // scoring: the math (stage 1: the pick; stage 2: the incantation) and the tactics (a pick that does not help; breaking a magic shield helps)
-  const good = CB.isGood(c.rel) || !!ev.popped, mathOk = s2 ? sayOk : good;
+  const good = CB.isGood(pre) || !!ev.popped, mathOk = s2 ? sayOk : good;
   if (mathOk) { G.combo++; } else { G.combo = 0; G.mist++; }
   if (!good) G.badPicks++;
   const tr = record(q, mathOk);   // XP comes from winning fights (spec 03 §5.1), not from single answers
   if (mathOk) sfx.ok(); else sfx.bad();
   $('#qBig').innerHTML = ''; $('#qTitle').innerHTML = line; $('#qSub').textContent = '';
-  await castFx(ev, spell);
-  $('#fb').innerHTML = castResult(ev);
+  await castFx(ev, spell, target);
+  const res = castResult(ev, target); $('#fb').innerHTML = (G.castN ? $('#fb').innerHTML + '<br>' : '') + res;
   after(tr); updateBars(); fightHeader(); updateReward();
   G.lastSnap = G.turnSnap; G.potUsed = false; renderPotBar();
   await sleep(1100);
   if (CB.defeated(st)) return victory();
-  if (CB.nextFront(st)) await frontFalls();
+  await fallen();
+  if (++G.castN < G.casts) {   // a group turn: the second card from the same set
+    G.used = (G.used || []).concat(G.pickI); G.turnSnap = snapTurn(); G.phase = 'pick'; G.pick = null; G.locked = false; G.typed = ''; renderCards(); return;
+  }
   await monsterTurnUI();
 }
-async function frontFalls() {   // a group: the monster in front is beaten, the next one steps forward
-  sfx.win(); burst('✨', 10); $('#foeBody').classList.add('die'); await sleep(650);
-  $('#foeBody').classList.remove('die'); drawPack(); updateBars(); fightHeader(); fxStatus();
-  $('#fb').innerHTML += '<br>' + t('m_next'); await sleep(500);
+async function fallen() {   // monsters of a group that fell this turn fade away; the target moves on
+  if (!G.group) return;
+  for (const f of G.st.foes) { const n = foeNode(f); if (f.hp <= 0 && n && !n.classList.contains('down')) { burst('✨', 10, n); n.classList.add('die'); $('#fb').innerHTML += '<br>' + t('m_down', { name: esc(monName(f)) }); await sleep(600); n.classList.remove('die'); n.classList.add('down'); } }
+  syncTarget();
 }
-function castResult(ev) {   // what the spell did, with the short "why" for elements
-  const r = ev.rel, e = EL[G.mon.el];
+const shake = node => { if (!node) return; node.classList.add('hit'); setTimeout(() => node.classList.remove('hit'), 400); };
+function castResult(ev, target) {   // what the spell did, with the short "why" for elements
+  const r = ev.rel, e = EL[target.el], node = foeNode(target);
   if (ev.k === 'fizzle') return '💨';
-  if (ev.popped) { burst('🔮', 8); $('.foeWrap').classList.add('popShield'); setTimeout(() => $('.foeWrap').classList.remove('popShield'), 500); fxStatus(); return t('r_pop'); }
+  if (ev.k === 'area') {   // every monster: damage, healing, an armor layer or a magic shield, each shown on that monster
+    for (const o of ev.per || []) {
+      const m = G.st.foes[o.i], nd = foeNode(m);
+      if (o.popped) { burst('🔮', 6, nd); floatText('🔮', '#c99bff', nd); }
+      else if (o.armorHit) { burst(CB.ARMOR[m.armor.type].em, 5, nd); shake(nd); }
+      else if (o.dmg) { shake(nd); burst('💥', 3, nd); floatText('−' + o.dmg, '#ffd166', nd); }
+      else if (o.monHeal) { burst('💚', 5, nd); floatText('+' + o.monHeal, '#7dffb0', nd); }
+      else floatText('0', '#d6d6e6', nd);
+    }
+    fxStatus(); if (ev.dmg) sfx.hit();
+    const hurt = (ev.per || []).filter(o => o.dmg).length;
+    return (hurt ? t('r_area', { n: hurt, d: ev.dmg }) : t('r_area_none')) + (ev.monHeal ? '<br>' + t('r_area_heal', { h: ev.monHeal }) : '') + (ev.armorHit ? '<br>' + t('r_break') : '');
+  }
+  if (ev.popped) { burst('🔮', 8, node); node.classList.add('popShield'); setTimeout(() => node.classList.remove('popShield'), 500); fxStatus(); return t('r_pop'); }
   switch (ev.k) {
-    case 'dmg': case 'area': case 'multi':
-      if (ev.armorHit) {   // the spell hit the armor (spec 03 §4.1)
-        burst(CB.ARMOR[G.mon.armor.type].em, 7); floatText('−' + ev.armorHit, '#dfe7f1'); $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); sfx.hit();
-        return ev.armorBroken ? t('r_broken') : t('r_break', { d: ev.armorHit });
+    case 'dmg': case 'multi':
+      if (ev.armorHit) {   // the spell hit the armor: one layer cracks (spec 03 §4.1, owner decision)
+        burst(CB.ARMOR[target.armor.type].em, 7, node); floatText('💥', '#dfe7f1', node); shake(node); sfx.hit();
+        return ev.armorBroken ? t('r_broken') : t('r_break');
       }
-      if (r === 'weak' || ev.k === 'multi') { $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); sfx.hit(); burst(SB.ELEMENTS[ev.spell.el].em, 9); burst('💥', 3); floatText('−' + ev.dmg, '#ffd166'); return t('r_weak', { d: ev.dmg }) + (CB.armorUp(G.mon) ? ' ' + t('r_half') : ''); }
-      if (r === 'heal') { burst('💚', 8); floatText('+' + ev.monHeal, '#7dffb0'); return t('r_heal', { h: ev.monHeal }) + `<br><small>${tl(e.why)}</small>`; }
-      floatText('0', '#d6d6e6'); return t('r_none') + `<br><small>${tl(e.why)}</small>`;
+      if (r === 'weak' || ev.k === 'multi') { shake(node); sfx.hit(); burst(SB.ELEMENTS[ev.spell.el].em, 9, node); burst('💥', 3, node); floatText('−' + ev.dmg, '#ffd166', node); return t('r_weak', { d: ev.dmg }) + (CB.armorUp(target) ? ' ' + t('r_half') : ''); }
+      if (r === 'heal') { burst('💚', 8, node); floatText('+' + ev.monHeal, '#7dffb0', node); return t('r_heal', { h: ev.monHeal }) + `<br><small>${tl(e.why)}</small>`; }
+      floatText('0', '#d6d6e6', node); return t('r_none') + `<br><small>${tl(e.why)}</small>`;
     case 'shield': return t('r_shield');
     case 'heal': case 'healPart': case 'fullHeal': burst('💚', 6, '#heroSvg'); return t('r_heal_me', { h: ev.heal });
-    case 'skip': return t('r_skip', { n: plural(ev.n, 'turns_1', 'turns_n') });
+    case 'skip': return t(ev.all ? 'r_skip_all' : 'r_skip', { n: plural(ev.n, 'turns_1', 'turns_n') });
     case 'bossResist': return t('r_boss_resist');
     case 'buff': return t('r_buff');
     case 'summon': return t('r_summon', { em: G.st.fx.summon ? G.st.fx.summon.em : '' });
     case 'reflect': return t('r_reflect');
-    case 'drain': floatText('−' + ev.dmg, '#ffd166'); return t('r_drain', { d: ev.dmg, h: ev.heal });
+    case 'drain': floatText('−' + ev.dmg, '#ffd166', node); return t('r_drain', { d: ev.dmg, h: ev.heal });
     case 'revive': return t('r_revive');
-    case 'halve': floatText('−' + ev.dmg, '#ffd166'); return t('r_halve', { d: ev.dmg });
+    case 'halve': floatText('−' + ev.dmg, '#ffd166', node); return t('r_halve', { d: ev.dmg });
     case 'weaken': return t('r_weaken');
     case 'shrink': return t('r_shrink');
   }
   return '';
 }
+// the monsters' turn: each monster still standing shoots at the wizard, one after the other (a double attacker twice)
 async function monsterTurnUI() {
-  const st = G.st, ev = CB.monsterTurn(st), lines = [];
-  if (ev.familiar) { lines.push(ev.familiar.dmg ? t('m_fam', { em: ev.familiar.em, d: ev.familiar.dmg }) : t('m_fam_none', { em: ev.familiar.em })); if (ev.familiar.dmg) { burst(ev.familiar.em, 6); floatText('−' + ev.familiar.dmg, '#ffd166'); } }
+  const st = G.st, ev = CB.monsterTurn(st), lines = [], fs = st.foes;
+  if (ev.familiar) { const nd = foeNode(fs[ev.familiar.i]); lines.push(ev.familiar.dmg ? t('m_fam', { em: ev.familiar.em, d: ev.familiar.dmg }) : t('m_fam_none', { em: ev.familiar.em })); if (ev.familiar.dmg) { burst(ev.familiar.em, 6, nd); floatText('−' + ev.familiar.dmg, '#ffd166', nd); } }
   if (CB.defeated(st)) { $('#fb').innerHTML += '<br>' + lines.join('<br>'); updateBars(); await sleep(800); return victory(); }
-  if (ev.skipped) { lines.push(t('m_skip')); $('#foeBody').classList.add('hit'); burst('⛓️', 4); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); }
-  else if (ev.hits.length) {
-    if (ev.reflected) { lines.push(t('m_reflect', { d: ev.reflected })); burst('🪞', 6); }
-    const dealt = ev.hits.filter(h => h.dmg != null);
-    if (dealt.length) {
-      $('#foeBody').classList.add('atk'); await sleep(250);
-      if (ev.big) { burst('⚡', 10, '#heroSvg'); flashStage(); }
-      if (ev.blocked) burst('🛡️', 5, '#heroSvg');
-      if (ev.dmg > 0) { sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); lines.push(ev.big ? t('m_big', { d: ev.dmg }) : dealt.length > 1 ? t('m_attack_n', { n: dealt.length, d: ev.dmg }) : t('m_attack', { d: ev.dmg })); }
-      else lines.push(t('m_blocked'));
-      setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500);
-    }
-    if (ev.revived) lines.push(t('m_revive'));
+  for (const i of ev.skips) { const nd = foeNode(fs[i]); shake(nd); burst('⛓️', 4, nd); }
+  if (ev.skips.length) lines.push(G.group && ev.skips.length > 1 ? t('m_skip_n', { n: ev.skips.length }) : t('m_skip'));
+  for (const h of ev.hits) {
+    const m = fs[h.who] || st.mon; await monsterShot(m, h.big);
+    if (h.reflected) { burst('🪞', 6, '#heroSvg'); floatText('−' + h.reflected, '#ffd166', foeNode(m)); shake(foeNode(m)); continue; }
+    if (h.big) { burst('⚡', 10, '#heroSvg'); flashStage(); }
+    if (h.blocked) burst('🛡️', 5, '#heroSvg');
+    if (h.dmg > 0) { sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); setTimeout(() => $('#heroBox').classList.remove('hurt'), 450); floatText('−' + h.dmg, '#ff9aa8', '#heroSvg'); }
+    await sleep(180);
   }
-  if (ev.next) { lines.push(t('m_next')); drawPack(); }
-  if (ev.regen) { lines.push(t('m_regen', { h: ev.regen })); burst('🌱', 6); }
-  if (ev.shifted) { lines.push(t('m_shift', { el: tl(EL[ev.shifted].label).toLowerCase() })); applyEl(); burst(EL[ev.shifted].badge, 8); }
+  if (ev.reflected) lines.push(t('m_reflect', { d: ev.reflected }));
+  const dealt = ev.hits.filter(h => h.dmg != null);
+  if (dealt.length) lines.push(ev.dmg > 0 ? (ev.big ? t('m_big', { d: ev.dmg }) : dealt.length > 1 ? t('m_attack_n', { n: dealt.length, d: ev.dmg }) : t('m_attack', { d: ev.dmg })) : t('m_blocked'));
+  if (ev.revived) lines.push(t('m_revive'));
+  for (const o of ev.regens) burst('🌱', 6, foeNode(fs[o.i]));
+  if (ev.regen) lines.push(t('m_regen', { h: ev.regen }));
+  for (const o of ev.shifts) { const nd = foeNode(fs[o.i]); nd.classList.add('morph'); setTimeout(() => nd.classList.remove('morph'), 700); burst('💨', 8, nd); }
+  if (ev.shifted) { lines.push(t('m_shift', { el: tl(EL[ev.shifted].label).toLowerCase() })); if (G.group) drawGroup(); else applyEl(); }
   if (ev.warn) lines.push(t('m_warn'));
   $('#fb').innerHTML += '<br>' + lines.join('<br>');
-  P.quest.battle.hp = st.hero.hp; saveSoon(); updateBars(); fightHeader();
+  P.quest.battle.hp = st.hero.hp; saveSoon(); await fallen(); updateBars(); fightHeader(); fxStatus();
   if (CB.defeated(st)) { await sleep(800); return victory(); }
   if (st.hero.hp <= 0) { await sleep(1200); return endOrSecond(knockout); }
   await sleep(ev.warn || ev.shifted ? 1900 : 1300); nextTurn();
 }
-// Second chance (spec 03 §6.2): undoes the last cast: HP, the monster and the cards go back (also the statistics of that turn)
+// Second chance (spec 03 §6.2): undoes the last cast: HP, the monsters and the cards go back (also the statistics of that turn)
 function snapTurn() {
-  return { st: JSON.parse(JSON.stringify({ hero: G.st.hero, mon: G.st.mon, fx: G.st.fx })), cards: G.cards, mist: G.mist, combo: G.combo, badPicks: G.badPicks,
+  return { st: JSON.parse(JSON.stringify({ hero: G.st.hero, foes: G.st.foes, ti: G.st.foes.indexOf(G.st.mon), fx: G.st.fx })), cards: G.cards, used: (G.used || []).slice(), castN: G.castN || 0, refreshUsed: !!G.refreshUsed,
+    mist: G.mist, combo: G.combo, badPicks: G.badPicks,
     P: JSON.parse(JSON.stringify({ stats: P.stats, n: P.n, ok: P.ok, mhist: P.mhist, mlvl: P.mlvl, mplace: P.mplace, mfacts: P.mfacts, xp: P.xp, hp: P.quest.battle.hp })) };
 }
 function undoLastCast() {
   const s = G.lastSnap; if (!s) return false;
-  Object.assign(G.st.hero, s.st.hero); Object.assign(G.mon, s.st.mon); G.st.fx = s.st.fx; G.mist = s.mist; G.combo = s.combo; G.badPicks = s.badPicks;
+  Object.assign(G.st.hero, s.st.hero); s.st.foes.forEach((f, i) => Object.assign(G.st.foes[i], f)); G.st.mon = G.st.foes[s.st.ti] || G.st.foes[0]; G.mon = G.st.mon;
+  G.st.fx = s.st.fx; G.mist = s.mist; G.combo = s.combo; G.badPicks = s.badPicks;
   Object.assign(P, { stats: s.P.stats, n: s.P.n, ok: s.P.ok, mhist: s.P.mhist, mlvl: s.P.mlvl, mplace: s.P.mplace, mfacts: s.P.mfacts, xp: s.P.xp }); P.quest.battle.hp = s.P.hp;
-  G.cards = s.cards; G.turnSnap = s; G.lastSnap = null; G.phase = 'pick'; G.pick = null; G.locked = false; G.noCount = true;
-  $('#modal').classList.remove('on'); $('#fb').innerHTML = ''; renderCards(); fightHeader(); return true;
+  G.cards = s.cards; G.used = s.used.slice(); G.castN = s.castN; G.refreshUsed = s.refreshUsed;
+  G.turnSnap = s; G.lastSnap = null; G.phase = 'pick'; G.pick = null; G.locked = false; G.noCount = true;
+  $('#modal').classList.remove('on'); $('#fb').innerHTML = ''; drawGroup(); renderCards(); fightHeader(); fxStatus(); return true;
 }
 
 /* ----- answering ----- */
@@ -2981,19 +3102,29 @@ function isLocked(place) {   // during a quest run you cannot go home, to the sh
   const a = runOf(); if (!a) return false;
   return place === 'gate' ? a !== 'battle' : place === 'board' ? a !== 'peace' : true;
 }
+// The monster manual (owner decision): from wizard level MANUAL_FROM the student may leave it at home: the fights show no weakness hints,
+// and the pouch holds one more potion. It can be taken back from the map (📕), but not in the middle of a quest.
+const pouchSize = () => CFG.POUCH + (P && P.manual === 'home' ? 1 : 0);
+function openManual() {
+  if (P.quest.battle.act) { modal(t('manual_t'), `<p>${t('manual_quest')}</p>`, [[t('ok'), null]]); return; }
+  const home = P.manual === 'home';
+  modal(t('manual_t'), `<p>${t(home ? 'manual_is_home' : 'manual_is_carried')}</p><p>${t('manual_deal', { n: CFG.POUCH + 1 })}</p>`,
+    [[t(home ? 'manual_take' : 'manual_leave'), () => { P.manual = home ? 'carry' : 'home'; saveSoon(true); toast(t(home ? 'manual_taken' : 'manual_left')); openMenu(); }], [t('keep_playing'), null, true]]);
+}
+$('#manualBtn').onclick = openManual;
 function openPack(onStart) {   // before a quest run: choose up to POUCH potions to carry. The rest wait at Home.
   if (carried() + athome() === 0) { onStart(); return; }
   const render = () => {
-    $('#packBody').innerHTML = `<p style="margin:0 0 6px">${t('pack_b', { n: CFG.POUCH })}</p>
-      <p style="margin:0 0 8px"><b>${t('pouch', { a: carried(), b: CFG.POUCH })}</b></p>` +
+    $('#packBody').innerHTML = `<p style="margin:0 0 6px">${t('pack_b', { n: pouchSize() })}</p>
+      <p style="margin:0 0 8px"><b>${t('pouch', { a: carried(), b: pouchSize() })}</b></p>` +
       POTION_IDS.filter(id => (P.pot[id] || 0) + (P.carry[id] || 0) > 0).map(id => `<div class="packRow"><span class="packName"><span class="packBottle">${potionSVG(id)}<i>${POTIONS[id].em}</i></span> <b>${pBoth(id)}</b><small>${pDesc(id)}</small></span>
-        <span class="packCtl"><button class="ib" data-id="${id}" data-d="-1" ${(P.carry[id] || 0) ? '' : 'disabled'}>➖</button><b class="packN">${P.carry[id] || 0}</b><button class="ib" data-id="${id}" data-d="1" ${(P.pot[id] || 0) && carried() < CFG.POUCH ? '' : 'disabled'}>➕</button>
+        <span class="packCtl"><button class="ib" data-id="${id}" data-d="-1" ${(P.carry[id] || 0) ? '' : 'disabled'}>➖</button><b class="packN">${P.carry[id] || 0}</b><button class="ib" data-id="${id}" data-d="1" ${(P.pot[id] || 0) && carried() < pouchSize() ? '' : 'disabled'}>➕</button>
         <small class="packHome">${t('at_home', { n: P.pot[id] || 0 })}</small></span></div>`).join('');
   };
   modal(t('pack_t'), '<div id="packBody"></div>', [[t('start_quest'), onStart], [t('back_map'), openMenu, true]]);
   $('#packBody').onclick = e => {
     const b = e.target.closest('button[data-id]'); if (!b || b.disabled) return; const id = b.dataset.id, d = +b.dataset.d;
-    if (d > 0 && (P.pot[id] || 0) > 0 && carried() < CFG.POUCH) { P.pot[id]--; P.carry[id] = (P.carry[id] || 0) + 1; }
+    if (d > 0 && (P.pot[id] || 0) > 0 && carried() < pouchSize()) { P.pot[id]--; P.carry[id] = (P.carry[id] || 0) + 1; }
     else if (d < 0 && (P.carry[id] || 0) > 0) { P.carry[id]--; P.pot[id] = (P.pot[id] || 0) + 1; }
     render(); saveSoon();
   };
@@ -3041,7 +3172,7 @@ async function battlePotion(id) {
   else if (id === 'super') {
     if (qs.ch === P.superCh) { toast(t('super_used', { p: pBoth('super') })); return; }
     P.superCh = qs.ch; G.noCount = true; G.locked = true; spend(); sfx.win(); confetti(['🌟', '✨', '💫']);
-    await sleep(700); G.mon.hp = 0; updateBars(); return victory();
+    await sleep(700); G.st.foes.forEach(f => { f.hp = 0; }); updateBars(); return victory();
   }
 }
 async function usePotion(id) {
@@ -3093,22 +3224,27 @@ function spellCard(s, sealed, isNew) {
     <div class="sTags"><span>${el.em} ${tl(el.nm)}</span><span>${ty.em} ${tl(ty.nm)}</span></div>
     <div class="sFx">${SB.describe(s, LANG)}</div>${sealed ? `<div class="sLock">${t('unlocks_at', { n: s.greq })}</div>` : ''}</div>`;
 }
+let bookSort = 'tier';   // 'tier' (the tabs: 1–9, 11–19, Enhanced …), 'num' (every spell in number order) or 'type' (a tab per spell type)
 function openBook() {
   if (!P) return;
-  const b = SB.book(P.mlvl, wizLvl(), P.spells), tabs = SB.TABS.filter(([k]) => b.learned.some(s => SB.tabOf(s) === k) || b.sealed.some(s => SB.tabOf(s) === k));
+  const b = SB.book(P.mlvl, wizLvl(), P.spells), all = b.learned.concat(b.sealed);
+  const tabOf = s => bookSort === 'type' ? s.type : SB.tabOf(s);
+  const TABS = bookSort === 'type' ? Object.keys(SB.TYPES).map(k => [k, SB.TYPES[k].nm, SB.TYPES[k].em]) : bookSort === 'num' ? [] : SB.TABS;
+  const tabs = TABS.filter(([k]) => all.some(s => tabOf(s) === k));
   if (!tabs.some(([k]) => k === bookTab)) bookTab = tabs.length ? tabs[0][0] : null;
   $('#bookInfo').textContent = t('book_info', { m: P.mlvl, w: wizLvl() });
-  $('#bookTabs').innerHTML = tabs.map(([k, nm]) => { const n = b.learned.filter(s => SB.tabOf(s) === k).length, sl = b.sealed.filter(s => SB.tabOf(s) === k).length;
-    return `<button class="bookTab${k === bookTab ? ' on' : ''}" role="tab" aria-selected="${k === bookTab}" data-tab="${k}">${tl(nm)} <small>${n}${sl ? ' + 🔒' + sl : ''}</small></button>`; }).join('');
-  const order = (x, y) => ME.num(x.v) - ME.num(y.v), fresh = new Set(P.newSeen || []);
-  $('#bookPages').innerHTML = b.learned.filter(s => SB.tabOf(s) === bookTab).sort(order).map(s => spellCard(s, false, fresh.has(s.id))).join('') +
-    b.sealed.filter(s => SB.tabOf(s) === bookTab).sort(order).map(s => spellCard(s, true)).join('');
+  $('#bookSort').innerHTML = `<span>${t('sort_by')}</span>` + [['tier', 'sort_tier'], ['num', 'sort_num'], ['type', 'sort_type']].map(([k, s]) => `<button class="bookTab${k === bookSort ? ' on' : ''}" data-sort="${k}">${t(s)}</button>`).join('');
+  $('#bookTabs').innerHTML = tabs.map(([k, nm, em]) => { const n = b.learned.filter(s => tabOf(s) === k).length, sl = b.sealed.filter(s => tabOf(s) === k).length;
+    return `<button class="bookTab${k === bookTab ? ' on' : ''}" role="tab" aria-selected="${k === bookTab}" data-tab="${k}">${em ? em + ' ' : ''}${tl(nm)} <small>${n}${sl ? ' + 🔒' + sl : ''}</small></button>`; }).join('');
+  const order = (x, y) => ME.num(x.v) - ME.num(y.v), fresh = new Set(P.newSeen || []), show = s => bookSort === 'num' || tabOf(s) === bookTab;
+  $('#bookPages').innerHTML = b.learned.filter(show).sort(order).map(s => spellCard(s, false, fresh.has(s.id))).join('') +
+    b.sealed.filter(show).sort(order).map(s => spellCard(s, true)).join('');
   $('#book').hidden = false;
 }
 function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } }
 document.addEventListener('click', e => { if (e.target.closest('[data-book]')) { e.preventDefault(); openBook(); } });
 $('#bookClose').onclick = closeBook;
-$('#book').onclick = e => { const tb = e.target.closest('.bookTab'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
+$('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
 // New spells and a new wizard level: when the math level or the wizard level opens spells the student did not have, they are learned and celebrated
 // ("You learned a new spell!", spec 02 §8); a new wizard level also lists what it brings (spec 03 §5): spell types, cards, kinds of monsters,
@@ -3131,6 +3267,7 @@ function wizUnlocks(from, to) {
     if (lv === CB.CFG.HEAVY_ARMOR_FROM) out.push(t('un_heavy'));
     const ti = TITLES.find(x => x[0] === lv); if (ti) out.push(t('un_title', { name: titleAt(lv, P.gender) }));
     if (GIFTS[lv]) { const g = giveGift(lv); if (g) out.push(g); }
+    if (lv === CFG.MANUAL_FROM) out.push(t('un_manual'));
   }
   return out;
 }
@@ -3147,7 +3284,10 @@ function checkSpells() {
   const spTitle = firstEnh ? t('enhanced_t') : fresh.length === 1 ? t('new_spell_t') : t('new_spells_t', { n: fresh.length });
   const unlHtml = unl.length ? `<ul class="unlocks">${unl.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
   const spHtml = fresh.length ? (wUp ? `<h3 class="unlH">${spTitle}</h3>` : '') + (firstEnh ? `<p>${t('enhanced_b')}</p>` : '') + `<div class="newSpells">${shown.slice(0, 6).map(s => spellCard(s, false)).join('')}</div>` + (more ? `<p class="small">+${more}</p>` : '') + `<p class="small">${t('new_spell_tip')}</p>` : '';
-  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + spHtml, fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]]);
+  const offer = wUp && from < CFG.MANUAL_FROM && wl >= CFG.MANUAL_FROM && P.manual !== 'home';   // the monster manual moment (owner decision)
+  const manHtml = offer ? `<div class="manualOffer"><p><b>📕 ${t('manual_t')}</b></p><p>${t('manual_offer', { n: CFG.POUCH + 1 })}</p></div>` : '';
+  const btns = offer ? [[t('manual_leave'), () => { P.manual = 'home'; saveSoon(true); toast(t('manual_left')); if ($('#menu').classList.contains('on')) openMenu(); }], [t('manual_keep'), null, true]] : fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]];
+  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + manHtml + spHtml, btns);
 }
 /* ====================== HOME & CRAFTING ====================== */
 // A recipe lists the RARITY of each ingredient it needs (0 common ... 4 legendary), not the exact item. Every ingredient must be a different item.
@@ -3267,11 +3407,7 @@ function rmSetup() {
   if (!(window.CSS && CSS.supports && CSS.supports('width', '1cqw'))) {   // older browsers: no container units, so the unit is set from the width instead
     const fit = () => scene.style.setProperty('--u', (scene.clientWidth / 100) + 'px'); fit(); window.addEventListener('resize', fit);
   }
-  scene.addEventListener('pointermove', e => {   // a tiny parallax shift for mouse users (never on touch, never while dragging)
-    if (rmDragging || e.pointerType !== 'mouse') return; const r = scene.getBoundingClientRect();
-    scene.style.setProperty('--dx', ((e.clientX - r.left) / r.width - .5) * 2); scene.style.setProperty('--dy', ((e.clientY - r.top) / r.height - .5) * 2);
-  });
-  scene.addEventListener('pointerleave', () => { scene.style.setProperty('--dx', 0); scene.style.setProperty('--dy', 0); });
+  // (the reading game's mouse parallax was removed: the room looked like it was shaking; --dx/--dy stay 0)
   scene.addEventListener('pointerdown', e => {   // drag decorations: pointer capture, works with mouse and touch; a tap without moving says the name
     const el = e.target.closest('.prop[data-id]'); if (!el || e.button > 0) return;
     const id = el.dataset.id, it = ROOM_ITEMS[id], r0 = scene.getBoundingClientRect(), p0 = rmPos(id);
@@ -3854,7 +3990,7 @@ function victory() {
   G.phase = 'done'; G.regen = 0; P.xp += bonus + perfect; const loot = giveLoot(G.mon.el, boss, G.mist);
   const done = advanceQuest(); saveSoon(true);
   modal(boss ? t('boss_def') : t('victory'),
-    t('defeated', { m: esc(monName(G.mon)), x: bonus }) + (perfect ? `<p>${t('xp_perfect', { x: perfect })}</p>` : '') + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
+    t('defeated', { m: esc(G.group ? G.st.foes.map(monName).join(' + ') : monName(G.mon)), x: bonus }) + (perfect ? `<p>${t('xp_perfect', { x: perfect })}</p>` : '') + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
     [[done ? t('next_ch') : t('back_path'), nextRun], [t('back_map'), openMenu, true]]);
 }
 function knockout() {
@@ -3922,7 +4058,7 @@ function startDemo() {
     area(n) { window.__forceMon = null; P.quest.battle.ch = n; act('battle', ['m', 'm', 'B']); toast(areaName(n)); },
     nearBoss() { const q = G.quest === 'peace' || J.q === 'peace' ? 'peace' : 'battle'; if (!P.quest[q].path) { toast('Start a quest first'); return; } P.quest[q].at = P.quest[q].path.length - 2; P.quest[q].enc = P.quest[q].len; openJourney(q); },
     ko() { if (!$('#game').classList.contains('on') || !(G.quest === 'battle' || G.quest === 'peace')) { toast('Open a fight first'); return; } if (G.st) { G.st.hero.hp = 0; P.quest.battle.hp = 0; updateBars(); } G.hearts = 0; P.quest[G.quest].hearts = 0; endOrSecond(G.quest === 'battle' ? knockout : villageFail); },
-    win() { if (!$('#game').classList.contains('on') || !G.mon && G.quest === 'battle') { toast('Open a fight first'); return; } if (G.quest === 'battle') { G.mon.hp = 0; victory(); } else { G.helped = G.need; villageDone(); } },
+    win() { if (!$('#game').classList.contains('on') || !G.mon && G.quest === 'battle') { toast('Open a fight first'); return; } if (G.quest === 'battle') { (G.st ? G.st.foes : [G.mon]).forEach(f => { f.hp = 0; }); victory(); } else { G.helped = G.need; villageDone(); } },
     exit() { location.reload(); },
     fresh() { P.ws = { on: false, hi: false }; P.mlvl = 7; P.mhist = []; P.mplace = 0; saveSoon(); goMenu(); toast('Level 7: the workshop is shuttered. Pick level 8 to see it light up.'); }
   };

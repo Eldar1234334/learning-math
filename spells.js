@@ -27,7 +27,7 @@
     strong: { power: 4, mul: 1, nm: ['Strong', 'חזק'], adj: null },
     enhanced: { power: 6, mul: 10, mreq: 7, nm: ['Enhanced', 'מוגבר'], adj: ['Enhanced', 'מוגבר', 'מוגברת'] },
     greater: { power: 10, mul: 100, mreq: 17, nm: ['Greater', 'עליון'], adj: ['Greater', 'עליון', 'עליונה'] },
-    enhStrong: { power: 12, mul: 10, mreq: 17, nm: ['Enhanced strong', 'חזק מוגבר'], adj: ['Enhanced', 'מוגבר', 'מוגברת'] },
+    enhStrong: { power: 12, areaPower: 8, mul: 10, mreq: 17, nm: ['Enhanced strong', 'חזק מוגבר'], adj: ['Enhanced', 'מוגבר', 'מוגברת'] },
     legendary: { power: 16, mul: 1000, mreq: 21, nm: ['Legendary', 'אגדי'], adj: ['Legendary', 'אגדי', 'אגדית'] },
     family: { power: 0, mul: 1, nm: ['Special spells', 'כישופים מיוחדים'], adj: null }
   };
@@ -46,16 +46,18 @@
     [8, 'Healing Leaf', 'עלה מרפא', 'm', 'nature', 'heal', 2, { base: { k: 'heal', n: 2 }, enhanced: { k: 'heal', n: 4 }, greater: { k: 'heal', n: 6 }, legendary: { k: 'heal', n: 8 } }],
     [9, 'Shadow Snare', 'מלכודת צל', 'f', 'shadow', 'control', 2, { base: { k: 'skip', n: 1 }, enhanced: { k: 'skip', n: 2 }, greater: { k: 'skip', n: 2 }, legendary: { k: 'skip', n: 3 } }]
   ];
+  // owner decision (step 5): the attack spells 11–18 hit EVERY monster (area), and stay open from math level 5 for everyone (type 'attack');
+  // their enhanced versions (110–180) are area spells of power 8, between strong (4) and enhanced strong (12)
   const STRONG = [   // math gate: level 5 (up to 20)
     [11, 'Sunburst', 'פרץ שמש', 'm', 'light', 'attack'],
     [12, 'Tidal Wave', 'גל ענק', 'm', 'water', 'attack'],
     [13, 'Fireball', 'כדור אש', 'm', 'fire', 'attack'],
     [14, 'Rock Slide', 'מפולת סלעים', 'f', 'stone', 'attack'],
-    [15, 'Ice Spear', 'חנית קרח', 'f', 'ice', 'attack'],
+    [15, 'Blizzard', 'סופת שלגים', 'f', 'ice', 'attack'],   // was Ice Spear (renamed by the owner: an area spell)
     [16, 'Arcane Echo', 'הד קסום', 'm', 'arcane', 'buff', { strong: { k: 'buff', x: 2 }, enhStrong: { k: 'buff', x: 3 } }],
     [17, 'Thunderstorm', 'סופת רעמים', 'f', 'lightning', 'attack'],
-    [18, 'Meteor Rain', 'גשם מטאורים', 'm', 'stone', 'area', { strong: { k: 'area' }, enhStrong: { k: 'area' } }],
-    [19, 'Time Freeze', 'הקפאת זמן', 'f', 'shadow', 'control', { strong: { k: 'skip', n: 2 }, enhStrong: { k: 'skip', n: 3 } }]
+    [18, 'Meteor Rain', 'גשם מטאורים', 'm', 'stone', 'attack'],
+    [19, 'Time Freeze', 'הקפאת זמן', 'f', 'shadow', 'control', { strong: { k: 'skip', n: 2, all: true }, enhStrong: { k: 'skip', n: 3, all: true } }]   // Time Freeze holds every monster of a group (owner decision)
   ];
   // new families by grade (spec 02 §6.4): [number text, English, Hebrew, element, type, math gate, effect]
   const FAMILY = [
@@ -86,8 +88,9 @@
     for (const tier of ['enhanced', 'greater', 'legendary']) add({ v: ME.I(n * TIERS[tier].mul), nm: tierName(en, he, g, tier), el, type, tier, power: TIERS[tier].power, mreq: TIERS[tier].mreq, fx: fxFor(type, fx, tier), fam: n });
   }
   for (const [n, en, he, g, el, type, fx] of STRONG) {
-    add({ v: ME.I(n), nm: [en, he], el, type, tier: 'strong', power: TIERS.strong.power, mreq: 5, fx: fxFor(type, fx, 'strong'), fam: n });
-    add({ v: ME.I(n * 10), nm: tierName(en, he, g, 'enhStrong'), el, type, tier: 'enhStrong', power: TIERS.enhStrong.power, mreq: TIERS.enhStrong.mreq, fx: fxFor(type, fx, 'enhStrong'), fam: n });
+    const area = type === 'attack', fxS = tier => area ? { k: 'area' } : fxFor(type, fx, tier);
+    add({ v: ME.I(n), nm: [en, he], el, type, tier: 'strong', power: TIERS.strong.power, mreq: 5, fx: fxS('strong'), fam: n });
+    add({ v: ME.I(n * 10), nm: tierName(en, he, g, 'enhStrong'), el, type, tier: 'enhStrong', power: area ? TIERS.enhStrong.areaPower : TIERS.enhStrong.power, mreq: TIERS.enhStrong.mreq, fx: fxS('enhStrong'), fam: n });
   }
   for (const [txt, en, he, el, type, mreq, fx, power] of FAMILY) add({ v: ME.parse(txt), nm: [en, he], el, type, tier: 'family', power: power || (fx.pw || 0), mreq, fx: type === 'attack' && !fx ? { k: 'dmg' } : fx });
   // spell numbers that are decimals are shown as decimals (0.1), fractions as fractions (½, 1½)
@@ -127,7 +130,7 @@
     skipN: ['The monster skips {n} turns. (A boss: one turn, once per fight.)', 'המפלצת מפסידה {n} תורות. (בוס: תור אחד, פעם אחת בקרב.)'],
     buff2: ['Your next spell has double power.', 'לכישוף הבא שלכם יש עוצמה כפולה.'], buff3: ['Your next spell has triple power.', 'לכישוף הבא שלכם יש עוצמה משולשת.'],
     buff15: ['Your next spell has 1½ times the power.', 'לכישוף הבא שלכם יש פי 1½ עוצמה.'],
-    area: ['Hits every monster in the fight. Power {p}.', 'פוגע בכל המפלצות בקרב. עוצמה {p}.'],
+    area: ['Hits every monster in the fight that is weak to {el}. Power {p}.', 'פוגע בכל המפלצות בקרב שחלשות מול {el}. עוצמה {p}.'],
     summon: ['{em} A familiar fights with you for {t} turns (power {p} each turn{any}).', '{em} חיה מלווה נלחמת לצדכם {t} תורות (עוצמה {p} בכל תור{any}).'],
     anyEl: [', hits every element', ', פוגעת בכל יסוד'],
     reflect: ['Sends the next monster attack back at the monster.', 'מחזיר את ההתקפה הבאה אל המפלצת עצמה.'],
@@ -150,7 +153,7 @@
       case 'fullHeal': return tt('fullHeal', L);
       case 'skip': return f.n === 1 ? tt('skip1', L) : tt('skipN', L, { n: f.n });
       case 'buff': return tt(f.x === 2 ? 'buff2' : f.x === 3 ? 'buff3' : 'buff15', L);
-      case 'area': return tt('area', L, { p: s.power });
+      case 'area': return tt('area', L, { el: ELEMENTS[s.el].nm[i], p: s.power });
       case 'summon': return tt('summon', L, { em: f.em, t: f.turns, p: f.pw, any: f.el === 'arcane' ? TXT.anyEl[i] : '' });
       case 'reflect': return tt('reflect', L);
       case 'drain': return tt('drain', L, { n: f.n });

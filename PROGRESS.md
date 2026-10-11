@@ -252,3 +252,36 @@ What was done in each step, how to check it on the test site, and what is still 
 3. Demo → **Monster abilities** → 🛡️ Armored → a monster from the Monsters list: the "New monster!" card, the armor tag and the grey bar. Break the armor with its element, then attack the weakness.
 4. The same with the other abilities (they open at their wizard level in real play, but the demo can force any of them): ⚡ Charging (watch for the yellow tag), 🎭 Shapeshifter (the badge changes), 👥 Group (the monsters behind), 🔮 Shielded (the purple bubble), 💢 Double attack. Tap 🎲 Random again to go back to normal.
 5. Demo → wizard level 20 → a boss: it has two abilities.
+
+### Step 5, round 2 (after your check) ✅ (on the test site, waiting for your check)
+
+**Your decisions**
+- Kept as proposed: groups (half HP, 40% attack each), heavy armor from level 16, the titles and gifts, the Hebrew ability names, the magic shield rule.
+- **New schedule of monster abilities:** Armored 6 · Shapeshifter 9 (was 13) · Charging 11 · Magic shield 13 (was 18) · Groups 15 · Heavy armor 16 · Regenerating 17 (was 9, now when a strong card is offered every turn) · Double attack 20.
+- **Charging and the magic shield are extra traits:** from their level any monster may have them on top of its ability (charging 1 in 4, magic shield 1 in 5; my proposal), also bosses; never in a group.
+- **Armor holds for at least 2 hits:** every hit with the breaking element breaks one layer, whatever its power. 2 layers, 3 for heavy armor. The grey bar shows one part per layer.
+- **Area spells:** 11–18 (Sunburst, Tidal Wave, Fireball, Rock Slide, Blizzard, Thunderstorm, Meteor Rain) hit every monster, and stay open from math level 5 for everyone. Their enhanced versions 110–180 have power 8 (between 4 and 12). 16 Arcane Echo stays a buff; 19 Time Freeze freezes the whole group.
+- **Ice Spear is now Blizzard / סופת שלגים.**
+- **Group fights:**
+  - 2–3 monsters stand side by side, each with its own element, HP bar and attack; at least two share a weakness the student can use.
+  - **Tap a monster to aim at it** (the gold ▼). Single spells hit the target; area spells hit all of them, and each monster shows its own damage.
+  - **2 spells every turn** from the same cards ("spell 1 of 2", the used card is greyed). **🔄 New cards** once per turn.
+  - The cards always include an area spell (when the student has one) and a good card for every monster.
+  - Every monster attacks, one after the other.
+- **The monster manual:** at wizard level 12 (my proposal) the student may leave it at home: no weakness hints in fights (also not on the armor tag), and 6 potions in the pouch instead of 5. The 📕 button on the map takes it back (not during a quest).
+
+**Also fixed**
+- Wording: "Strong spells defeat it before it heals" / "כישופים חזקים מביסים אותה…", and "פי 3 יותר חזק".
+- Home: the room no longer shakes when the mouse moves.
+- The spell book can be sorted: **by tier** (as before), **by number** (one list) or **by type**.
+- **Spells look different:** bigger and brighter for stronger tiers, with a trail in the element's colour; area spells rain down on every monster.
+- **Monster attacks are visible:** each monster lunges and shoots its element at the wizard; a double attacker shoots twice.
+- **Shapeshifter:** it shimmers and wavers, and when it changes element it twists in a puff of smoke and takes the new element's colours.
+
+**How to check**
+1. Demo → wizard level 16 → Monster abilities → 👥 Group → a monster: 2–3 monsters side by side. Tap one (▼ moves), cast an area spell (Thunderstorm 17, Tidal Wave 12 …): each monster shows its damage. Cast a second card; try 🔄 New cards.
+2. Demo → 🛡️ Armored: the bar has 2 parts (3 for heavy armor at level 16+); each breaking hit removes one.
+3. Demo → 🎭 Shapeshifter: watch it change colour after 2 turns. 💢 Double attack: two shots.
+4. Demo → wizard level 11, then 12: the level-up window offers to leave the monster manual at home. Then a fight shows only the monster's element. 📕 on the map takes it back.
+5. 📖 → Sort: by number, by type.
+6. Home: move the mouse over the room; it stays still.

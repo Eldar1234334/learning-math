@@ -24,8 +24,8 @@
     assert(SB.BY_ID['1/2'] && SB.BY_ID['1 1/2'] && SB.BY_ID['0.1'] && SB.BY_ID['144'] && SB.BY_ID['360'], 'special spells by number');
     assert(SB.BY_ID['0.1'].v.k === 'dec' && ME.fmt(SB.BY_ID['0.1'].v) === '0.1', '0.1 is shown as a decimal');
   });
-  test('tier powers (spec 02 §5): base 2, strong 4, enhanced 6, greater 10, enhanced strong 12, legendary 16', () => {
-    const p = id => SB.BY_ID[id].power; assert(p('3') === 2 && p('13') === 4 && p('30') === 6 && p('300') === 10 && p('130') === 12 && p('3000') === 16, 'powers');
+  test('tier powers (spec 02 §5): base 2, strong 4, enhanced 6, greater 10, legendary 16; the enhanced area spells 110–180: 8 (owner decision)', () => {
+    const p = id => SB.BY_ID[id].power; assert(p('3') === 2 && p('13') === 4 && p('30') === 6 && p('300') === 10 && p('130') === 8 && p('3000') === 16, 'powers');
   });
   test('a new student: the starting spells 2, 3, 4, 5 (spec 02 §6.1)', () => {
     const b = SB.book(1, 1); assert(ids(b.learned).join() === '2,3,4,5', 'learned ' + ids(b.learned)); assert(b.sealed.length === 0, 'nothing sealed at level 1');
