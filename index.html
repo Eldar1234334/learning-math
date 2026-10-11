@@ -1761,7 +1761,7 @@ function saveSoon(now) {
 async function cloudSave() {
   if (!P || !CFG.SCRIPT_URL) return;
   const total = Object.values(P.sec).reduce((a, b) => a + b, 0);
-  const body = JSON.stringify({ id: P.id, nick: P.nick, mlvl: P.mlvl, tier: P.mlvl, xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
+  const body = JSON.stringify({ id: P.id, nick: P.nick, mlvl: P.mlvl, tier: P.mlvl, wiz: wizLvl(), xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
     min: Math.round(total / 60), coins: Math.floor(P.coins || 0), craftAcc: P.craft && P.craft.n ? Math.round(100 * P.craft.ok / P.craft.n) : 0, restarts: P.restartsTotal || 0, real: P.real || '', cls: P.cls || '', data: JSON.stringify(P) });
   try {
     const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body, keepalive: body.length < 60000 });
@@ -5021,14 +5021,14 @@ function adminRender(j) {
 }
 const agoText = d => d === 0 ? 'today' : d === 1 ? 'yesterday' : d >= 9999 ? 'never' : d + ' days ago';
 function adminTable() {
-  const cols = [['nick', 'Student'], ['tier', 'Level'], ['accuracy', 'Accuracy'], ['answers', 'Answers'], ['minutes', 'Minutes'], ['coins', 'Coins'], ['craftAcc', 'Crafting'], ['restarts', 'Restarts'], ['last', 'Last played']];
+  const cols = [['nick', 'Student'], ['tier', 'Level'], ['wiz', 'Wizard'], ['accuracy', 'Accuracy'], ['answers', 'Answers'], ['minutes', 'Minutes'], ['coins', 'Coins'], ['craftAcc', 'Crafting'], ['restarts', 'Restarts'], ['last', 'Last played']];
   const f = ADM.filter.trim().toLowerCase();
   const rows = ADM.students.filter(s => !f || (s.nick + ' ' + s.id + ' ' + (s.real || '') + ' ' + (s.cls || '')).toLowerCase().includes(f))
     .sort((a, b) => { const k = ADM.sortKey; const va = k === 'last' ? (a.last || '') : k === 'nick' ? a.nick.toLowerCase() : a[k], vb = k === 'last' ? (b.last || '') : k === 'nick' ? b.nick.toLowerCase() : b[k]; return (va > vb ? 1 : va < vb ? -1 : 0) * ADM.sortDir; });
   $('#admTable').innerHTML = '<thead><tr>' + cols.map(([k, l]) => `<th data-k="${k}">${l}${ADM.sortKey === k ? (ADM.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '</tr></thead><tbody>' +
     (rows.length ? rows.map(s => `<tr data-id="${esc(s.id)}"><td><span class="dot ${s.days === 0 ? 'on' : s.days >= 7 ? 'old' : ''}"></span><b>${esc(s.nick)}</b> <small style="opacity:.7">#${esc(s.id)}</small>${s.real ? `<br><small style="opacity:.85">${esc(s.real)}${s.cls ? " · " + esc(s.cls) : ""}</small>` : ""}</td>
-      <td>${s.tier}: ${esc(tierName(s.tier))}</td><td><span class="pbar2"><i style="width:${s.accuracy}%"></i></span>${s.answers ? s.accuracy + '%' : '–'}</td><td>${s.answers}</td><td>${s.minutes}</td><td>${s.coins || 0}</td><td>${s.craftAcc ? s.craftAcc + "%" : "–"}</td><td>${s.restarts || 0}</td><td>${agoText(s.days)}</td></tr>`).join('')
-      : '<tr><td colspan="9" style="opacity:.7">No students found.</td></tr>') + '</tbody>';
+      <td>${s.tier}: ${esc(tierName(s.tier))}</td><td>${s.wiz || '–'}</td><td><span class="pbar2"><i style="width:${s.accuracy}%"></i></span>${s.answers ? s.accuracy + '%' : '–'}</td><td>${s.answers}</td><td>${s.minutes}</td><td>${s.coins || 0}</td><td>${s.craftAcc ? s.craftAcc + "%" : "–"}</td><td>${s.restarts || 0}</td><td>${agoText(s.days)}</td></tr>`).join('')
+      : '<tr><td colspan="10" style="opacity:.7">No students found.</td></tr>') + '</tbody>';
 }
 const keyLabel = k => k.slice(2);   // 'M:7 × 8' → '7 × 8'
 async function adminStudent(id) {

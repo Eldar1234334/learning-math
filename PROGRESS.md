@@ -584,3 +584,18 @@ Every spell was shown in the browser one family at a time; your comments were bu
 2. Switch to Hebrew and replay it: Hebrew text and voice.
 3. Shop, brew and forge with the sound on.
 - Fixed after your check: in the tutorial, "say the spell" showed 3 answers in an odd 2 + 1 layout. It now looks like the game: the problem written large above, 4 answers in a 2 × 2 grid. Step 10 is approved.
+
+---
+
+## Step 11: Saving (in progress: waiting for your two URLs)
+
+**Goal:** progress saves to a **new, separate** Google Sheet with its own Apps Script, and the teacher sees the math level (HANDOFF §8).
+
+**What I prepared**
+- **The progress sheet's script** (`tools/apps-script/progress/Code.gs`), written new for Math Wizard (not a copy of the reading game's, so nothing of the reading game is opened or touched). It loads and saves students (the copy with more answers wins, like the game), keeps students the teacher deleted from coming back, and serves the teacher area (password, list, one student, delete; 5 wrong passwords lock it for 10 minutes). A profile of any size fits (it is split over several cells).
+- **The e-mail code service** for the installed app (`tools/apps-script/email-codes/Code.gs`), its own project as you decided: a 6-digit code by e-mail (a minute between codes, 10 minutes to use it, 5 wrong tries lock it). It keeps no names and no addresses: only a one-way hash, to count app users for the teacher area.
+- Both scripts were tested here against a pretend Google Sheet: saving and loading a large profile, conflicts, the teacher list, deleting, the password lock, sending and checking codes.
+- The game now also saves the **wizard level**, and the teacher table has a **Wizard** column.
+- **Setup steps for you:** `tools/apps-script/SETUP.md`.
+
+**Next:** you create the two services in `learningtoread.app@gmail.com` (about 10 minutes) and send me the two URLs; I put them in the game, test saving on the test site, and report.
