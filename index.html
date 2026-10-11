@@ -506,7 +506,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .bookTabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .bookTab{font:inherit;color:#ffe2a0;background:#0003;border:1px solid #c8a15a88;border-radius:999px;padding:6px 12px;cursor:pointer}
 .bookTab.on{background:#c8a15a;color:#2b1d12;font-weight:600}.bookTab small{opacity:.75}
-.bookSort{align-items:center;font-size:.85rem;color:#ffe2a0}.bookSort .bookTab{padding:4px 10px}
+.bookSort{align-items:center;font-size:.85rem;color:#ffe2a0}.bookSub{grid-column:1 / -1;width:100%;margin:10px 0 2px;color:#ffe2a0;font-size:1rem;border-bottom:1px solid #c8a15a55;padding-bottom:3px}.bookSort .bookTab{padding:4px 10px}
 .bookPages{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
 .spellCard{background:linear-gradient(#f6e7c4,#e8d3a3);color:#3a2610;border-radius:14px;padding:10px 12px;box-shadow:0 3px 0 #8a6a35;display:flex;flex-direction:column;gap:4px;position:relative}
 .spellCard .sNum{font-size:2.2rem;font-weight:700;line-height:1;direction:ltr;color:#6b3a10;align-self:flex-start}
@@ -2666,8 +2666,8 @@ function updateBars() {
   if (inCraft()) return;
   const b = G.quest === 'battle';
   if (b && G.st) {   // the wizard's HP bar (it replaces the hearts) and the monster's
-    const h = G.st.hero, pc = Math.max(0, h.hp) / h.max * 100;
-    $('#hearts').innerHTML = `<div class="heroHp${pc <= 30 ? ' low' : ''}"><i style="width:${Math.min(100, pc)}%"></i></div><small class="hpNum">❤️ ${Math.max(0, h.hp)}/${h.max}</small>`;
+    const h = G.st.hero, hp = G.heroShown != null ? G.heroShown : h.hp, pc = Math.max(0, hp) / h.max * 100;   // during the monsters' turn the bar follows the hits one by one
+    $('#hearts').innerHTML = `<div class="heroHp${pc <= 30 ? ' low' : ''}"><i style="width:${Math.min(100, pc)}%"></i></div><small class="hpNum">❤️ ${Math.max(0, hp)}/${h.max}</small>`;
     $('#foeName').querySelector('.hpNum') && ($('#foeName').querySelector('.hpNum').textContent = `${Math.max(0, G.mon.hp)}/${G.mon.max}`);
   } else { const hs = Math.max(0, G.hearts), mx = Math.max(CFG.MAX_HEARTS, hs); $('#hearts').textContent = b ? '' : '😊'.repeat(hs) + '😐'.repeat(mx - hs); }
   $('#heroBox').classList.toggle('heroGlow', b && G.combo >= 3);   // on a hot streak the hero glows
@@ -2973,14 +2973,17 @@ async function monsterTurnUI() {
   if (CB.defeated(st)) { $('#fb').innerHTML += '<br>' + lines.join('<br>'); updateBars(); await sleep(800); return victory(); }
   for (const i of ev.skips) { const nd = foeNode(fs[i]); shake(nd); burst('⛓️', 4, nd); }
   if (ev.skips.length) lines.push(G.group && ev.skips.length > 1 ? t('m_skip_n', { n: ev.skips.length }) : t('m_skip'));
+  G.heroShown = ev.hpBefore; updateBars();
   for (const h of ev.hits) {
     const m = fs[h.who] || st.mon; await monsterShot(m, h.big);
+    if (h.hp != null) { G.heroShown = h.hp; updateBars(); }
     if (h.reflected) { burst('🪞', 6, '#heroSvg'); floatText('−' + h.reflected, '#ffd166', foeNode(m)); shake(foeNode(m)); continue; }
     if (h.big) { burst('⚡', 10, '#heroSvg'); flashStage(); }
     if (h.blocked) burst('🛡️', 5, '#heroSvg');
     if (h.dmg > 0) { sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); setTimeout(() => $('#heroBox').classList.remove('hurt'), 450); floatText('−' + h.dmg, '#ff9aa8', '#heroSvg'); }
     await sleep(180);
   }
+  G.heroShown = null;
   if (ev.reflected) lines.push(t('m_reflect', { d: ev.reflected }));
   const dealt = ev.hits.filter(h => h.dmg != null);
   if (dealt.length) lines.push(ev.dmg > 0 ? (ev.big ? t('m_big', { d: ev.dmg }) : dealt.length > 1 ? t('m_attack_n', { n: dealt.length, d: ev.dmg }) : t('m_attack', { d: ev.dmg })) : t('m_blocked'));
@@ -3237,8 +3240,11 @@ function openBook() {
   $('#bookTabs').innerHTML = tabs.map(([k, nm, em]) => { const n = b.learned.filter(s => tabOf(s) === k).length, sl = b.sealed.filter(s => tabOf(s) === k).length;
     return `<button class="bookTab${k === bookTab ? ' on' : ''}" role="tab" aria-selected="${k === bookTab}" data-tab="${k}">${em ? em + ' ' : ''}${tl(nm)} <small>${n}${sl ? ' + 🔒' + sl : ''}</small></button>`; }).join('');
   const order = (x, y) => ME.num(x.v) - ME.num(y.v), fresh = new Set(P.newSeen || []), show = s => bookSort === 'num' || tabOf(s) === bookTab;
-  $('#bookPages').innerHTML = b.learned.filter(show).sort(order).map(s => spellCard(s, false, fresh.has(s.id))).join('') +
-    b.sealed.filter(show).sort(order).map(s => spellCard(s, true)).join('');
+  const pages = list => list.filter(s => b.learned.includes(s)).sort(order).map(s => spellCard(s, false, fresh.has(s.id))).join('') + list.filter(s => b.sealed.includes(s)).sort(order).map(s => spellCard(s, true)).join('');
+  if (bookSort === 'type' && bookTab === 'attack') {   // the attack spells by element (owner request), each element under its own heading
+    const atk = all.filter(show);
+    $('#bookPages').innerHTML = Object.keys(SB.ELEMENTS).filter(el => atk.some(s => s.el === el)).map(el => `<h4 class="bookSub">${SB.ELEMENTS[el].em} ${tl(SB.ELEMENTS[el].nm)}</h4>` + pages(atk.filter(s => s.el === el))).join('');
+  } else $('#bookPages').innerHTML = pages(all.filter(show));
   $('#book').hidden = false;
 }
 function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } }

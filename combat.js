@@ -34,7 +34,7 @@
     ABILITY_CHANCE: [0.3, 0.6], ABILITY_FULL_AT: 20, BOSS_TWO_FROM: 20,   // 30% at the first unlock → 60% at wizard level 20; a boss always has one, two from level 20
     ARMOR_DMG_MULT: 0.5, ARMOR_LAYERS: 2, HEAVY_ARMOR_LAYERS: 3, HEAVY_ARMOR_FROM: 16, HEAVY_ARMOR_CHANCE: 0.5,   // owner decision: an armor holds for at least 2 breaking hits (layers); heavy: 3 (half of the armors from level 16)
     REGEN: 0.1, CHARGE_EVERY: 3, CHARGE_MULT: 3, SHIFT_EVERY: 2,
-    GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.5, GROUP_ATK_EACH: 0.4,          // each monster of a group has half the HP and 40% of the attack of a single monster (owner approved)
+    GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.5, GROUP_ATK_EACH: 1,            // each monster of a group has half the HP of a single monster, and attacks as hard as one (owner decision)
     GROUP_CASTS: 2,                                                        // owner decision: in a group fight the student casts 2 spells every turn
     // XP (spec 03 §5.1)
     XP_FIGHT: 10, XP_FIGHT_PERFECT: 5, XP_BOSS: 40, XP_BOSS_PERFECT: 20, XP_CRAFT: 3
@@ -285,9 +285,9 @@
   }
   // the monsters' turn (spec 03 §4): a familiar attacks the target first; then every monster still standing attacks, one after the other, unless it is held.
   // Charging: every 3rd turn its first attack is ×3. Double attack: two attacks. Then regenerating monsters heal and shapeshifters may change element.
-  // Returns { familiar, next, skipped, skips: [i], hits: [{ who, dmg, blocked, reflected, big }], dmg, blocked, reflected, big, revived, regen, regens: [{ i, h }], shifted, shifts: [{ i, el }], warn }
+  // Returns { hpBefore, familiar, next, skipped, skips: [i], hits: [{ who, dmg, blocked, reflected, big, hp (the wizard's HP after this hit) }], dmg, blocked, reflected, big, revived, regen, regens: [{ i, h }], shifted, shifts: [{ i, el }], warn }
   function monsterTurn(st, rnd = Math.random) {
-    const ev = { hits: [], dmg: 0, skips: [], regens: [], shifts: [] }, fs = foesOf(st), fam = st.fx.summon;
+    const ev = { hits: [], dmg: 0, skips: [], regens: [], shifts: [], hpBefore: st.hero.hp }, fs = foesOf(st), fam = st.fx.summon;
     if (fam && fam.turns > 0) {
       const mon = st.mon, rel = fam.el === 'arcane' ? 'weak' : (MON_EL[mon.el].weak.includes(fam.el) ? 'weak' : MON_EL[mon.el].heal.includes(fam.el) ? 'heal' : 'none');
       ev.familiar = { em: fam.em, rel, dmg: 0, i: fs.indexOf(mon) };
@@ -314,7 +314,8 @@
         if (st.fx.shields.length) { const s = st.fx.shields[0]; a *= (1 - s.part); reduced = true; h.blocked = s.part; if (ev.blocked == null) ev.blocked = s.part; if (--s.n <= 0) st.fx.shields.shift(); }
         h.dmg = reduced ? Math.floor(a + 1e-9) : Math.round(a);
         st.hero.hp = Math.max(0, st.hero.hp - h.dmg); ev.dmg += h.dmg; ev.hits.push(h);
-        if (st.hero.hp <= 0 && st.fx.revive && !st.fx.reviveUsed) { st.fx.revive = false; st.fx.reviveUsed = true; st.hero.hp = Math.ceil(st.hero.max / 2); ev.revived = true; }
+        if (st.hero.hp <= 0 && st.fx.revive && !st.fx.reviveUsed) { st.fx.revive = false; st.fx.reviveUsed = true; st.hero.hp = Math.ceil(st.hero.max / 2); ev.revived = true; h.revived = true; }
+        h.hp = st.hero.hp;
         if (st.hero.hp <= 0) { down = true; break; }
       }
     }

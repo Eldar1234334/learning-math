@@ -256,7 +256,7 @@ What was done in each step, how to check it on the test site, and what is still 
 ### Step 5, round 2 (after your check) ✅ (on the test site, waiting for your check)
 
 **Your decisions**
-- Kept as proposed: groups (half HP, 40% attack each), heavy armor from level 16, the titles and gifts, the Hebrew ability names, the magic shield rule.
+- Kept as proposed: groups (half HP each), heavy armor from level 16, the titles and gifts, the Hebrew ability names, the magic shield rule.
 - **New schedule of monster abilities:** Armored 6 · Shapeshifter 9 (was 13) · Charging 11 · Magic shield 13 (was 18) · Groups 15 · Heavy armor 16 · Regenerating 17 (was 9, now when a strong card is offered every turn) · Double attack 20.
 - **Charging and the magic shield are extra traits:** from their level any monster may have them on top of its ability (charging 1 in 4, magic shield 1 in 5; my proposal), also bosses; never in a group.
 - **Armor holds for at least 2 hits:** every hit with the breaking element breaks one layer, whatever its power. 2 layers, 3 for heavy armor. The grey bar shows one part per layer.
@@ -285,3 +285,8 @@ What was done in each step, how to check it on the test site, and what is still 
 4. Demo → wizard level 11, then 12: the level-up window offers to leave the monster manual at home. Then a fight shows only the monster's element. 📕 on the map takes it back.
 5. 📖 → Sort: by number, by type.
 6. Home: move the mouse over the room; it stays still.
+
+**Changed after your second look**
+- Every monster of a group now attacks as hard as a single monster (it was 40%); each still has half the HP.
+- The wizard's HP bar drops after each monster's shot, not at the end of the monsters' turn.
+- 📖 By type → Attack: the attack spells are grouped by element (🔥 Fire, 💧 Water, 🧊 Ice, ✨ Light, ⚡ Lightning, 🪨 Stone).
