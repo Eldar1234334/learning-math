@@ -355,3 +355,36 @@ Every spell was shown in the browser one family at a time; your comments were bu
 - **Familiars:** the Owl is now the **Hawk Familiar / נץ מלווה**. The hawk, wolf and dragon use your pictures (art/). The hawk flies over and claws, the wolf runs over and bites, the **Dragon** rises and breathes on **every monster**: always its weakness (Fireball fire, purple lightning, a water jet, Blizzard snow; a purple arcane flame if nothing else fits). Each breath does half of a typical good spell at the student's level (your approval).
 - The simulator's check for average players at the top levels was set to "15% or more" (it moves between about 15% and 30% from one sample to the next there).
 - **Special spells (second part of the review):** Mirror Ward (a glass mirror; the shot bounces back, then it shatters), Life Drain (red life-orbs flow back to the wizard), Chain Lightning (a purple bolt jumps from monster to monster), Phoenix Feather (a golden feather waits above the wizard; on a knockout fiery wings spread and the wizard is reborn), Half-Moon Hex (a crescent moon and a moonlight slash; half the monster darkens), Three-Quarter Shield (a ring of 4 quarters, 3 lit, with ¾), Triple Strike (three separate arcane bolts), Echo and a Half (the Arcane Echo look with ×1.5), Mist of Tenths (a mist with 0.1 numbers; the monster's shot comes out tiny), Shrinking Hex (the monsters shrink for 3 turns, smaller shots), Starfall (night sky, twinkling stars, shooting stars).
+- After the review: the small element icons above group monsters were removed (tap a monster to see its element under the area name).
+
+---
+
+## Step 7: Brewing ✅ (on the test site, waiting for your check)
+
+**Goal:** spec 04 §3: the recipe is the math. The student measures each line of a recipe card into the cauldron, then brews.
+
+**What changed**
+- **The recipe card** is written at the **easy step** (one math level below the student's, spec 04 §1). It has:
+  - **herb lines**: herbs the student owns (leaf, grass, seeds…), whole counts, at most 12 per potion. Each line is a small problem of the level, written as a recipe: "11 in all; 9 already in. Add the rest." · "4 handfuls of 3" · "Share 64 equally among 8 bottles. Put in one share." · "Double 7" · "You used 3 and 5 were left. Put in as many as you had at first." Other kinds show the calculation: "Measure ¾ of 12", "Measure 2.5 × 2.8".
+  - **a liquid line**: free spring water 💧, moon water 🌙 or oil 🫒. It carries the level's real numbers: hundreds and thousands of drops, cups in fractions, litres in decimals.
+  - **the rare items** of the potion (stones, creature parts, sky items, treasures): 1 of each, chosen before brewing; they are not a math task.
+- **The tools:** a jar for each herb (➖ ➕, and +5 in a batch) and a **measuring jug** with a scale; tap the jug to fill it roughly, then the buttons fine-tune: ±1000 ±100 ±10 ±1 drops, ±1 and ±1/d cups, ±10 ±1 ±0.1 ±0.01 litres (only the steps the amount needs).
+- **Brew!** Every line is checked. Each line is one scored answer (½ toward moving up, 1 toward moving down).
+  - All right: the potion is made, **+3 XP per line**.
+  - A wrong line: the brew fails, and a **worked example** shows the right amount with a picture: dots (adding and taking away), an array (multiplication), groups (sharing), fraction bars, or the filled jug. Then a roll: the ingredients are lost (10% at wizard level 1, +2% per level, at most 50%), or "Lucky! Your ingredients are safe." The liquids are always free. "Try again" writes a new recipe.
+- **Batches** (from math level 12, the multiplication levels): brew 2–5 potions at once: "Each potion needs 5. Brew 3 potions." The rare items are used once per potion.
+- **What each potion needs** (spec 04 §3.2): Heart: 2 herb lines · Hint: 1 herb line + 1 stone · Power: 1 herb line + 2 stones · Second chance: 1 herb line + 1 stone + 1 creature part · Super: 1 herb line + 2 sky items + 1 treasure. Plus the liquid line.
+- **Herbs from fights:** every won fight now also drops herbs, 1–2 at the first math levels, 2–3 from level 7, 2–4 from 13, 3–5 from 22 (spec 04 §6), besides the usual item.
+- **Tests:** 6 new brewing tests (98 in all): every potion at all 36 levels, amounts within what the student owns, the jug fits every amount, batches, checking.
+
+**My proposals (please approve or change)**
+- The herbs drop **in every won fight** (spec 04 says drops grow with the level; I added herbs to every fight so that potions do not take many more fights than before, even for a student who plays well and gets rare items).
+- The rare items are not a math line (spec: "herbs carry the math").
+- At the fraction and decimal levels the herb lines are whole numbers from a review level when the level itself has no whole answers (for example "Measure 2 × 5 − 8" at level 27), and the liquid line carries the fractions and decimals.
+
+**How to check**
+1. Win a few fights: the victory window shows the item and the herbs (for example "Seed + Leaf ×2").
+2. Home → cauldron → Heart potion: the brewing screen. Read the recipe, set the jars and the jug, tap Brew!
+3. Put a wrong amount on purpose: the worked example and the loss roll.
+4. Teacher area → demo → math level 16 → Home → Power potion: choose the stones and ×3: a batch.
+5. Demo math level 27 or 30: the jug in cup fractions or litres.

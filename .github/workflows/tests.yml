@@ -19,5 +19,7 @@ jobs:
         run: node tests/spells.test.js
       - name: Run the fight rules tests
         run: node tests/combat.test.js
+      - name: Run the brewing tests
+        run: node tests/brew.test.js
       - name: Check the balance goals (fight simulator, spec 03 §1)
         run: node tools/sim.js 60
