@@ -494,3 +494,17 @@ Every spell was shown in the browser one family at a time; your comments were bu
 - The Potions / Robes and accessories buttons under the shop room are gone: the potion shelves, the wardrobe and the mannequin open the lists.
 - Coin tray: the numbers on the coins have no shadow; a side display shows the sum on the tray ("On the tray: 23 🪙").
 - **The shop room is your picture** (art/shop-room.webp). The wardrobe (robes), the mannequin (accessories) and the potion shelves (potions) are tap areas: they glow softly every few seconds and light up on hover. Today's 8 items stand on the two middle shelves with their prices on the painted tags; the merchant stands behind the counter, the next cauldron is on the counter.
+
+### Step 8, round 4 (after your check)
+- **The shop sign in Hebrew:** the painted "SHOP" sign is covered by a matching purple sign that says "חנות" when the game is in Hebrew.
+- **Furniture for Home** (your request: Home should be something the student wants to decorate, with big items as long-term goals):
+  - 10 big pieces, each with its own large drawing: couch 220, coffee table 110, armchair 130, bookcase 160, fireplace 260 (the fire flickers), bed 240, floor lamp 70, desk 150, piano 320, aquarium 180.
+  - In the shop: a **furniture catalog** book on the counter opens the list with big pictures. Buying works like any other item (the checkout task).
+  - At Home: furniture stands on the floor at its full size, smaller toward the back wall, and the student can drag it anywhere (🧹 puts it back). The default places leave the cauldron free.
+  - Furniture is not on the daily shelves (they keep the small decorations) and is never given as a level-up gift.
+- **My proposal:** the prices above (70–320) make furniture a goal of several days. More pieces (a rug set, curtains, a dragon statue, a bean bag…) can be added any time; tell me what you'd like.
+
+**How to check**
+1. Switch to Hebrew in the shop: the sign says חנות.
+2. Shop → tap the book on the counter: the furniture catalog. Buy a couch.
+3. Home: the couch is in the room; drag it around.
