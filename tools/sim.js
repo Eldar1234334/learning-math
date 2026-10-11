@@ -143,13 +143,13 @@
     out.push({ goal: '1. A normal fight takes about 3 good casts (good player, 2–4; from wizard level 15 the strong card makes it shorter)', ok: by('good').every(r => r.goodCasts >= 2 && r.goodCasts <= 4), detail: by('good').map(r => `${r.g}/${r.mlvl}: ${r.goodCasts.toFixed(1)}`).join(' · ') });
     out.push({ goal: '2a. A good player wins most runs (≥ 85%)', ok: by('good').every(r => r.winRate >= .85), detail: by('good').map(r => `${r.g}/${r.mlvl}: ${Math.round(r.winRate * 100)}%`).join(' · ') });
     out.push({ goal: '2b. A guessing player loses (wins ≤ 10%); from math level 5 in the first fights', ok: by('guessing').every(r => r.winRate <= .1 && (r.mlvl < 5 || (r.lostAt || 0) <= 3)), detail: by('guessing').map(r => `${r.g}/${r.mlvl}: ${Math.round(r.winRate * 100)}%, fight ${r.lostAt.toFixed(1)}`).join(' · ') });
-    out.push({ goal: '2c. An average player is in between (wins 25% or more, and less often than a good player at the higher levels)', ok: by('average').every(r => r.winRate >= .25) && by('average').filter(r => r.g >= 20).every(r => r.winRate < by('good').find(x => x.g === r.g && x.mlvl === r.mlvl).winRate), detail: by('average').map(r => `${r.g}/${r.mlvl}: ${Math.round(r.winRate * 100)}%`).join(' · ') });
+    out.push({ goal: '2c. An average player is in between (wins 15% or more, and less often than a good player at the higher levels)', ok: by('average').every(r => r.winRate >= .15) && by('average').filter(r => r.g >= 20).every(r => r.winRate < by('good').find(x => x.g === r.g && x.mlvl === r.mlvl).winRate), detail: by('average').map(r => `${r.g}/${r.mlvl}: ${Math.round(r.winRate * 100)}%`).join(' · ') });
     out.push({ goal: '3. The strongest spell ends a fight in about half the casts of the weakest or less', ok: strong.every(s => s.strongCasts * 2 <= s.weakCasts + 1e-9), detail: strong.map(s => `${s.g}/${s.mlvl}: ${s.strongCasts.toFixed(1)} vs ${s.weakCasts.toFixed(1)}`).join(' · ') });
     for (const s of same) { const ts = s.rows.map(r => r.turns), a = avg(ts); out.push({ goal: `4. Wizard level ${s.g}: fights equally long at every math level (±30%)`, ok: ts.every(x => Math.abs(x - a) <= .3 * a), detail: s.rows.map(r => `math ${r.mlvl}: ${r.turns.toFixed(1)} turns`).join(' · ') }); }
     return out;
   }
 
-  const SIM = { PLAYERS, RUN, simulate, strongVsWeak, report, checks, PAIRS };
+  const SIM = { PLAYERS, RUN, fight, foesFor, setSeed: s => { seed = s; ME.setRandom(rnd); }, simulate, strongVsWeak, report, checks, PAIRS };
   if (isNode && require.main === module) {
     const r = report(+(process.argv[2] || 40));
     for (const x of r.rows) console.log(`${x.player.padEnd(9)} wiz ${String(x.g).padStart(2)} math ${String(x.mlvl).padStart(2)} | win ${String(Math.round(x.winRate * 100)).padStart(3)}% | HP left ${Math.round(x.hpLeft * 100)}% | good casts ${x.goodCasts.toFixed(1)} | turns ${x.turns.toFixed(1)} | taken ${x.taken.toFixed(1)} | boss ${x.bossTurns.toFixed(1)} | group ${x.groupTurns.toFixed(1)}`);

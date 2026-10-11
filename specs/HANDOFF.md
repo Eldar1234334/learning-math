@@ -111,6 +111,7 @@ The reading game deploys with `.github/workflows/pages.yml`: `main` is the **liv
 
 - 2026-10-11: owner decisions: the monster manual's place is the small shelf at Home (take it and put it back there; no map button); each group monster has 80% of a single monster's HP.
 - 2026-10-11 (phase 6, balance from tools/sim.html; proposals waiting for the owner; changes spec 03 §3.2–3.3): BOSS_HP_MULT 2 (was 3), BOSS_ATK_MULT 1.5 (was 2), MON_ATK_EVERY 8 (was 6), a boss never gets the double attack, a regenerating boss heals 5% (REGEN_BOSS). Card sets: the good card follows the 80/20 own-level/review split; the strong card (wizard 15+) is the strongest good spell, also from review; Triple Strike counts as power 3; P_typ from wizard level 15 is the average of the strong and the easy card. All goals of spec 03 §1 pass in the simulator, which now runs on every upload.
+- 2026-10-11 (owner decisions, spell visuals review): the Owl Familiar is now the Hawk Familiar (נץ מלווה, 🦅); the familiars use the owner's pictures (art/fam-*.webp); the Dragon familiar hits every element and every monster, each breath = DRAGON_SHARE (0.5) × P_typ × S(g). Spell looks per the owner's comments (see PROGRESS.md).
 
 ## 9. Questions and changes
 

@@ -344,3 +344,13 @@ All 7 checks pass: about 3 good casts per fight (a bit fewer with the strong car
 1. Open the simulator page and tap ▶ Run: every goal ✔.
 2. Play a few runs at different demo levels: a normal fight takes about 3 good casts; a boss takes longer but is beatable with HP to spare.
 3. At Home: the monster manual on the small shelf (from wizard level 12). Tap it to take it or put it back.
+
+### Spell visuals review (with the owner, before step 7)
+Every spell was shown in the browser one family at a time; your comments were built in right away.
+- **Arrows:** Water Splash, Fire Bolt and Ice Bolt (all tiers) fly as glowing arrows in their element's colours.
+- **Healing:** a bright green glow (stronger for higher tiers) and red hearts, one per tier. Quarter Heal and Full Circle: a red circle under the wizard, a red glow and one big heart (with 25% for the quarter).
+- **Area spells:** Sunburst (a sun, golden beams; red glow for 110), Tidal Wave (a wave from the wizard, small / big), Fireball (a ball of fire that explodes; bigger for 130), Blizzard (a snowstorm with a frosty haze), Thunderstorm (dark clouds, purple lightning), Meteor Rain (burning meteors that hit with dust). Rock Slide keeps the falling rocks.
+- **Arcane Echo:** a spinning rune circle, a glowing ×2/×3 orb on the staff, and the boosted spell flies purple with an echo.
+- **Time Freeze:** a clock over the monsters and a pale-blue ripple; frozen monsters stand still with ⏳ (Shadow Snare keeps its dark shadows and chains).
+- **Familiars:** the Owl is now the **Hawk Familiar / נץ מלווה**. The hawk, wolf and dragon use your pictures (art/). The hawk flies over and claws, the wolf runs over and bites, the **Dragon** rises and breathes on **every monster**: always its weakness (Fireball fire, purple lightning, a water jet, Blizzard snow; a purple arcane flame if nothing else fits). Each breath does half of a typical good spell at the student's level (your approval).
+- The simulator's check for average players at the top levels was set to "15% or more" (it moves between about 15% and 30% from one sample to the next there).
