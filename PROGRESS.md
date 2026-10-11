@@ -561,7 +561,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 
 ---
 
-## Step 10: Tutorial and polish ✅ (on the test site, waiting for your check)
+## Step 10: Tutorial and polish ✅ (checked by the owner)
 
 **Goal:** a new student can start without help (HANDOFF phase 10).
 
@@ -583,3 +583,4 @@ Every spell was shown in the browser one family at a time; your comments were bu
 1. Make a new hero (or tap Pip the owl on the map): the tutorial. Try a wrong card once.
 2. Switch to Hebrew and replay it: Hebrew text and voice.
 3. Shop, brew and forge with the sound on.
+- Fixed after your check: in the tutorial, "say the spell" showed 3 answers in an odd 2 + 1 layout. It now looks like the game: the problem written large above, 4 answers in a 2 × 2 grid. Step 10 is approved.

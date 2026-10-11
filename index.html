@@ -2174,12 +2174,12 @@ function tutScreen() {
 }
 // cards: [expression, spell number]; the student picks one (a card shows only its problem, like in the game)
 function tutCards(list, title) {
-  $('#qTitle').textContent = title; $('#qSub').textContent = t('pick_s'); const o = $('#opts'); o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${list.length}, 1fr)`; o.innerHTML = '';
+  $('#qTitle').textContent = title; $('#qSub').textContent = t('pick_s'); $('#qBig').innerHTML = ''; const o = $('#opts'); o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${list.length}, 1fr)`; o.innerHTML = '';
   list.forEach(c => { const b = document.createElement('button'); b.className = 'opt card'; b.innerHTML = `<span class="cardEx">${exprHtml(c[0])}</span>`; b.onclick = () => tutResolve({ c, b }); o.appendChild(b); });
 }
-function tutSayOpts(n) {   // the incantation (from math level 5): say the card's answer to cast it
-  $('#qTitle').textContent = t('say_t'); const o = $('#opts'); o.className = 'opts'; o.style.gridTemplateColumns = 'repeat(3, 1fr)'; o.innerHTML = '';
-  shuffle([n - 1, n, n + 1]).forEach(v => { const b = document.createElement('button'); b.className = 'opt num'; b.textContent = v; b.onclick = () => tutResolve({ v, b }); o.appendChild(b); });
+function tutSayOpts(n, e) {   // the incantation (from math level 5): say the card's answer to cast it (four answers in a 2 × 2 grid and the problem above, like in the game)
+  $('#qTitle').textContent = t('say_t'); $('#qSub').textContent = t('say_s'); $('#qBig').innerHTML = exprHtml(e); const o = $('#opts'); o.className = 'opts'; o.style.gridTemplateColumns = ''; o.innerHTML = '';
+  shuffle([n - 1, n, n + 1, n + 2]).forEach(v => { const b = document.createElement('button'); b.className = 'opt num'; b.textContent = v; b.onclick = () => tutResolve({ v, b }); o.appendChild(b); });
 }
 const tutBtns = () => [...document.querySelectorAll('#opts .opt')];
 const SPELL_EMO = { 2: '💧', 3: '🔥', 4: '🪨', 5: '🧊' };
@@ -2202,7 +2202,7 @@ async function tutRound(cards, target, ok) {   // the student picks cards until 
     const r = await tutWait(); if (!ok()) return false; const [, n] = r.c;
     tutBtns().forEach(b => { b.disabled = true; }); r.b.classList.add(n === target ? 'good' : 'bad');
     if (say) {   // the incantation: say the answer to cast the spell
-      tutSay('tut_say', { e: exprHtml(r.c[0]) }); tutSayOpts(n);
+      tutSay('tut_say', { e: exprHtml(r.c[0]) }); tutSayOpts(n, r.c[0]);
       for (;;) { const s = await tutWait(); if (!ok()) return false; if (s.v === n) { s.b.classList.add('good'); break; } s.b.classList.add('bad'); s.b.disabled = true; sfx.bad(); tutSay('tut_say_wrong', { e: exprHtml(r.c[0]) }); }
     }
     await tutCast(n, ok); if (!ok()) return false;
