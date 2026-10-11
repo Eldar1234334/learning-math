@@ -554,3 +554,4 @@ Every spell was shown in the browser one family at a time; your comments were bu
 - **Tap the mannequin:** "Your magic items" lists every forged item. Each has **✓ I take it** / **Stays at home**. Only the items you take work on quests (in the item bar and on the map). A new item is taken automatically.
 
 **How to check:** forge an item (it goes straight to the payment; try ✖ Stop forging once), then go Home and tap the mannequin.
+- **Using items in a fight** (your report: the staff did not seem to be there): the item buttons under the battle now show the item's name and "tap to use · 1 use left" (the amulet: "works by itself"), and the first fight with a new item says "Staff of banishing is ready! Tap it under the battle to use it." The staff works on any monster except a boss.

@@ -194,7 +194,7 @@ body.peace .foeBody{font-size:6rem}
 @keyframes wsGlow{50%{opacity:.5}}.place.shut::after{content:'';position:absolute;left:46%;top:22%;width:10px;height:7px;border-radius:2px;background:#ffb347;filter:blur(3px);animation:wsGlow 2.2s ease-in-out infinite}
 .itemBar{display:flex;gap:10px;justify-content:center;margin:8px 0;min-height:0}
 .itemBtn{position:relative;font:inherit;color:#fff;background:#0004;border:2px solid #fff3;border-radius:14px;padding:3px 8px 3px 4px;display:flex;align-items:center;gap:2px;cursor:pointer}
-.itemBtn .magicSvg{width:34px;height:34px}.itemBtn b{font-size:.85rem}
+.itemBtn .magicSvg{width:38px;height:38px}.itemBtn .ibTxt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding-inline-end:4px}.itemBtn .ibTxt b{font-size:.9rem}.itemBtn .ibTxt small{font-size:.75rem;opacity:.9}
 .itemBtn.glow{border-color:#4aa8ff;box-shadow:0 0 12px #4aa8ff88;animation:itemGlow 2s ease-in-out infinite}.itemBtn.glow.v2{border-color:#ffd166;box-shadow:0 0 14px #ffd166aa}
 .itemBtn.used{opacity:.45;filter:grayscale(1)}@keyframes itemGlow{50%{box-shadow:0 0 5px #4aa8ff55}}
 @media (prefers-reduced-motion:reduce){.itemBtn.glow{animation:none}}
@@ -1267,6 +1267,7 @@ const STR = {
   manq_empty: ['No magic items yet. The artificer in the workshop can forge them.', 'עדיין אין חפצים קסומים. האומן בסדנה יכול לחשל אותם.'], take_on: ['✓ I take it', '✓ לוקחים'], take_off: ['Stays at home', 'נשאר בבית'],
   forge_stop: ['✖ Stop forging', '✖ להפסיק לחשל'], forge_stop_t: ['Stop forging?', 'להפסיק לחשל?'], forge_stop_b: ['Nothing is used and no coins are paid. You can forge it again later.', 'שום דבר לא נגמר ולא משלמים מטבעות. אפשר לחשל שוב אחר כך.'],
   forge_stop_yes: ['Stop', 'להפסיק'], forge_stop_no: ['Keep forging', 'להמשיך לחשל'],
+  tap_use: ['tap to use · {u} left', 'הקישו לשימוש · נשארו {u}'], auto_use: ['works by itself · {u} left', 'עובד לבד · נשארו {u}'], used_up_s: ['used in this quest', 'נוצל במסע הזה'], item_ready: ['{name} is ready! Tap it under the battle to use it.', '{name} מוכן! הקישו עליו מתחת לקרב כדי להשתמש בו.'],
   ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
@@ -4374,11 +4375,13 @@ const blankUses = () => ({ amulet: 0, staff: 0, belt: 0 });
 const itemOn = s => itemVer(s) > 0 && !(P.equip && P.equip[s] === false);
 const itemLeft = (q, s) => itemOn(s) ? Math.max(0, itemVer(s) - (((P.itemUses || {})[q] || {})[s] || 0)) : 0;   // epic = 1 use, legendary = 2
 function useItem(q, s) { P.itemUses = P.itemUses || {}; P.itemUses[q] = P.itemUses[q] || blankUses(); P.itemUses[q][s] = (P.itemUses[q][s] || 0) + 1; saveSoon(true); }
-function itemBarHtml(q, where) {   // small glowing icons for the items you wear; greyed out when their power is used up for this quest
+function itemBarHtml(q, where) {   // the items you take (the mannequin at Home): icon, name and uses left (owner, step 9: the icons alone were easy to miss); greyed out when their power is used up for this quest
   return MAGIC_SLOTS.filter(itemOn).map(s => { const left = itemLeft(q, s), m = MAGIC[s];
-    return `<button class="itemBtn ${left ? 'glow v' + itemVer(s) : 'used'}" data-item="${s}" data-where="${where}" aria-label="${t('uses_left', { name: nameOf(m), u: plural(left, 'uses_1', 'uses_n') })}">${magicPic(s, left ? itemVer(s) : 0)}<b>×${left}</b></button>`; }).join('');
+    return `<button class="itemBtn ${left ? 'glow v' + itemVer(s) : 'used'}" data-item="${s}" data-where="${where}" aria-label="${t('uses_left', { name: nameOf(m), u: plural(left, 'uses_1', 'uses_n') })}">${magicPic(s, left ? itemVer(s) : 0)}<span class="ibTxt"><b>${nameOf(m)}</b><small>${left ? t(s === 'amulet' ? 'auto_use' : 'tap_use', { u: plural(left, 'uses_1', 'uses_n') }) : t('used_up_s')}</small></span></button>`; }).join('');
 }
-function renderItemBar() { const e = $('#itemBar'); if (!e) return; const q = G.quest, on = (q === 'battle' || q === 'peace') && MAGIC_SLOTS.some(itemOn); e.style.display = on ? '' : 'none'; e.innerHTML = on ? itemBarHtml(q, 'fight') : ''; }
+function renderItemBar() { const e = $('#itemBar'); if (!e) return; const q = G.quest; const on = (q === 'battle' || q === 'peace') && MAGIC_SLOTS.some(itemOn); e.style.display = on ? '' : 'none'; e.innerHTML = on ? itemBarHtml(q, 'fight') : '';
+  if (on) { const s = MAGIC_SLOTS.find(s => s !== 'amulet' && itemOn(s) && itemLeft(q, s) && !(P.itemHint || {})[s]); if (s) { P.itemHint = P.itemHint || {}; P.itemHint[s] = true; saveSoon(); setTimeout(() => toast(t('item_ready', { name: nameOf(MAGIC[s]) })), 600); } }   // the first fight with a new item: point it out once
+}
 function itemTap(s, where) {
   const q = where === 'fight' ? G.quest : J.q, left = itemLeft(q, s), m = MAGIC[s];
   if (!left) { toast(t('used_up')); return; }
