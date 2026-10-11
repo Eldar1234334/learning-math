@@ -491,7 +491,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .workEx{background:#ffffff10;border-radius:12px;padding:8px 10px;margin:6px 0}.weEq{font-size:1.4rem;font-weight:700;margin:4px 0;direction:ltr}.weSvg{display:block;margin:6px auto;height:auto}.weJug{width:70px;margin:6px auto}
 @media (max-width:560px){.brewBench{grid-template-columns:1fr}.brewCaul{width:120px;margin:0 auto}}
 /* the checkout (step 8): the merchant's task, the counter, the coin tray; coins are a place-value model (copper 1, silver 10, gold 100) */
-.coin{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font:800 .62rem system-ui;color:#3a2610;margin:2px;box-shadow:inset 0 -3px 0 #0003,0 2px 3px #0006;vertical-align:middle}
+.coin{text-shadow:none;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font:800 .62rem system-ui;color:#3a2610;margin:2px;box-shadow:inset 0 -3px 0 #0003,0 2px 3px #0006;vertical-align:middle}
 .coin.c{background:radial-gradient(circle at 35% 30%,#f2b27a,#b8683a 60%,#8a4a24)}.coin.s{background:radial-gradient(circle at 35% 30%,#ffffff,#c9d1da 55%,#8e98a4);width:34px;height:34px}.coin.g{background:radial-gradient(circle at 35% 30%,#fff3b0,#ffd166 50%,#c79a22);width:38px;height:38px}
 .coin.sm{width:18px;height:18px;font-size:0;margin:0 3px 0 1px}.coin.big{transform:scale(1.25)}.coin.dim{opacity:.5;filter:grayscale(.3)}
 .wallet{font-size:1rem;white-space:nowrap}.ckRow{background:#ffffff10;border-radius:12px;padding:6px 10px;margin:6px 0;text-align:center}.ckRow small{display:block;opacity:.75}.ckRow .gap{display:inline-block;width:10px}
@@ -500,6 +500,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .ckItem{text-align:center}.ckItem .pic{font-size:3rem;line-height:1.1}.ckItem .pic svg{max-width:90px;height:auto}
 .ckTray{display:flex;gap:14px;justify-content:center;margin:8px 0}.ckCoinBtn{background:#ffffff18;border:1px solid #ffffff44;border-radius:14px;padding:10px 14px;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px}
 .coinB{background:none;border:0;padding:0;cursor:pointer}
+.ckMine{display:flex;align-items:center;gap:10px}.ckSum{background:#1b1238;border:2px solid #ffd166;border-radius:12px;padding:6px 12px;min-width:74px;text-align:center;font-variant-numeric:tabular-nums}.ckSum b{display:block;font-size:1.6rem;color:#ffd166}
 .cStack{display:inline-flex;flex-direction:column;align-items:center;vertical-align:bottom;margin:0 6px}.cStack .coinB{position:relative;width:40px;height:62px}.cStack .coinB i{position:absolute;left:3px;bottom:calc(var(--i)*4px);display:block;line-height:0}.cStack .coinB .coin{margin:0;box-shadow:0 2px 0 #0005}
 .swapB{margin-top:3px;font:700 .8rem system-ui;background:#ffd166;color:#3a2610;border:0;border-radius:9px;padding:3px 7px;cursor:pointer}.ckHelpNote{text-align:center;opacity:.85;margin:4px 0}.ckOpts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:420px;margin:8px auto}
 .saleTag{display:inline-block;background:#e5546b;color:#fff;border-radius:8px;padding:1px 6px;margin-inline-start:4px;font-size:.8em;font-weight:700}
@@ -871,7 +872,6 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div id="shFront"></div>
     <div class="rVig"></div>
   </div>
-  <div class="rBar" style="justify-content:center;flex-wrap:wrap"><button class="btn ghost" id="shBtnPots"><span class="potIco"></span> <span data-t="potions"></span></button><button class="btn ghost" id="shBtnWear" data-t="wear_btn"></button></div>
   <section class="rPanel" id="shopPanel" hidden></section>
   <div class="small center" style="opacity:.7;margin:10px 0" data-t="shop_foot"></div>
 </section>
@@ -1232,6 +1232,7 @@ const STR = {
   ph_split: ['{a} in {b} equal handfuls. Put in one handful.', '{a} ב-{b} חופנים שווים. שימו חופן אחד.'], ph_whole: ['Each of {b} bottles got {a}. Put in all of it.', 'כל אחד מ-{b} בקבוקים קיבל {a}. שימו את הכול.'], ph_calc: ['Measure {x}', 'מדדו {x}'],
   brew_fail_t: ['💨 The brew failed', '💨 הבישול נכשל'], brew_lost: ['🔥 The ingredients were lost in the smoke.', '🔥 המרכיבים אבדו בעשן.'], brew_kept: ['🍀 Lucky! Your ingredients are safe.', '🍀 מזל! המרכיבים שמורים.'], brew_again: ['Try again 🫕', 'שוב 🫕'],
   pots_ready_b: ['<b>{n} × {name}</b> added to your shelf at Home.', '<b>{n} × {name}</b> נוספו למדף בבית.'],
+  ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
   robes_t: ['🧥 Robes', '🧥 גלימות'], accs_t: ['🎩 Accessories', '🎩 אביזרים'],
@@ -4556,12 +4557,10 @@ function renderShopPanel() {
 function openShop() {
   G.quest = null; show('shop'); shopPanel = null;
   $('#shopCoins').textContent = Math.floor(P.coins || 0); $('#shopWallet').innerHTML = walletHtml(P.coins);
-  $('#shBtnPots .potIco').innerHTML = potionSVG('any'); renderShop(); renderShopPanel();
+  renderShop(); renderShopPanel();
   if (P.shopNote) { const n = P.shopNote; P.shopNote = null; saveSoon(true); setTimeout(() => toast(n), 400); }
 }
 $('#shopBack').onclick = () => { saveSoon(true); openMenu(); };
-$('#shBtnPots').onclick = () => { shopPanel = shopPanel === 'pots' ? null : 'pots'; renderShopPanel(); if (shopPanel) $('#shopPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
-$('#shBtnWear').onclick = () => { shopPanel = shopPanel === 'wear' ? null : 'wear'; renderShopPanel(); if (shopPanel) $('#shopPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
 $('#shop').onclick = e => {
   if (e.target.closest('[data-close]')) { shopPanel = null; renderShopPanel(); return; }
   const w = e.target.closest('[data-panel]'); if (w) { shopPanel = shopPanel === w.dataset.panel ? null : w.dataset.panel; renderShopPanel(); if (shopPanel) $('#shopPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
@@ -4642,7 +4641,7 @@ function stackPile(k, n, coins) {   // the student's coins of one kind: stacks o
 }
 function trayHtml(coins) {   // the student's coins on the counter and the coin buttons
   const mine = ['g', 's', 'c'].map(c => stackPile(c, CKS.added[c], coins)).join('');
-  return { counter: `<div class="ckRow"><small>${t('ck_yours')}</small><div>${mine || '<span class="small" style="opacity:.6">…</span>'}</div></div>`,
+  return { counter: `<div class="ckRow ckMine"><div class="grow"><small>${t('ck_yours')}</small><div>${mine || '<span class="small" style="opacity:.6">…</span>'}</div></div><div class="ckSum" aria-live="polite"><small>${t('ck_sum')}</small><b dir="ltr">${ckAdded()}</b>🪙</div></div>`,   // the sum on a side display (owner, step 8)
     input: `<div class="ckTray">${coins.slice().reverse().map(c => `<button class="ckCoinBtn" data-add="${c}">${coinHtml(c, 'big')}<small>${t('coin_' + c)}</small></button>`).join('')}</div>` };
 }
 function renderCheckout() {

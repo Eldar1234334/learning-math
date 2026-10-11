@@ -488,3 +488,9 @@ Every spell was shown in the browser one family at a time; your comments were bu
 2. A "10 off" item: the merchant asks you to work out the sale price. Tap **Use the coin tray (help)**, put 12 copper: a stack of 10 with ⇄; tap it for 1 silver.
 3. Answer wrong a few times: sometimes the merchant keeps a fee.
 4. Buy two things in a row: the second checkout starts clean.
+
+### Step 8, round 3 (after your check)
+- **Your decision:** the coin-tray help counts ¼ toward moving up and gives 1 XP less: approved.
+- The Potions / Robes and accessories buttons under the shop room are gone: the potion shelves, the wardrobe and the mannequin open the lists.
+- Coin tray: the numbers on the coins have no shadow; a side display shows the sum on the tray ("On the tray: 23 🪙").
+- **Waiting for you:** a picture of the shop with **empty middle shelves** (and maybe no merchant). It will be the whole shop room: the wardrobe, the mannequin and the potion shelves are tap areas, and today's items stand on the shelf tags.
