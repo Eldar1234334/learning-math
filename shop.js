@@ -114,7 +114,8 @@
   const bandOf = L => BANDS.reduce((r, x) => L >= x[0] ? x[1] : r, BANDS[0][1]);
   // o: { mlvl, price, qty, sale, bal, rnd, t (a task to repeat after the worked example) } → a task (with .L, the level it came from)
   function task(o) {
-    const rnd = o.rnd || Math.random, L0 = easy(o.mlvl), qty = Math.max(1, o.qty || 1), unit = o.sale ? o.sale.pay : o.price;
+    const rnd = o.rnd || Math.random, L0 = o.L || easy(o.mlvl),   // o.L: a given level (the Artificer's legendary payment is at the current level)
+      qty = Math.max(1, o.qty || 1), unit = o.sale ? o.sale.pay : o.price;
     const c = { price: o.price, qty, unit, pay: qty * unit, sale: o.sale, bal: Math.floor(o.bal || 0), rnd };
     for (let L = L0; L >= 1; L--) {
       let names = bandOf(L).slice(); if (L === L0 && L >= 3 && L <= 4 && rnd() < .5) names.reverse(); if (c.sale && c.sale.kind === 'off' && (c.qty === 1 || L > 7)) names.unshift('saleOff');

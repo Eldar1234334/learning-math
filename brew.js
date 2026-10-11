@@ -27,7 +27,9 @@
     sound: { caul: 0, herbs: 1, rare: [1] },
     power: { caul: 1, herbs: 1, rare: [1, 1] },
     second: { caul: 1, herbs: 1, rare: [1, 2] },
-    super: { caul: 2, herbs: 1, rare: [3, 3, 4] }
+    super: { caul: 2, herbs: 1, rare: [3, 3, 4] },
+    forge1: { caul: 0, herbs: 2, rare: [3] },       // the Artificer's blueprint for an epic item (spec 04 §5.2): 1 epic ingredient + herb lines + a liquid
+    forge2: { caul: 0, herbs: 2, rare: [4, 3], multi: true }   // the legendary upgrade: 1 legendary + 1 epic ingredient, at the current level, with a multi-step line
   };
   const LIQUIDS = ['spring', 'moon', 'oil'];
   const easy = mlvl => Math.max(1, mlvl - 1);
@@ -90,7 +92,7 @@
   }
   // owned: { herbId: count } (common ingredients); returns { L, batch, lines } or null when the student lacks herbs
   function recipe(o) {
-    const rnd = o.rnd || Math.random, R = RECIPES[o.potion], L = easy(o.mlvl), b = Math.max(1, Math.min(o.batch || 1, CFG.BATCH_MAX)), avoid = new Set(o.avoid || []);
+    const rnd = o.rnd || Math.random, R = RECIPES[o.potion], L = o.L || easy(o.mlvl), b = Math.max(1, Math.min(o.batch || 1, CFG.BATCH_MAX)), avoid = new Set(o.avoid || []);
     const herbs = Object.keys(o.owned).filter(id => o.owned[id] >= CFG.MIN_HERB_LINE).sort((x, y) => o.owned[y] - o.owned[x] || (rnd() < .5 ? -1 : 1));
     if (herbs.length < R.herbs) return null;
     const ratio = b === 1 && L >= CFG.RATIO_FROM && rnd() < CFG.RATIO_CHANCE;   // one ratio line in some recipes (single potions)
@@ -105,7 +107,21 @@
     let lq = null;
     if (ratio && R.herbs === 1) { const q = ratioLine(ME.num(lines[0].amount), L, 20000, rnd, 'liquid'); if (q) lq = Object.assign({ kind: 'liquid', ratio: lines[0].herb, liquid: LIQUIDS[Math.floor(rnd() * LIQUIDS.length)], scale: jugScale(q.amount) }, q); }
     if (!lq) lq = liquidLine({ L, rnd, avoid }); if (lq) lines.push(lq);
+    if (R.multi) { const sc = scaleLine(L, rnd); if (sc) lines.push(sc); }   // the legendary recipe: "3 times the epic recipe, plus ¼ of it more"
     return { L, batch: b, lines };
+  }
+  // The legendary upgrade's multi-step line (spec 04 §5.2): "The legendary item needs k times the epic recipe's E drops, plus m more" (or "plus ¼ of it more" at the fraction levels; twice E plus m below multiplication)
+  function scaleLine(L, rnd = Math.random) {
+    const r = n => Math.floor(rnd() * n), max = L <= 1 ? 5 : L <= 4 ? 10 : L <= 6 ? 20 : L <= 16 ? 100 : 1000;
+    for (let t = 0; t < 60; t++) {
+      let E, k, a, e, ops;
+      if (L >= 22) { const [n, d] = [[1, 2], [1, 4], [3, 4], [1, 3], [2, 3], [1, 5]][r(6)]; k = 2 + r(3); E = d * (2 + r(6)); a = k * E + E * n / d; e = `${k} × ${E} + {of:[${n}/${d}]|${E}}`; ops = { E, k, n, d }; }
+      else if (L >= 11) { k = 2 + r(4); E = 2 + r(L >= 17 ? 90 : 14); const m = 1 + r(L >= 17 ? 60 : 9); a = k * E + m; e = `${k} × ${E} + ${m}`; ops = { E, k, m }; }
+      else { E = 1 + r(Math.max(1, Math.floor(max / 3))); const m = 1 + r(Math.max(1, Math.floor(max / 4))); a = 2 * E + m; e = `${E} + ${E} + ${m}`; ops = { E, k: 2, m }; }
+      if (a < 2 || a > (L >= 22 ? 400 : max)) continue;
+      const v = ME.I(a); return { kind: 'liquid', liquid: 'moon', amount: v, scale: jugScale(v), p: { lv: L, e, a: v, key: 'scale ' + e, form: 'scale', ops } };
+    }
+    return null;
   }
   // The rare items for a batch (the student's feedback, step 7): each potion needs its slots filled with different items of the slot's rarity.
   // The chosen items are used first (once per potion); when one runs short, other items of the same rarity fill in, so the batch size stays.
@@ -129,6 +145,6 @@
   // the student's amounts → which lines are right
   const check = (lines, amounts) => lines.map((ln, i) => !!amounts[i] && ME.eq(amounts[i], ln.amount));
 
-  const BR = { CFG, RECIPES, LIQUIDS, easy, lossChance, dropUnits, levelFor, herbLine, ratioLine, liquidLine, jugScale, recipe, rarePlan, maxBatch, check };
+  const BR = { CFG, RECIPES, LIQUIDS, easy, lossChance, dropUnits, levelFor, herbLine, ratioLine, liquidLine, scaleLine, jugScale, recipe, rarePlan, maxBatch, check };
   if (typeof module === 'object' && module.exports) module.exports = BR; else root.BR = BR;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

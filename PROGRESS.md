@@ -426,7 +426,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 
 ---
 
-## Step 8: The shop ✅ (on the test site, waiting for your check)
+## Step 8: The shop ✅ (checked by the owner)
 
 **Goal:** spec 04 §4. Buying is the math: to buy, the student answers the merchant's checkout task, and pays the real price.
 
@@ -466,7 +466,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 4. Demo level 24: look for the red 🏷️ sale tags; buy a sale item: "⅕ off".
 5. Demo level 29 and 35: prices in silver with decimals; percent sales.
 
-### Step 8, round 2 (after your check) ✅ (on the test site, waiting for your check)
+### Step 8, round 2 (after your check) ✅ (checked by the owner)
 
 **Your decisions:** the coins already on the counter at the counting levels are good (the tray makes the difference); the level 24 coupon is approved; real balance and several potions stay as built.
 
@@ -508,3 +508,35 @@ Every spell was shown in the browser one family at a time; your comments were bu
 1. Switch to Hebrew in the shop: the sign says חנות.
 2. Shop → tap the book on the counter: the furniture catalog. Buy a couch.
 3. Home: the couch is in the room; drag it around.
+
+---
+
+## Step 9: The Artificer ✅ (on the test site, waiting for your check)
+
+**Goal:** spec 04 §5: forging a magic item = a recipe (the blueprint) + a payment.
+
+**What changed**
+- **The workshop opens at wizard level 8** (it was math level 8), with the same "💡 A light in the window!" moment.
+- **Forging has two steps:**
+  1. **The blueprint** on the brewing screen ("Step 1 of 2"): the chosen rare ingredients, two herb lines and a liquid line, measured with the jars and the jug. Right: the item glows over the cauldron.
+  2. **The payment** at the counter with the artificer ("Step 2 of 2"): a checkout task for the price, with the coin tray or answer buttons, the fee and the help, like the shop.
+- **Nothing is used up and no coins are paid until both steps are done.** A wrong blueprint: the worked example and the brewing loss rule (the ingredients may be lost; the coins never are).
+- **Epic item** (150 coins): 1 epic ingredient + herb lines + a liquid, at the easy step; the payment at the easy step.
+- **Legendary upgrade** (300 coins): 1 legendary + 1 epic ingredient, at the student's **current** level, with a **multi-step line**:
+  - from the fraction levels: "The legendary item needs 3 times the epic recipe's 12 drops, plus ¼ of it more."
+  - from multiplication: "…4 times the epic recipe's 9 drops, plus 6 more."
+  - before multiplication: "The epic recipe had 26 drops. The legendary item needs it twice, plus 18 more."
+  - The payment is at the current level, with **a discount for a returning customer** (its form follows the level like the shop's sales: 5/10 off, ½ price, ⅓ off, 25% off…): "A discount for a returning customer! The legendary amulet costs 300, 25% off. How much do you pay?"
+- The old placeholder question screen for crafting and forging is removed.
+- **Tests:** 1 new test (110 in all): epic blueprints at the easy step, legendary at the current level with a right multi-step line.
+
+**My proposals (please approve or change)**
+1. The epic blueprint keeps the reading game's ingredients (1 epic + common), where the common ones are the herb lines; the legendary one is 1 legendary + 1 epic.
+2. If the student leaves during the payment, nothing is lost, and the blueprint has to be made again.
+3. The returning customer's discount uses the shop's sale forms at the current level.
+
+**How to check**
+1. Teacher area → demo → wizard level 7, then 8: the workshop lights up.
+2. Workshop → Make (you need an epic ingredient such as ⭐ Star, herbs and 150 coins): the blueprint, then the payment.
+3. After it is made: Upgrade (a legendary ingredient such as 💎 Diamond + an epic one + 300 coins): the multi-step line and the returning customer's discount.
+4. Make a wrong blueprint on purpose: the smoke and the loss roll; your coins stay.

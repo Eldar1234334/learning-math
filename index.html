@@ -978,7 +978,7 @@ const CFG = {
   BOSS_MIN: 3, BOSS_MAX: 5, // a boss / big request pays the normal amount times a random number between these
   EARLY_MULT: 2,            // coins are doubled during the first 10 minutes of play each day
   ODDS_NORMAL: [60, 30, 10], ODDS_BOSS: [60, 30, 10],   // chance (%) of common/uncommon/rare in normal fights; rare/epic/legendary in boss fights
-  POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
+  POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, WORKSHOP_WIZ: 8,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
     // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
   MAX_LEVEL: 36,            // the math ladder; moving up and down follows spec 01 §6 (the rules are in math.js: ME.RULES)
@@ -1242,6 +1242,16 @@ const STR = {
   brew_fail_t: ['💨 The brew failed', '💨 הבישול נכשל'], brew_lost: ['🔥 The ingredients were lost in the smoke.', '🔥 המרכיבים אבדו בעשן.'], brew_kept: ['🍀 Lucky! Your ingredients are safe.', '🍀 מזל! המרכיבים שמורים.'], brew_again: ['Try again 🫕', 'שוב 🫕'],
   pots_ready_b: ['<b>{n} × {name}</b> added to your shelf at Home.', '<b>{n} × {name}</b> נוספו למדף בבית.'],
   furn_t: ['🛋️ Furniture', '🛋️ רהיטים'], furn_tip: ['Big things for your room at Home. Drag them where you like.', 'דברים גדולים לחדר שלכם בבית. גוררים אותם לאן שרוצים.'],
+  forge_note2: ['🪙 {c} coins. First the blueprint (a recipe), then you pay the artificer. Nothing is used up until both are done. A wrong blueprint may lose the ingredients ({p}%).', '🪙 {c} מטבעות. קודם התוכנית (מתכון), ואחר כך משלמים לאומן. שום דבר לא נגמר עד ששניהם מוכנים. תוכנית שגויה עלולה לאבד את המרכיבים ({p}%).'],
+  forge_sub: ['Step 1 of 2: the blueprint. Measure each line. Math: {lvl}', 'שלב 1 מתוך 2: התוכנית. מדדו כל שורה. חשבון: {lvl}'], blueprint_t: ['Blueprint', 'תוכנית'],
+  bp_ok_t: ['✨ The blueprint works!', '✨ התוכנית עובדת!'], bp_ok_b: ['Step 2 of 2: pay the artificer for <b>{name}</b>.', 'שלב 2 מתוך 2: משלמים לאומן על <b>{name}</b>.'], bp_pay: ['Pay 🪙', 'לשלם 🪙'],
+  ck_sub_ws: ['Step 2 of 2: the payment. Math: {lvl}', 'שלב 2 מתוך 2: התשלום. חשבון: {lvl}'],
+  ck_loyal_pre: ['A discount for a returning customer: {p}, {tag}!', 'הנחה ללקוחות חוזרים: {p}, {tag}!'],
+  ck_loyal: ['A discount for a returning customer! {n} costs {p}, {tag}. How much do you pay?', 'הנחה ללקוחות חוזרים! {n} עולה {p}, {tag}. כמה משלמים?'],
+  ck_loyal_tray: ['A discount for a returning customer! {n} costs {p}, {tag}. Put the price on the counter.', 'הנחה ללקוחות חוזרים! {n} עולה {p}, {tag}. שימו את המחיר על הדלפק.'],
+  lq_scale: ['The legendary item needs {k} times the epic recipe\'s {e} {u}, plus {m} more.', 'הפריט האגדי צריך פי {k} מה-{e} {u} של המתכון האפי, ועוד {m}.'],
+  lq_scale_f: ['The legendary item needs {k} times the epic recipe\'s {e} {u}, plus {f} of it more.', 'הפריט האגדי צריך פי {k} מה-{e} {u} של המתכון האפי, ועוד {f} מהם.'],
+  lq_scale_2: ['The epic recipe had {e} {u}. The legendary item needs it twice, plus {m} more.', 'במתכון האפי היו {e} {u}. הפריט האגדי צריך פעמיים כך, ועוד {m}.'],
   ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
@@ -1919,7 +1929,7 @@ const PLACES = { gate: { say: 'שער', door: [76, 52] }, board: { say: 'לוח'
 let walking = false;
 function tinker() { try { [0, .13, .3, .42, .6].forEach((d, i) => tone(i % 2 ? 520 : 380, .07, 'triangle', .05, d)); } catch (e) {} }   // a gentle tinkering from inside the shuttered workshop
 function workshopState() {   // the fifth place: shuttered until level 8, then it lights up (with a short celebration the first time)
-  const b = $('#placeWork'), open = P.mlvl >= 8;
+  const b = $('#placeWork'), open = wizLvl() >= CFG.WORKSHOP_WIZ;   // spec 04 §5.1: wizard level 8
   b.classList.toggle('shut', !open); b.querySelector('.pIcon').textContent = open ? '⚒️' : '🏚️';
   b.querySelector('.sign').innerHTML = open ? `<b>${t('pl_work')}</b><small>${t('pl_work_d')}</small>` : `<b>?</b><small>${t('pl_shut')}</small>`;
   if (open && !P.ws.on) { P.ws.on = true; saveSoon(true); setTimeout(() => { sfx.win(); confetti(['🛠️', '✨', '💡', '🔮']); modal(t('ws_light_t'), `<p style="text-align:center;font-size:3rem;margin:4px">⚒️</p><p style="text-align:center">${t('ws_light_b')}</p>`, [[t('go_ws'), () => walkTo('work')], [t('later'), null, true]]); }, 600); }
@@ -1963,7 +1973,7 @@ document.querySelectorAll('.place').forEach(b => b.onclick = () => walkTo(b.data
 })();
 $('#logoutBtn').onclick = async () => { saveSoon(true); await sleep(300); P = null; $('#sid').value = ''; show('login'); };
 $('#menuMute').onclick = $('#muteBtn').onclick = () => setMute(!muted);
-$('#homeBtn').onclick = () => { saveSoon(true); G.quest === 'craft' ? openHome() : G.quest === 'forge' ? openWorkshop() : openMenu(); };
+$('#homeBtn').onclick = () => { saveSoon(true); openMenu(); };
 
 /* ====================== QUESTIONS ====================== */
 // Question: {kind:'choice', title(), sub(), big, bigSm, p (the engine's problem), src, options:[{html,cls,ok,fx,em,note()}], key, explain()}.
@@ -1984,7 +1994,6 @@ function makeQ() {   // a fight: the student's own level, with review cards and 
   return mathQ(p, () => t('mq_vill_t', { name: G.fname || '' }), () => t('mq_pick'));
 }
 // Brewing, the shop and the workshop use the easy step: one level below the student's (spec 01 §7). Their answers count with the 'craft' weight.
-const craftProblem = () => Object.assign({}, ME.next(Math.max(1, P.mlvl - 1), { facts: P.mfacts, avoid: recentSet(), noReview: true }), { src: 'craft' });
 
 /* ====================== MONSTER ARTWORK ====================== */
 // 14 monsters and 6 bosses drawn as cute-spooky animated characters (140x140 SVG). Reused from the approved preview.
@@ -2850,13 +2859,10 @@ function fightHeader() {   // the monster's name and HP, the area, and the weakn
 // A language switch during a fight, brewing, forging or shopping: the same question and state, new words.
 function relabelGame() {
   if (G.quest === 'battle' && G.mon) { fightHeader(); updateBars(); renderPotBar(); renderItemBar(); if (G.phase === 'pick') renderCards(); else if (G.phase === 'say') renderSay(); return; }
-  else if (G.quest === 'craft') { craftHeader(); craftNote(); }
-  else if (G.quest === 'forge') forgeHeader();
   const q = G.q; if (q) { $('#qTitle').textContent = q.title(); $('#qSub').textContent = q.sub(); $('#qBig').innerHTML = q.big ? exprHtml(q.big) : ''; }
   updateBars(); renderPotBar(); renderItemBar();
 }
 function updateBars() {
-  if (inCraft()) return;
   const b = G.quest === 'battle';
   if (b && G.st) {   // the wizard's HP bar (it replaces the hearts) and the monster's
     const h = G.st.hero, hp = G.heroShown != null ? G.heroShown : h.hp, pc = Math.max(0, hp) / h.max * 100;   // during the monsters' turn the bar follows the hits one by one
@@ -2884,7 +2890,7 @@ function nextQuestion() { G.q = makeQ(); G.lastKey = G.q.lastKey; G.noCount = fa
 function showQuestion() {   // draws G.q (a Second chance potion draws the same question again)
   $('#abandonBtn').style.display = (G.quest === 'battle' || G.quest === 'peace') ? '' : 'none';
   if (G.quest === 'peace') { renderTray(); setMood(G.helped ? '🙂' : '😟'); }
-  if (!inCraft()) { const cp = $('#craftPic'); if (cp) cp.style.display = 'none'; }   // the ingredient picture belongs to brewing and the shop only
+  { const cp = $('#craftPic'); if (cp) cp.style.display = 'none'; }
   G.locked = false; G.tries = 0; renderPotBar(); renderItemBar();
   const q = G.q;
   $('#qTitle').textContent = q.title();
@@ -3553,7 +3559,6 @@ function undoLastCast() {
 /* ----- answering ----- */
 async function pickOption(i, btn) {
   if (G.locked) return;
-  if (inCraft()) return craftPick(i, btn);
   const q = G.q, o = q.options[i], first = G.tries === 0, battle = G.quest === 'battle';
   G.tries++;
   if (o.ok) {
@@ -3631,7 +3636,6 @@ const inVillage = () => G.quest === 'peace';
 const pName = id => t('pot_' + id);
 const pDesc = id => t('pot_' + id + '_d');
 const pBoth = id => t('pot_name', { n: pName(id) });   // "Heart potion" / "שיקוי לב"
-function inCraft() { return G.quest === 'craft' || G.quest === 'forge'; }   // the question screen is also used for crafting (the shop has its own checkout screen)
 const STARTER_POTIONS = { heart: 2, sound: 2, power: 2, second: 2 };   // a free gift for every student; more come from crafting and the shop
 const carried = () => POTION_IDS.reduce((a, id) => a + ((P.carry || {})[id] || 0), 0);
 const athome = () => POTION_IDS.reduce((a, id) => a + ((P.pot || {})[id] || 0), 0);
@@ -3668,7 +3672,7 @@ function openPack(onStart) {   // before a quest run: choose up to POUCH potions
   render();
 }
 function renderPotBar() {
-  const bar = $('#potBar'); if (!bar || !P) return; if (inCraft()) { bar.style.display = 'none'; return; }
+  const bar = $('#potBar'); if (!bar || !P) return;
   const ids = POTION_IDS.filter(id => (P.carry[id] || 0) > 0);
   bar.style.display = ids.length ? '' : 'none';
   bar.innerHTML = ids.map(id => `<button class="potBtn" data-id="${id}" ${G.potUsed ? 'disabled' : ''} title="${pBoth(id)}: ${pDesc(id)}">${potionSVG(id)}<i class="potSym">${POTIONS[id].em}</i><b>×${P.carry[id]}</b></button>`).join('') +
@@ -4050,7 +4054,7 @@ $('#home').onclick = e => {
   if (jr) { const g = ING[jr.dataset.ing]; toast(`${g.em} ${nameOf(g)}`); playSound({ say: g.he }); jr.classList.remove('pop'); void jr.offsetWidth; jr.classList.add('pop'); }
 };
 $('#homeBack').onclick = () => { saveSoon(true); openMenu(); };
-$('#brewBack').onclick = () => { saveSoon(true); openHome(); }; $('#brewGo').onclick = brewGo;
+$('#brewBack').onclick = () => { saveSoon(true); BW && BW.forge ? openWorkshop() : openHome(); }; $('#brewGo').onclick = brewGo;
 /* ----- brewing (spec 04 §3, step 7): a recipe card at the easy step; the student measures each line with the jars (herbs) and the jug (a free liquid), then brews.
    Each herb and liquid line is one scored answer (½ up, 1 down). All right: the potion(s), +3 XP per line. A wrong line: a worked example, and the ingredients may be lost (spec 03 §6.4). ----- */
 // the potion's rare items: the student chooses which one for each slot; from the multiplication levels also how many potions (a batch)
@@ -4108,6 +4112,7 @@ function liquidText(ln) {
   let key = LQ_KEY[p.form];
   if (key === 'lq_of') return t(key, { x: ltrX(p.e), u });
   if (p.form === '=□/n') { const m = p.e.match(/^(\S+) = \[□\/(\d+)\]$/); if (m) return t('lq_scoop', { a: exprHtml(m[1]), b: exprHtml(`[1/${m[2]}]`) }); }
+  if (p.form === 'scale') return o.d ? t('lq_scale_f', { k: o.k, e: o.E, f: exprHtml(`[${o.n}/${o.d}]`), u }) : p.e.includes('×') ? t('lq_scale', { k: o.k, e: o.E, m: o.m, u }) : t('lq_scale_2', { e: o.E, m: o.m, u });   // the legendary multi-step line
   if (p.form === 'k÷a/n' || p.form === 'a/m÷b/n') return t('lq_scoops', { a: exprHtml(sides[0]), b: exprHtml(sides[1]) });
   if (!key || (o.fa && sides.length !== 2)) return t('lq_calc', { x: ltrX(p.e), u });
   let [a, b] = o.fa ? sides.map(s => exprHtml(s)) : [o.a, o.b];
@@ -4118,9 +4123,10 @@ function liquidText(ln) {
 }
 function renderBrew() {
   if (!BW) return; const { r } = BW;
-  $('#brewTitle').innerHTML = `${POTIONS[BW.potion].em} ${pBoth(BW.potion)}${BW.batch > 1 ? ` ×${BW.batch}` : ''}`;
-  $('#brewSub').textContent = t('brew_sub', { lvl: levelLbl(r.L) });
-  $('#recipeCard').innerHTML = `<h3>📜 ${t('recipe_t')}</h3>` +
+  $('#brewTitle').innerHTML = BW.forge ? `${magicIcon(BW.forge.slot)} ${nameOf(MAGIC[BW.forge.slot])} · ${verName(BW.forge.v)}` : `${POTIONS[BW.potion].em} ${pBoth(BW.potion)}${BW.batch > 1 ? ` ×${BW.batch}` : ''}`;
+  $('#brewRecipes').hidden = !!BW.forge;
+  $('#brewSub').textContent = t(BW.forge ? 'forge_sub' : 'brew_sub', { lvl: levelLbl(r.L) });
+  $('#recipeCard').innerHTML = `<h3>📜 ${t(BW.forge ? 'blueprint_t' : 'recipe_t')}</h3>` +
     Object.entries(BW.use).map(([id, n]) => `<div class="rcLine fixed">${ING[id].em} <b>${nameOf(ING[id])}</b> × ${n} <small>${t('rc_fixed')}</small></div>`).join('') +
     (Object.keys(BW.use).some(id => !BW.rare.includes(id)) ? `<div class="rcLine fixed"><small>♻️ ${t('rc_sub')}</small></div>` : '') +
     r.lines.map((ln, i) => `<div class="rcLine${BW.res ? (BW.res[i] ? ' ok' : ' bad') : ''}">${BW.res ? (BW.res[i] ? '✅ ' : '❌ ') : ''}${lineHead(ln)}: ${lineText(ln)}</div>`).join('');
@@ -4134,7 +4140,7 @@ function renderBrew() {
       <div class="bjBtns">${steps.map(([u, lbl]) => `<button class="jbtn" data-i="${i}" data-d="${-u}" dir="ltr">−${lbl}</button><button class="jbtn" data-i="${i}" data-d="${u}" dir="ltr">+${lbl}</button>`).join('')}</div></div>`;
   }).join('');
   $('#brewGo').textContent = t('brew_go'); $('#brewGo').disabled = BW.done;
-  if (!$('#brewCaul .steam')) $('#brewCaul').innerHTML = `<span class="aura"></span>${cauldronArt(P.own.caul || 0)}<span class="steam"><i></i><i style="--sw:-10px"></i><i style="--sw:14px"></i></span>`;
+  if (!$('#brewCaul .steam')) $('#brewCaul').innerHTML = `<span class="aura"></span>${cauldronArt(BW.forge ? 2 : P.own.caul || 0)}<span class="steam"><i></i><i style="--sw:-10px"></i><i style="--sw:14px"></i></span>`;
 }
 let jugSeq = 0;
 function jugSvg(fill, ln) {   // a glass jug with a scale; the liquid rises with the amount
@@ -4163,6 +4169,10 @@ async function brewGo() {
   r.lines.forEach((ln, i) => { P.craft.n++; if (res[i]) P.craft.ok++; after(record({ key: ln.p.key, p: Object.assign({}, ln.p, { lv: Math.min(ln.p.lv || r.L, r.L) }), src: 'craft' }, res[i])); });   // each line: one scored answer (craft weight)
   const cau = $('#brewCaul'); BW.done = true; $('#brewGo').disabled = true; cau.classList.add('brewing'); await sleep(1100); cau.classList.remove('brewing');
   const useUp = () => { r.lines.forEach((ln, i) => { if (ln.kind === 'herb') P.inv[ln.herb] = Math.max(0, (P.inv[ln.herb] || 0) - BW.k[i]); }); Object.entries(BW.use).forEach(([id, n]) => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - n); }); };
+  if (res.every(Boolean) && BW.forge) {   // a right blueprint: the item glows over the cauldron; nothing is used up before the payment
+    const xp = BR.CFG.XP_LINE * r.lines.length; P.xp += xp; saveSoon(true); sfx.win();
+    cau.insertAdjacentHTML('beforeend', `<span class="potRise" style="width:56px">${magicPic(BW.forge.slot, BW.forge.v)}</span>`); burst('✨', 12, cau); await sleep(1500); forgeBlueprintOk(); return;
+  }
   if (res.every(Boolean)) {   // the potion(s) rise out of the cauldron
     useUp(); const xp = BR.CFG.XP_LINE * r.lines.length; P.pot[BW.potion] = (P.pot[BW.potion] || 0) + BW.batch; P.xp += xp; saveSoon(true);
     sfx.win(); cau.insertAdjacentHTML('beforeend', `<span class="potRise"><span class="packBottle">${potionSVG(BW.potion)}<i>${POTIONS[BW.potion].em}</i></span></span>`); burst('🫧', 12, cau);
@@ -4176,6 +4186,9 @@ async function brewGo() {
   cau.insertAdjacentHTML('beforeend', `<span class="smokePuff">${[[-40, -70], [0, -95], [40, -70], [-20, -40], [25, -45]].map(([x, y], k) => `<i style="--dx:${x}px;--dy:${y}px;animation-delay:${k * .12}s"></i>`).join('')}</span>`);
   if (lost) useUp(); saveSoon(true); await sleep(1400);
   const ex = r.lines.map((ln, i) => res[i] ? '' : `<div class="workEx"><div>${lineHead(ln)}: ${lineText(ln)}</div><div class="weEq">${exprHtml(ln.p.e, ln.amount)} ${ln.kind === 'liquid' ? t('u_' + ln.scale.unit) : ''}</div>${workModel(ln)}<div class="small">${t('you_put', { x: ME.fmtHtml(vals[i]) })}</div></div>`).join('');
+  if (BW.forge) {   // a wrong blueprint: try again (a new blueprint) or back to the workshop
+    const F = BW.forge; modal(t('brew_fail_t'), ex + `<p>${t(lost ? 'brew_lost' : 'brew_kept')}</p>`, [[t('brew_again'), () => { BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), 1) && !wsWhy(F.slot) ? startForgeBrew(F.slot, BW.rare) : openWorkshop(); }], [t('back_ws'), openWorkshop, true]]); return;
+  }
   modal(t('brew_fail_t'), ex + `<p>${t(lost ? 'brew_lost' : 'brew_kept')}</p>`, [[t('brew_again'), () => { const ok = BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), BW.batch) || BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), 1); ok ? startBrew(BW.potion, BW.rare, BW.batch) : toRecipes(); }], [t('back_recipes'), toRecipes], [t('back_home'), openHome, true]]);
 }
 // the picture model of a worked example (spec 04 §1): dots for small sums, an array for multiplication, groups for division, a bar for fractions, the jug for liquids
@@ -4201,64 +4214,6 @@ function workModel(ln) {
   return ln.kind === 'liquid' ? `<div class="weJug">${jugSvg(Math.min(1, ME.num(A) / ln.scale.max), ln)}</div>` : '';
 }
 
-/* ----- brewing: one question per ingredient. Mistakes cost nothing; the student just tries again. ----- */
-function startCraft(potion, ings) {
-  G.quest = 'craft'; G.craft = { potion, ings, i: 0, done: [] }; G.sess = 0; G.combo = 0; G.potUsed = true; G.snap = null; G.noCount = false;
-  show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted);
-  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt'); fxStatus();
-  $('#foeBody').className = 'foeBody'; $('#foeBody').style.filter = 'drop-shadow(0 0 12px #ffd16688)'; $('#foeBody').textContent = '🫕';
-  craftQuestion();
-}
-// One question for brewing (an ingredient), the shop (an item) and the workshop. The item's picture is shown above it.
-// For now a placeholder math problem one level below the student's level (spec 01 §7); the real recipe, money and forging tasks come in phases 7-9.
-const itemEm = x => x.magic ? magicIcon(x.id) : (x.kind === 'wear' && x.wtype !== 'acc') ? `<span class="qRobe">${robePic(x)}</span>` : x.em;   // robes are drawn on the student's wizard, everything else is its emoji
-function nameQuestion(ing, universe, ctx) {
-  const pic = $('#craftPic'); pic.style.display = ''; pic.innerHTML = `<span class="craftEm ${ing.r === 4 ? 'shine' : ''}">${itemEm(ing)}</span>`;
-  const q = mathQ(craftProblem(), () => t(ctx.title), () => t(ctx.sub));
-  G.q = q; G.lastKey = q.lastKey; G.noCount = false; G.snap = null; G.potUsed = true;   // these answers count toward the math level (spec 01 §6.1, weight 'craft')
-  showQuestion();
-}
-function craftQuestion() {
-  if (G.craft.forge) return forgeQuestion();
-  craftHeader(); $('#hearts').textContent = POTIONS[G.craft.potion].em; $('#heroBox').classList.remove('heroGlow'); $('#potBar').style.display = 'none';
-  craftNote();
-  nameQuestion(ING[G.craft.ings[G.craft.i]], Object.values(ING), { title: 'craft_t', sub: 'craft_s' });
-}
-function craftHeader() {   // the brewing screen's labels (also redrawn after a language switch)
-  const C = G.craft;
-  $('#foeName').textContent = `${caulName(P.own.caul || 0)} · ${pBoth(C.potion)}`;
-  $('#mid').innerHTML = `<b>${t('brewing')}</b><br>${C.ings.map((id, k) => k < C.i ? '✅' : k === C.i ? '❓' : '▫️').join(' ')}<div class="runNote"></div>`;
-  $('#hpFill').style.width = (100 * C.i / C.ings.length) + '%'; $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = xpPct() + '%';
-}
-const ingLabel = id => `${ING[id].em} ${nameOf(ING[id])}`;
-// A wrong answer while brewing burns one unit of the ingredient being worked on (and nothing else). If none is left for the potion, the brew fizzles.
-function craftNote() { const C = G.craft, id = C.ings[C.i], n = P.inv[id] || 0; const e = document.querySelector('#mid .runNote'); if (e) e.innerHTML = t('craft_note', { i: C.i + 1, n: C.ings.length, ing: ingLabel(id), k: n }); }
-function craftBurn() {
-  const C = G.craft, id = C.ings[C.i]; P.inv[id] = Math.max(0, (P.inv[id] || 0) - 1); saveSoon();
-  burst('🔥', 6); toast(t('burned', { em: ING[id].em, left: P.inv[id] ? t('left_n', { n: P.inv[id] }) : t('left_none') }));
-  if (P.inv[id] >= 1) { craftNote(); return false; }   // one more is still needed for the potion itself
-  G.locked = true; sfx.bad();
-  setTimeout(() => modal(t('fizzled_t'), t('fizzled_b', { ing: `<b>${ingLabel(id)}</b>` }), [[t('back_home'), openHome]]), 700);
-  return true;
-}
-// crafting answers: their own figure for the teacher, and (first tries only) a scored answer with the 'craft' weight: ½ toward moving up, 1 toward moving down
-function craftCount(first, ok) { if (!first) return; P.craft.n++; if (ok) P.craft.ok++; after(record(G.q, ok)); }
-async function craftPick(i, btn) {
-  if (G.locked) return; const q = G.q, o = q.options[i], first = G.tries === 0; G.tries++;
-  if (o.ok) {
-    G.locked = true; btn.classList.add('good'); document.querySelectorAll('.opt').forEach(b => { b.disabled = true; }); craftCount(first, true);
-    sfx.ok(); $('#fb').innerHTML = `✅ ${q.explain()}`; await sleep(1300); craftNext();
-  } else { btn.classList.add('bad'); btn.disabled = true; sfx.bad(); craftCount(first, false); $('#fb').innerHTML = t('try_again_fb', { note: o.note ? o.note() : t('not_that') }); saveSoon(); if (G.quest === 'craft') craftBurn(); }
-}
-function craftNext() {
-  const C = G.craft; C.i++;
-  if (C.forge) { if (C.i <= C.ings.length) forgeQuestion(); else forgeDone(); return; }
-  if (C.i < C.ings.length) { craftQuestion(); return; }
-  C.ings.forEach(id => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - 1); });   // the ingredients are used up only now
-  P.pot[C.potion] = (P.pot[C.potion] || 0) + 1; P.xp += CB.CFG.XP_CRAFT; saveSoon(true);   // spec 03 §5.1: 3 XP for a brew, a purchase or a forging sfx.win(); confetti(['🧪', '✨', '🫧', POTIONS[C.potion].em]);
-  modal(t('pot_ready_t'), `<div style="text-align:center"><div style="display:inline-block;transform:scale(2);margin:26px"><span class="packBottle">${potionSVG(C.potion)}<i>${POTIONS[C.potion].em}</i></span></div><p>${t('pot_ready_b', { name: pBoth(C.potion) })}</p>${xpLine(CB.CFG.XP_CRAFT)}</div>`,
-    [[t('back_home'), openHome], [t('back_map'), openMenu, true]]);
-}
 /* ====================== THE ARTIFICER'S WORKSHOP ====================== */
 // A fifth place on the world map. It is shut until the student can read words (level 8). The artificer builds three magic items from rare ingredients and coins:
 // an amulet of protection (neck), a staff of banishing (hand) and a belt of seeing (belt). Each is made first as an EPIC item and can be upgraded to LEGENDARY. (Their powers are added in the next step.)
@@ -4267,9 +4222,9 @@ const MAGIC = {
   staff: { id: 'staff', he: 'מטה הגירוש', em: '🪄', en: 'staff of banishing', does: ['Sends one monster away at once (never a boss).', 'שולח מפלצת אחת מיד (אף פעם לא בוס).'] },
   belt: { id: 'belt', he: 'חגורת הראייה', em: '', en: 'belt of seeing', does: ['Clears the fog: you see the next four stops, even the boss.', 'מפזר את הערפל: רואים את ארבע התחנות הבאות, אפילו את הבוס.'] }
 };
-const MAGIC_SLOTS = Object.keys(MAGIC), MAGIC_Q = MAGIC_SLOTS.map(s => ({ ...MAGIC[s], r: 3, magic: true }));
+const MAGIC_SLOTS = Object.keys(MAGIC);
 const magicIcon = s => `<span class="miInl">${magicPic(s, 1)}</span>`;   // a small drawing of the item for titles and questions (there is no belt emoji)   // MAGIC_Q: shaped like an ingredient so the usual name question can ask about it
-const FORGE = { 1: { slots: [3, 0, 0], coins: 150 }, 2: { slots: [4, 3], coins: 300 } };   // epic: 1 epic + 2 common + 150 coins. Legendary upgrade: 1 legendary + 1 epic + 300 coins. (rarity numbers: 0 common ... 3 epic, 4 legendary)
+const FORGE = { 1: { recipe: 'forge1', coins: 150 }, 2: { recipe: 'forge2', coins: 300 } };   // epic: the blueprint brew.js RECIPES.forge1 (1 epic ingredient + herbs + a liquid) + 150 coins; legendary upgrade: forge2 (1 legendary + 1 epic, a multi-step line, the current level) + 300 coins
 const verName = v => v === 2 ? t('legendary') : v === 1 ? t('epic') : '';
 const itemVer = s => (P.items && P.items[s]) || 0;
 function magicPic(slot, ver) {   // a little drawing of the item (grey when not made yet)
@@ -4334,14 +4289,14 @@ const canSlots = slots => { const need = {}; slots.forEach(s => { need[s] = (nee
 function wsWhy(slot) {   // why the next version cannot be made now ('' = it can)
   const v = itemVer(slot); if (v >= 2) return t('full_up');
   const rec = FORGE[v + 1], miss = [];
-  if (!canSlots(rec.slots)) miss.push(t('ingredients'));
+  if (!canSlots(RECIPES[rec.recipe].rare) || herbKinds() < RECIPES[rec.recipe].herbs) miss.push(t('ingredients'));
   if (Math.floor(P.coins || 0) < rec.coins) miss.push(t('more_coins', { n: rec.coins - Math.floor(P.coins || 0) }));
   return miss.length ? t('you_need', { x: miss.join(t('and')) }) : '';
 }
 function renderWsCards() {
   $('#wsCards').innerHTML = MAGIC_SLOTS.map(slot => { const m = MAGIC[slot], v = itemVer(slot), nextV = v + 1, why = wsWhy(slot), rec = FORGE[nextV];
     return `<div class="wsCard"><div class="wsPic">${magicPic(slot, v)}</div><div class="wsInfo"><b style="font-size:1.2rem">${nameOf(m)}</b> <small>${v ? verName(v) : ''}</small><div class="small">${tl(m.does)}</div>
-      ${rec ? `<div class="small" style="opacity:.85">${v ? t('upgrade') : t('make')}: ${slotsText({ slots: rec.slots })} + 🪙 ${rec.coins}</div>` : ''}</div>
+      ${rec ? `<div class="small" style="opacity:.85">${v ? t('upgrade') : t('make')}: ${slotsText(RECIPES[rec.recipe])} + 🪙 ${rec.coins}</div>` : ''}</div>
       ${rec ? `<button class="btn" data-forge="${slot}" ${why ? 'disabled' : ''}>${why ? '🔒' : v ? t('upgrade_btn') : t('make_btn')}</button>` : '<span class="small">✓</span>'}${rec && why ? `<div class="small wsWhy">${why}</div>` : ''}</div>`; }).join('');
 }
 function openWorkshop() {
@@ -4354,41 +4309,44 @@ $('#workshop').onclick = e => {
   const slot = b.dataset.forge; if (wsWhy(slot)) return;
   pickForge(slot);
 };
-function pickForge(slot) {   // choose which ingredients to use (one for each needed rarity, all different)
-  const v = itemVer(slot) + 1, rec = FORGE[v], m = MAGIC[slot], chosen = rec.slots.map(() => null);
+/* ----- forging (spec 04 §5.2, step 9) = a blueprint + a payment.
+   1. The blueprint: a recipe on the brewing screen (the rare ingredients, herb lines and a liquid). Epic: at the easy step. Legendary: at the student's CURRENT level, with a multi-step line.
+   2. The payment: a checkout task for the price (epic 150, legendary 300 with a discount for a returning customer, at the current level).
+   Nothing is used up and no coins are paid until both parts are done. A wrong blueprint: the brewing loss rule (spec 03 §6.4). ----- */
+const herbKinds = () => ownedOf(0).filter(h => (P.inv[h] || 0) >= BR.CFG.MIN_HERB_LINE).length;
+function pickForge(slot) {   // choose the rare ingredients (one for each needed rarity, all different), then the blueprint
+  const v = itemVer(slot) + 1, rec = FORGE[v], R = RECIPES[rec.recipe], m = MAGIC[slot], chosen = R.rare.map(() => null);
   const render = () => {
-    $('#brewBody').innerHTML = rec.slots.map((rar, k) => `<div class="slotRow"><div class="small">${t('slot_line', { k: k + 1, rar: rarKind(rar), rarity: rarity(rar) })}</div><div class="slotOpts">` +
+    $('#brewBody').innerHTML = R.rare.map((rar, k) => `<div class="slotRow"><div class="small">${t('slot_line', { k: k + 1, rar: rarKind(rar), rarity: rarity(rar) })}</div><div class="slotOpts">` +
       ownedOf(rar).map(id => { const used = chosen.some((c, j) => c === id && j !== k); return `<button class="slotBtn ${chosen[k] === id ? 'sel' : ''}" data-k="${k}" data-id="${id}" ${used ? 'disabled' : ''}>${ING[id].em} <b>${nameOf(ING[id])}</b> <small>×${P.inv[id]}</small></button>`; }).join('') + '</div></div>').join('');
     $('#mBtns button').disabled = chosen.some(c => !c);
   };
-  modal(`${magicIcon(slot)} ${v === 1 ? t('make') : t('upgrade')}: ${nameOf(m)}`, `<div id="brewBody"></div><p class="small" style="opacity:.85;margin-top:8px">${t('forge_note', { c: rec.coins })}</p>`, [[t('start'), () => startForge(slot, chosen.slice())], [t('not_now'), null, true]]);
+  modal(`${magicIcon(slot)} ${v === 1 ? t('make') : t('upgrade')}: ${nameOf(m)}`, `<div id="brewBody"></div><p class="small" style="opacity:.85;margin-top:8px">${t('forge_note2', { c: rec.coins, p: Math.round(BR.lossChance(wizLvl()) * 100) })}</p>`,
+    [[t('start'), () => startForgeBrew(slot, chosen.slice())], [t('not_now'), null, true]]);
   $('#brewBody').onclick = e => { const b = e.target.closest('.slotBtn'); if (!b || b.disabled) return; const k = +b.dataset.k; chosen[k] = chosen[k] === b.dataset.id ? null : b.dataset.id; render(); };
   render();
 }
-function startForge(slot, ings) {
-  G.quest = 'forge'; G.craft = { forge: slot, ings, i: 0 }; G.sess = 0; G.combo = 0; G.potUsed = true; G.snap = null; G.noCount = false;
-  show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted);
-  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt'); fxStatus();
-  $('#foeBody').className = 'foeBody'; $('#foeBody').style.filter = ''; $('#foeBody').innerHTML = `<span class="shMerchBody">${artificerSVG(WS_SKINS[(shopShelf().skin + 2) % WS_SKINS.length])}</span>`;
-  forgeQuestion();
+function startForgeBrew(slot, rare) {   // step 1: the blueprint on the brewing screen
+  const v = itemVer(slot) + 1, rec = FORGE[v], R = RECIPES[rec.recipe], owned = {}; ownedOf(0).forEach(id => { owned[id] = P.inv[id]; });
+  const use = BR.rarePlan(R.rare, rare, rarePool(), 1), r = use && BR.recipe({ potion: rec.recipe, mlvl: P.mlvl, L: v === 2 ? P.mlvl : undefined, owned, avoid: G.recent || [] });
+  if (!r) { toast(t('need_herbs')); return; }
+  $('#modal').classList.remove('on'); G.quest = 'brew'; G.noCount = false; BW = { potion: rec.recipe, forge: { slot, v }, rare, use, batch: 1, r, k: r.lines.map(() => 0), done: false };
+  G.recent = (G.recent || []).concat(r.lines.map(l => l.p.key)).slice(-CFG.RECENT * 2);
+  $('#brewCaul').innerHTML = ''; show('brew'); renderBrew();
 }
-function forgeQuestion() {
-  const C = G.craft, last = C.i >= C.ings.length;
-  forgeHeader(); $('#hearts').innerHTML = magicIcon(C.forge); $('#heroBox').classList.remove('heroGlow'); $('#potBar').style.display = 'none';
-  nameQuestion(last ? MAGIC_Q.find(x => x.id === C.forge) : ING[C.ings[C.i]], last ? MAGIC_Q : Object.values(ING), { title: last ? 'forge_t_last' : 'forge_t', sub: 'forge_s' });
+function forgeBlueprintOk() {   // the blueprint is right: the item glows over the cauldron, then step 2, the payment
+  const { slot, v } = BW.forge, m = MAGIC[slot], rec = FORGE[v], lines = BW.r.lines.filter(l => l.kind === 'herb').map(l => [l.herb, BW.k[BW.r.lines.indexOf(l)]]), use = Object.assign({}, BW.use);
+  const s = { id: 'forge_' + slot, kind: 'forge', slot, v, price: rec.coins, em: '', he: `${m.he} (${v === 2 ? STR.legendary[1] : STR.epic[1]})`, en: `${v === 2 ? STR.legendary[0] : STR.epic[0]} ${m.en}`,
+    L: v === 2 ? P.mlvl : undefined, sale: v === 2 ? CK.saleForm(rec.coins, P.mlvl, rngSeed(strHash('loyal' + P.id + slot))) : null,
+    consume() { lines.forEach(([id, n]) => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - n); }); Object.entries(use).forEach(([id, n]) => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - n); }); } };
+  modal(t('bp_ok_t'), `<div style="text-align:center"><div style="width:6rem;margin:0 auto">${magicPic(slot, v)}</div><p>${t('bp_ok_b', { name: nameOf(s) })}</p></div>`,
+    [[t('bp_pay'), () => startCheckout(s, 1)], [t('back_ws'), openWorkshop, true]]);
 }
-function forgeHeader() {   // the forging screen's labels (also redrawn after a language switch)
-  const C = G.craft, m = MAGIC[C.forge], last = C.i >= C.ings.length, total = C.ings.length + 1;
-  $('#foeName').textContent = t('artificer'); $('#hpFill').style.width = (100 * C.i / total) + '%';
-  $('#mid').innerHTML = `<b>${t('forging', { name: nameOf(m) })}</b><br>${Array.from({ length: total }, (_, k) => k < C.i ? '✅' : k === C.i ? '❓' : '▫️').join(' ')}<div class="runNote">${last ? t('forge_last') : t('forge_ing', { i: C.i + 1, n: C.ings.length })}</div>`;
-  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = xpPct() + '%';
-}
-function forgeDone() {
-  const C = G.craft, slot = C.forge, v = itemVer(slot) + 1, rec = FORGE[v], m = MAGIC[slot];
-  if (Math.floor(P.coins || 0) < rec.coins || C.ings.some(id => (P.inv[id] || 0) < 1)) { modal(t('missing_t'), t('missing_b'), [[t('back_ws'), openWorkshop]]); return; }
-  C.ings.forEach(id => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - 1); }); P.coins = Math.round((P.coins - rec.coins) * 1000) / 1000;
-  P.items[slot] = v; P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🛠️', '✨', v === 2 ? '🌟' : '💠']);
-  modal(t('made_t', { icon: magicIcon(slot), ver: verName(v), name: nameOf(m) }), `<div style="text-align:center"><div style="width:6rem;margin:0 auto">${magicPic(slot, v)}</div><p><b style="font-size:1.4rem">${nameOf(m)}</b></p><p>${tl(m.does)}</p><p class="small">${t('wearing')}</p>${xpLine(CB.CFG.XP_CRAFT)}</div>`, [[t('back_ws_e'), openWorkshop], [t('back_map'), openMenu, true]]);
+function forgeMade(s) {   // both parts are done: the item is made (the ingredients and the coins are used only now)
+  s.consume(); P.items[s.slot] = s.v; P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🛠️', '✨', s.v === 2 ? '🌟' : '💠']);
+  const m = MAGIC[s.slot];
+  setTimeout(() => modal(t('made_t', { icon: magicIcon(s.slot), ver: verName(s.v), name: nameOf(m) }), `<div style="text-align:center"><div style="width:6rem;margin:0 auto">${magicPic(s.slot, s.v)}</div><p><b style="font-size:1.4rem">${nameOf(m)}</b></p><p>${tl(m.does)}</p><p class="small">${t('wearing')}</p><p>${t('ck_paid', { x: s.paid })} ${walletHtml(P.coins)}</p>${xpLine(CB.CFG.XP_CRAFT)}</div>`,
+    [[t('back_ws_e'), openWorkshop], [t('back_map'), openMenu, true]]), 900);
 }
 /* ----- item powers: once per quest (twice for a legendary item). They never answer a question for the student: a banished stop is not logged at all. Uses come back only when the quest is FINISHED (a restart after a knockout is the same quest). ----- */
 const blankUses = () => ({ amulet: 0, staff: 0, belt: 0 });
@@ -4597,7 +4555,7 @@ const shCounterSVG = () => `<defs><linearGradient id="shCsh" gradientUnits="user
   <polygon points="14,57 86,57 90,61 10,61" fill="#c58f58"/><polygon points="10,61 90,61 90,69.5 10,69.5" fill="#6e4222"/><polygon points="10,61 90,61 90,62.2 10,62.2" fill="#8a5a2b"/>
   ${[18, 34, 50, 66, 82].map(x => `<rect x="${x - 6}" y="63.4" width="12" height="4.6" rx=".8" fill="none" stroke="#4a2a14" stroke-width=".4"/>`).join('')}`;
 const robePic = s => s.wtype === 'robe' ? heroSVG(P.gender, s.hex, P.skin, P.hair, { beard: P.beard }) : s.wtype === 'style' ? heroSVG(P.gender, P.color, P.skin, P.hair, { style: s.style, beard: P.beard }) : '';   // robes are shown on the student's own wizard
-const shPic = s => FURN_ART[s.id] ? `<span class="shFurnBig">${FURN_ART[s.id]()}</span>` : s.kind === 'wear' && s.wtype !== 'acc' ? '<span class="shopRobe big">' + robePic(s) + '</span>' : s.kind === 'potion' ? `<span class="packBottle" style="transform:scale(1.8);margin:12px">${potionSVG(s.pid)}<i>${s.em}</i></span>` : s.kind === 'caul' ? cauldronArt(s.lv) : s.id === 'd_rug' ? '<span class="shRug" style="width:6rem;height:2.4rem"></span>' : s.em;
+const shPic = s => s.kind === 'forge' ? `<span class="shFurnBig" style="width:5rem;display:block;margin:auto">${magicPic(s.slot, s.v)}</span>` : FURN_ART[s.id] ? `<span class="shFurnBig">${FURN_ART[s.id]()}</span>` : s.kind === 'wear' && s.wtype !== 'acc' ? '<span class="shopRobe big">' + robePic(s) + '</span>' : s.kind === 'potion' ? `<span class="packBottle" style="transform:scale(1.8);margin:12px">${potionSVG(s.pid)}<i>${s.em}</i></span>` : s.kind === 'caul' ? cauldronArt(s.lv) : s.id === 'd_rug' ? '<span class="shRug" style="width:6rem;height:2.4rem"></span>' : s.em;
 // The room is the owner's picture (art/shop-room.webp, 1352×1163). Positions are % of the picture: x of its width, y of its height.
 // Tap areas (owner, step 8): the wardrobe (robes), the mannequin (accessories) and the potion shelves (potions). Today's 8 items stand on the two middle shelves, their prices on the painted tags.
 const SH_HOT = [['robes', 1.5, 19, 16, 38], ['accs', 0, 53, 17, 45], ['pots', 83.5, 14, 15.5, 49]];   // [panel, left, top, width, height]
@@ -4668,16 +4626,20 @@ function openShopItem(s) {   // look at it first: picture, name and price (and h
 let CKS = null;   // { id, qty, sale, k (the task), tries, added: { c, s, g } (coins the student put on the counter), done }
 function startCheckout(s, qty, t0) {
   $('#modal').classList.remove('on');
-  const sale = saleOf(s), mk = () => CK.task({ mlvl: P.mlvl, price: s.price, qty, sale, bal: Math.floor(P.coins || 0), t: t0 }); let k = mk();
+  const forge = s.kind === 'forge', sale = forge ? s.sale : saleOf(s), mk = () => CK.task({ mlvl: P.mlvl, L: forge ? s.L : undefined, price: s.price, qty, sale, bal: Math.floor(P.coins || 0), t: t0 }); let k = mk();   // the Artificer: the legendary payment is at the current level, with a returning customer'"'"'s discount
   for (let i = 0; i < 6 && CKS && t0 && k.p.key === CKS.k.p.key; i++) k = mk();   // a new task, not the same numbers again
   if (k.pay > Math.floor(P.coins || 0)) { toast(t('need_coins', { n: k.pay - Math.floor(P.coins || 0) })); return; }
-  CKS = { id: s.id, qty, sale, k, tries: 0, added: { c: 0, s: 0, g: 0 }, done: false, help: false }; $('#ckFb').innerHTML = '';   // a new purchase: no old result
+  CKS = { id: s.id, s, qty, sale, k, tries: 0, added: { c: 0, s: 0, g: 0 }, done: false, help: false }; $('#ckFb').innerHTML = '';   // a new purchase: no old result
   G.quest = 'checkout'; G.noCount = false; show('checkout'); renderCheckout();
 }
 const ckAdded = () => CKS.added.c + 10 * CKS.added.s + 100 * CKS.added.g;
-function ckItemName() { const s = SHOP[CKS.id]; return (CKS.qty > 1 ? CKS.qty + ' × ' : '') + (s.kind === 'potion' ? pBoth(s.pid) : nameOf(s)); }
-function ckText() {   // the merchant's words: each kind of task has its sentence
-  const k = CKS.k, v = k.v, n = ckItemName(), f = v.s, s1 = SHOP[CKS.id], n1 = s1.kind === 'potion' ? pBoth(s1.pid) : nameOf(s1);
+function ckItemName() { const s = CKS.s; return (CKS.qty > 1 ? CKS.qty + ' × ' : '') + (s.kind === 'potion' ? pBoth(s.pid) : nameOf(s)); }
+function ckText() {   // the merchant's words; a returning customer's discount that the level does not work out is said first
+  const pre = CKS.s.kind === 'forge' && CKS.sale && !['sale', 'saleoff', 'salechange'].includes(CKS.k.kind) ? t('ck_loyal_pre', { tag: saleTag(CKS.sale), p: CKS.s.price }) + ' ' : '';
+  return pre + ckText0();
+}
+function ckText0() {
+  const k = CKS.k, v = k.v, n = ckItemName(), f = v.s, s1 = CKS.s, n1 = s1.kind === 'potion' ? pBoth(s1.pid) : nameOf(s1);
   switch (k.kind) {
     case 'pay': return t('ck_pay', { n, p: v.pay });
     case 'rest': return t('ck_rest', { n, p: v.pay, x: v.placed });
@@ -4685,16 +4647,16 @@ function ckText() {   // the merchant's words: each kind of task has its sentenc
     case 'change': return t('ck_change', { n, p: v.pay, x: v.n });
     case 'left': return t('ck_left', { n, p: v.pay, b: v.bal });
     case 'coins': return t('ck_coins', { n, x: walletHtml(v.g * 100 + v.s * 10 + v.c) });
-    case 'several': return t('ck_several', { q: v.qty, n: SHOP[CKS.id].kind === 'potion' ? pBoth(SHOP[CKS.id].pid) : nameOf(SHOP[CKS.id]), p: v.unit });
-    case 'afford': return t('ck_afford', { n: pBoth(SHOP[CKS.id].pid), p: v.unit, x: v.pay });
+    case 'several': return t('ck_several', { q: v.qty, n: CKS.s.kind === 'potion' ? pBoth(CKS.s.pid) : nameOf(CKS.s), p: v.unit });
+    case 'afford': return t('ck_afford', { n: pBoth(CKS.s.pid), p: v.unit, x: v.pay });
     case 'split': return t('ck_split', { n, p: v.pay, k: v.k });
-    case 'order': return t('ck_order', { q: v.qty, n: pBoth(SHOP[CKS.id].pid), p: v.unit, c: v.c });
-    case 'saleoff': return t(k.input === 'tray' ? 'ck_saleoff_tray' : 'ck_sale', { n: n1, tag: saleTag(f), p: v.price });
-    case 'sale': return t('ck_sale', { n: n1, tag: saleTag(f), p: v.price });
+    case 'order': return t('ck_order', { q: v.qty, n: pBoth(CKS.s.pid), p: v.unit, c: v.c });
+    case 'saleoff': return t(s1.kind === 'forge' ? (k.input === 'tray' ? 'ck_loyal_tray' : 'ck_loyal') : k.input === 'tray' ? 'ck_saleoff_tray' : 'ck_sale', { n: n1, tag: saleTag(f), p: v.price });
+    case 'sale': return t(s1.kind === 'forge' ? 'ck_loyal' : 'ck_sale', { n: n1, tag: saleTag(f), p: v.price });
     case 'salechange': return t('ck_salechange', { n: n1, tag: saleTag(f), p: v.price, x: v.n });
     case 'decleft': return t('ck_decleft', { n, p: v.pay, b: v.bal });
     case 'deccoins': return t('ck_deccoins', { n, p: v.pay });
-    case 'decseveral': return t('ck_decseveral', { q: v.qty, n: pBoth(SHOP[CKS.id].pid), p: v.unit });
+    case 'decseveral': return t('ck_decseveral', { q: v.qty, n: pBoth(CKS.s.pid), p: v.unit });
   }
   return t('ck_calc', { x: `<bdi dir="ltr">${exprHtml(k.p.e)}</bdi>` });
 }
@@ -4711,10 +4673,10 @@ function trayHtml(coins) {   // the student's coins on the counter and the coin 
     input: `<div class="ckTray">${coins.slice().reverse().map(c => `<button class="ckCoinBtn" data-add="${c}">${coinHtml(c, 'big')}<small>${t('coin_' + c)}</small></button>`).join('')}</div>` };
 }
 function renderCheckout() {
-  if (!CKS) return; const s = SHOP[CKS.id], k = CKS.k;
-  $('#ckTitle').textContent = t('the_shop'); $('#ckSub').textContent = t('ck_sub', { lvl: levelLbl(k.L) });
+  if (!CKS) return; const s = CKS.s, k = CKS.k;
+  const forge = s.kind === 'forge'; $('#ckTitle').textContent = forge ? `🛠️ ${t('artificer')}` : t('the_shop'); $('#ckSub').textContent = t(forge ? 'ck_sub_ws' : 'ck_sub', { lvl: levelLbl(k.L) });
   $('#ckWallet').innerHTML = walletHtml(P.coins);
-  $('#ckMerch').innerHTML = merchantSVG(SH_SKINS[shopShelf().skin % SH_SKINS.length]);
+  $('#ckMerch').innerHTML = forge ? artificerSVG(WS_SKINS[(shopShelf().skin + 2) % WS_SKINS.length]) : merchantSVG(SH_SKINS[shopShelf().skin % SH_SKINS.length]);
   $('#ckItem').innerHTML = `<div class="pic">${shPic(s)}</div><b>${ckItemName()}</b>`;
   $('#ckSay').innerHTML = ckText();
   if (k.input === 'tray') {
@@ -4740,7 +4702,7 @@ $('#checkout').onclick = e => {
   const o = e.target.closest('[data-o]'); if (o) ckAnswer(ME.eq(CKS.opts[+o.dataset.o], CKS.k.p.a), ME.fmtHtml(CKS.opts[+o.dataset.o]));
 };
 $('#ckPay').onclick = () => { if (CKS && !CKS.done) ckAnswer(CK.checkTray(CKS.k, ckAdded()), String(ckAdded())); };
-$('#ckBack').onclick = () => { CKS = null; openShop(); };
+$('#ckBack').onclick = () => { const f = CKS && CKS.s.kind === 'forge'; CKS = null; f ? openWorkshop() : openShop(); };
 function ckAnswer(ok, said) {
   const k = CKS.k; P.craft.n++; if (ok) P.craft.ok++;
   after(record({ key: k.p.key, p: k.p, src: CKS.help ? 'craftHelp' : 'craft' }, ok));   // one scored answer (craft weight; less with the coin tray's help)
@@ -4751,12 +4713,13 @@ function ckAnswer(ok, said) {
   const feeTxt = fee ? ` ${t('ck_fee', { x: fee })}` : '';
   if (CKS.tries < CK.CFG.TRIES_BEFORE_HELP) { $('#ckFb').innerHTML = t('ck_wrong') + feeTxt; renderCheckout(); return; }
   // the worked example, then a new task of the same kind
-  CKS.done = true; renderCheckout(); const s = SHOP[CKS.id], A = k.p.a, coins = ME.isWhole(A) && ME.num(A) <= 999 && A.k !== 'dec' ? CK.split(ME.num(A)) : null;
+  CKS.done = true; renderCheckout(); const s = CKS.s, A = k.p.a, coins = ME.isWhole(A) && ME.num(A) <= 999 && A.k !== 'dec' ? CK.split(ME.num(A)) : null;
   modal(t('ck_help_t'), `<div class="workEx"><div>${ckText()}</div><div class="weEq">${exprHtml(k.p.e, A)}</div>${coins && ['pay', 'rest', 'change', 'left', 'coins', 'saleoff'].includes(k.kind) ? `<div class="ckRow">${k.placed ? (pl => coinPile('g', pl.g, 'dim') + coinPile('s', pl.s, 'dim') + coinPile('c', pl.c, 'dim') + ' <b>+</b> ')(CK.split(k.placed)) : ''}${coinPile('g', coins.g)}${coinPile('s', coins.s)}${coinPile('c', coins.c)}</div>` : ''}<div class="small">${t('you_put', { x: said })}</div></div>${fee ? `<p>💸 ${t('ck_fee', { x: fee })}</p>` : ''}<p>${t('ck_new')}</p>`,
-    [[t('ck_try_new'), () => startCheckout(s, CKS.qty, k.t)], [t('back_shop'), openShop, true]]);
+    [[t('ck_try_new'), () => startCheckout(s, CKS.qty, k.t)], s.kind === 'forge' ? [t('back_ws'), openWorkshop, true] : [t('back_shop'), openShop, true]]);
 }
 function ckBought() {
-  const s = SHOP[CKS.id], cost = CKS.k.pay, qty = CKS.qty, xp = CKS.help ? CB.CFG.XP_CRAFT - 1 : CB.CFG.XP_CRAFT;   // with the tray's help: 1 XP less
+  const s = CKS.s, cost = CKS.k.pay, qty = CKS.qty, xp = CKS.help ? CB.CFG.XP_CRAFT - 1 : CB.CFG.XP_CRAFT;   // with the tray's help: 1 XP less
+  if (s.kind === 'forge') { if (Math.floor(P.coins || 0) < cost) { openWorkshop(); return; } P.coins = Math.round((P.coins - cost) * 1000) / 1000; s.paid = cost; $('#ckFb').innerHTML = `✅ ${exprHtml(CKS.k.p.e, CKS.k.p.a)}`; forgeMade(s); return; }   // step 2 of forging is done
   if (Math.floor(P.coins || 0) < cost || owns(s)) { openShop(); return; }
   P.coins = Math.round((P.coins - cost) * 1000) / 1000;
   if (s.kind === 'caul') P.own.caul = s.lv; else if (s.kind === 'potion') P.pot[s.pid] = (P.pot[s.pid] || 0) + qty; else if (s.kind === 'wear') P.wd.push(s.id); else P.own.decor.push(s.id);
@@ -4912,7 +4875,7 @@ function startDemo() {
     ko() { if (!$('#game').classList.contains('on') || !(G.quest === 'battle' || G.quest === 'peace')) { toast('Open a fight first'); return; } if (G.st) { G.st.hero.hp = 0; P.quest.battle.hp = 0; updateBars(); } G.hearts = 0; P.quest[G.quest].hearts = 0; endOrSecond(G.quest === 'battle' ? knockout : villageFail); },
     win() { if (!$('#game').classList.contains('on') || !G.mon && G.quest === 'battle') { toast('Open a fight first'); return; } if (G.quest === 'battle') { (G.st ? G.st.foes : [G.mon]).forEach(f => { f.hp = 0; }); victory(); } else { G.helped = G.need; villageDone(); } },
     exit() { location.reload(); },
-    fresh() { P.ws = { on: false, hi: false }; P.mlvl = 7; P.mhist = []; P.mplace = 0; saveSoon(); goMenu(); toast('Level 7: the workshop is shuttered. Pick level 8 to see it light up.'); }
+    fresh() { P.ws = { on: false, hi: false }; P.xp = SB.xpFor(7); saveSoon(); goMenu(); toast('Wizard level 7: the workshop is shuttered. Pick wizard level 8 to see it light up.'); }
   };
   window.demo = D;
   const css = document.createElement('style');
