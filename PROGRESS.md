@@ -423,3 +423,45 @@ Every spell was shown in the browser one family at a time; your comments were bu
 3. Keep 1 Fire stone and a few other stones → Power potion → choose the Fire stone ×4: the card fills in with other stones.
 4. Brew a few recipes at levels 3–10: the herb amounts vary; the liquid lines are stories.
 5. Levels 17+ (a few recipes): a ratio line. Levels 24, 27, 30, 33: cups, scoops and litres.
+
+---
+
+## Step 8: The shop ✅ (on the test site, waiting for your check)
+
+**Goal:** spec 04 §4. Buying is the math: to buy, the student answers the merchant's checkout task, and pays the real price.
+
+**What changed**
+- **The checkout screen:** the merchant asks one task about this purchase, at the **easy step** (one math level below the student's). The task uses the **real price**, the student's **real coin balance**, and today's **real sale**. Two kinds of input:
+  - the **coin tray** at the counting levels: tap copper 🟤 (1), silver ⚪ (10) and gold 🟡 (100) coins onto the counter; tap a coin on the counter to take it back; then **Pay**. Coins are grouped in fives.
+  - **answer buttons** for the rest.
+- **The tasks by easy-step level** (spec 04 §4.2):
+  - 1–6: "The heart potion costs 15. 8 are already on the counter. Put the rest." · "The candle costs 10. Put the coins on the counter." (silver from 5)
+  - 7: "The plant costs 40 copper. How many silver coins is that?"
+  - 8–10: "The candle costs 10. You pay with 50. How much change do you get?" · "You have 85 coins. The rug costs 30. How many will you have left?" (gold coins from 8)
+  - 11–14: "3 × Heart potion at 15 each." · "The plant costs 4 silver and 5 copper. How many copper is that?"
+  - 15–16: "Heart potion costs 8 each. You put 40 aside. How many can you buy?" · "Pay 40 in 4 equal bags. How many coins in each bag?"
+  - 17: change and what is left with hundreds · 18: "2 gold, 2 silver, 0 copper: how many copper?" · 19–20: several potions, equal bags · 21: what is left with your real balance in thousands
+  - 22–23: "Sale today! The violin costs 55, ⅕ off. How much do you pay?" · 24: "3 potions at 15 each, and a coupon for 10 off" · 25–27: "⅓ off", "¾ of the price"
+  - 28: "You have 34.7 silver. The potion costs 1.5 silver. How much silver will you have left?" · 29: "It costs 4.5 silver. How many copper is that?" · 30: bulk potions and equal bags
+  - 31–32: "⅔ of the price, then ½ of that" · 33: "1.5 silver each, 3 potions" · 34–35: "25% off" · 36: "20% off 60, you pay with 100: how much change?"
+  - When this purchase does not fit the level's task (for example an item that is not on sale at the fraction levels), the task comes from the level below (review).
+- **Wrong answer:** "Not quite. Try again!" After **2 wrong tries** the merchant shows a worked example (the calculation, and the coins for money amounts), then a **new task of the same kind** (spec 04 §4.1). The item is bought only after a right answer. Every answer counts toward the math level (½ up, 1 down), and a purchase gives +3 XP.
+- **The daily sale** (spec 04 §4.3): 3 items a day, from today's shelf and the potions, with a red 🏷️ tag. The sale's form follows the level: "5 off" / "10 off" before the fraction levels (the new price is shown), then ½ price and ⅕ off, ⅓ off and ¾ of the price, a fraction of a fraction, then 10–50% off. From the fraction levels the tag shows only the form, because working out the price is the task. The student pays the real sale price.
+- **Buying several potions** (1–5 at once) from the multiplication levels: a "How many?" choice in the item's window.
+- **The wallet:** the coins are shown as gold, silver and copper (237 = 2 🟡 3 ⚪ 7 🟤) in the shop and at checkout (spec 04 §4.4).
+- The old "the merchant asks you a question" screen is gone.
+- **Tests:** 5 new shop tests (107 in all): money, every level and price gives a right task and the real price, each band's tasks, sales, a new task of the same kind.
+
+**My proposals (please approve or change)**
+1. At the counting levels, when the price is bigger than the level's numbers, part of the price is **already on the counter** and the student puts the rest (spec example "A candle costs 7" is below the real prices, which start at 10).
+2. Some tasks use the student's **real balance** ("You have 85 coins… how many will you have left?").
+3. Buying **several potions at once** (up to 5) from the multiplication levels.
+4. **The sale:** 3 items a day. Before the fraction levels the sale is 5 or 10 copper off and the new price is shown; from then on the student works out the sale price.
+5. At level 24 (order of operations), the task "3 potions at 15 and a coupon for 10 off" uses a real coupon, only when buying several potions.
+
+**How to check**
+1. Teacher area → demo → math level 4 → Shop → a heart potion: the coin tray ("8 are already on the counter. Put the rest."). Pay wrong twice: the worked example and a new task.
+2. Demo level 9: buy a decoration: change or "how many will you have left".
+3. Demo level 14 → Potions → Heart → ×3: "3 × Heart potion at 15 each".
+4. Demo level 24: look for the red 🏷️ sale tags; buy a sale item: "⅕ off".
+5. Demo level 29 and 35: prices in silver with decimals; percent sales.

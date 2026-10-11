@@ -487,6 +487,18 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .jugBox{width:90px;margin:4px auto;cursor:pointer}.bjHead{font-size:.9rem}
 .workEx{background:#ffffff10;border-radius:12px;padding:8px 10px;margin:6px 0}.weEq{font-size:1.4rem;font-weight:700;margin:4px 0;direction:ltr}.weSvg{display:block;margin:6px auto;height:auto}.weJug{width:70px;margin:6px auto}
 @media (max-width:560px){.brewBench{grid-template-columns:1fr}.brewCaul{width:120px;margin:0 auto}}
+/* the checkout (step 8): the merchant's task, the counter, the coin tray; coins are a place-value model (copper 1, silver 10, gold 100) */
+.coin{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font:800 .62rem system-ui;color:#3a2610;margin:2px;box-shadow:inset 0 -3px 0 #0003,0 2px 3px #0006;vertical-align:middle}
+.coin.c{background:radial-gradient(circle at 35% 30%,#f2b27a,#b8683a 60%,#8a4a24)}.coin.s{background:radial-gradient(circle at 35% 30%,#ffffff,#c9d1da 55%,#8e98a4);width:34px;height:34px}.coin.g{background:radial-gradient(circle at 35% 30%,#fff3b0,#ffd166 50%,#c79a22);width:38px;height:38px}
+.coin.sm{width:18px;height:18px;font-size:0;margin:0 3px 0 1px}.coin.big{transform:scale(1.25)}.coin.dim{opacity:.5;filter:grayscale(.3)}
+.wallet{font-size:1rem;white-space:nowrap}.ckRow{background:#ffffff10;border-radius:12px;padding:6px 10px;margin:6px 0;text-align:center}.ckRow small{display:block;opacity:.75}.ckRow .gap{display:inline-block;width:10px}
+.ckScene{display:grid;grid-template-columns:110px 1fr 120px;gap:10px;align-items:center;margin:8px 0}.ckMerch svg{width:100%;height:auto;display:block}
+.ckSay{background:#fff6e0;color:#3a2610;border-radius:16px;padding:12px 14px;font-size:1.15rem;box-shadow:0 4px 0 #a9824a;position:relative}.ckSay::before{content:'';position:absolute;inset-inline-start:-10px;top:24px;border:10px solid transparent;border-inline-end-color:#fff6e0;border-inline-start:0}
+.ckItem{text-align:center}.ckItem .pic{font-size:3rem;line-height:1.1}.ckItem .pic svg{max-width:90px;height:auto}
+.ckTray{display:flex;gap:14px;justify-content:center;margin:8px 0}.ckCoinBtn{background:#ffffff18;border:1px solid #ffffff44;border-radius:14px;padding:10px 14px;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px}
+.coinB{background:none;border:0;padding:0;cursor:pointer}.ckOpts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:420px;margin:8px auto}
+.saleTag{display:inline-block;background:#e5546b;color:#fff;border-radius:8px;padding:1px 6px;margin-inline-start:4px;font-size:.8em;font-weight:700}
+@media (max-width:560px){.ckScene{grid-template-columns:70px 1fr;}.ckItem{grid-column:1 / -1}}
 /* brewing effects: steam over the cauldron (faster while brewing), the potion rising on success, a dark puff of smoke on failure */
 .brewCaul .steam{position:absolute;left:50%;top:44%;width:0;height:0;pointer-events:none;z-index:3}
 .brewCaul .steam i{position:absolute;bottom:0;left:0;width:46px;height:46px;margin-left:-23px;border-radius:50%;background:radial-gradient(#ffffffd8,#e8e0ff66 45%,#ffffff00 70%);filter:blur(3px);opacity:0;animation:steamUp 2.8s ease-out infinite}
@@ -837,8 +849,16 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div id="wdBody" style="text-align:start"></div></div>
 </section>
 
+<section id="checkout" class="screen" style="max-width:760px">
+  <div class="top"><button class="ib" id="ckBack" data-tt="back_shop">🏪</button><div class="grow"><div class="who" id="ckTitle"></div><div class="small" id="ckSub"></div></div><div class="coinBox" id="ckWallet"></div><button class="langBtn" data-lang-toggle></button></div>
+  <div class="ckScene"><div class="ckMerch" id="ckMerch"></div><div class="ckSay" id="ckSay"></div><div class="ckItem" id="ckItem"></div></div>
+  <div class="ckCounter" id="ckCounter"></div>
+  <div id="ckInput"></div>
+  <div class="small center" id="ckFb" style="min-height:1.4em;margin:6px 0"></div>
+  <div class="row center" style="margin:8px 0"><button class="btn big" id="ckPay"></button></div>
+</section>
 <section id="shop" class="screen" style="max-width:760px">
-  <div class="top"><button class="ib" id="shopBack" data-tt="back_map">🗺️</button><div class="grow"><div class="who" data-t="shop_title"></div><div class="small" data-t="shop_tip"></div></div><div class="coinBox">🪙 <b id="shopCoins">0</b></div><button class="langBtn" data-lang-toggle></button></div>
+  <div class="top"><button class="ib" id="shopBack" data-tt="back_map">🗺️</button><div class="grow"><div class="who" data-t="shop_title"></div><div class="small" data-t="shop_tip"></div></div><div class="coinBox">🪙 <b id="shopCoins">0</b> <span id="shopWallet"></span></div><button class="langBtn" data-lang-toggle></button></div>
   <div class="shScene" id="shScene" data-ta="the_shop_aria">
     <svg class="shLayer" id="shBack" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="true"></svg>
     <div id="shProps"></div>
@@ -924,6 +944,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <script src="spells.js"></script>
 <script src="combat.js"></script>
 <script src="brew.js"></script>
+<script src="shop.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -1206,6 +1227,27 @@ const STR = {
   ph_split: ['{a} in {b} equal handfuls. Put in one handful.', '{a} ב-{b} חופנים שווים. שימו חופן אחד.'], ph_whole: ['Each of {b} bottles got {a}. Put in all of it.', 'כל אחד מ-{b} בקבוקים קיבל {a}. שימו את הכול.'], ph_calc: ['Measure {x}', 'מדדו {x}'],
   brew_fail_t: ['💨 The brew failed', '💨 הבישול נכשל'], brew_lost: ['🔥 The ingredients were lost in the smoke.', '🔥 המרכיבים אבדו בעשן.'], brew_kept: ['🍀 Lucky! Your ingredients are safe.', '🍀 מזל! המרכיבים שמורים.'], brew_again: ['Try again 🫕', 'שוב 🫕'],
   pots_ready_b: ['<b>{n} × {name}</b> added to your shelf at Home.', '<b>{n} × {name}</b> נוספו למדף בבית.'],
+  sale_off: ['{x} off', '{x} הנחה'], sale_frac: ['{f} price', 'ב-{f} מהמחיר'], sale_offfrac: ['{f} off', '{f} הנחה'], sale_two: ['{f} price, then {g} of that', '{f} מהמחיר, ואז {g} מזה'], sale_pct: ['{p}% off', '{p}% הנחה'],
+  how_many: ['How many?', 'כמה?'], back_shop: ['Back to the shop', 'חזרה לחנות'], ck_sub: ['Answer the merchant to buy. Math: {lvl}', 'ענו למוכר כדי לקנות. חשבון: {lvl}'],
+  ck_pay: ['{n} costs {p}. Put the coins on the counter.', '{n} עולה {p}. שימו את המטבעות על הדלפק.'],
+  ck_rest: ['{n} costs {p}. {x} are already on the counter. Put the rest.', '{n} עולה {p}. {x} כבר על הדלפק. שימו את השאר.'],
+  ck_silver: ['{n} costs {p} copper. How many silver coins is that?', '{n} עולה {p} נחושת. כמה מטבעות כסף זה?'],
+  ck_change: ['{n} costs {p}. You pay with {x}. How much change do you get?', '{n} עולה {p}. משלמים {x}. כמה עודף מקבלים?'],
+  ck_left: ['You have {b} coins. {n} costs {p}. How many will you have left?', 'יש לכם {b} מטבעות. {n} עולה {p}. כמה יישאר לכם?'],
+  ck_coins: ['{n} costs {x}. How many copper is that?', '{n} עולה {x}. כמה נחושת זה?'],
+  ck_several: ['{q} × {n} at {p} each. How much do you pay?', '{q} × {n}, כל אחד {p}. כמה משלמים?'],
+  ck_afford: ['{n} costs {p} each. You put {x} aside. How many can you buy?', '{n} עולה {p} כל אחד. שמתם בצד {x}. כמה אפשר לקנות?'],
+  ck_split: ['{n} costs {p}. Pay it in {k} equal bags. How many coins go in each bag?', '{n} עולה {p}. משלמים ב-{k} שקיות שוות. כמה מטבעות בכל שקית?'],
+  ck_order: ['{q} × {n} at {p} each, and you have a coupon for {c} off. How much do you pay?', '{q} × {n}, כל אחד {p}, ויש לכם שובר של {c} הנחה. כמה משלמים?'],
+  ck_sale: ['Sale today! {n} costs {p}, {tag}. How much do you pay (for one)?', 'מבצע היום! {n} עולה {p}, {tag}. כמה משלמים (על אחד)?'],
+  ck_salechange: ['Sale today! {n} costs {p}, {tag}. You pay with {x}. How much change do you get?', 'מבצע היום! {n} עולה {p}, {tag}. משלמים {x}. כמה עודף מקבלים?'],
+  ck_decleft: ['You have {b} silver. {n} costs {p} silver. How much silver will you have left?', 'יש לכם {b} כסף. {n} עולה {p} כסף. כמה כסף יישאר לכם?'],
+  ck_deccoins: ['{n} costs {p} silver. How many copper is that? (1 silver = 10 copper)', '{n} עולה {p} כסף. כמה נחושת זה? (1 כסף = 10 נחושת)'],
+  ck_decseveral: ['{q} × {n} at {p} silver each. How much silver do you pay?', '{q} × {n}, כל אחד {p} כסף. כמה כסף משלמים?'],
+  ck_calc: ['Work it out: {x}', 'חשבו: {x}'], ck_placed: ['already on the counter', 'כבר על הדלפק'], ck_yours: ['your coins (tap a coin to take it back)', 'המטבעות שלכם (הקישו על מטבע כדי להחזיר אותו)'],
+  coin_c: ['copper', 'נחושת'], coin_s: ['silver', 'כסף'], coin_g: ['gold', 'זהב'], ck_pay_btn: ['Pay 🪙', 'לשלם 🪙'],
+  ck_wrong: ['❌ Not quite. Try again!', '❌ לא בדיוק. נסו שוב!'], ck_help_t: ['🧙 Let me show you', '🧙 בואו אראה לכם'], ck_new: ['Now try a new one like it.', 'עכשיו נסו אחד חדש כמוהו.'],
+  ck_try_new: ['New task ▶', 'משימה חדשה ◀'], ck_paid: ['You paid {x}. You have:', 'שילמתם {x}. יש לכם:'],
   ratio_hb: ['For every {a} {h} in this recipe, put in {b}.', 'על כל {a} {h} במתכון הזה שימו {b}.'],
   ratio_lq: ['For every {a} {h} in this recipe, pour {b} {u}.', 'על כל {a} {h} במתכון הזה מזגו {b} {u}.'],
   lq_add: ['Pour {a} {u}, then {b} {u} more.', 'מזגו {a} {u}, ואז עוד {b} {u}.'],
@@ -1415,6 +1457,7 @@ function refreshScreen() {
   else if (on('home')) renderRoom(rmDisp);
   else if (on('wardrobe')) drawWardrobe();
   else if (on('brew')) renderBrew();
+  else if (on('checkout')) renderCheckout();
   else if (on('shop')) { renderShop(); renderShopPanel(); }
   else if (on('workshop')) renderWorkshop();
   else if (on('journey')) { jDraw(); jHud(); }
@@ -1901,7 +1944,7 @@ document.querySelectorAll('.place').forEach(b => b.onclick = () => walkTo(b.data
 })();
 $('#logoutBtn').onclick = async () => { saveSoon(true); await sleep(300); P = null; $('#sid').value = ''; show('login'); };
 $('#menuMute').onclick = $('#muteBtn').onclick = () => setMute(!muted);
-$('#homeBtn').onclick = () => { saveSoon(true); G.quest === 'shop' ? openShop() : G.quest === 'craft' ? openHome() : G.quest === 'forge' ? openWorkshop() : openMenu(); };
+$('#homeBtn').onclick = () => { saveSoon(true); G.quest === 'craft' ? openHome() : G.quest === 'forge' ? openWorkshop() : openMenu(); };
 
 /* ====================== QUESTIONS ====================== */
 // Question: {kind:'choice', title(), sub(), big, bigSm, p (the engine's problem), src, options:[{html,cls,ok,fx,em,note()}], key, explain()}.
@@ -2790,7 +2833,6 @@ function relabelGame() {
   if (G.quest === 'battle' && G.mon) { fightHeader(); updateBars(); renderPotBar(); renderItemBar(); if (G.phase === 'pick') renderCards(); else if (G.phase === 'say') renderSay(); return; }
   else if (G.quest === 'craft') { craftHeader(); craftNote(); }
   else if (G.quest === 'forge') forgeHeader();
-  else if (G.quest === 'shop') shopHeader();
   const q = G.q; if (q) { $('#qTitle').textContent = q.title(); $('#qSub').textContent = q.sub(); $('#qBig').innerHTML = q.big ? exprHtml(q.big) : ''; }
   updateBars(); renderPotBar(); renderItemBar();
 }
@@ -3570,7 +3612,7 @@ const inVillage = () => G.quest === 'peace';
 const pName = id => t('pot_' + id);
 const pDesc = id => t('pot_' + id + '_d');
 const pBoth = id => t('pot_name', { n: pName(id) });   // "Heart potion" / "שיקוי לב"
-function inCraft() { return G.quest === 'craft' || G.quest === 'shop' || G.quest === 'forge'; }   // the question screen is also used for crafting and for buying in the shop
+function inCraft() { return G.quest === 'craft' || G.quest === 'forge'; }   // the question screen is also used for crafting (the shop has its own checkout screen)
 const STARTER_POTIONS = { heart: 2, sound: 2, power: 2, second: 2 };   // a free gift for every student; more come from crafting and the shop
 const carried = () => POTION_IDS.reduce((a, id) => a + ((P.carry || {})[id] || 0), 0);
 const athome = () => POTION_IDS.reduce((a, id) => a + ((P.pot || {})[id] || 0), 0);
@@ -4186,7 +4228,7 @@ async function craftPick(i, btn) {
   if (G.locked) return; const q = G.q, o = q.options[i], first = G.tries === 0; G.tries++;
   if (o.ok) {
     G.locked = true; btn.classList.add('good'); document.querySelectorAll('.opt').forEach(b => { b.disabled = true; }); craftCount(first, true);
-    sfx.ok(); $('#fb').innerHTML = `✅ ${q.explain()}`; await sleep(1300); G.quest === 'shop' ? shopBought() : craftNext();
+    sfx.ok(); $('#fb').innerHTML = `✅ ${q.explain()}`; await sleep(1300); craftNext();
   } else { btn.classList.add('bad'); btn.disabled = true; sfx.bad(); craftCount(first, false); $('#fb').innerHTML = t('try_again_fb', { note: o.note ? o.note() : t('not_that') }); saveSoon(); if (G.quest === 'craft') craftBurn(); }
 }
 function craftNext() {
@@ -4402,13 +4444,13 @@ const owns = s => s.kind === 'caul' ? (P.own.caul || 0) >= s.lv : s.kind === 'de
 function whyNot(s) {   // why this item cannot be bought right now ('' = it can)
   if (owns(s)) return t('have_it');
   if (s.kind === 'caul' && s.lv > (P.own.caul || 0) + 1) return t('buy_iron_first');
-  if (Math.floor(P.coins || 0) < s.price) return t('need_coins', { n: s.price - Math.floor(P.coins || 0) });
+  if (Math.floor(P.coins || 0) < unitPrice(s)) return t('need_coins', { n: unitPrice(s) - Math.floor(P.coins || 0) });
   return '';
 }
 function shopCard(s) {   // a card in the potions / wardrobe lists under the shop room
   const why = whyNot(s), pic = s.kind === 'wear' && s.wtype !== 'acc' ? `<span class="shopRobe">${robePic(s)}</span>` : s.kind === 'potion' ? `<span class="packBottle">${potionSVG(s.pid)}<i>${s.em}</i></span>` : `<span class="shopEm">${s.em}</span>`;
   const name = s.kind === 'potion' ? `<b class="potTitle">${pBoth(s.pid)}</b>` : `<b>${nameOf(s)}</b>`;   // ONE name per card
-  return `<button class="shopItem ${why ? 'off' : ''} ${owns(s) ? 'own' : ''}" data-buy="${s.id}">${pic}${name}<span class="price">${owns(s) ? '✓' : '🪙 ' + s.price}</span>${why && !owns(s) ? `<small class="why">${why}</small>` : ''}</button>`;
+  return `<button class="shopItem ${why ? 'off' : ''} ${owns(s) ? 'own' : ''}" data-buy="${s.id}">${pic}${name}<span class="price">${owns(s) ? '✓' : priceHtml(s)}</span>${why && !owns(s) ? `<small class="why">${why}</small>` : ''}</button>`;
 }
 
 /* ----- the room ----- */
@@ -4476,7 +4518,7 @@ function renderShop() {
   let p = '<div class="shAt shProp" style="--x:12;--y:74;z-index:16">🧺</div><div class="shAt shProp" style="--x:89;--y:72;z-index:16;font-size:calc(var(--u)*5.4)">🪣</div>';
   p += `<div class="shAt shMerchant" style="--x:50;--y:58.4" aria-label="${t('merchant')}">${merchantSVG(skin)}</div><div class="shAt shSay" id="shSay" style="--x:72;--y:55">${sh.ids.length ? t('welcome_look') : t('own_all')}</div>`;
   sh.ids.forEach((id, i) => { const it = SHOP[id], [x, y] = SH_SLOTS[i], sold = owns(it);
-    p += `<button class="shAt shSlot${sold ? ' sold' : ''}" data-buy="${id}" style="--x:${x};--y:${y}" aria-label="${t('coins_aria', { n: nameOf(it), p: it.price })}">${id === 'd_rug' ? '<span class="em"><span class="shRug"></span></span>' : `<span class="em">${it.em}</span>`}<span class="shPrice">${sold ? t('sold') : '🪙 ' + it.price}</span></button>`; });
+    p += `<button class="shAt shSlot${sold ? ' sold' : ''}" data-buy="${id}" style="--x:${x};--y:${y}" aria-label="${t('coins_aria', { n: nameOf(it), p: it.price })}">${id === 'd_rug' ? '<span class="em"><span class="shRug"></span></span>' : `<span class="em">${it.em}</span>`}<span class="shPrice">${sold ? t('sold') : priceHtml(it)}</span></button>`; });
   $('#shProps').innerHTML = p;
   let f = '<div class="shAt shCoin" style="--x:74;--y:59">🪙</div><div class="shAt shCoin" style="--x:78;--y:59;font-size:calc(var(--u)*3)">🪙</div><div class="shAt shCoin" style="--x:86;--y:59;font-size:calc(var(--u)*4.4)">🔔</div>';
   f += next ? `<button class="shAt shCau" data-buy="${next.id}" style="--x:24;--y:59" aria-label="${t('coins_aria', { n: nameOf(next), p: next.price })}">${cauldronArt(c + 1)}<span class="shPrice">🪙 ${next.price}</span></button>` : `<div class="shAt shFull" style="--x:24;--y:59">${t('fully_up')}</div>`;
@@ -4491,7 +4533,7 @@ function renderShopPanel() {
 }
 function openShop() {
   G.quest = null; show('shop'); shopPanel = null;
-  $('#shopCoins').textContent = Math.floor(P.coins || 0);
+  $('#shopCoins').textContent = Math.floor(P.coins || 0); $('#shopWallet').innerHTML = walletHtml(P.coins);
   $('#shBtnPots .potIco').innerHTML = potionSVG('any'); renderShop(); renderShopPanel();
   if (P.shopNote) { const n = P.shopNote; P.shopNote = null; saveSoon(true); setTimeout(() => toast(n), 400); }
 }
@@ -4502,35 +4544,120 @@ $('#shop').onclick = e => {
   if (e.target.closest('[data-close]')) { shopPanel = null; renderShopPanel(); return; }
   const b = e.target.closest('[data-buy]'); if (b) openShopItem(SHOP[b.dataset.buy]);
 };
-function openShopItem(s) {   // look at it first: picture, name and price
-  const why = whyNot(s), own = owns(s), nm = s.kind === 'potion' ? pBoth(s.pid) : nameOf(s);
-  modal('', `<div class="shCard"><div class="pic">${shPic(s)}</div><h2>${nm}</h2><p class="en">${[s.kind === 'potion' ? pDesc(s.pid) : '', s.unlock ? t('unlocks', { x: t(s.unlock) }) : ''].filter(Boolean).join(' · ')}</p><span class="chipPrice">🪙 ${s.price}</span>
-    <p style="min-height:1.4em;margin:4px 0 0">${own ? t('own_this') + (s.kind === 'decor' ? t('waiting_home') : '') : why}</p></div>`,
-    why ? [[t('close'), null, true]] : [[t('buy'), () => buyStart(s), false], [t('not_now'), null, true]]);
+/* ----- the daily sale (spec 04 §4.3): 3 items of today's shelf and the potions; its form follows the student's level and the price is real ----- */
+function todaySale() {
+  const d = today(), L = BR.easy(P.mlvl);
+  if (!P.sale || P.sale.d !== d || P.sale.L !== L) { const ids = shopShelf().ids.concat(POTION_IDS.map(id => 'pot_' + id)).filter(id => CK.saleForm(SHOP[id].price, L, () => 0)); P.sale = { d, L, ids: CK.saleIds(ids, rngSeed(strHash('sale' + d + P.id))) }; saveSoon(); }   // only items that can have a sale at this level
+  return P.sale;
 }
-function buyStart(s) { G.shop = { id: s.id }; startShopBuy(s.id); }
-function startShopBuy(id) {
-  const s = SHOP[id]; G.quest = 'shop'; G.shop = { id }; G.sess = 0; G.combo = 0; G.potUsed = true; G.snap = null; G.noCount = true;
-  show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted);
-  $('#stage').className = 'stage craft'; setStageBg(); $('#aura').innerHTML = ''; $('#heroBox').classList.remove('hurt'); fxStatus();
-  $('#foeBody').className = 'foeBody'; $('#foeBody').style.filter = ''; $('#foeBody').innerHTML = `<span class="shMerchBody">${merchantSVG(SH_SKINS[shopShelf().skin % SH_SKINS.length])}</span>`;
-  shopHeader(); $('#hearts').textContent = '🪙 ' + s.price; $('#heroBox').classList.remove('heroGlow'); $('#hpFill').style.width = '0%'; $('#potBar').style.display = 'none';
-  nameQuestion(s, Object.values(SHOP), { title: 'shop_t', sub: 'shop_s' });
+function saleOf(s) {   // the sale form of this item today, or null (the same all day; it changes with the math level)
+  if (!s || owns(s) || !todaySale().ids.includes(s.id)) return null;
+  return CK.saleForm(s.price, BR.easy(P.mlvl), rngSeed(strHash(todaySale().d + s.id + BR.easy(P.mlvl))));
 }
-function shopHeader() {   // the buying screen's labels (also redrawn after a language switch)
-  const s = SHOP[G.shop.id];
-  $('#foeName').textContent = t('merchant');
-  $('#mid').innerHTML = `<b>${t('the_shop')}</b><div class="runNote">${t('shop_note', { x: s.kind === 'wear' && s.wtype !== 'acc' ? t('this_robe') : s.em })}</div>`;
-  $('#tierLbl').textContent = levelLbl(P.mlvl); $('#xpFill').style.width = xpPct() + '%';
+const unitPrice = s => { const f = saleOf(s); return f ? f.pay : s.price; };
+// the sale's label: before the fraction levels the new price is shown; from then on only the form (working out the price is the task)
+function saleTag(f) {
+  if (!f) return ''; const x = f.kind === 'off' ? t('sale_off', { x: f.x }) : f.kind === 'frac' ? t('sale_frac', { f: exprHtml(`[${f.n}/${f.d}]`) }) : f.kind === 'offfrac' ? t('sale_offfrac', { f: exprHtml(`[${f.n}/${f.d}]`) })
+    : f.kind === 'two' ? t('sale_two', { f: exprHtml(`[${f.n}/${f.d}]`), g: exprHtml(`[${f.n2}/${f.d2}]`) }) : t('sale_pct', { p: f.p });
+  return `<span class="saleTag">🏷️ ${x}</span>`;
 }
-function shopBought() {
-  const s = SHOP[G.shop.id];
-  if (Math.floor(P.coins || 0) < s.price || owns(s)) { openShop(); return; }
-  P.coins = Math.round((P.coins - s.price) * 1000) / 1000;
-  if (s.kind === 'caul') P.own.caul = s.lv; else if (s.kind === 'potion') P.pot[s.pid] = (P.pot[s.pid] || 0) + 1; else if (s.kind === 'wear') P.wd.push(s.id); else P.own.decor.push(s.id);
-  P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🪙', '✨', s.em]); $('#shopCoins').textContent =Math.floor(P.coins || 0); renderShop(); renderShopPanel();
-  modal(t('thanks_t'), `<p style="text-align:center;font-size:3rem;margin:6px">${s.em}</p><p style="text-align:center">${t('bought', { n: s.kind === 'potion' ? pBoth(s.pid) : nameOf(s) })}${t(s.kind === 'potion' ? 'bought_pot' : s.kind === 'decor' ? 'bought_decor' : s.kind === 'wear' ? 'bought_wear' : 'bought_caul')}</p>${xpLine(CB.CFG.XP_CRAFT)}`,
-    [[t('keep_shop'), openShop], [t('go_home'), openHome], [t('back_map'), openMenu, true]]);
+const priceHtml = s => { const f = saleOf(s); return f ? (f.kind === 'off' ? `<s>🪙 ${s.price}</s> 🪙 ${f.pay}` : `🪙 ${s.price}`) + saleTag(f) : `🪙 ${s.price}`; };
+// the balance as coins (spec 04 §4.4): 237 → 2 gold, 3 silver, 7 copper
+const coinHtml = (k, cls = '') => `<span class="coin ${k} ${cls}">${CK.CFG.MONEY[k]}</span>`;
+function walletHtml(n) { const s = CK.split(Math.floor(n || 0)); return `<span class="wallet" dir="ltr" title="${Math.floor(n || 0)}">${s.g ? `${s.g}${coinHtml('g', 'sm')} ` : ''}${s.s}${coinHtml('s', 'sm')} ${s.c}${coinHtml('c', 'sm')}</span>`; }
+
+function openShopItem(s) {   // look at it first: picture, name and price (and how many, for potions from the multiplication levels)
+  const why = whyNot(s), own = owns(s), nm = s.kind === 'potion' ? pBoth(s.pid) : nameOf(s), many = s.kind === 'potion' && BR.easy(P.mlvl) >= CK.CFG.QTY_FROM; let qty = 1;
+  const qtyRow = () => many ? `<div class="slotOpts" id="qtyRow">${Array.from({ length: CK.CFG.QTY_MAX }, (_, i) => i + 1).map(q => `<button class="slotBtn ${q === qty ? 'sel' : ''}" data-q="${q}" ${q * unitPrice(s) > Math.floor(P.coins || 0) ? 'disabled' : ''}>${s.em} ×${q}</button>`).join('')}</div>` : '';
+  modal('', `<div class="shCard"><div class="pic">${shPic(s)}</div><h2>${nm}</h2><p class="en">${[s.kind === 'potion' ? pDesc(s.pid) : '', s.unlock ? t('unlocks', { x: t(s.unlock) }) : ''].filter(Boolean).join(' · ')}</p><span class="chipPrice">${priceHtml(s)}</span>
+    <p style="min-height:1.4em;margin:4px 0 0">${own ? t('own_this') + (s.kind === 'decor' ? t('waiting_home') : '') : why}</p>${!why && many ? `<p class="small">${t('how_many')}</p>${qtyRow()}` : ''}</div>`,
+    why ? [[t('close'), null, true]] : [[t('buy'), () => startCheckout(s, qty), false], [t('not_now'), null, true]]);
+  const card = $('#modal .shCard'); if (card) card.onclick = e => { const b = e.target.closest('[data-q]'); if (!b || b.disabled) return; qty = +b.dataset.q; $('#qtyRow').outerHTML = qtyRow(); };
+}
+
+/* ----- the checkout (spec 04 §4): one task at the easy step, with the coin tray or answer buttons. Right: the item is bought at the real price, +3 XP.
+   Wrong: try again; after 2 wrong tries the merchant shows a worked example and gives a new task of the same kind (the item is bought only after a right answer). ----- */
+let CKS = null;   // { id, qty, sale, k (the task), tries, added: { c, s, g } (coins the student put on the counter), done }
+function startCheckout(s, qty, t0) {
+  $('#modal').classList.remove('on');
+  const sale = saleOf(s), mk = () => CK.task({ mlvl: P.mlvl, price: s.price, qty, sale, bal: Math.floor(P.coins || 0), t: t0 }); let k = mk();
+  for (let i = 0; i < 6 && CKS && t0 && k.p.key === CKS.k.p.key; i++) k = mk();   // a new task, not the same numbers again
+  if (k.pay > Math.floor(P.coins || 0)) { toast(t('need_coins', { n: k.pay - Math.floor(P.coins || 0) })); return; }
+  CKS = { id: s.id, qty, sale, k, tries: 0, added: { c: 0, s: 0, g: 0 }, done: false };
+  G.quest = 'checkout'; G.noCount = false; show('checkout'); renderCheckout();
+}
+const ckAdded = () => CKS.added.c + 10 * CKS.added.s + 100 * CKS.added.g;
+function ckItemName() { const s = SHOP[CKS.id]; return (CKS.qty > 1 ? CKS.qty + ' × ' : '') + (s.kind === 'potion' ? pBoth(s.pid) : nameOf(s)); }
+function ckText() {   // the merchant's words: each kind of task has its sentence
+  const k = CKS.k, v = k.v, n = ckItemName(), f = v.s, s1 = SHOP[CKS.id], n1 = s1.kind === 'potion' ? pBoth(s1.pid) : nameOf(s1);
+  switch (k.kind) {
+    case 'pay': return t('ck_pay', { n, p: v.pay });
+    case 'rest': return t('ck_rest', { n, p: v.pay, x: v.placed });
+    case 'silver': return t('ck_silver', { n, p: v.pay });
+    case 'change': return t('ck_change', { n, p: v.pay, x: v.n });
+    case 'left': return t('ck_left', { n, p: v.pay, b: v.bal });
+    case 'coins': return t('ck_coins', { n, x: walletHtml(v.g * 100 + v.s * 10 + v.c) });
+    case 'several': return t('ck_several', { q: v.qty, n: SHOP[CKS.id].kind === 'potion' ? pBoth(SHOP[CKS.id].pid) : nameOf(SHOP[CKS.id]), p: v.unit });
+    case 'afford': return t('ck_afford', { n: pBoth(SHOP[CKS.id].pid), p: v.unit, x: v.pay });
+    case 'split': return t('ck_split', { n, p: v.pay, k: v.k });
+    case 'order': return t('ck_order', { q: v.qty, n: pBoth(SHOP[CKS.id].pid), p: v.unit, c: v.c });
+    case 'sale': return t('ck_sale', { n: n1, tag: saleTag(f), p: v.price });
+    case 'salechange': return t('ck_salechange', { n: n1, tag: saleTag(f), p: v.price, x: v.n });
+    case 'decleft': return t('ck_decleft', { n, p: v.pay, b: v.bal });
+    case 'deccoins': return t('ck_deccoins', { n, p: v.pay });
+    case 'decseveral': return t('ck_decseveral', { q: v.qty, n: pBoth(SHOP[CKS.id].pid), p: v.unit });
+  }
+  return t('ck_calc', { x: `<bdi dir="ltr">${exprHtml(k.p.e)}</bdi>` });
+}
+// coins on the counter: grouped by kind, copper in fives (a ten-frame picture at the counting levels)
+const coinPile = (k, n, cls, data) => Array.from({ length: n }, (_, i) => `${i && i % 5 === 0 ? '<i class="gap"></i>' : ''}${data ? `<button class="coinB" data-rm="${k}">${coinHtml(k, cls)}</button>` : coinHtml(k, cls)}`).join('');
+function renderCheckout() {
+  if (!CKS) return; const s = SHOP[CKS.id], k = CKS.k;
+  $('#ckTitle').textContent = t('the_shop'); $('#ckSub').textContent = t('ck_sub', { lvl: levelLbl(k.L) });
+  $('#ckWallet').innerHTML = walletHtml(P.coins);
+  $('#ckMerch').innerHTML = merchantSVG(SH_SKINS[shopShelf().skin % SH_SKINS.length]);
+  $('#ckItem').innerHTML = `<div class="pic">${shPic(s)}</div><b>${ckItemName()}</b>`;
+  $('#ckSay').innerHTML = ckText();
+  if (k.input === 'tray') {
+    const pl = CK.split(k.placed);
+    $('#ckCounter').innerHTML = `${k.placed ? `<div class="ckRow placed"><small>${t('ck_placed')}</small><div>${coinPile('g', pl.g, 'dim')}${coinPile('s', pl.s, 'dim')}${coinPile('c', pl.c, 'dim')}</div></div>` : ''}
+      <div class="ckRow"><small>${t('ck_yours')}</small><div>${['g', 's', 'c'].map(c => coinPile(c, CKS.added[c], '', true)).join('') || '<span class="small" style="opacity:.6">…</span>'}</div></div>`;
+    $('#ckInput').innerHTML = `<div class="ckTray">${k.coins.slice().reverse().map(c => `<button class="ckCoinBtn" data-add="${c}">${coinHtml(c, 'big')}<small>${t('coin_' + c)}</small></button>`).join('')}</div>`;
+    $('#ckPay').hidden = false; $('#ckPay').textContent = t('ck_pay_btn'); $('#ckPay').disabled = CKS.done;
+  } else {
+    $('#ckCounter').innerHTML = '';
+    if (!CKS.opts) CKS.opts = shuffle(CK.choices(CKS.k));
+    $('#ckInput').innerHTML = `<div class="ckOpts">${CKS.opts.map((v, i) => `<button class="opt num" data-o="${i}" ${CKS.done ? 'disabled' : ''}>${ME.fmtHtml(v)}</button>`).join('')}</div>`;
+    $('#ckPay').hidden = true;
+  }
+}
+$('#checkout').onclick = e => {
+  if (!CKS || CKS.done) return;
+  const a = e.target.closest('[data-add]'); if (a) { if (ckAdded() < 2 * ME.num(CKS.k.p.a) + 100) { CKS.added[a.dataset.add]++; sfx.ok(); } $('#ckFb').innerHTML = ''; renderCheckout(); return; }
+  const r = e.target.closest('[data-rm]'); if (r) { CKS.added[r.dataset.rm] = Math.max(0, CKS.added[r.dataset.rm] - 1); renderCheckout(); return; }
+  const o = e.target.closest('[data-o]'); if (o) ckAnswer(ME.eq(CKS.opts[+o.dataset.o], CKS.k.p.a), ME.fmtHtml(CKS.opts[+o.dataset.o]));
+};
+$('#ckPay').onclick = () => { if (CKS && !CKS.done) ckAnswer(CK.checkTray(CKS.k, ckAdded()), String(ckAdded())); };
+$('#ckBack').onclick = () => { CKS = null; openShop(); };
+function ckAnswer(ok, said) {
+  const k = CKS.k; P.craft.n++; if (ok) P.craft.ok++;
+  after(record({ key: k.p.key, p: k.p, src: 'craft' }, ok));   // one scored answer (craft weight)
+  if (ok) { CKS.done = true; renderCheckout(); ckBought(); return; }
+  sfx.bad(); CKS.tries++; CKS.added = { c: 0, s: 0, g: 0 };
+  if (CKS.tries < CK.CFG.TRIES_BEFORE_HELP) { $('#ckFb').innerHTML = t('ck_wrong'); renderCheckout(); return; }
+  // the worked example, then a new task of the same kind
+  CKS.done = true; renderCheckout(); const s = SHOP[CKS.id], A = k.p.a, coins = ME.isWhole(A) && ME.num(A) <= 999 && A.k !== 'dec' ? CK.split(ME.num(A)) : null;
+  modal(t('ck_help_t'), `<div class="workEx"><div>${ckText()}</div><div class="weEq">${exprHtml(k.p.e, A)}</div>${coins && ['pay', 'rest', 'change', 'left', 'coins'].includes(k.kind) ? `<div class="ckRow">${k.placed ? (pl => coinPile('g', pl.g, 'dim') + coinPile('s', pl.s, 'dim') + coinPile('c', pl.c, 'dim') + ' <b>+</b> ')(CK.split(k.placed)) : ''}${coinPile('g', coins.g)}${coinPile('s', coins.s)}${coinPile('c', coins.c)}</div>` : ''}<div class="small">${t('you_put', { x: said })}</div></div><p>${t('ck_new')}</p>`,
+    [[t('ck_try_new'), () => startCheckout(s, CKS.qty, k.t)], [t('back_shop'), openShop, true]]);
+}
+function ckBought() {
+  const s = SHOP[CKS.id], cost = CKS.k.pay, qty = CKS.qty;
+  if (Math.floor(P.coins || 0) < cost || owns(s)) { openShop(); return; }
+  P.coins = Math.round((P.coins - cost) * 1000) / 1000;
+  if (s.kind === 'caul') P.own.caul = s.lv; else if (s.kind === 'potion') P.pot[s.pid] = (P.pot[s.pid] || 0) + qty; else if (s.kind === 'wear') P.wd.push(s.id); else P.own.decor.push(s.id);
+  P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🪙', '✨', s.em]); $('#ckFb').innerHTML = `✅ ${exprHtml(CKS.k.p.e, CKS.k.p.a)}`;
+  setTimeout(() => modal(t('thanks_t'), `<p style="text-align:center;font-size:3rem;margin:6px">${s.em}</p><p style="text-align:center">${t('bought', { n: ckItemName() })}${t(s.kind === 'potion' ? 'bought_pot' : s.kind === 'decor' ? 'bought_decor' : s.kind === 'wear' ? 'bought_wear' : 'bought_caul')}</p><p style="text-align:center">${t('ck_paid', { x: cost })} ${walletHtml(P.coins)}</p>${xpLine(CB.CFG.XP_CRAFT)}`,
+    [[t('keep_shop'), openShop], [t('go_home'), openHome], [t('back_map'), openMenu, true]]), 900);
 }
 /* ----- loot: coins (for the shop) and ingredients (for potions), both given at the END of a won fight ----- */
 // During the fight the reward is only calculated: every mistake lowers the coins and the chance of rare ingredients.
