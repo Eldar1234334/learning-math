@@ -465,3 +465,26 @@ Every spell was shown in the browser one family at a time; your comments were bu
 3. Demo level 14 → Potions → Heart → ×3: "3 × Heart potion at 15 each".
 4. Demo level 24: look for the red 🏷️ sale tags; buy a sale item: "⅕ off".
 5. Demo level 29 and 35: prices in silver with decimals; percent sales.
+
+### Step 8, round 2 (after your check) ✅ (on the test site, waiting for your check)
+
+**Your decisions:** the coins already on the counter at the counting levels are good (the tray makes the difference); the level 24 coupon is approved; real balance and several potions stay as built.
+
+**What changed**
+- **A fee for wrong answers:** each wrong answer may cost a fee of a tenth of the price (at least 1 coin). The chance is the same as losing ingredients in brewing: 10% at wizard level 1, +2% per level, at most 50%. "Not quite. Try again! The merchant kept a fee of 7 🪙."
+- **The side walls:**
+  - right wall: **potion shelves**; tap them for the potions;
+  - left wall: a **wardrobe** (the robes);
+  - left corner: a **mannequin** with a hat and a necklace (the accessories).
+  Each glows on hover and opens its own list. The buttons under the room still work.
+- **Fixed:** the result of the last purchase ("✅ 50 − 10 = 40") no longer shows when you buy the next item.
+- **Stacks and changing coins:** on the counter, every 10 coins of one kind stand in a stack, with a ⇄ button that changes them for 1 coin of the next kind (10 copper → 1 silver, 10 silver → 1 gold). Tapping a stack takes all 10 back.
+- **The coin tray as help** (from easy step 8, tasks with answer buttons whose answer is a number of coins): a "🪙 Use the coin tray (help)" button opens the tray to model the money. With help, the answer counts **¼ instead of ½** toward moving up the math level (moving down stays 1), and the purchase gives **2 XP instead of 3**.
+- **Sales the student can work out:** "10 off" no longer shows the new price when the student's level can subtract it (from easy step 3). The task is then the sale: "Sale today! The telescope costs 80, 10 off. How much do you pay?" On the coin tray at the counting levels: "…Put the sale price on the counter." Only at the addition levels (easy steps 1–2), or when the numbers are too big for the level, is the new price shown.
+- **Tests:** 2 new shop tests (109 in all).
+
+**How to check**
+1. Demo level 9 → Shop: the wardrobe, the mannequin and the potion shelves open their lists.
+2. A "10 off" item: the merchant asks you to work out the sale price. Tap **Use the coin tray (help)**, put 12 copper: a stack of 10 with ⇄; tap it for 1 silver.
+3. Answer wrong a few times: sometimes the merchant keeps a fee.
+4. Buy two things in a row: the second checkout starts clean.

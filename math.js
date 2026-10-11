@@ -404,7 +404,7 @@
   // a mistake always counts 1. So 10 right shop answers are worth 5 answers: they fill only half of the window.
   // The window is measured in these weights: "the last 10–12 answers" = the most recent answers whose weights add up to 10–12.
   const RULES = { upAcc: 0.85, upMin: 10, upMax: 12, downAcc: 0.5, downWin: 8, placeWin: 5, placeAnswers: 20 };
-  const WEIGHT = { cur: { u: 1, d: 1 }, hard: { u: 1.25, d: 1 }, review: { u: 0.5, d: 1 }, weak: { u: 1, d: 1 }, craft: { u: 0.5, d: 1 } };
+  const WEIGHT = { cur: { u: 1, d: 1 }, hard: { u: 1.25, d: 1 }, review: { u: 0.5, d: 1 }, weak: { u: 1, d: 1 }, craft: { u: 0.5, d: 1 }, craftHelp: { u: 0.25, d: 1 } };   // craftHelp: a shop task answered with the coin tray's help (owner, step 8)
   const wOf = e => e.ok ? e.u : e.d;
   // the most recent answers whose weights add up to (at most just past) size; returns their total weight and weighted accuracy
   function windowOf(hist, size) { let w = 0, r = 0; for (let i = hist.length - 1; i >= 0 && w < size; i--) { const e = hist[i]; w += wOf(e); if (e.ok) r += e.u; } return { w, acc: w ? r / w : 0 }; }

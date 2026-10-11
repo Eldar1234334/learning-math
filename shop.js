@@ -18,7 +18,9 @@
     MONEY: { c: 1, s: 10, g: 100 },
     MONEY_SHOW: [[1, ['c']], [5, ['c', 's']], [8, ['c', 's', 'g']]],   // [from the easy step, the coins in the tray] (spec 04 §6)
     PAY_MAX: [[1, 5], [2, 10], [5, 20], [7, 100], [17, 1000], [21, 10000]],   // the biggest amount the tray asks for, by the easy step
-    OFF: [5, 10]                                               // a sale before the fraction levels: 5 or 10 copper off
+    OFF: [5, 10],                                              // a sale before the fraction levels: 5 or 10 copper off
+    FEE: 0.1,                                                  // a wrong answer may cost a fee: this part of the price, with the brewing loss chance (owner, step 8)
+    HELP_FROM: 8                                               // the coin tray as help for answer-button tasks (counts less toward the math level)
   };
   const easy = BR.easy;
   const pick = (a, rnd) => a[Math.floor(rnd() * a.length)];
@@ -40,6 +42,8 @@
     else for (const p of [10, 20, 25, 50]) { const v = price * (100 - p) / 100; if (Number.isInteger(v)) opts.push({ kind: 'pct', p, pay: v }); }
     return opts.length ? pick(opts, rnd) : null;
   }
+  // "10 off": the student works out the sale price whenever the level can (owner, step 8); only below that is the new price shown
+  const offByStudent = (s, L) => !!s && s.kind === 'off' && L >= 3 && (s.pay <= payMax(L) || can(s.pay, L));
   // today's sale: SALE_ITEMS of the candidate ids (seeded by the day, so it stays the same all day)
   function saleIds(ids, rnd) { const a = ids.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, CFG.SALE_ITEMS); }
 
@@ -81,6 +85,9 @@
     order(o, L) {   // "3 potions at 15, with a 5-coin coupon" (the coupon is real)
       if (o.qty < 2 || o.qty * o.unit <= 20) return null; const c = o.qty * o.unit > 40 ? 10 : 5, x = o.qty * o.unit - c;
       return { kind: 'order', input: 'choice', v: { qty: o.qty, unit: o.unit, c }, p: P_(L, `${o.qty} × ${o.unit} − ${c}`, ME.I(x), `order ${o.qty}x${o.unit}-${c}`, 'a×b−c', { a: o.qty * o.unit, b: x, op: 'order' }), alts: [o.qty * (o.unit - c), o.qty * o.unit], coupon: c }; },
+    saleOff(o, L) {   // "Sale today! The plant costs 15, 5 off." (subtraction; on the tray at the counting levels)
+      if (!offByStudent(o.sale, L)) return null; const s = o.sale, tray = L <= 7;
+      return { kind: 'saleoff', input: tray ? 'tray' : 'choice', v: { price: o.price, s }, p: P_(L, `${o.price} − ${s.x}`, ME.I(s.pay), `saleoff ${o.price}-${s.x}`, 'a-b', { a: o.price, b: s.x, op: '-' }), placed: 0, alts: [o.price + s.x, o.price] }; },
     sale(o, L) {   // the sale with fractions or percentages: the student works out the sale price (per item)
       const s = o.sale; if (!s || s.kind === 'off') return null; const pr = o.price;
       if (s.kind === 'frac') return { kind: 'sale', input: 'choice', v: { price: pr, s }, p: P_(L, `{of:[${s.n}/${s.d}]|${pr}}`, ME.I(s.pay), `sale ${s.n}/${s.d} of ${pr}`, 'frac of', { a: pr, b: s.d, op: '÷' }), alts: [pr - s.pay] };
@@ -110,7 +117,7 @@
     const rnd = o.rnd || Math.random, L0 = easy(o.mlvl), qty = Math.max(1, o.qty || 1), unit = o.sale ? o.sale.pay : o.price;
     const c = { price: o.price, qty, unit, pay: qty * unit, sale: o.sale, bal: Math.floor(o.bal || 0), rnd };
     for (let L = L0; L >= 1; L--) {
-      let names = bandOf(L).slice(); if (L === L0 && L >= 3 && L <= 4 && rnd() < .5) names.reverse();
+      let names = bandOf(L).slice(); if (L === L0 && L >= 3 && L <= 4 && rnd() < .5) names.reverse(); if (c.sale && c.sale.kind === 'off' && (c.qty === 1 || L > 7)) names.unshift('saleOff');
       if (o.t && T[o.t]) names = [o.t].concat(names.filter(n => n !== o.t));   // after a worked example: a new task of the same kind
       for (const n of names) { const k = T[n](c, L); if (k) return Object.assign(k, { t: n, L, coins: coinsAt(L), pay: c.pay - (k.coupon || 0) }); }
     }
@@ -127,6 +134,9 @@
   // tray: is the amount the student put on the counter right? (placed coins are not counted)
   const checkTray = (k, added) => added === ME.num(k.p.a);
 
-  const CK = { CFG, easy, coinsAt, payMax, split, saleForm, saleIds, task, choices, checkTray, BANDS };
+  // the coin tray can help with a task whose answer is a whole number of coins
+  const canHelp = k => k.input === 'choice' && k.L >= CFG.HELP_FROM && ME.isWhole(k.p.a) && k.p.a.k !== 'dec' && ME.num(k.p.a) <= 2000;
+  const fee = k => Math.max(1, Math.round(k.pay * CFG.FEE));
+  const CK = { CFG, easy, coinsAt, payMax, split, saleForm, saleIds, offByStudent, task, choices, checkTray, canHelp, fee, BANDS };
   if (typeof module === 'object' && module.exports) module.exports = CK; else root.CK = CK;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

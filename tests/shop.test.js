@@ -45,6 +45,19 @@
     for (let L = 1; L <= 35; L++) for (const price of PRICES) { const s = CK.saleForm(price, L, rnd); if (s) assert(Number.isInteger(s.pay) && s.pay > 0 && s.pay < price, 'sale ' + JSON.stringify(s)); }
     assert(CK.saleIds(['a', 'b', 'c', 'd', 'e'], rnd).length === CK.CFG.SALE_ITEMS, 'three items');
   });
+  test('"10 off": the student works out the sale price when the level can (owner, step 8)', () => {
+    const off = { kind: 'off', x: 10, pay: 30 };
+    assert(!CK.offByStudent(off, 2), 'addition levels: the new price is shown');
+    assert(CK.offByStudent(off, 7) && CK.offByStudent(off, 12), 'subtraction levels: the student works it out');
+    const k = CK.task({ mlvl: 8, price: 40, qty: 1, sale: off, bal: 90, rnd }); assert(k.kind === 'saleoff' && k.input === 'tray' && ME.num(k.p.a) === 30 && k.pay === 30, 'on the tray ' + k.kind);
+    const k2 = CK.task({ mlvl: 12, price: 40, qty: 1, sale: off, bal: 90, rnd }); assert(k2.kind === 'saleoff' && k2.input === 'choice', 'answer buttons ' + k2.kind);
+  });
+  test('the coin tray as help and the fee for a wrong answer', () => {
+    const k = CK.task({ mlvl: 10, price: 37, bal: 80, rnd }); assert(CK.canHelp(k), 'help for ' + k.kind);
+    assert(!CK.canHelp(CK.task({ mlvl: 4, price: 15, bal: 80, rnd })), 'no help when the tray is the task');
+    assert(CK.fee({ pay: 70 }) === 7 && CK.fee({ pay: 4 }) === 1, 'a tenth of the price, at least 1');
+    assert(ME.WEIGHT.craftHelp.u < ME.WEIGHT.craft.u, 'help counts less toward the math level');
+  });
   test('after a worked example: a new task of the same kind', () => {
     const k = CK.task({ mlvl: 10, price: 37, bal: 80, rnd }), k2 = CK.task({ mlvl: 10, price: 37, bal: 80, rnd, t: k.t });
     assert(k2.t === k.t, k.t + ' → ' + k2.t);
