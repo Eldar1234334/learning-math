@@ -359,7 +359,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 
 ---
 
-## Step 7: Brewing ✅ (on the test site, waiting for your check)
+## Step 7: Brewing ✅ (checked by the owner)
 
 **Goal:** spec 04 §3: the recipe is the math. The student measures each line of a recipe card into the cauldron, then brews.
 
@@ -389,7 +389,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 4. Teacher area → demo → math level 16 → Home → Power potion: choose the stones and ×3: a batch.
 5. Demo math level 27 or 30: the jug in cup fractions or litres.
 
-### Step 7, round 2 (after your check) ✅ (on the test site, waiting for your check)
+### Step 7, round 2 (after your check) ✅ (checked by the owner)
 
 **Your three proposals are approved** (herbs from every win, rare items are not math, review herb lines at the fraction/decimal levels).
 
@@ -407,15 +407,15 @@ Every spell was shown in the browser one family at a time; your comments were bu
   - Equivalent fractions and fraction division use a **scoop**: "The recipe says ¼ cup, but your scoop holds ⅛ cup. Pour that many scoops." · "Your scoop holds ⅛ cup. How many scoops make 6 cups?"
   - Decimal problems always use litres (no more "82.6 drops"). Problems that are not an amount ("4/12 = 1/□") are not used for liquids.
 - **Proportions (ratio lines):** from the easy step 16 (after division), about 1 recipe in 3 has a ratio line tied to the first herb:
-  - "For every 3 🍃 leaves, pour 15 drops. The recipe has 9 🍃 leaves." (45 drops)
-  - in the Heart potion between the two herbs: "For every 2 🍃 leaves, put in 3. The recipe has 6 🍃 leaves." (9 grass)
+  - "For every 3 🍃 leaves in this recipe, pour 15 drops." The amount of leaves is not written: it is the answer of the leaf line above (9 leaves → 45 drops). (Your comment: do not say the amount.)
+  - in the Heart potion between the two herbs: "For every 2 🍃 leaves in this recipe, put in 3." (6 leaves → 9 grass)
   - At the fraction levels the liquid is in cups ("for every 2 leaves, ¾ cup"), at the decimal levels in litres ("for every 3 leaves, 0.25 L").
   - The worked example shows the leaves in groups with "+15" under each group.
 - **Hebrew:** calculations in recipe lines read left to right ("3 × 5 − 9" was shown reversed).
 - **Tests:** 4 new brewing tests (102 in all): herb amounts vary, ratio lines, filling in rare items, liquid lines.
 
-**My proposal (please approve or change)**
-- **Ratio lines** from the easy step 16, in about 1 recipe of 3. The math ladder still has no ratio problems (your level 35 decision stays); ratios appear only in recipes, where they are concrete ("for every 2 leaves…").
+**Owner decisions**
+- **Ratio lines** from the easy step 16, in about 1 recipe of 3: **approved by the owner**, without writing the amount of the first herb (the student uses the answer of the line above).
 
 **How to check**
 1. Demo math level 17 → Home → cauldron → Heart: watch the steam; brew right (the potion rises) and wrong (the smoke). In the "ready" window, tap **Brew another**.
