@@ -95,7 +95,7 @@
     o.pouch = Object.assign({}, RUN.POUCH); o.powerUsed = false;
     const max = CB.wizMaxHP(o.g), hero = { hp: max, max }, n = RUN.MIN + Math.floor(rnd() * (RUN.MAX - RUN.MIN + 1)), fights = [];
     for (let i = 0; i <= n; i++) {
-      const boss = i === n, foes = foesFor(o, boss), st = { g: o.g, hero, foes, mon: foes[0], fx: CB.newFx() };
+      const boss = i === n, foes = foesFor(o, boss), st = { g: o.g, hero, foes, mon: foes[0], fx: CB.newFx(), ptyp: CB.pTyp(o.mlvl, o.learned, o.g) };
       const f = fight(st, o, P); f.boss = boss; f.group = foes.length > 1; f.ab = foes[0].ab.slice(); fights.push(f);
       if (!f.won) return { won: false, fights, cleared: i, hpLeft: 0 };
       hero.hp = Math.min(max, hero.hp + Math.round(max * CB.CFG.WIN_REGEN));

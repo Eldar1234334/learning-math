@@ -37,6 +37,7 @@
     REGEN: 0.1, REGEN_BOSS: 0.05, CHARGE_EVERY: 3,   // (p) step 6: a regenerating boss heals 5% (it has twice the HP)
     CHARGE_MULT: 3, SHIFT_EVERY: 2,
     GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.8, GROUP_ATK_EACH: 1,            // owner decisions: each monster of a group has 80% of a single monster's HP, and attacks as hard as one
+    DRAGON_SHARE: 0.5,                                                     // owner decision: each Dragon breath deals half of a typical good cast (P_typ × S) to every monster
     GROUP_CASTS: 2,                                                        // owner decision: in a group fight the student casts 2 spells every turn
     // XP (spec 03 §5.1)
     XP_FIGHT: 10, XP_FIGHT_PERFECT: 5, XP_BOSS: 40, XP_BOSS_PERFECT: 20, XP_CRAFT: 3
@@ -255,6 +256,7 @@
     const mon = st.mon, fs = foesOf(st), ev = { k: 'fizzle', rel: relation(spell, mon.el, mon), spell };
     if (!spell) return ev;
     const f = spell.fx || {}, buff = st.fx.buff; st.fx.buff = 1;   // a buff works on the next spell only
+    if (buff > 1) ev.buffed = buff;   // (the screen shows the boosted spell with its echo)
     const mult = S(st.g) * buff * bonus;
     const hitOn = (m, x) => { const d = Math.max(1, Math.round(x * (armorUp(m) ? CFG.ARMOR_DMG_MULT : 1))); m.hp = Math.max(0, m.hp - d); return d; }, hit = x => hitOn(mon, x);   // an armor halves the damage
     const healOn = (m, x) => { const h = Math.min(Math.max(1, Math.round(x)), m.max - m.hp); m.hp += h; return h; };
@@ -288,7 +290,7 @@
         break;
       }
       case 'buff': st.fx.buff = f.x; ev.x = f.x; break;
-      case 'summon': st.fx.summon = { turns: f.turns, pw: f.pw, el: f.el, em: f.em }; break;
+      case 'summon': st.fx.summon = { turns: f.turns, pw: f.area && st.ptyp ? st.ptyp * CFG.DRAGON_SHARE : f.pw, el: f.el, em: f.em, area: !!f.area }; break;   // the Dragon: half a typical good cast (st.ptyp) on every monster, each turn
       case 'reflect': st.fx.reflect = true; break;
       case 'drain': ev.dmg = hit(f.n * mult); ev.heal = Math.min(st.hero.max - st.hero.hp, ev.dmg); st.hero.hp += ev.heal; break;
       case 'revive': if (!st.fx.reviveUsed) st.fx.revive = true; break;
@@ -304,9 +306,11 @@
   function monsterTurn(st, rnd = Math.random) {
     const ev = { hits: [], dmg: 0, skips: [], regens: [], shifts: [], hpBefore: st.hero.hp }, fs = foesOf(st), fam = st.fx.summon;
     if (fam && fam.turns > 0) {
-      const mon = st.mon, rel = fam.el === 'arcane' ? 'weak' : (MON_EL[mon.el].weak.includes(fam.el) ? 'weak' : MON_EL[mon.el].heal.includes(fam.el) ? 'heal' : 'none');
-      ev.familiar = { em: fam.em, rel, dmg: 0, i: fs.indexOf(mon) };
-      if (rel === 'weak') { ev.familiar.dmg = Math.max(1, Math.round(fam.pw * S(st.g))); mon.hp = Math.max(0, mon.hp - ev.familiar.dmg); }
+      // a familiar attacks the target; the Dragon breathes on every monster (area, owner decision). hits: [{ i, dmg }]
+      const famRel = m => fam.el === 'arcane' ? 'weak' : (MON_EL[m.el].weak.includes(fam.el) ? 'weak' : MON_EL[m.el].heal.includes(fam.el) ? 'heal' : 'none');
+      const tg = fam.area ? alive(st) : [st.mon], mon = st.mon;
+      ev.familiar = { em: fam.em, rel: famRel(mon), dmg: 0, i: fs.indexOf(mon), area: !!fam.area, hits: [] };
+      for (const m of tg) { const h = { i: fs.indexOf(m), dmg: 0 }; if (famRel(m) === 'weak') { h.dmg = Math.max(1, Math.round(fam.pw * S(st.g))); m.hp = Math.max(0, m.hp - h.dmg); } ev.familiar.hits.push(h); ev.familiar.dmg += h.dmg; }
       fam.turns--; if (fam.turns <= 0) st.fx.summon = null;
       if (retarget(st)) ev.next = true;
       if (defeated(st)) return ev;

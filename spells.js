@@ -61,9 +61,9 @@
   ];
   // new families by grade (spec 02 §6.4): [number text, English, Hebrew, element, type, math gate, effect]
   const FAMILY = [
-    ['25', 'Owl Familiar', 'ינשוף מלווה', 'arcane', 'summon', 8, { k: 'summon', turns: 3, pw: 1, el: 'arcane', em: '🦉' }],
+    ['25', 'Hawk Familiar', 'נץ מלווה', 'arcane', 'summon', 8, { k: 'summon', turns: 3, pw: 1, el: 'arcane', em: '🦅' }],   // was the Owl (owner decision)
     ['55', 'Wolf Familiar', 'זאב מלווה', 'arcane', 'summon', 8, { k: 'summon', turns: 3, pw: 2, el: 'arcane', em: '🐺' }],
-    ['99', 'Dragon Familiar', 'דרקון מלווה', 'fire', 'summon', 10, { k: 'summon', turns: 3, pw: 3, el: 'fire', em: '🐉' }],
+    ['99', 'Dragon Familiar', 'דרקון מלווה', 'fire', 'summon', 10, { k: 'summon', turns: 3, pw: 3, el: 'arcane', em: '🐉', area: true }],   // owner decisions: its breath always matches a weakness (it hits every element) and reaches every monster
     ['36', 'Mirror Ward', 'מגן מראה', 'arcane', 'special', 13, { k: 'reflect' }],
     ['49', 'Life Drain', 'יניקת חיים', 'arcane', 'special', 14, { k: 'drain', n: 3 }],
     ['64', 'Chain Lightning', 'ברק משורשר', 'lightning', 'area', 14, { k: 'area' }, 6],
@@ -131,6 +131,8 @@
     buff2: ['Your next spell has double power.', 'לכישוף הבא שלכם יש עוצמה כפולה.'], buff3: ['Your next spell has triple power.', 'לכישוף הבא שלכם יש עוצמה משולשת.'],
     buff15: ['Your next spell has 1½ times the power.', 'לכישוף הבא שלכם יש פי 1½ עוצמה.'],
     area: ['Hits every monster in the fight that is weak to {el}. Power {p}.', 'פוגע בכל המפלצות בקרב שחלשות מול {el}. עוצמה {p}.'],
+    allMon: [', every monster', ', בכל המפלצות'],
+    dragon: ['{em} A dragon fights with you for {t} turns: every turn it breathes on every monster (half of a strong spell, always a weakness).', '{em} דרקון נלחם לצדכם {t} תורות: בכל תור הוא נושף על כל המפלצות (חצי מכישוף חזק, תמיד בנקודת התורפה).'],
     summon: ['{em} A familiar fights with you for {t} turns (power {p} each turn{any}).', '{em} חיה מלווה נלחמת לצדכם {t} תורות (עוצמה {p} בכל תור{any}).'],
     anyEl: [', hits every element', ', פוגעת בכל יסוד'],
     reflect: ['Sends the next monster attack back at the monster.', 'מחזיר את ההתקפה הבאה אל המפלצת עצמה.'],
@@ -154,7 +156,8 @@
       case 'skip': return f.n === 1 ? tt('skip1', L) : tt('skipN', L, { n: f.n });
       case 'buff': return tt(f.x === 2 ? 'buff2' : f.x === 3 ? 'buff3' : 'buff15', L);
       case 'area': return tt('area', L, { el: ELEMENTS[s.el].nm[i], p: s.power });
-      case 'summon': return tt('summon', L, { em: f.em, t: f.turns, p: f.pw, any: f.el === 'arcane' ? TXT.anyEl[i] : '' });
+      case 'summon': if (f.area) return tt('dragon', L, { em: f.em, t: f.turns });
+        return tt('summon', L, { em: f.em, t: f.turns, p: f.pw, any: (f.el === 'arcane' ? TXT.anyEl[i] : '') + (f.area ? TXT.allMon[i] : '') });
       case 'reflect': return tt('reflect', L);
       case 'drain': return tt('drain', L, { n: f.n });
       case 'revive': return tt('revive', L);

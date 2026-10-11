@@ -179,6 +179,11 @@
       for (const e of els) assert(cards.some(c => CB.relation(c.spell, e) === 'weak'), 'a card for ' + e + ' ' + where);
     }
   });
+  test('the Dragon familiar breathes on every monster: half a typical good cast each turn', () => {
+    const learned = learnedAt(13, 15), foes = ['fire', 'plant', 'stone'].map(el => CB.newMonster({ g: 15, el, learned, mlvl: 13, ab: ['group'], rnd }));
+    const s = { g: 15, hero: { hp: 60, max: 60 }, foes, mon: foes[0], fx: CB.newFx(), ptyp: 10 }; CB.cast(s, SB.BY_ID['99']); assert(s.fx.summon.pw === 5 && s.fx.summon.area, 'power 5 (half of 10)');
+    const before = foes.map(f => f.hp), e = CB.monsterTurn(s); assert(e.familiar.hits.length === 3 && foes.every((f, i) => f.hp === before[i] - Math.round(5 * CB.S(15))), 'every monster: ' + foes.map(f => f.hp));
+  });
   test('control in a group: Shadow Snare holds the target, Time Freeze holds them all', () => {
     const learned = learnedAt(13, 15), foes = ['fire', 'ice'].map(el => CB.newMonster({ g: 15, el, learned, mlvl: 13, ab: ['group'], rnd }));
     let s = { g: 15, hero: { hp: 60, max: 60 }, foes, mon: foes[0], fx: CB.newFx() };

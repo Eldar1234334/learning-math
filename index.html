@@ -478,6 +478,55 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .magicShield::before{content:'';position:absolute;inset:-4% 2% 0;border-radius:50%;border:3px solid #c99bff;box-shadow:0 0 18px #c99bffaa,inset 0 0 14px #c99bff77;z-index:4;pointer-events:none;animation:bubble 1.8s ease-in-out infinite}
 .unlocks{list-style:none;padding:0;margin:6px 0;text-align:start}.unlocks li{background:#ffffff14;border-radius:12px;padding:7px 12px;margin:5px 0}
 .unlH{margin:12px 0 4px;font-size:1.1rem}
+.sunGlow{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(circle at var(--sx) var(--sy),#fff6b0cc 0%,#ffd84a88 18%,#ffb30033 45%,transparent 75%);animation:sunGlow 2s ease-out forwards}
+@keyframes sunGlow{0%{opacity:0}25%{opacity:1}75%{opacity:.9}100%{opacity:0}}
+.sunFx{position:absolute;z-index:6;pointer-events:none;filter:drop-shadow(0 0 14px #ffd84a) drop-shadow(0 0 34px #ffb300)}.sunFx .sunRays{transform-origin:0 0;animation:spinSlow 6s linear infinite}
+.fireBall{position:absolute;z-index:6;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 40% 40%,#fff6c9 0%,#ffd166 22%,#ff8a2b 48%,#e0361a 70%,#a3120f 100%);box-shadow:0 0 16px #ff8a2b,0 0 34px #ff4a1a,0 0 60px #ff3b0f88}
+.fireBlast{position:absolute;z-index:6;border-radius:50%;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(circle,#fffbe0 0%,#ffd166 18%,#ff8a2b 38%,#ff3b0faa 55%,#ff3b0f33 68%,transparent 72%)}
+.stage.boom{animation:shake .4s}.stage.bigBoom{animation:bigShake .55s}@keyframes bigShake{0%,100%{transform:translate(0,0)}20%{transform:translate(-9px,4px)}40%{transform:translate(8px,-5px)}60%{transform:translate(-6px,3px)}80%{transform:translate(4px,-2px)}}
+.frostHaze{position:absolute;inset:0;z-index:5;pointer-events:none;background:radial-gradient(ellipse at 72% 62%,#ffffffaa 0%,#dff4ff77 30%,#bfe6ff33 55%,transparent 75%);animation:frostHaze 1.9s ease-in-out forwards}.frostHaze.big{background:radial-gradient(ellipse at 70% 60%,#ffffffcc 0%,#dff4ff99 34%,#bfe6ff44 60%,transparent 80%)}
+@keyframes frostHaze{0%{opacity:0}35%{opacity:1}75%{opacity:.85}100%{opacity:0}}
+.snowWind{position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(100deg,transparent 0%,#ffffff22 30%,#e8f7ff66 50%,#ffffff22 70%,transparent 100%)}
+.snowFlake{position:absolute;z-index:6;pointer-events:none;color:#fff;text-shadow:0 0 6px #bfe6ff;filter:drop-shadow(0 0 4px #bfe6ff)}
+.frosted .mnWrap,.frosted .gArt{filter:brightness(1.3) saturate(.4) hue-rotate(160deg)!important;transition:filter .2s}
+.stormDark{position:absolute;inset:0;z-index:4;pointer-events:none;background:linear-gradient(#0b0620e6,#1a0d3a99 60%,#1a0d3a55);animation:stormIn .4s ease-out}@keyframes stormIn{from{opacity:0}to{opacity:1}}
+.stormCloud{position:absolute;z-index:8;pointer-events:none;filter:grayscale(1) brightness(.32) contrast(1.2) drop-shadow(0 0 12px #3a1d66)}
+.boltFx{position:absolute;inset:0;z-index:7;pointer-events:none;filter:drop-shadow(0 0 8px #b46bff) drop-shadow(0 0 18px #8a3bff)}
+.stormFlash{position:absolute;inset:0;z-index:6;pointer-events:none;background:radial-gradient(circle at 70% 40%,#f0dcffcc,#b46bff55 50%,transparent 80%)}
+.meteorFx{position:absolute;z-index:7;pointer-events:none;border-radius:50%;background:radial-gradient(circle at 40% 40%,#ffe7a8,#c98a4a 35%,#7a4a26 70%,#4a2a14);box-shadow:0 0 14px #ff8a2b,0 0 28px #ff4a1a}
+.meteorFx::before{content:'';position:absolute;right:50%;top:50%;width:420%;height:70%;transform-origin:100% 50%;transform:translateY(-50%) rotate(var(--ang));border-radius:50%;background:linear-gradient(90deg,transparent,#ff4a1a66 40%,#ffb347cc 85%,#fff3c0);filter:blur(2px);z-index:-1}
+.meteorHit{position:absolute;z-index:6;pointer-events:none;border-radius:50%;mix-blend-mode:screen;background:radial-gradient(circle,#fff3c0 0%,#ffb347 25%,#ff6a2b88 45%,#8a5a3366 60%,transparent 72%)}
+.runeRing{position:absolute;left:50%;bottom:-38%;width:105%;aspect-ratio:1;margin-left:-52.5%;border-radius:50%;pointer-events:none;z-index:0;border:3px dashed #c86bff;box-shadow:0 0 18px #a64dff,inset 0 0 18px #a64dff;background:radial-gradient(circle,#c86bff44,transparent 70%);animation:runeIn 1.6s ease-out forwards}
+.runeRing span{position:absolute;inset:8%;border-radius:50%;border:2px solid #c86bff88;display:flex;align-items:center;justify-content:space-around;color:#f0d9ff;font-size:1rem;text-shadow:0 0 6px #c86bff}
+@keyframes runeIn{0%{opacity:0;transform:perspective(300px) rotateX(72deg) rotate(0) scale(.3)}30%{opacity:1;transform:perspective(300px) rotateX(72deg) rotate(90deg) scale(1)}80%{opacity:1}100%{opacity:0;transform:perspective(300px) rotateX(72deg) rotate(220deg) scale(1.1)}}
+.chargeOrb{position:absolute;left:79%;top:14%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;pointer-events:none;z-index:5;display:flex;align-items:center;justify-content:center;font:800 .75rem system-ui;color:#fff;background:radial-gradient(circle,#f0d9ff,#c86bff 55%,#7a2bd6);box-shadow:0 0 12px #c86bff,0 0 26px #a64dff;animation:bubble 1s ease-in-out infinite}
+.clockFx{position:absolute;z-index:7;width:110px;pointer-events:none;filter:drop-shadow(0 0 10px #9be7ff) drop-shadow(0 0 22px #5fc8ff)}.clockFx .clkM{transform-origin:0 0;animation:clkSpin 1.1s cubic-bezier(.2,.6,.4,1) forwards}.clockFx .clkH{transform-origin:0 0;animation:clkSpin2 1.1s cubic-bezier(.2,.6,.4,1) forwards}
+@keyframes clkSpin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}@keyframes clkSpin2{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.timeRipple{position:absolute;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;z-index:5;pointer-events:none;border:4px solid #bfe6ff;box-shadow:0 0 20px #9be7ff,inset 0 0 20px #9be7ff;animation:timeRip 1.3s ease-out forwards}@keyframes timeRip{from{transform:scale(.3);opacity:1}to{transform:scale(9);opacity:0}}
+.timeStop .mnWrap,.timeStop .gArt{filter:grayscale(1) sepia(.7) hue-rotate(165deg) saturate(1.8) brightness(1.15) drop-shadow(0 0 8px #9be7ff)!important;animation-play-state:paused!important}.foeWrap.timeStop .foeBody{animation-play-state:paused}
+.timeStop::after{content:'⏳';position:absolute;top:-6px;right:6%;font-size:1.3rem;z-index:5;filter:drop-shadow(0 0 6px #9be7ff);pointer-events:none}
+.familiar{position:absolute;right:-40%;top:4%;width:96px;z-index:5;pointer-events:none;animation:bob 1.8s ease-in-out infinite;transition:opacity .3s}.familiar.wolf{width:104px;top:40%;right:-48%;animation:none}.familiar.dragon{width:150px;top:-6%;right:-70%}
+.familiar .famArt,.famFly{filter:drop-shadow(0 0 6px #8fc8ff88) drop-shadow(0 4px 5px #000a)}.familiar.dragon .famArt,.famFly.dragon{filter:drop-shadow(0 0 10px #ff6a2b88) drop-shadow(0 4px 5px #000a)}
+.familiar .famT{position:absolute;right:-4px;bottom:-2px;min-width:18px;height:18px;border-radius:9px;background:#ffd166;color:#3a2300;font:800 .7rem/18px system-ui;text-align:center}
+.famFly{position:absolute;z-index:8;pointer-events:none}.famImg{display:block;width:100%;height:auto}.hasImg svg,.famFly .famImg~svg{display:none!important}
+.fireBall.arcaneBall{background:radial-gradient(circle at 40% 40%,#f6e6ff 0%,#d9a8ff 22%,#a64dff 50%,#6a1fc2 75%,#3a0d7a 100%);box-shadow:0 0 16px #c86bff,0 0 34px #8a3bff}
+.fireBlast.arcaneBlast{background:radial-gradient(circle,#f6e6ff 0%,#d9a8ff 20%,#a64dff 40%,#7a2bd6aa 55%,transparent 72%)}
+.waterDrop{position:absolute;width:12px;height:12px;border-radius:50% 50% 50% 0;z-index:7;pointer-events:none;background:radial-gradient(circle at 35% 35%,#e6f6ff,#5fc8ff 50%,#1f6fe0);box-shadow:0 0 8px #5fc8ff}
+.atkMarks{position:absolute;width:86px;height:86px;z-index:8;pointer-events:none;filter:drop-shadow(0 0 4px #ff3b5c)}.atkMarks .slash{stroke-dasharray:90;animation:slashIn .25s ease-out both}@keyframes slashIn{from{stroke-dashoffset:90}to{stroke-dashoffset:0}}
+.breathFx{position:absolute;height:26px;margin-top:-13px;transform-origin:0 50%;z-index:7;pointer-events:none;border-radius:4px 50% 50% 4px}.breathFx.fire,.breathFx.arcane{height:34px;margin-top:-17px;filter:blur(1px)}.breathFx.ice,.breathFx.water{height:18px;margin-top:-9px}
+.familiar.away{opacity:0}.familiar.gone{opacity:0;transition:opacity .5s}
+.waveFx{position:absolute;bottom:0;z-index:6;pointer-events:none;filter:drop-shadow(0 0 10px #4ab8ff)}
+.sunGlow.enh{background:radial-gradient(circle at var(--sx) var(--sy),#fff6b0cc 0%,#ffb347aa 16%,#ff3b2f77 34%,#ff1a1a33 55%,transparent 78%)}
+.sunFx.enh{filter:drop-shadow(0 0 14px #ffd84a) drop-shadow(0 0 30px #ff4a2f) drop-shadow(0 0 54px #ff1a1a)}
+.sunBeam.enh{background:linear-gradient(90deg,#fff6c9,#ffd84a 35%,#ff6b3d);box-shadow:0 0 14px #ffd84a,0 0 26px #ff4a2f,0 0 40px #ff1a1a99}
+.sunBeam{position:absolute;height:12px;margin-top:-6px;transform-origin:0 50%;z-index:5;pointer-events:none;border-radius:6px;background:linear-gradient(90deg,#fff6c9,#ffe066 40%,#ffd84a);box-shadow:0 0 14px #ffd84a,0 0 30px #ffb300}
+.healGlow{position:absolute;left:50%;top:42%;width:calc(70% + var(--hg) * 18%);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:4;mix-blend-mode:screen;
+  background:radial-gradient(circle,#b6ffb0 0%,#4dff6a calc(18% + var(--hg) * 4%),#1fd14a88 45%,transparent 70%);animation:healGlow 1.6s ease-out forwards}
+@keyframes healGlow{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}25%{opacity:calc(.55 + var(--hg) * .11);transform:translate(-50%,-50%) scale(1.05)}70%{opacity:calc(.45 + var(--hg) * .1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2)}}
+.healHeart{position:absolute;z-index:6;font-size:2rem;pointer-events:none;filter:drop-shadow(0 0 6px #ff4d6d)}.healHeart.big{filter:drop-shadow(0 0 10px #ff4d6d) drop-shadow(0 0 22px #ff4d6d88)}
+.healGlow.red{background:radial-gradient(circle,#ffd0d8 0%,#ff4d6d calc(18% + var(--hg) * 4%),#e0153a88 45%,transparent 70%)}
+.healRing{position:absolute;left:50%;bottom:-4%;width:90%;height:16%;border-radius:50%;transform:translateX(-50%);pointer-events:none;z-index:0;border:3px solid #ff4d6d;box-shadow:0 0 16px #ff4d6d,inset 0 0 14px #ff4d6d;background:radial-gradient(ellipse,#ff4d6d55,transparent 70%);animation:healRing 1.8s ease-out forwards}
+@keyframes healRing{0%{opacity:0;transform:translateX(-50%) scale(.3)}25%{opacity:1;transform:translateX(-50%) scale(1.05)}75%{opacity:1}100%{opacity:0;transform:translateX(-50%) scale(1.15)}}
 .opt.card.used{opacity:.25;transform:scale(.94)}.rManual{position:absolute;transform:translate(-50%,-100%);font-size:calc(var(--u)*4.4);line-height:1;background:none;border:0;padding:0;cursor:pointer;z-index:9;filter:drop-shadow(0 2px 2px #0008)}.rManual.gone{outline:1px dashed #ffffff55;border-radius:4px}.rManual.gone span{opacity:.22;filter:grayscale(1)}.manualOffer{background:#ffd16622;border:1px solid #ffd16688;border-radius:12px;padding:6px 12px;margin:8px 0}
 .armorBar{position:relative}.armorBar::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--seg,2) - 2px),#1b1340 calc(100% / var(--seg,2) - 2px) calc(100% / var(--seg,2)))}.refreshBtn{grid-column:1 / -1;justify-self:center;font-size:.95rem;padding:8px 16px}
 .morph{animation:morph .7s ease-in-out}@keyframes morph{0%{transform:scale(1)}30%{transform:scaleX(.4) scaleY(1.3);filter:blur(3px)}60%{transform:scaleX(1.3) scaleY(.8)}100%{transform:scale(1)}}
@@ -2524,7 +2573,7 @@ function newEncounter() {   // the stop the wizard just walked to: a monster or 
     }
     G.mon = G.foes[0]; G.group = G.foes.length > 1;
     const max = CB.wizMaxHP(g); if (!(qs.hp > 0)) qs.hp = max;
-    G.st = { g, hero: { hp: Math.min(qs.hp, Math.round(max * (1 + CB.CFG.SAFETY_HP_BONUS))), max }, foes: G.foes, mon: G.mon, fx: CB.newFx() };
+    G.st = { g, hero: { hp: Math.min(qs.hp, Math.round(max * (1 + CB.CFG.SAFETY_HP_BONUS))), max }, foes: G.foes, mon: G.mon, fx: CB.newFx(), ptyp: CB.pTyp(P.mlvl, P.spells, g) };   // ptyp: for the Dragon's breath
     G.badPicks = 0; G.lastSnap = null; G.recent = G.recent || [];
   } else { const f0 = boss ? '👵' : rnd(FOLK); G.fname = FOLK_NAMES[f0] || 'The villager'; G.folk = tonedEmoji(f0, nextTone()); G.big = boss; G.mon = null; G.vkey = boss ? 'library' : (G.site ? G.site.bg : rnd(Object.keys(VNAMES))); G.fname = VNAMES[G.vkey]; }
   drawScene();
@@ -2589,13 +2638,13 @@ function setAura(el) {
     p.style.setProperty('--dx', ((Math.random() - .5) * 60) + 'px'); a.appendChild(p);
   }
 }
-function burst(emoji, n = 8, at) {   // at: a monster's node (default: the target, or #foeBody) or '#heroSvg' (the wizard)
+function burst(emoji, n = 8, at, color) {   // color: for a text symbol (✦) instead of an emoji   // at: a monster's node (default: the target, or #foeBody) or '#heroSvg' (the wizard)
   try {
     const node = !at ? (G.quest === 'battle' && G.group ? foeNode() : $('#foeBody')) : typeof at === 'string' ? $(at) : at;
     const f = node.getBoundingClientRect(), s = $('#stage').getBoundingClientRect();
     const cx = f.left - s.left + f.width / 2, cy = f.top - s.top + f.height / 2;
     for (let i = 0; i < n; i++) {
-      const e = document.createElement('div'); e.className = 'burstP'; e.textContent = emoji; e.style.left = cx + 'px'; e.style.top = cy + 'px';
+      const e = document.createElement('div'); e.className = 'burstP'; e.textContent = emoji; if (color) { e.style.color = color; e.style.textShadow = `0 0 8px ${color}, 0 0 16px ${color}`; } e.style.left = cx + 'px'; e.style.top = cy + 'px';
       $('#stage').appendChild(e);
       const ang = Math.PI * 2 * i / n, d = 42 + Math.random() * 34;
       e.animate([{ transform: 'translate(-50%,-50%) scale(.4)', opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(ang) * d}px),calc(-50% + ${Math.sin(ang) * d}px)) scale(1.25)`, opacity: 0 }], { duration: 620, easing: 'ease-out' });
@@ -2738,24 +2787,33 @@ function floatText(txt, color, at) {   // at: a monster's node (default: the tar
 const EL_GLOW = { fire: '#ff7a3d', water: '#4ab8ff', ice: '#9be7ff', stone: '#d6a46a', light: '#ffe066', lightning: '#ffd84a', wind: '#c8fff4', nature: '#7dff9a', shadow: '#a070ff', arcane: '#d18bff' };
 const tierSize = p => p >= 16 ? 4.4 : p >= 10 ? 3.8 : p >= 6 ? 3.2 : p >= 4 ? 2.8 : 2.4;   // rem, by spell power
 const ptIn = (node, s) => { const r = node.getBoundingClientRect(); return { x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2 }; };
-async function fly(emoji, from, to, o = {}) {   // a projectile from one node to another. o: { size (rem), glow, bounce, trail }
+// an arrow-shaped spell (owner request: Water Splash, Fire Bolt, Ice Bolt and their tiers): a glowing shaft, a head and fletching in the element's colours
+const ARROW_COL = { fire: ['#ff6a2b', '#ffd166'], water: ['#2f8fff', '#d6f2ff'], ice: ['#7fd8ff', '#ffffff'] };
+const arrowSvg = (el, uid) => { const [c, h] = ARROW_COL[el] || ['#ffd166', '#fff']; return `<svg viewBox="0 0 120 40" style="display:block;width:100%;height:auto;overflow:visible"><defs><linearGradient id="ag${uid}" x1="0" x2="1"><stop offset="0" stop-color="${c}" stop-opacity="0"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${h}"/></linearGradient></defs>
+  <polygon points="2,12 22,20 2,28 10,20" fill="${c}" opacity=".85"/><rect x="8" y="17" width="80" height="6" rx="3" fill="url(#ag${uid})"/><rect x="20" y="19" width="66" height="2" rx="1" fill="${h}" opacity=".9"/>
+  <polygon points="82,6 120,20 82,34 90,20" fill="${c}" stroke="${h}" stroke-width="2.5" stroke-linejoin="round"/></svg>`; };
+let arrowSeq = 0;
+async function fly(emoji, from, to, o = {}) {   // a projectile from one node to another. o: { size (rem), glow, bounce, trail, arrow (an element: arrow shape) }
   try {
     const s = $('#stage').getBoundingClientRect(), a = ptIn(from, s), b = ptIn(to, s), size = o.size || 3, glow = o.glow || '#ffd166';
-    const mk = (sz, op) => { const e = document.createElement('div'); e.textContent = emoji; e.style.cssText = `position:absolute;font-size:${sz}rem;left:${a.x}px;top:${a.y}px;z-index:5;pointer-events:none;opacity:${op};transform:translate(-50%,-50%);filter:drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 22px ${glow})`; $('#stage').appendChild(e); return e; };
-    const dx = b.x - a.x, dy = b.y - a.y, end = `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1.3) rotate(${dx < 0 ? -360 : 360}deg)`;
-    const run = (e, delay, sc) => e.animate([{ transform: `translate(-50%,-50%) scale(${sc})` }, { transform: end }], { duration: 450, delay, easing: 'ease-in', fill: 'forwards' });
+    const dx = b.x - a.x, dy = b.y - a.y, ang = Math.atan2(dy, dx) * 180 / Math.PI;
+    const mk = (sz, op) => { const e = document.createElement('div');
+      if (o.arrow) { e.innerHTML = arrowSvg(o.arrow, ++arrowSeq); e.style.width = (sz * 1.9) + 'rem'; } else { e.textContent = emoji; e.style.fontSize = sz + 'rem'; }
+      e.style.cssText += `;position:absolute;left:${a.x}px;top:${a.y}px;z-index:5;pointer-events:none;opacity:${o.echo ? op * .45 : op};transform:translate(-50%,-50%);filter:drop-shadow(0 0 8px ${glow}) drop-shadow(0 0 18px ${glow})`; $('#stage').appendChild(e); return e; };
+    const turn = o.arrow ? `rotate(${ang}deg)` : '', spin = o.arrow ? `rotate(${ang}deg)` : `rotate(${dx < 0 ? -360 : 360}deg)`;
+    const end = `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) ${spin} scale(${o.arrow ? 1.1 : 1.3})`;
+    const run = (e, delay, sc) => e.animate([{ transform: `translate(-50%,-50%) ${turn} scale(${sc})` }, { transform: end }], { duration: o.arrow ? 380 : 450, delay, easing: o.arrow ? 'cubic-bezier(.4,0,.9,.6)' : 'ease-in', fill: 'forwards' });
     const trail = o.trail ? [1, 2, 3].map(k => { const t = mk(size * (1 - k * .18), .5 - k * .12); run(t, k * 45, .5); return t; }) : [];
-    const e = mk(size, 1), an = run(e, 0, .6);
+    const e = mk(size, 1), an = run(e, 0, o.arrow ? .9 : .6);
     await Promise.race([an.finished, new Promise(r => setTimeout(r, 700))]); trail.forEach(t => setTimeout(() => t.remove(), 200));
     if (o.bounce) {
       to.classList.add('resist'); setTimeout(() => to.classList.remove('resist'), 300);
-      const back = dx > 0 ? -1 : 1, bb = e.animate([{ transform: end, opacity: 1 }, { transform: `translate(calc(-50% + ${dx + back * 50}px),calc(-50% + ${dy - 30}px)) scale(1) rotate(200deg)`, opacity: .8, offset: .35 }, { transform: `translate(calc(-50% + ${dx + back * 80}px),calc(-50% + ${dy + 70}px)) scale(.6) rotate(120deg)`, opacity: 0 }], { duration: 600, easing: 'ease-out', fill: 'forwards' });
+      const back = dx > 0 ? -1 : 1, bb = e.animate([{ transform: end, opacity: 1 }, { transform: `translate(calc(-50% + ${dx + back * 50}px),calc(-50% + ${dy - 30}px)) scale(1) rotate(${ang + 200}deg)`, opacity: .8, offset: .35 }, { transform: `translate(calc(-50% + ${dx + back * 80}px),calc(-50% + ${dy + 70}px)) scale(.6) rotate(${ang + 120}deg)`, opacity: 0 }], { duration: 600, easing: 'ease-out', fill: 'forwards' });
       await Promise.race([bb.finished, new Promise(r => setTimeout(r, 800))]);
     }
     e.remove();
   } catch (e) {}
-}
-const flySpell = (emoji, bounce, to) => fly(emoji, $('#heroSvg'), to || (G.quest === 'battle' && G.group ? foeNode() : $('#foeBody')), { bounce, trail: true });   // (the tutorial uses it too)
+}const flySpell = (emoji, bounce, to) => fly(emoji, $('#heroSvg'), to || (G.quest === 'battle' && G.group ? foeNode() : $('#foeBody')), { bounce, trail: true });   // (the tutorial uses it too)
 async function rainOn(emoji, nodes, o = {}) {   // an area spell: its element falls on every monster
   const s = $('#stage').getBoundingClientRect(), size = o.size || 3, glow = o.glow || '#ffd166', anims = [];
   nodes.forEach((node, i) => { for (let k = 0; k < 3; k++) {
@@ -2767,15 +2825,279 @@ async function rainOn(emoji, nodes, o = {}) {   // an area spell: its element fa
   } });
   flashStage(); await Promise.race([Promise.all(anims), new Promise(r => setTimeout(r, 1300))]);
 }
+// Area spells with their own scene (owner requests), by spell family; the others rain down (rainOn)
+const sunSvg = () => `<svg viewBox="-60 -60 120 120" style="display:block;width:100%;height:auto;overflow:visible"><g class="sunRays">${Array.from({ length: 12 }, (_, i) => `<path d="M0 -56 L7 -38 L-7 -38Z" fill="#ffd84a" transform="rotate(${i * 30})"/>`).join('')}</g><circle r="32" fill="#ffe066" stroke="#fff3b0" stroke-width="5"/><circle r="22" fill="#fff6c9" opacity=".8"/></svg>`;
+let waveSeq = 0;
+const waveSvg = uid => `<svg viewBox="0 0 200 100" preserveAspectRatio="none" style="display:block;width:100%;height:100%;overflow:visible"><defs><linearGradient id="wv${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd4ff"/><stop offset=".5" stop-color="#2f8fff"/><stop offset="1" stop-color="#1450b8"/></linearGradient></defs>
+  <path d="M0 100 L0 62 C35 58 70 50 100 50 C135 50 150 22 172 16 C192 11 204 30 192 42 C185 49 174 45 178 37 C166 41 156 62 164 100 Z" fill="url(#wv${uid})" opacity=".92"/>
+  <path d="M100 50 C135 50 150 22 172 16 C192 11 204 30 192 42" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+  <path d="M20 70 C50 66 80 62 110 64 M30 84 C60 80 95 78 130 80" fill="none" stroke="#bfe9ff" stroke-width="3" stroke-linecap="round" opacity=".6"/></svg>`;
+// a jagged lightning bolt from (x0,y0) to (x1,y1), as an SVG over the stage
+function boltSvg(x0, y0, x1, y1, W, H) {
+  const pts = [[x0, y0]], seg = 7; for (let i = 1; i < seg; i++) { const t = i / seg; pts.push([x0 + (x1 - x0) * t + (Math.random() - .5) * 34, y0 + (y1 - y0) * t]); } pts.push([x1, y1]);
+  const d = pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;left:0;top:0;overflow:visible"><polyline points="${d}" fill="none" stroke="#b46bff" stroke-width="9" stroke-linejoin="round" opacity=".55"/><polyline points="${d}" fill="none" stroke="#e2c6ff" stroke-width="4" stroke-linejoin="round"/><polyline points="${d}" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+}
+const AREA_FX = {
+  18: async (nodes, o) => {   // Meteor Rain (owner request): burning meteors streak from the sky and hit by each monster with a flash and dust; 180: more and bigger
+    const st = $('#stage'), s = st.getBoundingClientRect(), big = o.spell && o.spell.tier !== 'strong', pts = nodes.map(n => ptIn(n, s)), d = big ? 46 : 34, list = [];
+    for (let r = 0; r < (big ? 2 : 1); r++) pts.forEach((p, i) => list.push({ p: { x: p.x + (r ? 26 : -8), y: p.y + 18 }, nd: nodes[i], delay: (r * pts.length + i) * 190 }));
+    const fall = ({ p, nd, delay }) => new Promise(res => setTimeout(() => {
+      const sx = p.x + s.width * .45, sy = -60, m = document.createElement('div'); m.className = 'meteorFx'; m.style.width = m.style.height = d + 'px'; m.style.left = sx + 'px'; m.style.top = sy + 'px';
+      m.style.setProperty('--ang', (Math.atan2(p.y - sy, p.x - sx) * 180 / Math.PI) + 'deg'); st.appendChild(m);
+      m.animate([{ transform: 'translate(-50%,-50%) scale(.6)' }, { transform: `translate(calc(-50% + ${p.x - sx}px),calc(-50% + ${p.y - sy}px)) scale(1)` }], { duration: 480, easing: 'ease-in', fill: 'forwards' }).finished.then(() => {
+        m.remove(); const ex = document.createElement('div'); ex.className = 'meteorHit'; ex.style.left = p.x + 'px'; ex.style.top = p.y + 'px'; ex.style.width = ex.style.height = (d * 3.2) + 'px'; st.appendChild(ex);
+        ex.animate([{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(1.1)', opacity: 0 }], { duration: 520, easing: 'ease-out', fill: 'forwards' }).finished.then(() => ex.remove());
+        burst('💨', big ? 6 : 4, nd); burst('🪨', 3, nd); shake(nd); st.classList.remove('boom'); void st.offsetWidth; st.classList.add('boom'); setTimeout(() => st.classList.remove('boom'), 420); res();
+      });
+    }, delay));
+    await Promise.all(list.map(fall)); await sleep(250);
+  },
+  17: async (nodes, o) => {   // Thunderstorm (owner request): the sky darkens, storm clouds gather over the monsters, purple lightning strikes each one; 170: bigger, more bolts
+    const st = $('#stage'), s = st.getBoundingClientRect(), big = o.spell && o.spell.tier !== 'strong', pts = nodes.map(n => ptIn(n, s));
+    const dark = document.createElement('div'); dark.className = 'stormDark'; st.appendChild(dark);
+    const top = Math.max(20, Math.min(...pts.map(p => p.y)) - (big ? 105 : 90)), xs = pts.map(p => p.x), x0 = Math.min(...xs) - 40, x1 = Math.max(...xs) + 40, clouds = [];
+    for (let i = 0, n = big ? 6 : 4; i < n; i++) { const cl = document.createElement('div'); cl.className = 'stormCloud'; cl.textContent = '☁️'; cl.style.fontSize = (big ? 4.4 : 3.4) + 'rem';
+      cl.style.left = (x0 + (x1 - x0) * i / (n - 1)) + 'px'; cl.style.top = (top + (i % 2) * 14) + 'px'; st.appendChild(cl); clouds.push(cl);
+      cl.animate([{ transform: 'translate(-50%,-50%) translateY(-30px) scale(.6)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 }], { duration: 450, delay: i * 60, fill: 'forwards' }); }
+    await sleep(520);
+    const strike = (p, nd) => { const b = document.createElement('div'); b.className = 'boltFx'; b.innerHTML = boltSvg(p.x + (Math.random() - .5) * 30, top + 18, p.x, p.y, s.width, s.height); st.appendChild(b);
+      b.animate([{ opacity: 0 }, { opacity: 1, offset: .1 }, { opacity: .3, offset: .3 }, { opacity: 1, offset: .45 }, { opacity: 0 }], { duration: 520, fill: 'forwards' }).finished.then(() => b.remove());
+      const fl = document.createElement('div'); fl.className = 'stormFlash'; st.appendChild(fl); fl.animate([{ opacity: .75 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }).finished.then(() => fl.remove());
+      shake(nd); burst('✦', 7, nd, '#d9a8ff'); };
+    for (let r = 0; r < (big ? 2 : 1); r++) for (let i = 0; i < pts.length; i++) { strike(pts[i], nodes[i]); await sleep(170); }
+    await sleep(350); clouds.forEach(cl => cl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }).finished.then(() => cl.remove()));
+    dark.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, fill: 'forwards' }).finished.then(() => dark.remove());
+  },
+  15: async (nodes, o) => {   // Blizzard (owner request): a snowstorm blows across the stage, a frosty haze settles on the monsters; 150 is a little larger
+    const st = $('#stage'), s = st.getBoundingClientRect(), big = o.spell && o.spell.tier !== 'strong', k = big ? 1.3 : 1, dur = big ? 1700 : 1500;
+    const haze = document.createElement('div'); haze.className = 'frostHaze' + (big ? ' big' : ''); st.appendChild(haze); setTimeout(() => haze.remove(), dur + 500);
+    const wind = document.createElement('div'); wind.className = 'snowWind'; st.appendChild(wind);
+    wind.animate([{ transform: 'translateX(-100%)', opacity: 0 }, { transform: 'translateX(-20%)', opacity: .9, offset: .3 }, { transform: 'translateX(60%)', opacity: 0 }], { duration: dur, easing: 'ease-in-out', fill: 'forwards' }).finished.then(() => wind.remove());
+    const n = Math.round(26 * k);
+    for (let i = 0; i < n; i++) {
+      const f = document.createElement('div'); f.className = 'snowFlake'; f.textContent = i % 3 ? '❄️' : '•'; f.style.fontSize = ((i % 3 ? 1.1 : 1.6) * (big ? 1.25 : 1) * (.7 + Math.random() * .6)) + 'rem';
+      const y0 = Math.random() * s.height * .9; f.style.left = '-30px'; f.style.top = y0 + 'px'; st.appendChild(f);
+      const dy = (Math.random() - .3) * 80, spin = (Math.random() < .5 ? -1 : 1) * (180 + Math.random() * 360);
+      f.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 0 }, { opacity: 1, offset: .15 }, { transform: `translate(${s.width * .55}px,${dy * .5}px) rotate(${spin / 2}deg)`, opacity: 1, offset: .55 }, { transform: `translate(${s.width + 60}px,${dy}px) rotate(${spin}deg)`, opacity: 0 }],
+        { duration: dur * (.75 + Math.random() * .4), delay: Math.random() * dur * .45, easing: 'ease-in-out', fill: 'forwards' }).finished.then(() => f.remove());
+    }
+    nodes.forEach((nd, i) => setTimeout(() => { burst('❄️', big ? 8 : 6, nd); nd.classList.add('frosted'); setTimeout(() => nd.classList.remove('frosted'), 900); }, dur * .45 + i * 110));
+    await sleep(dur * .85);
+  },
+  13: async (nodes, o) => {   // Fireball (owner request): the wizard shoots a ball of fire that explodes among the monsters; 130: bigger ball, bigger blast
+    const st = $('#stage'), s = st.getBoundingClientRect(), big = o.spell && o.spell.tier !== 'strong', hero = ptIn($('#heroSvg'), s), pts = nodes.map(n => ptIn(n, s));
+    const cx = pts.reduce((a, p) => a + p.x, 0) / pts.length, cy = pts.reduce((a, p) => a + p.y, 0) / pts.length, d = big ? 64 : 42;
+    const ball = k => { const b = document.createElement('div'); b.className = 'fireBall'; b.style.width = b.style.height = (d * (1 - k * .22)) + 'px'; b.style.left = hero.x + 'px'; b.style.top = (hero.y - 20) + 'px'; b.style.opacity = 1 - k * .3; st.appendChild(b); return b; };
+    const balls = [0, 1, 2].map(ball), path = b => b.animate([{ transform: 'translate(-50%,-50%) scale(.5)' }, { transform: `translate(calc(-50% + ${cx - hero.x}px),calc(-50% + ${cy - hero.y + 20}px)) scale(1)` }], { duration: 520, easing: 'cubic-bezier(.3,0,.8,.6)', fill: 'forwards' });
+    const runs = balls.map((b, k) => { const a = path(b); a.currentTime = -k * 50; return a; });
+    await Promise.race([runs[0].finished, sleep(700)]); balls.forEach(b => b.remove());
+    // the explosion: a flash, a ring of fire, flames flying out, the stage shakes
+    const R = big ? Math.max(170, s.width * .42) : Math.max(110, s.width * .26), ex = document.createElement('div'); ex.className = 'fireBlast'; ex.style.left = cx + 'px'; ex.style.top = cy + 'px'; ex.style.width = ex.style.height = (R * 2) + 'px'; st.appendChild(ex);
+    ex.animate([{ transform: 'translate(-50%,-50%) scale(.1)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(.8)', opacity: .95, offset: .3 }, { transform: 'translate(-50%,-50%) scale(1.05)', opacity: 0 }], { duration: big ? 900 : 700, easing: 'ease-out', fill: 'forwards' }).finished.then(() => ex.remove());
+    for (let i = 0, n = big ? 18 : 11; i < n; i++) { const p = document.createElement('div'); p.className = 'burstP'; p.textContent = i % 3 ? '🔥' : '💥'; p.style.left = cx + 'px'; p.style.top = cy + 'px'; p.style.fontSize = (big ? 2 : 1.5) + 'rem'; st.appendChild(p);
+      const ang = Math.PI * 2 * i / n, r = R * (.6 + Math.random() * .45); p.animate([{ transform: 'translate(-50%,-50%) scale(.5)', opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(ang) * r}px),calc(-50% + ${Math.sin(ang) * r * .7}px)) scale(1.2)`, opacity: 0 }], { duration: 750, easing: 'ease-out', fill: 'forwards' }).finished.then(() => p.remove()); }
+    st.classList.remove('boom', 'bigBoom'); void st.offsetWidth; st.classList.add(big ? 'bigBoom' : 'boom'); setTimeout(() => st.classList.remove('boom', 'bigBoom'), 600); flashStage();
+    nodes.forEach(n => setTimeout(() => burst('🔥', big ? 7 : 5, n), 120));
+    await sleep(big ? 800 : 650);
+  },
+  12: async (nodes, o) => {   // Tidal Wave (owner request): a wave starts at the wizard and washes over the monsters; a small one, a big one for 120
+    const st = $('#stage'), s = st.getBoundingClientRect(), big = o.spell && o.spell.tier !== 'strong', hero = ptIn($('#heroSvg'), s), pts = nodes.map(n => ptIn(n, s));
+    const w = document.createElement('div'); w.className = 'waveFx'; w.innerHTML = waveSvg(++waveSeq);
+    const H = s.height * (big ? .85 : .48), W = s.width * (big ? .6 : .42); w.style.height = H + 'px'; w.style.width = W + 'px'; w.style.left = (hero.x - W * .85) + 'px'; st.appendChild(w);
+    const dist = s.width - (hero.x - W * .85) + 20, dur = big ? 1700 : 1400;
+    w.animate([{ transform: 'translateX(0) scaleY(.3)', opacity: .2 }, { transform: `translateX(${dist * .15}px) scaleY(1)`, opacity: 1, offset: .15 }, { transform: `translateX(${dist * .85}px) scaleY(1)`, opacity: 1, offset: .85 }, { transform: `translateX(${dist}px) scaleY(.6)`, opacity: 0 }], { duration: dur, easing: 'ease-in-out', fill: 'forwards' }).finished.then(() => w.remove());
+    pts.forEach((p, i) => { const front = hero.x + W * .15, at = Math.max(0, Math.min(1, (p.x - front) / dist)); setTimeout(() => { burst('💧', big ? 10 : 7, nodes[i]); burst('🫧', 4, nodes[i]); }, dur * (.15 + at * .7)); });
+    await sleep(dur * .9);
+  },
+  11: async (nodes, o) => {   // Sunburst: a sun rises above the monsters, the field glows yellow, beams of light strike each monster
+    const st = $('#stage'), s = st.getBoundingClientRect(), pts = nodes.map(n => ptIn(n, s)), cx = pts.reduce((a, p) => a + p.x, 0) / pts.length, cy = Math.max(30, Math.min(...pts.map(p => p.y)) - 85);
+    const enh = o.spell && o.spell.tier !== 'strong' ? ' enh' : '';   // the enhanced Sunburst (110) glows red too (owner request)
+    const glow = document.createElement('div'); glow.className = 'sunGlow' + enh; glow.style.setProperty('--sx', cx + 'px'); glow.style.setProperty('--sy', cy + 'px'); st.appendChild(glow);
+    const sun = document.createElement('div'); sun.className = 'sunFx' + enh; sun.innerHTML = sunSvg(); sun.style.left = cx + 'px'; sun.style.top = cy + 'px'; sun.style.width = (o.size * 1.6) + 'rem'; st.appendChild(sun);
+    sun.animate([{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1.1)', opacity: 1, offset: .3 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1, offset: .8 }, { transform: 'translate(-50%,-50%) scale(1.3)', opacity: 0 }], { duration: 1900, easing: 'ease-out', fill: 'forwards' });
+    await sleep(550);
+    pts.forEach((p, i) => setTimeout(() => {   // a beam from the sun to the monster
+      const dx = p.x - cx, dy = p.y - cy, len = Math.hypot(dx, dy), b = document.createElement('div'); b.className = 'sunBeam' + enh;
+      b.style.left = cx + 'px'; b.style.top = cy + 'px'; b.style.width = len + 'px'; b.style.transform = `rotate(${Math.atan2(dy, dx) * 180 / Math.PI}deg)`; st.appendChild(b);
+      b.animate([{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }, { clipPath: 'inset(0 0 0 0)', opacity: 1, offset: .35 }, { clipPath: 'inset(0 0 0 0)', opacity: 0 }], { duration: 750, easing: 'ease-out', fill: 'forwards' }).finished.then(() => b.remove());
+      setTimeout(() => burst('✨', 7, nodes[i]), 260);
+    }, i * 140));
+    await sleep(900 + pts.length * 140); setTimeout(() => { sun.remove(); glow.remove(); }, 700);
+  }
+};
 // what a cast looks like: attacks and control fly to the target (an element it ignores glances off), area spells rain on all monsters,
 // shields, healing and buffs glow around the wizard, and no spell (a fizzle, a sealed spell, a wrong incantation) is only a puff of smoke at the staff
 const SELF_FX = ['shield', 'heal', 'healPart', 'fullHeal', 'buff', 'reflect', 'revive', 'summon'];
+// healing (owner request): a bright green glow around the wizard, stronger for higher tiers, and red hearts rising, one per tier
+const HEAL_TIER = { base: 1, strong: 1, enhanced: 2, enhStrong: 2, greater: 3, legendary: 4 };
+const healTier = s => s.tier === 'family' ? (s.fx.k === 'fullHeal' ? 4 : 2) : HEAL_TIER[s.tier] || 1;
+const heartSvg = txt => `<svg viewBox="0 0 100 92" style="display:block;width:100%;height:auto;overflow:visible"><path d="M50 88 C18 64 4 46 4 27 C4 13 15 4 28 4 C38 4 46 10 50 18 C54 10 62 4 72 4 C85 4 96 13 96 27 C96 46 82 64 50 88Z" fill="#ff3b5c" stroke="#ffd1d9" stroke-width="4"/>`+ (txt ? `<text x="50" y="50" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">${txt}</text>` : '') + '</svg>';
+// Quarter Heal (¼) and Full Circle (360) (owner request): a red circle under the wizard, a red glow, and one big heart (with 25% on it for the quarter)
+async function circleHealFx(spell) {
+  const full = spell.fx.k === 'fullHeal', hb = $('#heroBox'), ring = document.createElement('div'), g = document.createElement('div');
+  ring.className = 'healRing'; g.className = 'healGlow red'; g.style.setProperty('--hg', 2); $('#heroSvg').appendChild(ring); hb.appendChild(g); setTimeout(() => { ring.remove(); g.remove(); }, 1900);
+  const s = $('#stage').getBoundingClientRect(), c = ptIn($('#heroSvg'), s), h = document.createElement('div'); h.className = 'healHeart big'; h.innerHTML = heartSvg(full ? '' : '25%');
+  h.style.left = c.x + 'px'; h.style.top = (c.y - 10) + 'px'; h.style.width = full ? '5.2rem' : '4.2rem'; $('#stage').appendChild(h);
+  h.animate([{ transform: 'translate(-50%,-50%) scale(.3)', opacity: 0 }, { transform: 'translate(-50%,-70%) scale(1.15)', opacity: 1, offset: .35 }, { transform: 'translate(-50%,-80%) scale(1)', opacity: 1, offset: .7 }, { transform: 'translate(-50%,-130%) scale(.9)', opacity: 0 }], { duration: 1700, easing: 'ease-out', fill: 'forwards' }).finished.then(() => h.remove());
+  await sleep(1000);
+}
+async function healFx(spell) {
+  if (spell.tier === 'family') return circleHealFx(spell);
+  const n = healTier(spell), hb = $('#heroBox'), g = document.createElement('div'); g.className = 'healGlow'; g.style.setProperty('--hg', n); hb.appendChild(g); setTimeout(() => g.remove(), 1700);
+  const s = $('#stage').getBoundingClientRect(), c = ptIn($('#heroSvg'), s);
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const h = document.createElement('div'); h.textContent = '❤️'; h.className = 'healHeart'; h.style.left = (c.x + (i - (n - 1) / 2) * 34) + 'px'; h.style.top = (c.y + 10) + 'px'; $('#stage').appendChild(h);
+    h.animate([{ transform: 'translate(-50%,0) scale(.4)', opacity: 0 }, { transform: 'translate(-50%,-40px) scale(1.25)', opacity: 1, offset: .35 }, { transform: 'translate(-50%,-110px) scale(1)', opacity: 0 }], { duration: 1400, easing: 'ease-out', fill: 'forwards' }).finished.then(() => h.remove());
+  }, i * 180);
+  await sleep(900);
+}
+// Arcane Echo and the other buffs (my idea, owner review): a purple rune circle spins under the wizard; the staff glows (×2) until the next spell,
+// which flies with a purple glow and a ghostly echo behind it
+// Time Freeze (my idea, owner review): a clock over the monsters, its hands spin and stop, a pale-blue ripple; frozen monsters stand still with ⏳
+const clockSvg = () => `<svg viewBox="-50 -50 100 100" style="display:block;width:100%;height:auto"><circle r="46" fill="#dff4ff33" stroke="#bfe6ff" stroke-width="4"/>${Array.from({ length: 12 }, (_, i) => `<rect x="-1.5" y="-42" width="3" height="${i % 3 ? 6 : 11}" fill="#eaf7ff" transform="rotate(${i * 30})"/>`).join('')}<g class="clkH"><rect x="-2.5" y="-26" width="5" height="28" rx="2" fill="#fff"/></g><g class="clkM"><rect x="-1.6" y="-38" width="3.2" height="40" rx="1.5" fill="#bfe6ff"/></g><circle r="4" fill="#fff"/></svg>`;
+async function timeFx(targets) {
+  const st = $('#stage'), s = st.getBoundingClientRect(), pts = targets.map(m => ptIn(foeNode(m), s)), cx = pts.reduce((a, p) => a + p.x, 0) / pts.length, cy = Math.max(60, Math.min(...pts.map(p => p.y)) - 40);
+  const clk = document.createElement('div'); clk.className = 'clockFx'; clk.innerHTML = clockSvg(); clk.style.left = cx + 'px'; clk.style.top = cy + 'px'; st.appendChild(clk);
+  clk.animate([{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1, offset: .2 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1, offset: .8 }, { transform: 'translate(-50%,-50%) scale(1.15)', opacity: 0 }], { duration: 1700, fill: 'forwards' }).finished.then(() => clk.remove());
+  const rp = document.createElement('div'); rp.className = 'timeRipple'; rp.style.left = cx + 'px'; rp.style.top = cy + 'px'; st.appendChild(rp); setTimeout(() => rp.remove(), 1400);
+  targets.forEach(m => { m.timeFrozen = true; }); await sleep(1100); fxStatus();
+}
+// familiars (owner request, after a picture): a hawk with spread wings, a standing wolf, a red dragon with spread wings; blue arcane runes on hawk and wolf.
+// They stay next to the wizard (floating, with their turns left). The hawk flies to the target and claws it, the wolf runs and bites,
+// the dragon rises above the field and breathes one of the target's weaknesses (fire, purple lightning, water, ice; else a purple arcane flame).
+const RUNE = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#8fc8ff" stroke-width="1.6" stroke-dasharray="${r * 3.5} ${r * 1.2}"/><circle cx="${x}" cy="${y}" r="${r * .45}" fill="none" stroke="#bfe0ff" stroke-width="1.2"/>`;
+const FAM_ART = {
+  hawk: () => `<svg viewBox="0 0 120 100" style="display:block;width:100%;height:auto;overflow:visible">
+    <path d="M58 52 C42 32 22 18 3 10 C13 22 17 30 21 37 C13 35 7 37 1 42 C13 45 23 47 30 49 C24 53 18 59 14 66 C30 59 44 57 57 59 Z" fill="#efe6d2" stroke="#8a5a2b" stroke-width="1.2"/>
+    <path d="M14 22 L30 40 M8 38 L28 46 M20 60 L38 54" stroke="#8a5a2b" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>
+    <path d="M62 50 C70 30 84 14 103 5 C97 17 93 25 91 33 C99 29 107 29 115 31 C105 39 95 43 87 47 C93 49 99 53 105 59 C89 57 75 57 64 59 Z" fill="#f6efe0" stroke="#8a5a2b" stroke-width="1.2"/>
+    <path d="M96 14 L80 36 M108 32 L86 44 M98 56 L80 52" stroke="#8a5a2b" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>
+    ${RUNE(86, 38, 6)}${RUNE(28, 42, 5)}
+    <path d="M47 60 L30 72 L35 64 L28 61 Z" fill="#8a5a2b"/>
+    <ellipse cx="63" cy="61" rx="16" ry="11" fill="#efe4cc" stroke="#8a5a2b" stroke-width="1"/><path d="M56 58 l2 2 M62 63 l2 2 M68 58 l2 2 M60 66 l2 1" stroke="#8a5a2b" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="78" cy="50" r="8.5" fill="#e9dcc0" stroke="#8a5a2b" stroke-width="1"/><path d="M85.5 48.5 L95 52 L86 56 Z" fill="#f2c14e" stroke="#3a2a10" stroke-width=".8"/><path d="M92 51 L95 52 L92 54" fill="#3a2a10"/>
+    <circle cx="80" cy="48" r="2.4" fill="#f2c14e"/><circle cx="80.3" cy="48" r="1.2" fill="#111"/>
+    <path d="M64 70 L68 82 M70 70 L76 81" stroke="#f2c14e" stroke-width="3" stroke-linecap="round"/><path d="M66 82 l-2 3 M68 82 l2 3 M74 81 l-2 3 M76 81 l2 3" stroke="#222" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+  wolf: () => `<svg viewBox="0 0 130 90" style="display:block;width:100%;height:auto;overflow:visible">
+    <path d="M24 46 C8 42 2 56 5 70 C11 61 18 57 29 55 Z" fill="#7b828c"/>
+    <path d="M32 58 L30 84 L37 84 L39 60 M44 60 L44 84 L51 84 L51 60" fill="#7f868f"/>
+    <path d="M80 58 L80 84 L87 84 L88 58 M90 56 L94 84 L101 84 L97 54" fill="#8a919a"/>
+    <path d="M24 45 C40 33 76 33 93 39 C101 44 101 56 93 60 C77 65 44 65 28 61 C19 57 17 49 24 45 Z" fill="#9aa1aa"/>
+    <path d="M28 44 C44 36 72 35 90 40 C76 42 46 44 28 50 Z" fill="#6f7680"/>
+    <path d="M88 41 C94 30 102 26 111 28 L123 34 C126 36 124 41 119 41 L109 43 C105 49 96 51 89 49 Z" fill="#a9b0b8"/>
+    <path d="M99 30 L104 15 L109 29 Z" fill="#8a919a"/><path d="M102 28 L104 20 L106 28 Z" fill="#c8a0a0"/>
+    <circle cx="111" cy="33" r="1.9" fill="#f2b23a"/><circle cx="111.3" cy="33" r=".9" fill="#111"/><circle cx="123.5" cy="36.5" r="2.2" fill="#222"/>
+    <path d="M110 41 L120 41" stroke="#555" stroke-width="1.2"/>
+    ${RUNE(78, 47, 6)}${RUNE(66, 50, 4)}
+    <path d="M30 84 h8 M44 84 h8 M80 84 h8 M94 84 h8" stroke="#555" stroke-width="2" stroke-linecap="round"/></svg>`,
+  dragon: () => `<svg viewBox="0 0 160 120" style="display:block;width:100%;height:auto;overflow:visible">
+    <path d="M70 44 C58 14 38 2 16 6 C27 16 31 24 31 32 C22 30 12 32 4 39 C21 42 39 47 60 56 Z" fill="#a8261c"/>
+    <path d="M70 44 L22 10 M68 48 L10 37 M64 52 L30 32" stroke="#6e130d" stroke-width="1.4" opacity=".8"/>
+    <path d="M56 66 C34 72 22 88 30 104 C34 96 42 90 52 88 C46 96 50 106 58 110 C56 100 60 90 70 84 Z" fill="#b3261e"/>
+    <path d="M30 104 L22 110 L32 108 Z" fill="#7e170f"/>
+    <ellipse cx="84" cy="64" rx="31" ry="15" fill="#c0301f"/><path d="M60 70 C74 78 98 78 112 70" stroke="#f0d2a8" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M72 76 L66 92 L74 92 L78 78 M98 76 L100 92 L108 92 L104 76" fill="#a8261c"/><path d="M64 92 l-3 3 M68 92 l0 4 M72 92 l3 3 M100 92 l-3 3 M104 92 l0 4 M108 92 l3 3" stroke="#222" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M84 40 C96 6 122 -2 148 6 C136 16 132 26 132 34 C142 32 152 34 159 40 C141 45 117 49 93 56 Z" fill="#e04a3a"/>
+    <path d="M86 42 L142 8 M90 48 L156 39 M92 52 L130 32" stroke="#8e1b12" stroke-width="1.4" opacity=".8"/>
+    <path d="M108 56 C117 46 126 40 136 40 L151 45 C156 47 155 51 150 51 L141 52 L149 57 C146 62 139 60 135 58 C127 62 118 66 110 66 Z" fill="#c0301f"/>
+    <path d="M132 41 L126 30 L136 39 M140 42 L138 30 L144 42" fill="#f0d2a8" stroke="#f0d2a8" stroke-width="1.5"/>
+    <circle cx="140" cy="45" r="2.2" fill="#ffd166"/><path d="M141 52 L148 56" stroke="#ffd166" stroke-width="2" opacity=".9"/>
+    <path d="M70 50 L74 44 L78 50 M80 49 L84 43 L88 49 M90 50 L94 45 L98 51" fill="#8e1b12"/></svg>`
+};
+// the creature's picture: art/fam-<kind>.webp (the owner's pictures, transparent) (realistic art, owner request), else the drawing
+const famArtHtml = kind => `<img class="famImg" src="art/fam-${kind}.webp" alt="" onload="this.parentNode.classList.add('hasImg')" onerror="this.remove()">${FAM_ART[kind]()}`;
+const famKind = em => em === '🐉' ? 'dragon' : em === '🐺' ? 'wolf' : 'hawk';
+function familiarNode() {
+  const fx = G.quest === 'battle' && G.st ? G.st.fx : null, hb = $('#heroBox'); let n = hb.querySelector('.familiar');
+  if (!fx || !fx.summon) { if (n && !n.classList.contains('gone')) { n.classList.add('gone'); burst('✨', 6, n); setTimeout(() => n.remove(), 500); } return null; }
+  const kind = famKind(fx.summon.em);
+  if (!n || n.classList.contains('gone') || n.dataset.kind !== kind) { if (n) n.remove(); n = document.createElement('div'); n.className = 'familiar ' + kind; n.dataset.kind = kind; n.innerHTML = `<span class="famArt">${famArtHtml(kind)}</span><b class="famT"></b>`; hb.appendChild(n); }
+  n.querySelector('.famT').textContent = fx.summon.turns; return n;
+}
+function marks(node, kind) {   // claw marks (hawk) or bite marks (wolf) on a monster
+  const st = $('#stage'), s = st.getBoundingClientRect(), p = ptIn(node, s), m = document.createElement('div'); m.className = 'atkMarks'; m.style.left = p.x + 'px'; m.style.top = p.y + 'px';
+  m.innerHTML = kind === 'hawk'
+    ? `<svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible">${[0, 1, 2].map(i => `<path class="slash" d="M${22 + i * 20} 14 L${42 + i * 20} 86" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path class="slash" d="M${22 + i * 20} 14 L${42 + i * 20} 86" stroke="#ff3b5c" stroke-width="3.5" stroke-linecap="round"/>`).join('')}</svg>`
+    : `<svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible"><path d="M14 40 Q50 18 86 40" fill="none" stroke="#ff3b5c" stroke-width="3" opacity=".7"/><path d="M14 60 Q50 82 86 60" fill="none" stroke="#ff3b5c" stroke-width="3" opacity=".7"/>
+      ${[0, 1, 2, 3, 4].map(i => { const x = 20 + i * 15, y = 36 - Math.sin(Math.PI * (i + .5) / 5) * 12; return `<path d="M${x - 5} ${y} L${x} ${y + 12} L${x + 5} ${y} Z" fill="#fff" stroke="#ff3b5c" stroke-width="1.5"/>`; }).join('')}
+      ${[0, 1, 2, 3, 4].map(i => { const x = 20 + i * 15, y = 64 + Math.sin(Math.PI * (i + .5) / 5) * 12; return `<path d="M${x - 5} ${y} L${x} ${y - 12} L${x + 5} ${y} Z" fill="#fff" stroke="#ff3b5c" stroke-width="1.5"/>`; }).join('')}</svg>`;
+  st.appendChild(m); m.animate([{ opacity: 0, transform: 'translate(-50%,-50%) scale(.6)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: .25 }, { opacity: 1, offset: .7 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(1.05)' }], { duration: 900, fill: 'forwards' }).finished.then(() => m.remove());
+  shake(node);
+}
+// the dragon's breath: one of the target's weaknesses (fire, then purple lightning, water, ice), else a purple arcane flame.
+// Each one looks like the spell of that element (owner request): Fireball's fireballs, Thunderstorm's purple bolts, Tidal Wave's water, Blizzard's snow.
+const breathOf = m => ['fire', 'lightning', 'water', 'ice'].find(e => CB.MON_EL[m.el].weak.includes(e)) || 'arcane';
+function stream(mouth, t, n, make, ms, gap) {   // n pieces from the mouth to the target, one after another
+  const st = $('#stage'), out = [];
+  for (let k = 0; k < n; k++) out.push(new Promise(res => setTimeout(() => {
+    const e = make(k); e.style.left = mouth.x + 'px'; e.style.top = mouth.y + 'px'; st.appendChild(e);
+    const j = (Math.random() - .5) * 22;
+    e.animate([{ transform: 'translate(-50%,-50%) scale(.5)', opacity: .9 }, { transform: `translate(calc(-50% + ${t.x - mouth.x + j}px),calc(-50% + ${t.y - mouth.y + j}px)) scale(1)`, opacity: 1 }], { duration: ms, easing: 'ease-in', fill: 'forwards' }).finished.then(() => { e.remove(); res(); });
+  }, k * gap)));
+  return Promise.all(out);
+}
+async function breathe(mouth, target, kind) {
+  const st = $('#stage'), s = st.getBoundingClientRect(), t = ptIn(target, s), boom = () => { st.classList.remove('boom'); void st.offsetWidth; st.classList.add('boom'); setTimeout(() => st.classList.remove('boom'), 420); };
+  if (kind === 'lightning') {   // Thunderstorm's purple bolts, from the dragon's mouth
+    for (let k = 0; k < 3; k++) { const b = document.createElement('div'); b.className = 'boltFx'; b.innerHTML = boltSvg(mouth.x, mouth.y, t.x + (Math.random() - .5) * 24, t.y, s.width, s.height); st.appendChild(b);
+      b.animate([{ opacity: 1 }, { opacity: .3, offset: .4 }, { opacity: 1, offset: .6 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }).finished.then(() => b.remove());
+      const fl = document.createElement('div'); fl.className = 'stormFlash'; st.appendChild(fl); fl.animate([{ opacity: .7 }, { opacity: 0 }], { duration: 260, fill: 'forwards' }).finished.then(() => fl.remove()); await sleep(130); }
+    burst('✦', 8, target, '#d9a8ff'); shake(target); return;
+  }
+  if (kind === 'fire' || kind === 'arcane') {   // Fireball's balls of fire (purple for arcane) that burst on the target
+    await stream(mouth, t, 4, k => { const b = document.createElement('div'); b.className = 'fireBall' + (kind === 'arcane' ? ' arcaneBall' : ''); b.style.width = b.style.height = (30 - k * 3) + 'px'; return b; }, 380, 85);
+    const ex = document.createElement('div'); ex.className = 'fireBlast' + (kind === 'arcane' ? ' arcaneBlast' : ''); ex.style.left = t.x + 'px'; ex.style.top = t.y + 'px'; ex.style.width = ex.style.height = '170px'; st.appendChild(ex);
+    ex.animate([{ transform: 'translate(-50%,-50%) scale(.1)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 }], { duration: 600, easing: 'ease-out', fill: 'forwards' }).finished.then(() => ex.remove());
+    kind === 'arcane' ? burst('✦', 9, target, '#d9a8ff') : burst('🔥', 7, target); shake(target); boom(); return;
+  }
+  if (kind === 'water') {   // a jet of water that splashes like Tidal Wave
+    await stream(mouth, t, 14, () => { const d = document.createElement('div'); d.className = 'waterDrop'; return d; }, 360, 35);
+    const w = document.createElement('div'); w.className = 'waveFx'; w.innerHTML = waveSvg(++waveSeq); w.style.width = '110px'; w.style.height = '70px'; w.style.left = (t.x - 55) + 'px'; w.style.bottom = (s.height - t.y - 40) + 'px'; st.appendChild(w);
+    w.animate([{ transform: 'scaleY(.2)', opacity: 0 }, { transform: 'scaleY(1)', opacity: 1, offset: .35 }, { transform: 'translateX(30px) scaleY(.6)', opacity: 0 }], { duration: 650, fill: 'forwards' }).finished.then(() => w.remove());
+    burst('💧', 8, target); burst('🫧', 4, target); shake(target); return;
+  }
+  // ice: a stream of Blizzard's snow, the target frosts over
+  await stream(mouth, t, 12, k => { const f = document.createElement('div'); f.className = 'snowFlake'; f.textContent = k % 3 ? '❄️' : '•'; f.style.fontSize = (1 + Math.random() * .6) + 'rem'; return f; }, 420, 40);
+  burst('❄️', 8, target); target.classList.add('frosted'); setTimeout(() => target.classList.remove('frosted'), 900); shake(target);
+}
+async function familiarAttack(fam) {
+  const n = $('#heroBox .familiar'); if (!n || !fam) return;
+  const kind = n.dataset.kind, fs = G.st.foes, m = fs[fam.i] || G.mon, target = foeNode(m), st = $('#stage'), s = st.getBoundingClientRect(), r = n.getBoundingClientRect(), from = { x: r.left - s.left, y: r.top - s.top }, t = ptIn(target, s);
+  const c = document.createElement('div'); c.className = 'famFly ' + kind; c.innerHTML = famArtHtml(kind); c.style.width = r.width + 'px'; c.style.left = from.x + 'px'; c.style.top = from.y + 'px'; st.appendChild(c); n.classList.add('away');
+  const go = (to, ms, ease, extra = '') => c.animate([{ transform: c.dataset.at || 'translate(0,0)' }, { transform: `translate(${to.x - from.x}px,${to.y - from.y}px) ${extra}` }], { duration: ms, easing: ease, fill: 'forwards' }).finished.then(() => { c.dataset.at = `translate(${to.x - from.x}px,${to.y - from.y}px) ${extra}`; });
+  if (kind === 'dragon') {   // rise above the field and breathe on every monster, one after another (area)
+    const ts = (fam.hits || [{ i: fam.i }]).map(h => fs[h.i]).filter(Boolean), pts = ts.map(f => ptIn(foeNode(f), s)), cx = pts.reduce((a, p) => a + p.x, 0) / pts.length;
+    const above = { x: Math.max(0, Math.min(cx - r.width * 1.5, s.width - r.width * 1.6)), y: 2 }; await go(above, 650, 'ease-out');
+    const cr = c.getBoundingClientRect(), img = c.classList.contains('hasImg'), mouth = { x: cr.left - s.left + cr.width * (img ? .95 : 152 / 160), y: cr.top - s.top + cr.height * (img ? .53 : 52 / 120) };   // the open jaw
+    for (const f of ts) await breathe(mouth, foeNode(f), breathOf(f));
+    await sleep(200); await go(from, 600, 'ease-in-out');
+  } else if (kind === 'wolf') {   // run along the ground, bite, run back
+    const to = { x: t.x - r.width * .95, y: from.y + 10 }; await go(to, 520, 'ease-in'); marks(target, 'wolf'); await sleep(450);
+    c.dataset.at += ' scaleX(-1)'; await go(from, 520, 'ease-out', 'scaleX(-1)');   // turn around and run back
+  } else {   // the hawk: an arc up and down onto the target, claws, flies back
+    const to = { x: t.x - r.width * .55, y: t.y - r.height * .9 }; await go({ x: (from.x + to.x) / 2, y: Math.max(0, from.y - 60) }, 300, 'ease-out'); await go(to, 260, 'ease-in');
+    marks(target, 'hawk'); await sleep(420); await go(from, 560, 'ease-in-out');
+  }
+  c.remove(); n.classList.remove('away');
+}
+async function buffFx(spell) {
+  const ring = document.createElement('div'); ring.className = 'runeRing'; ring.innerHTML = '<span>ᚠ ᚱ ᛟ ᛉ ᚦ ᛗ</span>'; $('#heroSvg').appendChild(ring); setTimeout(() => ring.remove(), 1700);
+  burst('✦', 8, '#heroSvg', '#d18bff'); await sleep(900); fxStatus();
+}
 async function castFx(ev, spell, target) {
   if (!spell) { burst('💨', 6, '#heroSvg'); $('#heroBox').classList.add('fizzle'); setTimeout(() => $('#heroBox').classList.remove('fizzle'), 450); await sleep(500); return; }
   const em = SB.ELEMENTS[spell.el].em, glow = EL_GLOW[spell.el], size = tierSize(spell.power);
+  if (['heal', 'healPart', 'fullHeal'].includes(ev.k)) { await healFx(spell); fxStatus(); return; }
+  if (ev.k === 'buff') { await buffFx(spell); return; }
+  if (ev.k === 'summon') { fxStatus(); const n = $('#heroBox .familiar'); if (n) { burst('✨', 10, n); n.animate([{ transform: 'scale(.2)', opacity: 0 }, { transform: 'scale(1.2)', opacity: 1, offset: .6 }, { transform: 'scale(1)', opacity: 1 }], { duration: 600 }); } await sleep(700); return; }
   if (SELF_FX.includes(ev.k)) { burst(em, 8, '#heroSvg'); burst('✨', 5, '#heroSvg'); fxStatus(); await sleep(450); return; }
-  if (ev.k === 'area') { await rainOn(em, (ev.per || []).map(o => foeNode(G.st.foes[o.i])).filter(Boolean), { size, glow }); return; }
-  await fly(em, $('#heroSvg'), foeNode(target), { size, glow, trail: true, bounce: ev.rel === 'none' && !ev.popped && ev.k === 'dmg' });
+  if (ev.k === 'area') { const nodes = (ev.per || []).map(o => foeNode(G.st.foes[o.i])).filter(Boolean), fx = AREA_FX[spell.fam]; await (fx ? fx(nodes, { size, glow, spell }) : rainOn(em, nodes, { size, glow })); return; }
+  const arrow = ev.k === 'dmg' && [2, 3, 5].includes(spell.fam) ? spell.el : null;   // Water Splash, Fire Bolt, Ice Bolt (all tiers): an arrow
+  const echoed = ev.buffed ? { glow: '#c86bff' } : {};   // a boosted spell: purple glow and an echo following it
+  if (ev.buffed) setTimeout(() => fly(em, $('#heroSvg'), foeNode(target), { size: size * .9, glow: '#c86bff', arrow, echo: true }), 140);
+  if (ev.k === 'skip' && spell.fam === 19) { await timeFx(ev.all ? CB.alive(G.st) : [target]); return; }   // Time Freeze: the clock
+  await fly(em, $('#heroSvg'), foeNode(target), Object.assign({ size, glow, trail: true, arrow, bounce: ev.rel === 'none' && !ev.popped && ev.k === 'dmg' }, echoed));
   if (ev.k === 'skip') { (ev.all ? CB.alive(G.st) : [target]).forEach(m => burst('🌑', 7, foeNode(m))); fxStatus(); }
 }
 async function monsterShot(m, big) {   // a monster attacks: it lunges and shoots its element at the wizard
@@ -2785,12 +3107,14 @@ async function monsterShot(m, big) {   // a monster attacks: it lunges and shoot
 function fxStatus() {   // the spell effects that last, drawn on the wizard and the monsters, with small icons
   const fx = G.quest === 'battle' && G.st ? G.st.fx : null, hb = $('#heroBox'), fw = $('.foeWrap');
   hb.classList.toggle('shielded', !!fx && fx.shields.length > 0); hb.classList.toggle('mirrored', !!fx && fx.reflect);
+  let orb = hb.querySelector('.chargeOrb'); if (fx && fx.buff > 1) { if (!orb) { orb = document.createElement('div'); orb.className = 'chargeOrb'; $('#heroSvg').appendChild(orb); } orb.textContent = '×' + fx.buff; } else if (orb) orb.remove();   // the staff glows while a buff waits
   const pairs = fx && G.group ? G.st.foes.map(f => [f, foeNode(f)]) : [[fx ? G.mon : null, fw]];
   if (G.group) fw.classList.remove('snared', 'magicShield');
-  for (const [f, node] of pairs) if (node) { node.classList.toggle('snared', !!f && f.skip > 0); node.classList.toggle('magicShield', !!f && !!f.shield); node.classList.toggle('shifter', !!f && (f.ab || []).includes('shifter')); }
+  for (const [f, node] of pairs) if (node) { if (f && !(f.skip > 0)) f.timeFrozen = false; node.classList.toggle('timeStop', !!f && f.skip > 0 && !!f.timeFrozen); node.classList.toggle('snared', !!f && f.skip > 0 && !f.timeFrozen); node.classList.toggle('magicShield', !!f && !!f.shield); node.classList.toggle('shifter', !!f && (f.ab || []).includes('shifter')); }
   const icons = (el, list) => { let d = el.querySelector(':scope > .fxIcons'); if (!d) { d = document.createElement('div'); d.className = 'fxIcons'; el.appendChild(d); } d.innerHTML = list.join(''); };
   const n = (em, k) => em + (k > 1 ? `<b>×${k}</b>` : '');
-  icons(hb, !fx ? [] : [fx.shields.length ? n('🛡️', fx.shields.reduce((a, s) => a + s.n, 0)) : '', fx.reflect ? '🪞' : '', fx.revive ? '🪶' : '', fx.buff > 1 ? n('💪', fx.buff) : '', fx.summon ? n(fx.summon.em, fx.summon.turns) : ''].filter(Boolean));
+  icons(hb, !fx ? [] : [fx.shields.length ? n('🛡️', fx.shields.reduce((a, s) => a + s.n, 0)) : '', fx.reflect ? '🪞' : '', fx.revive ? '🪶' : '', fx.buff > 1 ? n('💪', fx.buff) : ''].filter(Boolean));   // (a familiar is drawn next to the wizard, familiarNode)
+  familiarNode();
   icons(fw, !fx ? [] : [!G.group && G.mon.skip > 0 ? n('⛓️', G.mon.skip) : '', fx.shrink > 0 ? n('🔽', fx.shrink) : '', fx.weaken != null ? '🔽' : ''].filter(Boolean));
 }
 function after(tier) {
@@ -2951,7 +3275,7 @@ function castResult(ev, target) {   // what the spell did, with the short "why" 
       if (r === 'heal') { burst('💚', 8, node); floatText('+' + ev.monHeal, '#7dffb0', node); return t('r_heal', { h: ev.monHeal }) + `<br><small>${tl(e.why)}</small>`; }
       floatText('0', '#d6d6e6', node); return t('r_none') + `<br><small>${tl(e.why)}</small>`;
     case 'shield': return t('r_shield');
-    case 'heal': case 'healPart': case 'fullHeal': burst('💚', 6, '#heroSvg'); return t('r_heal_me', { h: ev.heal });
+    case 'heal': case 'healPart': case 'fullHeal': floatText('+' + ev.heal, '#7dffb0', '#heroSvg'); return t('r_heal_me', { h: ev.heal });
     case 'skip': return t(ev.all ? 'r_skip_all' : 'r_skip', { n: plural(ev.n, 'turns_1', 'turns_n') });
     case 'bossResist': return t('r_boss_resist');
     case 'buff': return t('r_buff');
@@ -2968,7 +3292,11 @@ function castResult(ev, target) {   // what the spell did, with the short "why" 
 // the monsters' turn: each monster still standing shoots at the wizard, one after the other (a double attacker twice)
 async function monsterTurnUI() {
   const st = G.st, ev = CB.monsterTurn(st), lines = [], fs = st.foes;
-  if (ev.familiar) { const nd = foeNode(fs[ev.familiar.i]); lines.push(ev.familiar.dmg ? t('m_fam', { em: ev.familiar.em, d: ev.familiar.dmg }) : t('m_fam_none', { em: ev.familiar.em })); if (ev.familiar.dmg) { burst(ev.familiar.em, 6, nd); floatText('−' + ev.familiar.dmg, '#ffd166', nd); } }
+  if (ev.familiar) {   // the familiar's attack (the Dragon: every monster), with the damage on each one
+    await familiarAttack(ev.familiar);
+    for (const h of ev.familiar.hits || []) if (h.dmg) floatText('−' + h.dmg, '#ffd166', foeNode(fs[h.i]));
+    lines.push(ev.familiar.dmg ? t('m_fam', { em: ev.familiar.em, d: ev.familiar.dmg }) : t('m_fam_none', { em: ev.familiar.em }));
+  }
   if (CB.defeated(st)) { $('#fb').innerHTML += '<br>' + lines.join('<br>'); updateBars(); await sleep(800); return victory(); }
   for (const i of ev.skips) { const nd = foeNode(fs[i]); shake(nd); burst('⛓️', 4, nd); }
   if (ev.skips.length) lines.push(G.group && ev.skips.length > 1 ? t('m_skip_n', { n: ev.skips.length }) : t('m_skip'));
