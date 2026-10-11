@@ -555,3 +555,6 @@ Every spell was shown in the browser one family at a time; your comments were bu
 
 **How to check:** forge an item (it goes straight to the payment; try ✖ Stop forging once), then go Home and tap the mannequin.
 - **Using items in a fight** (your report: the staff did not seem to be there): the item buttons under the battle now show the item's name and "tap to use · 1 use left" (the amulet: "works by itself"), and the first fight with a new item says "Staff of banishing is ready! Tap it under the battle to use it." The staff works on any monster except a boss.
+- **The mannequin, fixed** (your report: "Leave at home" and "Take it" seemed reversed — the button showed the item's state, not what tapping does):
+  - Each item now says where it is ("🎒 With you on quests" in green / "🏠 At home, on the mannequin" in gold), and the button says what it does ("Leave at home 🏠" / "Take it 🎒").
+  - **The mannequin holds only the items left at home**, up to 2 of each kind (room for the second one is ready for when more items come). An item you take disappears from it, so you can see at a glance what is with you.

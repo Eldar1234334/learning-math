@@ -103,6 +103,7 @@ body.peace .foeBody{font-size:6rem}
 @keyframes catTail{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}@keyframes owlBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}@keyframes clockTick{0%{transform:rotate(-3deg)}100%{transform:rotate(3deg)}}
 /* cauldron: a round pot on three legs over a log fire */
 .rManq{position:absolute;transform:translate(-50%,-100%);width:calc(var(--u)*14);background:none;border:0;padding:0;cursor:pointer;z-index:14}.rManq svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 calc(var(--u)*.4) calc(var(--u)*.4) #0007)}.rManq:hover svg,.rManq:focus-visible svg{filter:drop-shadow(0 0 calc(var(--u)*1) #ffd166)}
+#manqBody .wsInfo{text-align:start}#manqBody .btn{white-space:nowrap;padding:8px 12px;font-size:.95rem}.manqWhere{margin-top:3px;font-weight:700}.manqWhere.with{color:#3ddc97}.manqWhere.home{color:#ffd166}
 .ckNote{display:flex;align-items:center;gap:10px;background:#3ddc9722;border:2px solid #3ddc97;border-radius:14px;padding:8px 12px;margin:6px 0}.ckNoteIco svg{width:44px;height:44px;display:block}
 .rCaul{position:absolute;left:50%;top:calc(69*1.25%);z-index:90;transform:translate(-50%,-100%);cursor:pointer;width:calc(var(--u)*17*var(--cs,1));aspect-ratio:1/1;background:none;border:0;padding:0;color:#fff;font:inherit}
 .rCaul svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
@@ -1200,7 +1201,7 @@ const STR = {
   the_shop_aria: ['The shop', 'החנות'], potions: ['Potions', 'שיקויים'], wear_btn: ['👗 Robes and accessories', '👗 גלימות ואביזרים'],
   shop_foot: ['🪴 The shelves change every day. Things you buy wait for you at Home.', '🪴 המדפים מתחלפים כל יום. מה שקונים מחכה בבית.'],
   ws_title: ['🛠️ Workshop', '🛠️ סדנה'], ws_tip: ['The artificer builds magic items from rare ingredients.', 'האומן בונה חפצי קסם ממרכיבים נדירים.'], ws_aria: ['The workshop', 'הסדנה'],
-  ws_foot: ['🔮 Your items wait on the mannequin at Home: tap it to choose which ones to take on your quests. Epic items can be upgraded to legendary.', '🔮 החפצים מחכים על הבובה בבית: הקישו עליה כדי לבחור אילו לקחת למסעות. אפשר לשדרג חפצים אפיים לאגדיים.'],
+  ws_foot: ['🔮 Tap the mannequin at Home to choose which items go with you on quests (the ones left at home stand on it). Epic items can be upgraded to legendary.', '🔮 הקישו על הבובה בבית כדי לבחור אילו חפצים יוצאים איתכם למסעות (מה שנשאר בבית עומד עליה). אפשר לשדרג חפצים אפיים לאגדיים.'],
   // fights and the journey map
   abandon_title: ['Abandon the quest', 'עזיבת המסע'], continue: ['Continue ▶', 'המשך ◀'], walk_on: ['Walk on ▶', 'ממשיכים ללכת ◀'], journey_map: ['Journey map', 'מפת המסע'],
   j_next_aria: ['Walk to the next stop', 'הליכה לתחנה הבאה'], j_boss_near: ['⚠️ Something big is waiting just ahead…', '⚠️ משהו גדול מחכה ממש לפנינו…'], j_stronger: ['The monsters are getting stronger…', 'המפלצות נעשות חזקות יותר…'],
@@ -1263,7 +1264,8 @@ const STR = {
   lq_scale_f: ['The legendary item needs {k} times the epic recipe\'s {e} {u}, plus {f} of it more.', 'הפריט האגדי צריך פי {k} מה-{e} {u} של המתכון האפי, ועוד {f} מהם.'],
   lq_scale_2: ['The epic recipe had {e} {u}. The legendary item needs it twice, plus {m} more.', 'במתכון האפי היו {e} {u}. הפריט האגדי צריך פעמיים כך, ועוד {m}.'],
   liq_molten: ['molten silver', 'כסף מותך'], forge_go: ['🔨 Forge!', '🔨 לחשל!'],
-  manq_t: ['🧥 Your magic items', '🧥 החפצים הקסומים שלכם'], manq_tip: ['They wait on the mannequin. Choose which ones to take on your quests.', 'הם מחכים על הבובה. בחרו אילו לקחת למסעות.'],
+  manq_t: ['🧥 Your magic items', '🧥 החפצים הקסומים שלכם'], manq_tip: ['Items you take go with you on quests. Items you leave stay on the mannequin.', 'חפצים שלוקחים יוצאים איתכם למסעות. חפצים שמשאירים נשארים על הבובה.'],
+  manq_with: ['🎒 With you on quests', '🎒 איתכם במסעות'], manq_home: ['🏠 At home, on the mannequin', '🏠 בבית, על הבובה'], manq_take: ['Take it 🎒', 'לקחת 🎒'], manq_leave: ['Leave at home 🏠', 'להשאיר בבית 🏠'],
   manq_empty: ['No magic items yet. The artificer in the workshop can forge them.', 'עדיין אין חפצים קסומים. האומן בסדנה יכול לחשל אותם.'], take_on: ['✓ I take it', '✓ לוקחים'], take_off: ['Stays at home', 'נשאר בבית'],
   forge_stop: ['✖ Stop forging', '✖ להפסיק לחשל'], forge_stop_t: ['Stop forging?', 'להפסיק לחשל?'], forge_stop_b: ['Nothing is used and no coins are paid. You can forge it again later.', 'שום דבר לא נגמר ולא משלמים מטבעות. אפשר לחשל שוב אחר כך.'],
   forge_stop_yes: ['Stop', 'להפסיק'], forge_stop_no: ['Keep forging', 'להמשיך לחשל'],
@@ -1416,7 +1418,7 @@ const STR = {
   start: ['Start ▶', 'מתחילים ◀'], not_now: ['Not now', 'לא עכשיו'], forging: ['🔨 Forging: {name}', '🔨 מכינים: {name}'],
   forge_last: ['Last question: the magic that binds it all together!', 'שאלה אחרונה: הקסם שקושר הכול יחד!'], forge_ing: ['Ingredient {i} of {n}. A wrong answer costs nothing.', 'מרכיב {i} מתוך {n}. טעות לא עולה כלום.'],
   missing_t: ['😮 Something is missing', '😮 משהו חסר'], missing_b: ['<p>You no longer have everything for this item. Nothing was used up.</p>', '<p>כבר אין לכם את כל מה שצריך לחפץ הזה. שום דבר לא נוצל.</p>'],
-  back_ws: ['Back to the workshop', 'חזרה לסדנה'], back_ws_e: ['Back to the workshop 🛠️', 'חזרה לסדנה 🛠️'], made_t: ['{icon} {ver} {name}!', '{icon} {name} ({ver})!'], wearing: ['It is on your mannequin at Home, and you take it on your quests.', 'הוא על הבובה בבית, ואתם לוקחים אותו למסעות.'],
+  back_ws: ['Back to the workshop', 'חזרה לסדנה'], back_ws_e: ['Back to the workshop 🛠️', 'חזרה לסדנה 🛠️'], made_t: ['{icon} {ver} {name}!', '{icon} {name} ({ver})!'], wearing: ['It goes with you on your quests. To leave it at home, tap the mannequin at Home.', 'הוא יוצא איתכם למסעות. כדי להשאיר אותו בבית, הקישו על הבובה בבית.'],
   uses_1: ['1 use', 'שימוש אחד'], uses_n: ['{n} uses', '{n} שימושים'], uses_left: ['{name}: {u} left', '{name}: נשארו {u}'],
   used_up: ['Used up for this quest. It comes back when the quest is finished.', 'נגמר במסע הזה. הוא יחזור כשהמסע ייגמר.'],
   amulet_info: ['🔮 {name}: it protects you by itself when you would be knocked out. {u} left.', '🔮 {name}: מגן עליכם מעצמו כשאתם עומדים להיות מובסים. נשארו {u}.'],
@@ -3994,24 +3996,30 @@ function rmPlace(el, id) {
   const p = rmPos(id); el.style.setProperty('--x', p.x); el.style.setProperty('--y', p.y); el.style.setProperty('--s', rmScale(id, p.y)); el.style.setProperty('--z', rmZ(id, p.y));
 }
 function rmShown(disp) { return Object.keys(ING).filter(id => (disp[id] || 0) > 0).sort((a, b) => ING[b].r - ING[a].r); }   // rarest first; ties keep the list order
-// The mannequin at Home (owner, step 9): it wears every forged item (an amulet at the neck, a belt at the waist, a staff at its side; more items can get a place later).
-// Tapping it opens the list of forged items, where the student chooses which ones to take on quests (an item left at home has no power on the quest).
+// The mannequin at Home (owner, step 9): it holds the forged items that stay at HOME, up to MANQ_MAX of each kind; an item the student takes on quests leaves it,
+// so the mannequin shows at a glance what is with you. (Today there is one item of each kind; the drawing already has room for 2 when more come.)
+const MANQ_MAX = 2;
+const atHome = s => itemVer(s) > 0 && !itemOn(s) ? 1 : 0;   // how many items of this kind are at home
 function manqSVG() {
-  const at = (slot, x, y, w, h) => itemVer(slot) ? magicPic(slot, itemVer(slot)).replace(' class="magicSvg"', '').replace('<svg ', `<svg x="${x}" y="${y}" width="${w}" height="${h}" `) : '';   // (without the icon class, whose CSS size would win)
-  const sv = itemVer('staff'), sc = sv === 2 ? '#ffd166' : '#4aa8ff';
+  const pic = (slot, x, y, w, h) => magicPic(slot, itemVer(slot)).replace(' class="magicSvg"', '').replace('<svg ', `<svg x="${x}" y="${y}" width="${w}" height="${h}" `);   // (without the icon class, whose CSS size would win)
+  const n = s => Math.min(MANQ_MAX, atHome(s)), sc = itemVer('staff') === 2 ? '#ffd166' : '#4aa8ff';
+  const staff = dx => `<path d="M${52 + dx} 114 L${47 + dx} 24" stroke="#7a4a21" stroke-width="3.2" stroke-linecap="round"/><circle cx="${46.6 + dx}" cy="18" r="6.5" fill="none" stroke="#e0b84a" stroke-width="2.2"/><polygon points="${46.6 + dx},11 ${50.4 + dx},18 ${46.6 + dx},25 ${42.8 + dx},18" fill="${sc}" stroke="#fff" stroke-width=".8"/>`;
+  let items = ''; for (let k = 0; k < n('staff'); k++) items += staff(k ? -42 : 0);                 // staffs: at its right side, a second one at its left
+  for (let k = 0; k < n('belt'); k++) items += pic('belt', 14, 48 + k * 9, 32, 26);                // belts: at the waist, a second one below
+  for (let k = 0; k < n('amulet'); k++) items += pic('amulet', 19 + (k ? 4 : 0), 26 + (k ? 6 : 0), 22, 22);   // amulets: at the neck, a second one a little lower
   return `<svg viewBox="0 0 60 122" aria-hidden="true"><path d="M14 120 L30 111 L46 120" stroke="#5e3a1d" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="28.5" y="78" width="3" height="34" fill="#5e3a1d"/>
     <path d="M17 36 Q15 28 21 27 H39 Q45 28 43 36 L41 60 Q45 72 41 80 H19 Q15 72 19 60 Z" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.3"/><path d="M21 31 Q30 29 39 31" stroke="#fff" stroke-opacity=".4" stroke-width="2" fill="none"/>
-    <rect x="27" y="19" width="6" height="9" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.1"/><circle cx="30" cy="13" r="7.5" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.2"/>
-    ${sv ? `<path d="M52 114 L47 24" stroke="#7a4a21" stroke-width="3.2" stroke-linecap="round"/><circle cx="46.6" cy="18" r="6.5" fill="none" stroke="#e0b84a" stroke-width="2.2"/><polygon points="46.6,11 50.4,18 46.6,25 42.8,18" fill="${sc}" stroke="#fff" stroke-width=".8"/>` : ''}
-    ${at('belt', 14, 48, 32, 26)}${at('amulet', 19, 26, 22, 22)}</svg>`;
+    <rect x="27" y="19" width="6" height="9" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.1"/><circle cx="30" cy="13" r="7.5" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.2"/>${items}</svg>`;
 }
+// the list of forged items: where each one is now (with you / at home) and a button that moves it
 function openManq() {
   const made = MAGIC_SLOTS.filter(s => itemVer(s));
   const body = () => made.length ? made.map(s => { const m = MAGIC[s], on = itemOn(s);
-    return `<div class="wsCard"><div class="wsPic">${magicPic(s, itemVer(s))}</div><div class="wsInfo"><b>${nameOf(m)}</b> <small>${verName(itemVer(s))}</small><div class="small">${tl(m.does)}</div></div><button class="btn ${on ? '' : 'ghost'}" data-take="${s}">${on ? t('take_on') : t('take_off')}</button></div>`; }).join('')
+    return `<div class="wsCard"><div class="wsPic">${magicPic(s, itemVer(s))}</div><div class="wsInfo"><b>${nameOf(m)}</b> <small>${verName(itemVer(s))}</small><div class="small">${tl(m.does)}</div><div class="small manqWhere ${on ? 'with' : 'home'}">${t(on ? 'manq_with' : 'manq_home')}</div></div>
+      <button class="btn ${on ? 'ghost' : ''}" data-take="${s}">${t(on ? 'manq_leave' : 'manq_take')}</button></div>`; }).join('')
     : `<p>${t('manq_empty')}</p>`;
   modal(t('manq_t'), `<p class="small" style="margin-top:0">${t('manq_tip')}</p><div id="manqBody" class="wsCards">${body()}</div>`, [[t('ok'), null]]);
-  $('#manqBody').onclick = e => { const b = e.target.closest('[data-take]'); if (!b) return; const s = b.dataset.take; P.equip = P.equip || {}; P.equip[s] = !itemOn(s); sfx.ok(); saveSoon(true); $('#manqBody').innerHTML = body(); };
+  $('#manqBody').onclick = e => { const b = e.target.closest('[data-take]'); if (!b) return; const s = b.dataset.take; P.equip = P.equip || {}; P.equip[s] = !itemOn(s); sfx.ok(); saveSoon(true); $('#manqBody').innerHTML = body(); renderRoom(rmDisp); };
 }
 function renderRoom(disp) {   // disp = the ingredient counts to show (they fill up one by one while the satchel is unpacked)
   rmSetup(); rmDisp = disp;
