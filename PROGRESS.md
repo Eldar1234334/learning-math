@@ -547,3 +547,10 @@ Every spell was shown in the browser one family at a time; your comments were bu
 - **Forging is smithing, not brewing:** the blueprint screen has an **anvil** with a glowing ingot. Sparks fly from it, and the hammer strikes when you tap **🔨 Forge!**. The liquid is **molten silver** 🔥. A right blueprint: the item glows over the anvil; a wrong one: a puff of smoke.
 
 **How to check:** demo wizard level 9 → Workshop → Make (any item) → pick a sky item → Start: the anvil. Measure, tap 🔨 Forge!, then pay the artificer.
+
+### Step 9, round 3 (after your check) ✅ (on the test site, waiting for your check)
+- **Straight to the payment:** a right blueprint goes directly to the artificer's counter. A green note at the top says "✨ The blueprint works! Step 2 of 2: pay the artificer for…". A **✖ Stop forging** button asks "Stop forging?" and goes back to the workshop: nothing is used and no coins are paid.
+- **The mannequin at Home** (in front of the wardrobe, once the workshop is open) wears every forged item: the amulet at the neck, the belt at the waist, the staff at its side, blue for epic and gold for legendary. New kinds of items can get a place on it later.
+- **Tap the mannequin:** "Your magic items" lists every forged item. Each has **✓ I take it** / **Stays at home**. Only the items you take work on quests (in the item bar and on the map). A new item is taken automatically.
+
+**How to check:** forge an item (it goes straight to the payment; try ✖ Stop forging once), then go Home and tap the mannequin.

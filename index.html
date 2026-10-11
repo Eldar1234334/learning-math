@@ -102,6 +102,8 @@ body.peace .foeBody{font-size:6rem}
 .prop[data-id=d_cat] .em{animation:catTail 2.4s ease-in-out infinite;transform-origin:50% 100%}.prop[data-id=d_owl] .em{animation:owlBob 3s ease-in-out infinite}.prop[data-id=d_clock] .em{animation:clockTick 2s steps(2) infinite}
 @keyframes catTail{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}@keyframes owlBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}@keyframes clockTick{0%{transform:rotate(-3deg)}100%{transform:rotate(3deg)}}
 /* cauldron: a round pot on three legs over a log fire */
+.rManq{position:absolute;transform:translate(-50%,-100%);width:calc(var(--u)*14);background:none;border:0;padding:0;cursor:pointer;z-index:14}.rManq svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 calc(var(--u)*.4) calc(var(--u)*.4) #0007)}.rManq:hover svg,.rManq:focus-visible svg{filter:drop-shadow(0 0 calc(var(--u)*1) #ffd166)}
+.ckNote{display:flex;align-items:center;gap:10px;background:#3ddc9722;border:2px solid #3ddc97;border-radius:14px;padding:8px 12px;margin:6px 0}.ckNoteIco svg{width:44px;height:44px;display:block}
 .rCaul{position:absolute;left:50%;top:calc(69*1.25%);z-index:90;transform:translate(-50%,-100%);cursor:pointer;width:calc(var(--u)*17*var(--cs,1));aspect-ratio:1/1;background:none;border:0;padding:0;color:#fff;font:inherit}
 .rCaul svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .rCaul .aura{position:absolute;left:50%;top:6%;width:84%;height:44%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(var(--liqa),#0000 68%);animation:rPulse 2.2s ease-in-out infinite;pointer-events:none}
@@ -873,11 +875,12 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 
 <section id="checkout" class="screen" style="max-width:760px">
   <div class="top"><button class="ib" id="ckBack" data-tt="back_shop">🏪</button><div class="grow"><div class="who" id="ckTitle"></div><div class="small" id="ckSub"></div></div><div class="coinBox" id="ckWallet"></div><button class="langBtn" data-lang-toggle></button></div>
+  <div class="ckNote" id="ckNote" hidden></div>
   <div class="ckScene"><div class="ckMerch" id="ckMerch"></div><div class="ckSay" id="ckSay"></div><div class="ckItem" id="ckItem"></div></div>
   <div class="ckCounter" id="ckCounter"></div>
   <div id="ckInput"></div>
   <div class="small center" id="ckFb" style="min-height:1.4em;margin:6px 0"></div>
-  <div class="row center" style="margin:8px 0"><button class="btn big" id="ckPay"></button></div>
+  <div class="row center" style="margin:8px 0;gap:10px;flex-wrap:wrap"><button class="btn big" id="ckPay"></button><button class="btn ghost" id="ckAbort" hidden></button></div>
 </section>
 <section id="shop" class="screen" style="max-width:760px">
   <div class="top"><button class="ib" id="shopBack" data-tt="back_map">🗺️</button><div class="grow"><div class="who" data-t="shop_title"></div><div class="small" data-t="shop_tip"></div></div><div class="coinBox">🪙 <b id="shopCoins">0</b> <span id="shopWallet"></span></div><button class="langBtn" data-lang-toggle></button></div>
@@ -1197,7 +1200,7 @@ const STR = {
   the_shop_aria: ['The shop', 'החנות'], potions: ['Potions', 'שיקויים'], wear_btn: ['👗 Robes and accessories', '👗 גלימות ואביזרים'],
   shop_foot: ['🪴 The shelves change every day. Things you buy wait for you at Home.', '🪴 המדפים מתחלפים כל יום. מה שקונים מחכה בבית.'],
   ws_title: ['🛠️ Workshop', '🛠️ סדנה'], ws_tip: ['The artificer builds magic items from rare ingredients.', 'האומן בונה חפצי קסם ממרכיבים נדירים.'], ws_aria: ['The workshop', 'הסדנה'],
-  ws_foot: ['🔮 You wear every item you make. Epic items can be upgraded to legendary.', '🔮 כל חפץ שמכינים לובשים. אפשר לשדרג חפצים אפיים לאגדיים.'],
+  ws_foot: ['🔮 Your items wait on the mannequin at Home: tap it to choose which ones to take on your quests. Epic items can be upgraded to legendary.', '🔮 החפצים מחכים על הבובה בבית: הקישו עליה כדי לבחור אילו לקחת למסעות. אפשר לשדרג חפצים אפיים לאגדיים.'],
   // fights and the journey map
   abandon_title: ['Abandon the quest', 'עזיבת המסע'], continue: ['Continue ▶', 'המשך ◀'], walk_on: ['Walk on ▶', 'ממשיכים ללכת ◀'], journey_map: ['Journey map', 'מפת המסע'],
   j_next_aria: ['Walk to the next stop', 'הליכה לתחנה הבאה'], j_boss_near: ['⚠️ Something big is waiting just ahead…', '⚠️ משהו גדול מחכה ממש לפנינו…'], j_stronger: ['The monsters are getting stronger…', 'המפלצות נעשות חזקות יותר…'],
@@ -1260,6 +1263,10 @@ const STR = {
   lq_scale_f: ['The legendary item needs {k} times the epic recipe\'s {e} {u}, plus {f} of it more.', 'הפריט האגדי צריך פי {k} מה-{e} {u} של המתכון האפי, ועוד {f} מהם.'],
   lq_scale_2: ['The epic recipe had {e} {u}. The legendary item needs it twice, plus {m} more.', 'במתכון האפי היו {e} {u}. הפריט האגדי צריך פעמיים כך, ועוד {m}.'],
   liq_molten: ['molten silver', 'כסף מותך'], forge_go: ['🔨 Forge!', '🔨 לחשל!'],
+  manq_t: ['🧥 Your magic items', '🧥 החפצים הקסומים שלכם'], manq_tip: ['They wait on the mannequin. Choose which ones to take on your quests.', 'הם מחכים על הבובה. בחרו אילו לקחת למסעות.'],
+  manq_empty: ['No magic items yet. The artificer in the workshop can forge them.', 'עדיין אין חפצים קסומים. האומן בסדנה יכול לחשל אותם.'], take_on: ['✓ I take it', '✓ לוקחים'], take_off: ['Stays at home', 'נשאר בבית'],
+  forge_stop: ['✖ Stop forging', '✖ להפסיק לחשל'], forge_stop_t: ['Stop forging?', 'להפסיק לחשל?'], forge_stop_b: ['Nothing is used and no coins are paid. You can forge it again later.', 'שום דבר לא נגמר ולא משלמים מטבעות. אפשר לחשל שוב אחר כך.'],
+  forge_stop_yes: ['Stop', 'להפסיק'], forge_stop_no: ['Keep forging', 'להמשיך לחשל'],
   ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
@@ -1408,7 +1415,7 @@ const STR = {
   start: ['Start ▶', 'מתחילים ◀'], not_now: ['Not now', 'לא עכשיו'], forging: ['🔨 Forging: {name}', '🔨 מכינים: {name}'],
   forge_last: ['Last question: the magic that binds it all together!', 'שאלה אחרונה: הקסם שקושר הכול יחד!'], forge_ing: ['Ingredient {i} of {n}. A wrong answer costs nothing.', 'מרכיב {i} מתוך {n}. טעות לא עולה כלום.'],
   missing_t: ['😮 Something is missing', '😮 משהו חסר'], missing_b: ['<p>You no longer have everything for this item. Nothing was used up.</p>', '<p>כבר אין לכם את כל מה שצריך לחפץ הזה. שום דבר לא נוצל.</p>'],
-  back_ws: ['Back to the workshop', 'חזרה לסדנה'], back_ws_e: ['Back to the workshop 🛠️', 'חזרה לסדנה 🛠️'], made_t: ['{icon} {ver} {name}!', '{icon} {name} ({ver})!'], wearing: ['You are wearing it now!', 'עכשיו אתם לובשים אותו!'],
+  back_ws: ['Back to the workshop', 'חזרה לסדנה'], back_ws_e: ['Back to the workshop 🛠️', 'חזרה לסדנה 🛠️'], made_t: ['{icon} {ver} {name}!', '{icon} {name} ({ver})!'], wearing: ['It is on your mannequin at Home, and you take it on your quests.', 'הוא על הבובה בבית, ואתם לוקחים אותו למסעות.'],
   uses_1: ['1 use', 'שימוש אחד'], uses_n: ['{n} uses', '{n} שימושים'], uses_left: ['{name}: {u} left', '{name}: נשארו {u}'],
   used_up: ['Used up for this quest. It comes back when the quest is finished.', 'נגמר במסע הזה. הוא יחזור כשהמסע ייגמר.'],
   amulet_info: ['🔮 {name}: it protects you by itself when you would be knocked out. {u} left.', '🔮 {name}: מגן עליכם מעצמו כשאתם עומדים להיות מובסים. נשארו {u}.'],
@@ -3986,6 +3993,25 @@ function rmPlace(el, id) {
   const p = rmPos(id); el.style.setProperty('--x', p.x); el.style.setProperty('--y', p.y); el.style.setProperty('--s', rmScale(id, p.y)); el.style.setProperty('--z', rmZ(id, p.y));
 }
 function rmShown(disp) { return Object.keys(ING).filter(id => (disp[id] || 0) > 0).sort((a, b) => ING[b].r - ING[a].r); }   // rarest first; ties keep the list order
+// The mannequin at Home (owner, step 9): it wears every forged item (an amulet at the neck, a belt at the waist, a staff at its side; more items can get a place later).
+// Tapping it opens the list of forged items, where the student chooses which ones to take on quests (an item left at home has no power on the quest).
+function manqSVG() {
+  const at = (slot, x, y, w, h) => itemVer(slot) ? magicPic(slot, itemVer(slot)).replace(' class="magicSvg"', '').replace('<svg ', `<svg x="${x}" y="${y}" width="${w}" height="${h}" `) : '';   // (without the icon class, whose CSS size would win)
+  const sv = itemVer('staff'), sc = sv === 2 ? '#ffd166' : '#4aa8ff';
+  return `<svg viewBox="0 0 60 122" aria-hidden="true"><path d="M14 120 L30 111 L46 120" stroke="#5e3a1d" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="28.5" y="78" width="3" height="34" fill="#5e3a1d"/>
+    <path d="M17 36 Q15 28 21 27 H39 Q45 28 43 36 L41 60 Q45 72 41 80 H19 Q15 72 19 60 Z" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.3"/><path d="M21 31 Q30 29 39 31" stroke="#fff" stroke-opacity=".4" stroke-width="2" fill="none"/>
+    <rect x="27" y="19" width="6" height="9" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.1"/><circle cx="30" cy="13" r="7.5" fill="#e8d3b0" stroke="#8a6a44" stroke-width="1.2"/>
+    ${sv ? `<path d="M52 114 L47 24" stroke="#7a4a21" stroke-width="3.2" stroke-linecap="round"/><circle cx="46.6" cy="18" r="6.5" fill="none" stroke="#e0b84a" stroke-width="2.2"/><polygon points="46.6,11 50.4,18 46.6,25 42.8,18" fill="${sc}" stroke="#fff" stroke-width=".8"/>` : ''}
+    ${at('belt', 14, 48, 32, 26)}${at('amulet', 19, 26, 22, 22)}</svg>`;
+}
+function openManq() {
+  const made = MAGIC_SLOTS.filter(s => itemVer(s));
+  const body = () => made.length ? made.map(s => { const m = MAGIC[s], on = itemOn(s);
+    return `<div class="wsCard"><div class="wsPic">${magicPic(s, itemVer(s))}</div><div class="wsInfo"><b>${nameOf(m)}</b> <small>${verName(itemVer(s))}</small><div class="small">${tl(m.does)}</div></div><button class="btn ${on ? '' : 'ghost'}" data-take="${s}">${on ? t('take_on') : t('take_off')}</button></div>`; }).join('')
+    : `<p>${t('manq_empty')}</p>`;
+  modal(t('manq_t'), `<p class="small" style="margin-top:0">${t('manq_tip')}</p><div id="manqBody" class="wsCards">${body()}</div>`, [[t('ok'), null]]);
+  $('#manqBody').onclick = e => { const b = e.target.closest('[data-take]'); if (!b) return; const s = b.dataset.take; P.equip = P.equip || {}; P.equip[s] = !itemOn(s); sfx.ok(); saveSoon(true); $('#manqBody').innerHTML = body(); };
+}
 function renderRoom(disp) {   // disp = the ingredient counts to show (they fill up one by one while the satchel is unpacked)
   rmSetup(); rmDisp = disp;
   const c = P.own.caul || 0, cau = RM_CAU[c] || RM_CAU[0], H = [];
@@ -3999,6 +4025,7 @@ function renderRoom(disp) {   // disp = the ingredient counts to show (they fill
     H.push(`<div class="prop ${it.t === 'wall' ? 'wall' : 'floor'} ${it.t === 'rug' ? 'rugwrap' : ''}" data-id="${id}" aria-label="${t('drag_aria', { n: nameOf(d) })}" style="--x:${p.x};--y:${p.y};--base:${it.b || 8};--s:${rmScale(id, p.y)};--z:${rmZ(id, p.y)}">${inner}</div>`);
   }
   if (wizLvl() >= CFG.MANUAL_FROM || P.manual === 'home') H.push(`<button class="rManual${P.manual === 'home' ? '' : ' gone'}" id="manualShelf" aria-label="${t('manual_t')}" title="${t('manual_t')}" style="left:39.4%;top:${41 * 1.25}%"><span>📕</span></button>`);   // the monster manual's place on the shelf
+  if ((P.ws && P.ws.on) || MAGIC_SLOTS.some(s => itemVer(s))) H.push(`<button class="rManq" id="manqBtn" aria-label="${t('manq_t')}" title="${t('manq_t')}" style="left:17%;top:${66 * 1.25}%">${manqSVG()}</button>`);   // the mannequin with the forged items
   H.push(`<button class="rCaul" id="caulBtn" aria-label="${t('brew_aria', { c: caulName(c) })}" style="--liq:${cau.liq};--liqa:${cau.liqa};--cs:${cau.cs}"><span class="aura"></span>${cauldronArt(c)}${[0, 1, 2, 3].map(i => `<i class="bub" style="left:${34 + i * 11}%;animation-delay:${i * .6}s"></i>`).join('')}<span class="caulLbl">${t('tap_brew', { c: caulName(c) })}</span></button>`);
   $('#rmProps').innerHTML = H.join(''); renderRoomPanel();
 }
@@ -4053,6 +4080,7 @@ $('#home').onclick = e => {
   if (e.target.closest('#caulBtn')) { openRecipes(); return; }
   if (e.target.closest('#wardBtn')) { openWardrobe(); return; }
   if (e.target.closest('#manualShelf')) { openManual(); return; }
+  if (e.target.closest('#manqBtn')) { openManq(); return; }
   if (e.target.closest('[data-close]')) { rmPanel = null; renderRoom(rmDisp); return; }
   const hit = e.target.closest('.rHit'); if (hit) { rmPanel = rmPanel === hit.dataset.kind ? null : hit.dataset.kind; renderRoom(rmDisp); if (rmPanel) $('#roomPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
   const bt = e.target.closest('[data-pot]');
@@ -4332,24 +4360,25 @@ function forgeBlueprintOk() {   // the blueprint is right: the item glows over t
   const s = { id: 'forge_' + slot, kind: 'forge', slot, v, price: rec.coins, em: '', he: `${m.he} (${v === 2 ? STR.legendary[1] : STR.epic[1]})`, en: `${v === 2 ? STR.legendary[0] : STR.epic[0]} ${m.en}`,
     L: v === 2 ? P.mlvl : undefined, sale: v === 2 ? CK.saleForm(rec.coins, P.mlvl, rngSeed(strHash('loyal' + P.id + slot))) : null,
     consume() { lines.forEach(([id, n]) => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - n); }); Object.entries(use).forEach(([id, n]) => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - n); }); } };
-  modal(t('bp_ok_t'), `<div style="text-align:center"><div style="width:6rem;margin:0 auto">${magicPic(slot, v)}</div><p>${t('bp_ok_b', { name: nameOf(s) })}</p></div>`,
-    [[t('bp_pay'), () => startCheckout(s, 1)], [t('back_ws'), openWorkshop, true]]);
+  startCheckout(s, 1);   // straight to step 2, the payment (owner, step 9); the checkout says the blueprint worked and can stop the forging
 }
 function forgeMade(s) {   // both parts are done: the item is made (the ingredients and the coins are used only now)
-  s.consume(); P.items[s.slot] = s.v; P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🛠️', '✨', s.v === 2 ? '🌟' : '💠']);
+  s.consume(); P.items[s.slot] = s.v; P.equip = P.equip || {}; P.equip[s.slot] = true; P.xp += CB.CFG.XP_CRAFT; saveSoon(true); sfx.win(); confetti(['🛠️', '✨', s.v === 2 ? '🌟' : '💠']);
   const m = MAGIC[s.slot];
   setTimeout(() => modal(t('made_t', { icon: magicIcon(s.slot), ver: verName(s.v), name: nameOf(m) }), `<div style="text-align:center"><div style="width:6rem;margin:0 auto">${magicPic(s.slot, s.v)}</div><p><b style="font-size:1.4rem">${nameOf(m)}</b></p><p>${tl(m.does)}</p><p class="small">${t('wearing')}</p><p>${t('ck_paid', { x: s.paid })} ${walletHtml(P.coins)}</p>${xpLine(CB.CFG.XP_CRAFT)}</div>`,
     [[t('back_ws_e'), openWorkshop], [t('back_map'), openMenu, true]]), 900);
 }
 /* ----- item powers: once per quest (twice for a legendary item). They never answer a question for the student: a banished stop is not logged at all. Uses come back only when the quest is FINISHED (a restart after a knockout is the same quest). ----- */
 const blankUses = () => ({ amulet: 0, staff: 0, belt: 0 });
-const itemLeft = (q, s) => Math.max(0, itemVer(s) - (((P.itemUses || {})[q] || {})[s] || 0));   // epic = 1 use, legendary = 2
+// a crafted item works on quests only when the student takes it (the mannequin at Home, owner step 9); new items are taken
+const itemOn = s => itemVer(s) > 0 && !(P.equip && P.equip[s] === false);
+const itemLeft = (q, s) => itemOn(s) ? Math.max(0, itemVer(s) - (((P.itemUses || {})[q] || {})[s] || 0)) : 0;   // epic = 1 use, legendary = 2
 function useItem(q, s) { P.itemUses = P.itemUses || {}; P.itemUses[q] = P.itemUses[q] || blankUses(); P.itemUses[q][s] = (P.itemUses[q][s] || 0) + 1; saveSoon(true); }
 function itemBarHtml(q, where) {   // small glowing icons for the items you wear; greyed out when their power is used up for this quest
-  return MAGIC_SLOTS.filter(s => itemVer(s)).map(s => { const left = itemLeft(q, s), m = MAGIC[s];
+  return MAGIC_SLOTS.filter(itemOn).map(s => { const left = itemLeft(q, s), m = MAGIC[s];
     return `<button class="itemBtn ${left ? 'glow v' + itemVer(s) : 'used'}" data-item="${s}" data-where="${where}" aria-label="${t('uses_left', { name: nameOf(m), u: plural(left, 'uses_1', 'uses_n') })}">${magicPic(s, left ? itemVer(s) : 0)}<b>×${left}</b></button>`; }).join('');
 }
-function renderItemBar() { const e = $('#itemBar'); if (!e) return; const q = G.quest, on = (q === 'battle' || q === 'peace') && MAGIC_SLOTS.some(s => itemVer(s)); e.style.display = on ? '' : 'none'; e.innerHTML = on ? itemBarHtml(q, 'fight') : ''; }
+function renderItemBar() { const e = $('#itemBar'); if (!e) return; const q = G.quest, on = (q === 'battle' || q === 'peace') && MAGIC_SLOTS.some(itemOn); e.style.display = on ? '' : 'none'; e.innerHTML = on ? itemBarHtml(q, 'fight') : ''; }
 function itemTap(s, where) {
   const q = where === 'fight' ? G.quest : J.q, left = itemLeft(q, s), m = MAGIC[s];
   if (!left) { toast(t('used_up')); return; }
@@ -4669,6 +4698,8 @@ function renderCheckout() {
   if (!CKS) return; const s = CKS.s, k = CKS.k;
   const forge = s.kind === 'forge'; $('#ckTitle').textContent = forge ? `🛠️ ${t('artificer')}` : t('the_shop'); $('#ckSub').textContent = t(forge ? 'ck_sub_ws' : 'ck_sub', { lvl: levelLbl(k.L) });
   $('#ckWallet').innerHTML = walletHtml(P.coins);
+  $('#ckNote').hidden = !forge; if (forge) $('#ckNote').innerHTML = `<span class="ckNoteIco">${magicPic(s.slot, s.v)}</span><span><b>${t('bp_ok_t')}</b> ${t('bp_ok_b', { name: nameOf(s) })}</span>`;
+  $('#ckAbort').hidden = !forge || CKS.done; $('#ckAbort').textContent = t('forge_stop');
   $('#ckMerch').innerHTML = forge ? artificerSVG(WS_SKINS[(shopShelf().skin + 2) % WS_SKINS.length]) : merchantSVG(SH_SKINS[shopShelf().skin % SH_SKINS.length]);
   $('#ckItem').innerHTML = `<div class="pic">${shPic(s)}</div><b>${ckItemName()}</b>`;
   $('#ckSay').innerHTML = ckText();
@@ -4695,6 +4726,7 @@ $('#checkout').onclick = e => {
   const o = e.target.closest('[data-o]'); if (o) ckAnswer(ME.eq(CKS.opts[+o.dataset.o], CKS.k.p.a), ME.fmtHtml(CKS.opts[+o.dataset.o]));
 };
 $('#ckPay').onclick = () => { if (CKS && !CKS.done) ckAnswer(CK.checkTray(CKS.k, ckAdded()), String(ckAdded())); };
+$('#ckAbort').onclick = () => { if (!CKS) return; modal(t('forge_stop_t'), t('forge_stop_b'), [[t('forge_stop_yes'), () => { CKS = null; openWorkshop(); }], [t('forge_stop_no'), null, true]]); };   // stop forging: nothing is used, no coins are paid
 $('#ckBack').onclick = () => { const f = CKS && CKS.s.kind === 'forge'; CKS = null; f ? openWorkshop() : openShop(); };
 function ckAnswer(ok, said) {
   const k = CKS.k; P.craft.n++; if (ok) P.craft.ok++;
