@@ -478,7 +478,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .magicShield::before{content:'';position:absolute;inset:-4% 2% 0;border-radius:50%;border:3px solid #c99bff;box-shadow:0 0 18px #c99bffaa,inset 0 0 14px #c99bff77;z-index:4;pointer-events:none;animation:bubble 1.8s ease-in-out infinite}
 .unlocks{list-style:none;padding:0;margin:6px 0;text-align:start}.unlocks li{background:#ffffff14;border-radius:12px;padding:7px 12px;margin:5px 0}
 .unlH{margin:12px 0 4px;font-size:1.1rem}
-.opt.card.used{opacity:.25;transform:scale(.94)}.manualOffer{background:#ffd16622;border:1px solid #ffd16688;border-radius:12px;padding:6px 12px;margin:8px 0}#manualBtn.off{opacity:.5}
+.opt.card.used{opacity:.25;transform:scale(.94)}.rManual{position:absolute;transform:translate(-50%,-100%);font-size:calc(var(--u)*4.4);line-height:1;background:none;border:0;padding:0;cursor:pointer;z-index:9;filter:drop-shadow(0 2px 2px #0008)}.rManual.gone{outline:1px dashed #ffffff55;border-radius:4px}.rManual.gone span{opacity:.22;filter:grayscale(1)}.manualOffer{background:#ffd16622;border:1px solid #ffd16688;border-radius:12px;padding:6px 12px;margin:8px 0}
 .armorBar{position:relative}.armorBar::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--seg,2) - 2px),#1b1340 calc(100% / var(--seg,2) - 2px) calc(100% / var(--seg,2)))}.refreshBtn{grid-column:1 / -1;justify-self:center;font-size:.95rem;padding:8px 16px}
 .morph{animation:morph .7s ease-in-out}@keyframes morph{0%{transform:scale(1)}30%{transform:scaleX(.4) scaleY(1.3);filter:blur(3px)}60%{transform:scaleX(1.3) scaleY(.8)}100%{transform:scale(1)}}
 .shifter .mnWrap,.shifter .gArt{animation:shimmer 2.6s ease-in-out infinite}@keyframes shimmer{0%,100%{opacity:1;transform:translateY(0)}50%{opacity:.72;transform:translateY(-4px) skewX(-4deg)}}
@@ -653,7 +653,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div id="menuHero"></div>
     <div class="grow"><div class="who" id="menuWho" style="font-size:1.5rem"></div><div id="menuRank" class="small"></div>
       <div class="pbar" style="margin-top:6px"><i id="menuXp"></i></div></div>
-    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="ib" id="manualBtn" data-tt="manual_btn" hidden>📕</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
+    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
   </div>
   <div class="stat">
     <span>📖 <b id="menuTier"></b></span>
@@ -1084,8 +1084,8 @@ const STR = {
   new_spell_tip: ['Find them in your spell book 📖. A spell’s number never changes!', 'תמצאו אותם בספר הכישופים 📖. המספר של כישוף לעולם לא משתנה!'], open_book: ['Open the book 📖', 'לפתוח את הספר 📖'],
   wiz_up: ['🧙 Wizard level {n}!', '🧙 דרגת קוסם {n}!'],
   manual_t: ['The monster manual', 'ספר המפלצות'], manual_btn: ['The monster manual', 'ספר המפלצות'],
-  manual_offer: ['You know the monsters well now! You may leave your monster manual at home: the fights will not show the weaknesses any more, and you can carry {n} potions instead of 5. You can always take it back from the map (📕).', 'אתם כבר מכירים את המפלצות היטב! אפשר להשאיר את ספר המפלצות בבית: בקרבות לא יופיעו יותר נקודות התורפה, ובמקום זה אפשר לקחת {n} שיקויים במקום 5. תמיד אפשר לקחת אותו בחזרה מהמפה (📕).'],
-  manual_is_carried: ['You carry the monster manual: the fights show each monster’s weakness.', 'ספר המפלצות איתכם: בקרבות מופיעה נקודת התורפה של כל מפלצת.'],
+  manual_offer: ['You know the monsters well now! You may leave your monster manual at home: the fights will not show the weaknesses any more, and you can carry {n} potions instead of 5. You can always take it back from the shelf at Home.', 'אתם כבר מכירים את המפלצות היטב! אפשר להשאיר את ספר המפלצות בבית: בקרבות לא יופיעו יותר נקודות התורפה, ובמקום זה אפשר לקחת {n} שיקויים במקום 5. תמיד אפשר לקחת אותו בחזרה מהמדף בבית.'],
+  manual_is_carried: ['The monster manual is in your bag: the fights show each monster’s weakness.', 'ספר המפלצות איתכם: בקרבות מופיעה נקודת התורפה של כל מפלצת.'],
   manual_is_home: ['Your monster manual is at home: the fights show no weaknesses, and you carry one more potion.', 'ספר המפלצות נמצא בבית: בקרבות לא מופיעות נקודות התורפה, ואתם לוקחים שיקוי אחד נוסף.'],
   manual_deal: ['Without the manual you can carry {n} potions on a quest.', 'בלי הספר אפשר לקחת {n} שיקויים למסע.'], manual_quest: ['Finish or leave your quest first, then you can change this.', 'קודם סיימו או עזבו את המסע, ואז אפשר לשנות.'],
   manual_leave: ['📕 Leave it at home', '📕 להשאיר בבית'], manual_keep: ['Keep carrying it', 'להמשיך לקחת אותו'], manual_take: ['📕 Take it with me', '📕 לקחת אותו איתי'],
@@ -1705,7 +1705,6 @@ function openMenu() {
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
   $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
   $('#menuXp').style.width = xpPct() + '%';
-  $('#manualBtn').hidden = wizLvl() < CFG.MANUAL_FROM; $('#manualBtn').classList.toggle('off', P.manual === 'home');
   $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
   $('#menuToday').textContent = t('min_today', { m: Math.min(10, Math.floor(sec / 60)) }) + (sec >= CFG.DAILY_SEC ? ' ⭐' : '');
@@ -3106,15 +3105,14 @@ function isLocked(place) {   // during a quest run you cannot go home, to the sh
   return place === 'gate' ? a !== 'battle' : place === 'board' ? a !== 'peace' : true;
 }
 // The monster manual (owner decision): from wizard level MANUAL_FROM the student may leave it at home: the fights show no weakness hints,
-// and the pouch holds one more potion. It can be taken back from the map (📕), but not in the middle of a quest.
+// and the pouch holds one more potion. Its place is on the small shelf at Home (owner decision): tap it there to take it or put it back.
 const pouchSize = () => CFG.POUCH + (P && P.manual === 'home' ? 1 : 0);
 function openManual() {
   if (P.quest.battle.act) { modal(t('manual_t'), `<p>${t('manual_quest')}</p>`, [[t('ok'), null]]); return; }
   const home = P.manual === 'home';
   modal(t('manual_t'), `<p>${t(home ? 'manual_is_home' : 'manual_is_carried')}</p><p>${t('manual_deal', { n: CFG.POUCH + 1 })}</p>`,
-    [[t(home ? 'manual_take' : 'manual_leave'), () => { P.manual = home ? 'carry' : 'home'; saveSoon(true); toast(t(home ? 'manual_taken' : 'manual_left')); openMenu(); }], [t('keep_playing'), null, true]]);
+    [[t(home ? 'manual_take' : 'manual_leave'), () => { P.manual = home ? 'carry' : 'home'; saveSoon(true); toast(t(home ? 'manual_taken' : 'manual_left')); if ($('#home').classList.contains('on')) renderRoom(rmDisp); }], [t('close'), null, true]]);
 }
-$('#manualBtn').onclick = openManual;
 function openPack(onStart) {   // before a quest run: choose up to POUCH potions to carry. The rest wait at Home.
   if (carried() + athome() === 0) { onStart(); return; }
   const render = () => {
@@ -3452,6 +3450,7 @@ function renderRoom(disp) {   // disp = the ingredient counts to show (they fill
     const inner = it.t === 'rug' ? '<div class="rRug"></div>' : it.t === 'floor' ? `<span class="shadow"></span><span class="em">${d.em}</span>` : `<span class="em">${d.em}</span>`;
     H.push(`<div class="prop ${it.t === 'wall' ? 'wall' : 'floor'} ${it.t === 'rug' ? 'rugwrap' : ''}" data-id="${id}" aria-label="${t('drag_aria', { n: nameOf(d) })}" style="--x:${p.x};--y:${p.y};--base:${it.b || 8};--s:${rmScale(id, p.y)};--z:${rmZ(id, p.y)}">${inner}</div>`);
   }
+  if (wizLvl() >= CFG.MANUAL_FROM || P.manual === 'home') H.push(`<button class="rManual${P.manual === 'home' ? '' : ' gone'}" id="manualShelf" aria-label="${t('manual_t')}" title="${t('manual_t')}" style="left:39.4%;top:${41 * 1.25}%"><span>📕</span></button>`);   // the monster manual's place on the shelf
   H.push(`<button class="rCaul" id="caulBtn" aria-label="${t('brew_aria', { c: caulName(c) })}" style="--liq:${cau.liq};--liqa:${cau.liqa};--cs:${cau.cs}"><span class="aura"></span>${cauldronArt(c)}${[0, 1, 2, 3].map(i => `<i class="bub" style="left:${34 + i * 11}%;animation-delay:${i * .6}s"></i>`).join('')}<span class="caulLbl">${t('tap_brew', { c: caulName(c) })}</span></button>`);
   $('#rmProps').innerHTML = H.join(''); renderRoomPanel();
 }
@@ -3505,6 +3504,7 @@ function openRecipes() {   // tapping the cauldron
 $('#home').onclick = e => {
   if (e.target.closest('#caulBtn')) { openRecipes(); return; }
   if (e.target.closest('#wardBtn')) { openWardrobe(); return; }
+  if (e.target.closest('#manualShelf')) { openManual(); return; }
   if (e.target.closest('[data-close]')) { rmPanel = null; renderRoom(rmDisp); return; }
   const hit = e.target.closest('.rHit'); if (hit) { rmPanel = rmPanel === hit.dataset.kind ? null : hit.dataset.kind; renderRoom(rmDisp); if (rmPanel) $('#roomPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
   const bt = e.target.closest('[data-pot]');

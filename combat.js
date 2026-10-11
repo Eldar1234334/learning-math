@@ -15,7 +15,8 @@
     DMG_LEVEL_STEP: 0.1,                       // S(g) = 1 + step × (g − 1)
     MON_HITS: 3, MON_HP_SPREAD: 0.1,           // monster HP = about 3 good casts, ±10%
     HP_BASE: 20, HP_PER_LEVEL: 2, WIN_REGEN: 0.2, SAFETY_HP_BONUS: 0.25,
-    MON_ATK_BASE: 1, MON_ATK_EVERY: 6, BOSS_HP_MULT: 3, BOSS_ATK_MULT: 2,
+    // step 6 tuning (tools/sim.html, proposals): the spec's boss ×3 HP / ×2 attack and +1 attack every 6 levels made the runs too hard
+    MON_ATK_BASE: 1, MON_ATK_EVERY: 8, BOSS_HP_MULT: 2, BOSS_ATK_MULT: 1.5,
     CARDS: [[1, 3], [3, 4], [15, 5], [22, 6]],  // cards per turn by wizard level (spec 02 §4)
     TWO_GOOD_FROM: 15,                         // two good options (easy + hard) from wizard level 15
     SUPPORT_FROM_CARDS: 4,                     // owner decision: every set of 4+ cards has one support card (a shield or healing), to choose between attacking and defending
@@ -33,8 +34,9 @@
     TRAITS: { charging: 0.25, shielded: 0.2 },   // (p) on top of any ability: the chance that a monster charges / carries a magic shield (from their level; never in a group)
     ABILITY_CHANCE: [0.3, 0.6], ABILITY_FULL_AT: 20, BOSS_TWO_FROM: 20,   // 30% at the first unlock → 60% at wizard level 20; a boss always has one, two from level 20
     ARMOR_DMG_MULT: 0.5, ARMOR_LAYERS: 2, HEAVY_ARMOR_LAYERS: 3, HEAVY_ARMOR_FROM: 16, HEAVY_ARMOR_CHANCE: 0.5,   // owner decision: an armor holds for at least 2 breaking hits (layers); heavy: 3 (half of the armors from level 16)
-    REGEN: 0.1, CHARGE_EVERY: 3, CHARGE_MULT: 3, SHIFT_EVERY: 2,
-    GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.5, GROUP_ATK_EACH: 1,            // each monster of a group has half the HP of a single monster, and attacks as hard as one (owner decision)
+    REGEN: 0.1, REGEN_BOSS: 0.05, CHARGE_EVERY: 3,   // (p) step 6: a regenerating boss heals 5% (it has twice the HP)
+    CHARGE_MULT: 3, SHIFT_EVERY: 2,
+    GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.8, GROUP_ATK_EACH: 1,            // owner decisions: each monster of a group has 80% of a single monster's HP, and attacks as hard as one
     GROUP_CASTS: 2,                                                        // owner decision: in a group fight the student casts 2 spells every turn
     // XP (spec 03 §5.1)
     XP_FIGHT: 10, XP_FIGHT_PERFECT: 5, XP_BOSS: 40, XP_BOSS_PERFECT: 20, XP_CRAFT: 3
@@ -86,13 +88,21 @@
   const buildable = (s, mlvl) => { for (let n = mlvl; n >= 1; n--) if (canMake(s.v, n)) return true; return false; };
 
   /* ---- monster HP (spec 03 §3.1): about 3 typical good casts. P_typ is computed from the spells the cards will really offer ---- */
-  function pTyp(mlvl, learnedIds) {
+  // From wizard level 15 the cards offer two good spells (spec 03 §2): the strongest one the cards can make (hard) and a weaker one (easy);
+  // then P_typ is their average, so the hard card ends a fight in about 2 casts and the easy one takes longer (step 6 tuning).
+  function pTyp(mlvl, learnedIds, g = 1) {
     const atk = learnedIds.map(id => SB.BY_ID[id]).filter(s => s && elemental(s) && s.power > 0);
+    if (g >= CFG.TWO_GOOD_FROM) {
+      const can = atk.filter(s => buildable(s, mlvl)); if (can.length) {
+        const top = Math.max(...can.map(s => s.power)), easy = can.filter(s => s.power * CFG.HARD_MIN_RATIO <= top), e = easy.length ? easy : can;
+        return (top + e.reduce((a, s) => a + s.power, 0) / e.length) / 2;
+      }
+    }
     let use = atk.filter(s => canMake(s.v, mlvl)); if (!use.length) use = atk.filter(s => buildable(s, mlvl)); if (!use.length) use = atk;
     return use.length ? use.reduce((a, s) => a + s.power, 0) / use.length : 2;
   }
   function monsterHP(mlvl, learnedIds, g, boss, rnd = Math.random) {
-    const base = CFG.MON_HITS * pTyp(mlvl, learnedIds) * S(g), spread = 1 + CFG.MON_HP_SPREAD * (rnd() * 2 - 1);
+    const base = CFG.MON_HITS * pTyp(mlvl, learnedIds, g) * S(g), spread = 1 + CFG.MON_HP_SPREAD * (rnd() * 2 - 1);
     return Math.max(3, Math.round(base * spread * (boss ? CFG.BOSS_HP_MULT : 1)));
   }
   // always winnable (spec 03 §3.4): the student has at least one learned spell that hurts a monster of this element, and the cards can offer it
@@ -127,7 +137,7 @@
   function rollAbilities(o) {
     const rnd = o.rnd || Math.random, pick = a => a[Math.floor(rnd() * a.length)], armors = armorsFor(o.el, o.learned, o.mlvl);
     let open = abilitiesAt(o.g).filter(k => !(k in CFG.TRAITS) && (k !== 'armored' || armors.length) && (k !== 'shifter' || shiftEls(o.el, o.learned, o.mlvl).length)
-      && (k !== 'group' || (!o.boss && groupEls(o.learned, o.mlvl, rnd))));
+      && (k !== 'group' || (!o.boss && groupEls(o.learned, o.mlvl, rnd))) && !(o.boss && k === 'double'));   // (p) step 6: a boss never attacks twice (it already hits harder)
     const n = o.boss ? Math.min(open.length, o.g >= CFG.BOSS_TWO_FROM ? 2 : 1) : (open.length && rnd() < abilityChance(o.g) ? 1 : 0), ab = [];
     while (ab.length < n && open.length) {   // armor and shapeshifting never together (the armor is chosen for the element)
       const k = pick(open); ab.push(k); open = open.filter(x => x !== k && !(['armored', 'shifter'].includes(k) && ['armored', 'shifter'].includes(x)));
@@ -182,14 +192,19 @@
     const badS = learned.filter(s => ['heal', 'none'].includes(rel(s)) && buildable(s, mlvl));
     // 1. the good card(s)
     if (o.wlvl >= CFG.TWO_GOOD_FROM && weakS.length) {   // an easy card (a weaker spell, the level below) and a hard card (a stronger spell, the top of the level)
-      const here = weakS.filter(s => canMake(s.v, mlvl)).sort((a, b) => b.power - a.power);
-      const hard = here.length ? pick(here.filter(s => s.power === here[0].power)) : pick(weakS);
+      // the hard card: the strongest good spell the cards can make (from the student's own level when it has one of that power, else from review);
+      // at the fraction levels the level's own good spells are small (½, ⅓), so the strong spell comes from an earlier level
+      const top = Math.max(...weakS.map(s => s.power)), strongest = weakS.filter(s => s.power === top), here = strongest.filter(s => canMake(s.v, mlvl));
+      const hard = pick(here.length ? here : strongest);
       add(hard, 'hard', canMake(hard.v, mlvl) ? mlvl : levelFor(hard.v, mlvl, rnd));
       const easy = weakS.filter(s => s !== hard && s.power * CFG.HARD_MIN_RATIO <= hard.power), easyAny = weakS.filter(s => s !== hard);
       const e = easy.length ? pick(easy) : easyAny.length ? pick(easyAny) : null;
       if (e) add(e, 'easy', mlvl > 1 && canMake(e.v, mlvl - 1) ? mlvl - 1 : levelFor(e.v, mlvl, rnd));
-    } else {
-      for (const s of shuffleBy(weakS, rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
+    } else {   // the good card's spell: one of the student's own level (about 80%) or an earlier one (review), like the monster's HP (P_typ) expects
+      const here = weakS.filter(s => canMake(s.v, mlvl)), back = weakS.filter(s => !canMake(s.v, mlvl));
+      const pool = here.length && (!back.length || rnd() >= CFG.REVIEW) ? here : back.length ? back : weakS;
+      for (const s of shuffleBy(pool, rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
+      for (const s of shuffleBy(weakS, rnd)) if (!cards.length && add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
       if (!cards.length) for (const s of shuffleBy(weakS.concat(utilS), rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
     }
     // a group: an area spell (the one that hurts the most monsters), then a good card for every monster (by element) that no card hurts yet
@@ -322,7 +337,7 @@
     ev.skipped = ev.skips.length > 0 && !ev.hits.length;
     for (const m of fs) {
       if (m.hp <= 0) continue; const ab = m.ab || [], i = fs.indexOf(m);
-      if (ab.includes('regen')) { const h = Math.min(m.max - m.hp, Math.max(1, Math.round(m.max * CFG.REGEN))); if (h > 0) { m.hp += h; ev.regens.push({ i, h }); ev.regen = (ev.regen || 0) + h; } }
+      if (ab.includes('regen')) { const h = Math.min(m.max - m.hp, Math.max(1, Math.round(m.max * (m.boss ? CFG.REGEN_BOSS : CFG.REGEN)))); if (h > 0) { m.hp += h; ev.regens.push({ i, h }); ev.regen = (ev.regen || 0) + h; } }
       if (ab.includes('shifter') && ++m.shift >= CFG.SHIFT_EVERY) {
         m.shift = 0; const opts = (m.shiftEls || []).filter(e => e !== m.el); if (opts.length) { m.el = opts[Math.floor(rnd() * opts.length)]; ev.shifts.push({ i, el: m.el }); ev.shifted = m.el; }
       }

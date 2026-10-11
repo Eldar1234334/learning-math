@@ -23,12 +23,12 @@
   });
   test('numbers (spec 03): S(g), wizard HP, monster attack', () => {
     assert(CB.S(1) === 1 && Math.abs(CB.S(11) - 2) < 1e-9, 'S'); assert(CB.wizMaxHP(1) === 20 && CB.wizMaxHP(30) === 78, 'HP 20 + 2(g−1)');
-    assert(CB.monAttack(1) === 1 && CB.monAttack(7) === 2 && CB.monAttack(1, true) === 2, 'attack 1 + ⌊(g−1)/6⌋, boss ×2');
+    assert(CB.monAttack(1) === 1 && CB.monAttack(8) === 1 && CB.monAttack(9) === 2 && CB.monAttack(1, true) === 1.5, 'attack 1 + ⌊(g−1)/8⌋, boss ×1.5 (step 6 tuning)');
     assert(CB.cardsFor(1) === 3 && CB.cardsFor(3) === 4 && CB.cardsFor(15) === 5 && CB.cardsFor(22) === 6, 'cards per turn');
   });
   test('monster HP is about 3 good casts (spec 03 §1 and §3.1)', () => {
     const hp = CB.monsterHP(1, ['2', '3', '4', '5'], 1, false, () => .5); assert(hp === 6, 'level 1 → 6, got ' + hp);
-    assert(CB.monsterHP(1, ['2', '3', '4', '5'], 1, true, () => .5) === 18, 'boss ×3');
+    assert(CB.monsterHP(1, ['2', '3', '4', '5'], 1, true, () => .5) === 12, 'boss ×2 (step 6 tuning)');
     const hp7 = CB.monsterHP(7, learnedAt(7, 1), 1, false, () => .5); assert(hp7 >= 12 && hp7 <= 18, 'level 7 (enhanced) ' + hp7);
   });
   test('always winnable: no dark monsters before a light or lightning spell (spec 03 §3.4)', () => {
@@ -92,7 +92,7 @@
   });
   test('the monster turn: attacks, shields, control, reflect, familiars, revive', () => {
     let s = st(); let e = CB.monsterTurn(s); assert(e.dmg === 1 && s.hero.hp === 19, 'attack 1');
-    s = st({ g: 7 }); CB.cast(s, SB.BY_ID['6']); e = CB.monsterTurn(s); assert(e.dmg === 1 && e.blocked === .5, 'Wind Shield halves 2 → 1');
+    s = st({ g: 9 }); CB.cast(s, SB.BY_ID['6']); e = CB.monsterTurn(s); assert(e.dmg === 1 && e.blocked === .5, 'Wind Shield halves 2 → 1');
     s = st(); CB.cast(s, SB.BY_ID['60']); e = CB.monsterTurn(s); assert(e.dmg === 0, 'Enhanced Wind Shield blocks');
     s = st(); CB.cast(s, SB.BY_ID['9']); assert(CB.monsterTurn(s).skipped && CB.monsterTurn(s).dmg === 1, 'Shadow Snare: one turn');
     s = st({ boss: true }); CB.cast(s, SB.BY_ID['19']); assert(CB.monsterTurn(s).skipped && !CB.monsterTurn(s).skipped, 'a boss skips one turn at most'); assert(CB.cast(s, SB.BY_ID['9']).k === 'bossResist', 'and only once per fight');

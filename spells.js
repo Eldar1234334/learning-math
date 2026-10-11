@@ -71,7 +71,7 @@
     ['1/2', 'Half-Moon Hex', 'כישוף חצי הירח', 'arcane', 'special', 25, { k: 'halve' }],
     ['1/4', 'Quarter Heal', 'ריפוי רבע', 'nature', 'heal', 25, { k: 'healPart', part: 1 / 4 }],
     ['3/4', 'Three-Quarter Shield', 'מגן שלושה רבעים', 'wind', 'defense', 25, { k: 'shield', part: 3 / 4 }],
-    ['1/3', 'Triple Strike', 'מכה משולשת', 'arcane', 'attack', 26, { k: 'multi', hits: 3, pw: 1 }],
+    ['1/3', 'Triple Strike', 'מכה משולשת', 'arcane', 'attack', 26, { k: 'multi', hits: 3, pw: 1 }, 3],   // power 3: three hits of 1
     ['1 1/2', 'Echo and a Half', 'הד וחצי', 'arcane', 'buff', 26, { k: 'buff', x: 1.5 }],
     ['0.1', 'Mist of Tenths', 'ערפל העשיריות', 'shadow', 'control', 28, { k: 'weaken', part: 1 / 10 }],
     ['1/8', 'Shrinking Hex', 'כישוף הכיווץ', 'arcane', 'special', 31, { k: 'shrink', turns: 3 }],

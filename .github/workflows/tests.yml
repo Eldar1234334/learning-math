@@ -1,5 +1,5 @@
 name: Tests
-# Runs the math engine and spell book tests (tests/) on every upload, so a broken generator or spell gate is caught before it reaches the test site.
+# Runs the math engine, spell book and fight tests (tests/) and the balance simulator (tools/sim.js) on every upload, so a broken generator or spell gate is caught before it reaches the test site.
 on:
   push:
   workflow_dispatch:
@@ -19,3 +19,5 @@ jobs:
         run: node tests/spells.test.js
       - name: Run the fight rules tests
         run: node tests/combat.test.js
+      - name: Check the balance goals (fight simulator, spec 03 §1)
+        run: node tools/sim.js 40

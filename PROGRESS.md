@@ -210,7 +210,7 @@ What was done in each step, how to check it on the test site, and what is still 
 
 ---
 
-## Step 5: Wizard progression and monster abilities ✅ (on the test site, waiting for your check)
+## Step 5: Wizard progression and monster abilities ✅ (checked by the owner)
 
 **Goal:** spec 03 §4–5: XP from fights, a wizard level that brings something new every session or two, and 7 kinds of special monsters.
 
@@ -253,7 +253,7 @@ What was done in each step, how to check it on the test site, and what is still 
 4. The same with the other abilities (they open at their wizard level in real play, but the demo can force any of them): ⚡ Charging (watch for the yellow tag), 🎭 Shapeshifter (the badge changes), 👥 Group (the monsters behind), 🔮 Shielded (the purple bubble), 💢 Double attack. Tap 🎲 Random again to go back to normal.
 5. Demo → wizard level 20 → a boss: it has two abilities.
 
-### Step 5, round 2 (after your check) ✅ (on the test site, waiting for your check)
+### Step 5, round 2 (after your check) ✅ (checked by the owner)
 
 **Your decisions**
 - Kept as proposed: groups (half HP each), heavy armor from level 16, the titles and gifts, the Hebrew ability names, the magic shield rule.
@@ -290,3 +290,57 @@ What was done in each step, how to check it on the test site, and what is still 
 - Every monster of a group now attacks as hard as a single monster (it was 40%); each still has half the HP.
 - The wizard's HP bar drops after each monster's shot, not at the end of the monsters' turn.
 - 📖 By type → Attack: the attack spells are grouped by element (🔥 Fire, 💧 Water, 🧊 Ice, ✨ Light, ⚡ Lightning, 🪨 Stone).
+
+**Your last changes (done with step 6)**
+- The monster manual has its own place on the small shelf at Home (left wall, next to the candle): 📕 when it is at home, a faded outline when it is in your bag. Tap it to take it or put it back. (The 📕 button on the map is gone.)
+- Each monster of a group has 80% of a single monster's HP (it was 50%).
+
+---
+
+## Step 6: Balance ✅ (on the test site, waiting for your check)
+
+**Goal:** spec 03 §7: a fight simulator that plays thousands of quest runs with the real fight rules, and tuning so that the goals of spec 03 §1 hold.
+
+**The simulator** (not part of the game)
+- **Page:** https://eldar1234334.github.io/learning-math/test/tools/sim.html. Tap ▶ Run (about 10 seconds). It shows each goal with ✔ or ✘, and a table per (wizard level, math level) and player.
+- It plays whole runs (5–10 fights and a boss, 20% HP back after a win, campfires) with the game's own card sets, spells, monsters, abilities and groups, and a pouch of 5 potions (2 Heart, 2 Second chance, 1 Power).
+- Three players: **good** (picks the best card 90% of the time, 90% right answers, heals and shields when it matters), **average** (55%, 70%), **guessing** (random cards, 25% right answers).
+- GitHub now runs it on every upload, so a later change that breaks the balance is caught.
+
+**What the first run showed (the spec's numbers)**
+- From wizard level 3, even good players lost most runs, almost always at the boss (×3 HP, ×2 attack: 9–24 turns).
+- From wizard level 20 a boss with a double attack beat a wizard with full HP in 5 turns.
+- At the fraction levels (26, 31) the "strong" card was always ⅓ (Triple Strike, the weakest spell), and at level 36 a fight took 1 cast.
+
+**Changes (my proposals, please approve)**
+- **Bosses:** ×2 HP (was ×3), ×1.5 attack (was ×2). A boss never gets the double attack. A regenerating boss heals 5% per turn (others 10%), because it has twice the HP.
+- **Monster attack:** +1 every 8 wizard levels (was every 6). The wizard's HP grows 2 per level, so with every 6 the monsters got relatively stronger and stronger.
+- **The good card:** comes from the student's own level about 80% of the time and 20% review (spec 01 §5.2), like the monster's HP expects.
+- **The strong card (wizard level 15+):** the strongest good spell the student can cast, also from an earlier level when the current level has only small spells (fractions). Triple Strike counts as power 3 (3 hits of 1).
+- **Monster HP from wizard level 15:** follows the two good cards (the average of the strong and the easy spell). The strong card ends a fight in about 2 casts, the easy one takes about 6 or more.
+- Unchanged: 20% HP back after a win, the campfire 25%, 3 good casts per fight.
+
+**The result (60 runs per row)**
+| Wizard / math | Good player wins | Average wins | Guessing wins | Good casts per fight |
+|---|---|---|---|---|
+| 1 / 2 | 100% | 95% | 2% | 3.1 |
+| 3 / 5 | 100% | 70% | 0% | 3.7 |
+| 6 / 9 | 100% | 70% | 0% | 3.8 |
+| 10 / 13 | 100% | 92% | 0% | 3.5 |
+| 15 / 13 | 100% | 100% | 0% | 2.6 |
+| 15 / 21 | 100% | 97% | 0% | 2.5 |
+| 20 / 21 | 95% | 43% | 0% | 2.5 |
+| 20 / 26 | 98% | 45% | 0% | 2.6 |
+| 25 / 31 | 100% | 32% | 0% | 2.4 |
+| 30 / 36 | 100% | 43% | 0% | 2.4 |
+
+All 7 checks pass: about 3 good casts per fight (a bit fewer with the strong card), good players win, guessing players lose (from math level 5 in the first 1–2 fights; at level 1 around fight 5, because the beginner's monsters are gentle), average players are in between, strong spells end a fight in a third of the casts of weak ones, and at the same wizard level fights are equally long at every math level.
+
+**Good to know**
+- A guessing student at level 1–4 (no incantation yet) survives about 5 fights before losing; from level 5 the incantation makes guessing fail fast.
+- The simulator's players are simple. Real students also use the hint potion and the super potion, so they do a little better.
+
+**How to check**
+1. Open the simulator page and tap ▶ Run: every goal ✔.
+2. Play a few runs at different demo levels: a normal fight takes about 3 good casts; a boss takes longer but is beatable with HP to spare.
+3. At Home: the monster manual on the small shelf (from wizard level 12). Tap it to take it or put it back.
