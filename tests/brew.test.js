@@ -81,6 +81,13 @@
       const o = sc.p.ops; assert(ME.num(sc.amount) === (o.d ? o.k * o.E + o.E * o.n / o.d : o.k * o.E + o.m), 'k × E + more ' + sc.p.e);
     }
   });
+  test('few herbs owned (2–4 of a kind): every recipe still works (a bug found by the owner, step 9)', () => {
+    const few = { leaf: 4, flower: 3, seed: 3, root: 2, mushroom: 2 };
+    for (let m = 1; m <= 36; m++) for (const potion of Object.keys(BR.RECIPES)) for (let k = 0; k < 3; k++) {
+      const r = BR.recipe({ potion, mlvl: m, L: potion === 'forge2' ? m : undefined, owned: few, rnd }); assert(r, 'a recipe: ' + potion + ' at ' + m);
+      for (const l of r.lines.filter(l => l.kind === 'herb')) assert(ME.num(l.amount) <= few[l.herb], 'owned ' + l.herb);
+    }
+  });
   test('checking the amounts', () => {
     const r = BR.recipe({ potion: 'heart', mlvl: 5, owned, rnd }), right = r.lines.map(l => l.amount), wrong = right.slice(); wrong[0] = ME.add(wrong[0], ME.I(1));
     assert(BR.check(r.lines, right).every(Boolean), 'all right'); assert(!BR.check(r.lines, wrong)[0] && BR.check(r.lines, wrong).slice(1).every(Boolean), 'one wrong line');

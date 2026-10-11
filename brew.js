@@ -53,7 +53,7 @@
     const roomy = a => a.filter(t => t !== CFG.MIN_HERB_LINE && t <= cap - (o.keep || 0));   // not always the smallest amount, and room left for the next line
     const first = rnd() < CFG.OWN_SHARE ? [own, rev] : [rev, own], pools = first.map(roomy).concat(first);
     for (const pool of pools) for (let tries = 0; tries < 4 && pool.length; tries++) {
-      const t = pk(roomy(pool)), p = herbProblem(t, o.L, o.avoid); if (p) return { kind: 'herb', amount: ME.I(t), p };
+      const t = pk(pool), p = herbProblem(t, o.L, o.avoid); if (p) return { kind: 'herb', amount: ME.I(t), p };   // (the pools are already filtered)
     }
     return null;
   }

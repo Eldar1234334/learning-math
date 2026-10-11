@@ -540,3 +540,10 @@ Every spell was shown in the browser one family at a time; your comments were bu
 2. Workshop → Make (you need an epic ingredient such as ⭐ Star, herbs and 150 coins): the blueprint, then the payment.
 3. After it is made: Upgrade (a legendary ingredient such as 💎 Diamond + an epic one + 300 coins): the multi-step line and the returning customer's discount.
 4. Make a wrong blueprint on purpose: the smoke and the loss roll; your coins stay.
+
+### Step 9, round 2 (after your check) ✅ (on the test site, waiting for your check)
+- **Fixed: forging did not start.** When a student had only a few herbs of each kind (2–4), making the recipe crashed: "Start" closed the window and nothing happened. The same bug could also stop brewing potions with few herbs. A new test checks every recipe at every level with few herbs (111 tests).
+- **The workshop is your picture** (art/workshop-room.webp). The artificer stands behind the workbench; the ingredient jars, the stray wizard and the cauldron are gone.
+- **Forging is smithing, not brewing:** the blueprint screen has an **anvil** with a glowing ingot. Sparks fly from it, and the hammer strikes when you tap **🔨 Forge!**. The liquid is **molten silver** 🔥. A right blueprint: the item glows over the anvil; a wrong one: a puff of smoke.
+
+**How to check:** demo wizard level 9 → Workshop → Make (any item) → pick a sky item → Start: the anvil. Measure, tap 🔨 Forge!, then pay the artificer.
