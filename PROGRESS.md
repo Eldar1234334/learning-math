@@ -511,7 +511,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 
 ---
 
-## Step 9: The Artificer ✅ (on the test site, waiting for your check)
+## Step 9: The Artificer ✅ (checked by the owner)
 
 **Goal:** spec 04 §5: forging a magic item = a recipe (the blueprint) + a payment.
 
@@ -541,14 +541,14 @@ Every spell was shown in the browser one family at a time; your comments were bu
 3. After it is made: Upgrade (a legendary ingredient such as 💎 Diamond + an epic one + 300 coins): the multi-step line and the returning customer's discount.
 4. Make a wrong blueprint on purpose: the smoke and the loss roll; your coins stay.
 
-### Step 9, round 2 (after your check) ✅ (on the test site, waiting for your check)
+### Step 9, round 2 (after your check) ✅ (checked by the owner)
 - **Fixed: forging did not start.** When a student had only a few herbs of each kind (2–4), making the recipe crashed: "Start" closed the window and nothing happened. The same bug could also stop brewing potions with few herbs. A new test checks every recipe at every level with few herbs (111 tests).
 - **The workshop is your picture** (art/workshop-room.webp). The artificer stands behind the workbench; the ingredient jars, the stray wizard and the cauldron are gone.
 - **Forging is smithing, not brewing:** the blueprint screen has an **anvil** with a glowing ingot. Sparks fly from it, and the hammer strikes when you tap **🔨 Forge!**. The liquid is **molten silver** 🔥. A right blueprint: the item glows over the anvil; a wrong one: a puff of smoke.
 
 **How to check:** demo wizard level 9 → Workshop → Make (any item) → pick a sky item → Start: the anvil. Measure, tap 🔨 Forge!, then pay the artificer.
 
-### Step 9, round 3 (after your check) ✅ (on the test site, waiting for your check)
+### Step 9, round 3 (after your check) ✅ (checked by the owner)
 - **Straight to the payment:** a right blueprint goes directly to the artificer's counter. A green note at the top says "✨ The blueprint works! Step 2 of 2: pay the artificer for…". A **✖ Stop forging** button asks "Stop forging?" and goes back to the workshop: nothing is used and no coins are paid.
 - **The mannequin at Home** (in front of the wardrobe, once the workshop is open) wears every forged item: the amulet at the neck, the belt at the waist, the staff at its side, blue for epic and gold for legendary. New kinds of items can get a place on it later.
 - **Tap the mannequin:** "Your magic items" lists every forged item. Each has **✓ I take it** / **Stays at home**. Only the items you take work on quests (in the item bar and on the map). A new item is taken automatically.
