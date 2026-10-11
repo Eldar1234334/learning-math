@@ -487,6 +487,18 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .jugBox{width:90px;margin:4px auto;cursor:pointer}.bjHead{font-size:.9rem}
 .workEx{background:#ffffff10;border-radius:12px;padding:8px 10px;margin:6px 0}.weEq{font-size:1.4rem;font-weight:700;margin:4px 0;direction:ltr}.weSvg{display:block;margin:6px auto;height:auto}.weJug{width:70px;margin:6px auto}
 @media (max-width:560px){.brewBench{grid-template-columns:1fr}.brewCaul{width:120px;margin:0 auto}}
+/* brewing effects: steam over the cauldron (faster while brewing), the potion rising on success, a dark puff of smoke on failure */
+.brewCaul .steam{position:absolute;left:50%;top:44%;width:0;height:0;pointer-events:none;z-index:3}
+.brewCaul .steam i{position:absolute;bottom:0;left:0;width:46px;height:46px;margin-left:-23px;border-radius:50%;background:radial-gradient(#ffffffd8,#e8e0ff66 45%,#ffffff00 70%);filter:blur(3px);opacity:0;animation:steamUp 2.8s ease-out infinite}
+.brewCaul .steam i:nth-child(2){left:-20px;animation-delay:.9s}.brewCaul .steam i:nth-child(3){left:18px;animation-delay:1.8s}
+.brewCaul.brewing .steam i{animation-duration:1s;width:60px;height:60px;margin-left:-30px}
+@keyframes steamUp{0%{transform:translateY(0) scale(.5);opacity:0}20%{opacity:.85}100%{transform:translate(var(--sw,6px),-95px) scale(1.9);opacity:0}}
+.potRise{position:absolute;left:50%;top:30%;z-index:6;pointer-events:none;filter:drop-shadow(0 0 16px #ffe9a0) drop-shadow(0 0 30px #ffd166aa);animation:potRise 1.6s cubic-bezier(.2,.8,.3,1) forwards}
+.potRise::before{content:"";position:absolute;inset:-60%;border-radius:50%;background:radial-gradient(#fff6c8cc,#ffd16655 45%,transparent 70%);z-index:-1;animation:sunGlow 2s ease-out forwards}
+@keyframes potRise{0%{transform:translate(-50%,10px) scale(.3);opacity:0}25%{opacity:1}100%{transform:translate(-50%,-95px) scale(2);opacity:1}}
+.smokePuff{position:absolute;left:50%;top:44%;width:0;height:0;z-index:6;pointer-events:none}
+.smokePuff i{position:absolute;width:80px;height:80px;margin:-40px;border-radius:50%;background:radial-gradient(#221c27fa,#38313fe0 38%,#5c566699 56%,transparent 70%);filter:blur(2px);opacity:0;animation:puff 1.9s ease-out forwards}
+@keyframes puff{0%{transform:translate(0,0) scale(.3);opacity:0}18%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(2.6);opacity:0}}
 .sunGlow{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(circle at var(--sx) var(--sy),#fff6b0cc 0%,#ffd84a88 18%,#ffb30033 45%,transparent 75%);animation:sunGlow 2s ease-out forwards}
 @keyframes sunGlow{0%{opacity:0}25%{opacity:1}75%{opacity:.9}100%{opacity:0}}
 .sunFx{position:absolute;z-index:6;pointer-events:none;filter:drop-shadow(0 0 14px #ffd84a) drop-shadow(0 0 34px #ffb300)}.sunFx .sunRays{transform-origin:0 0;animation:spinSlow 6s linear infinite}
@@ -813,7 +825,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 </section>
 
 <section id="brew" class="screen" style="max-width:760px">
-  <div class="top"><button class="ib" id="brewBack" data-tt="back_home_t">🏡</button><div class="grow"><div class="who" id="brewTitle"></div><div class="small" id="brewSub"></div></div><button class="langBtn" data-lang-toggle></button></div>
+  <div class="top"><button class="ib" id="brewBack" data-tt="back_home_t">🏡</button><button class="ib" id="brewRecipes" data-tt="back_recipes_t">📜</button><div class="grow"><div class="who" id="brewTitle"></div><div class="small" id="brewSub"></div></div><button class="langBtn" data-lang-toggle></button></div>
   <div class="recipeCard" id="recipeCard"></div>
   <div class="brewBench"><div class="brewCaul" id="brewCaul"></div><div class="brewTools" id="brewTools"></div></div>
   <div class="row center" style="margin:12px 0"><button class="btn big" id="brewGo"></button></div>
@@ -1193,7 +1205,25 @@ const STR = {
   ph_double: ['Double {a}', 'פי 2 מ-{a}'], ph_half: ['Half of {a}', 'חצי מ-{a}'], ph_share: ['Share {a} equally among {b} bottles. Put in one share.', 'חלקו {a} שווה בשווה ל-{b} בקבוקים. שימו חלק אחד.'],
   ph_split: ['{a} in {b} equal handfuls. Put in one handful.', '{a} ב-{b} חופנים שווים. שימו חופן אחד.'], ph_whole: ['Each of {b} bottles got {a}. Put in all of it.', 'כל אחד מ-{b} בקבוקים קיבל {a}. שימו את הכול.'], ph_calc: ['Measure {x}', 'מדדו {x}'],
   brew_fail_t: ['💨 The brew failed', '💨 הבישול נכשל'], brew_lost: ['🔥 The ingredients were lost in the smoke.', '🔥 המרכיבים אבדו בעשן.'], brew_kept: ['🍀 Lucky! Your ingredients are safe.', '🍀 מזל! המרכיבים שמורים.'], brew_again: ['Try again 🫕', 'שוב 🫕'],
-  pots_ready_b: ['<b>{n} × {name}</b> added to your shelf at Home.', '<b>{n} × {name}</b> נוספו למדף בבית.'], sort_tier: ['By tier', 'לפי דרגה'], sort_num: ['By number', 'לפי מספר'], sort_type: ['By type', 'לפי סוג'],
+  pots_ready_b: ['<b>{n} × {name}</b> added to your shelf at Home.', '<b>{n} × {name}</b> נוספו למדף בבית.'],
+  ratio_hb: ['For every {a} {h}, put in {b}. The recipe has {n} {h}.', 'על כל {a} {h} שימו {b}. במתכון יש {n} {h}.'],
+  ratio_lq: ['For every {a} {h}, pour {b} {u}. The recipe has {n} {h}.', 'על כל {a} {h} מזגו {b} {u}. במתכון יש {n} {h}.'],
+  lq_add: ['Pour {a} {u}, then {b} {u} more.', 'מזגו {a} {u}, ואז עוד {b} {u}.'],
+  lq_left: ['The pitcher has {a} {u}. You pour {b} {u} out of it. Pour in what is left.', 'בכד יש {a} {u}. שופכים ממנו {b} {u}. מזגו את מה שנשאר.'],
+  lq_full: ['The pitcher is {a} full. You pour {b} out of it. Pour in what is left ({u}).', 'הכד מלא {a}. שופכים ממנו {b}. מזגו את מה שנשאר ({u}).'],
+  lq_fill: ['The potion needs {a} {u}. {b} {u} are already in. Pour the rest.', 'השיקוי צריך {a} {u}. {b} {u} כבר בפנים. מזגו את השאר.'],
+  lq_start: ['You poured {b} {u} out of the pitcher and {a} {u} were left. Pour as much as it had at first.', 'שפכתם {b} {u} מהכד ונשארו בו {a} {u}. מזגו כמו שהיה בו בהתחלה.'],
+  lq_spoon: ['{a} spoons of {b} {u} each.', '{a} כפות של {b} {u} כל אחת.'], lq_times: ['{b} times the small recipe of {a} {u}.', 'פי {b} מהמתכון הקטן של {a} {u}.'],
+  lq_double: ['Double the {a} {u}.', 'פי 2 מ-{a} {u}.'], lq_half: ['Half of the {a} {u}.', 'חצי מ-{a} {u}.'],
+  lq_share: ['Share {a} {u} equally among {b} bottles. Pour one bottle.', 'חלקו {a} {u} שווה בשווה ל-{b} בקבוקים. מזגו בקבוק אחד.'],
+  lq_split: ['{a} {u} fill {b} equal bottles. Pour one bottle.', '{a} {u} ממלאים {b} בקבוקים שווים. מזגו בקבוק אחד.'],
+  lq_whole: ['{b} bottles have {a} {u} each. Pour them all.', 'ב-{b} בקבוקים יש {a} {u} בכל אחד. מזגו את כולם.'],
+  lq_of: ['Pour {x} {u}.', 'מזגו {x} {u}.'], lq_per: ['{a} {u} for each potion. The recipe is for {b} potions.', '{a} {u} לכל שיקוי. המתכון ל-{b} שיקויים.'],
+  lq_ofx: ['Pour {a} of the {b} {u}.', 'מזגו {a} מתוך {b} {u}.'], lq_calc: ['Measure {x} {u}', 'מדדו {x} {u}'], u_scoops: ['scoops', 'מצקות'],
+  lq_scoop: ['The recipe says {a} cup, but your scoop holds {b} cup. Pour that many scoops.', 'במתכון כתוב {a} כוס, אבל המצקת שלכם מחזיקה {b} כוס. מזגו את מספר המצקות המתאים.'],
+  lq_scoops: ['Your scoop holds {b} cup. How many scoops make {a} cups? Pour them.', 'המצקת מחזיקה {b} כוס. כמה מצקות הן {a} כוסות? מזגו אותן.'],
+  rc_sub: ['Not enough of what you chose, so the cauldron uses other items of the same kind.', 'אין מספיק ממה שבחרתם, אז משתמשים בפריטים אחרים מאותו סוג.'],
+  brew_more: ['Brew another 🫕', 'לבשל עוד 🫕'], back_recipes: ['📜 Back to the recipes', '📜 חזרה למתכונים'], back_recipes_t: ['Back to the recipes', 'חזרה למתכונים'],sort_tier: ['By tier', 'לפי דרגה'], sort_num: ['By number', 'לפי מספר'], sort_type: ['By type', 'לפי סוג'],
   // what a new wizard level brings (spec 03 §5)
   un_type: ['{em} A new kind of spell: {name}', '{em} סוג כישוף חדש: {name}'], un_cards: ['🃏 {n} cards every turn', '🃏 {n} קלפים בכל תור'],
   un_support: ['(one of them is always a shield or healing spell)', '(אחד מהם תמיד כישוף מגן או ריפוי)'],
@@ -3965,7 +3995,7 @@ $('#brewBack').onclick = () => { saveSoon(true); openHome(); }; $('#brewGo').onc
 // the potion's rare items: the student chooses which one for each slot; from the multiplication levels also how many potions (a batch)
 function pickIngredients(potion) {
   const R = RECIPES[potion], chosen = R.rare.map(() => null), canBatch = BR.easy(P.mlvl) >= BR.CFG.BATCH_FROM; let batch = 1;
-  const most = () => Math.min(BR.CFG.BATCH_MAX, ...chosen.map(id => id ? P.inv[id] || 0 : BR.CFG.BATCH_MAX), Math.floor(ownedOf(0).reduce((a, id) => a + (P.inv[id] || 0), 0) / 2));
+  const top = BR.maxBatch(R.rare, rarePool(), ownedOf(0).reduce((a, id) => a + (P.inv[id] || 0), 0)), most = () => top;   // short of a chosen item? others of its kind fill in (rarePlan)
   if (!R.rare.length && !canBatch) { startBrew(potion, [], 1); return; }
   const render = () => {
     batch = Math.min(batch, Math.max(1, most()));
@@ -3979,32 +4009,59 @@ function pickIngredients(potion) {
   render();
 }
 let BW = null;   // the brew on the table: { potion, rare, batch, r (the recipe), k (the amount in each line, in that line's smallest units), done }
+// the rare items owned, by rarity: { rarity: { id: count } }
+function rarePool() { const pool = {}; [1, 2, 3, 4].forEach(r => { pool[r] = {}; ownedOf(r).forEach(id => { pool[r][id] = P.inv[id]; }); }); return pool; }
 function startBrew(potion, rare, batch) {
   const owned = {}; ownedOf(0).forEach(id => { owned[id] = P.inv[id]; });
-  const r = BR.recipe({ potion, mlvl: P.mlvl, owned, batch, avoid: G.recent || [] });
+  let use = BR.rarePlan(RECIPES[potion].rare, rare, rarePool(), batch); if (!use) { batch = 1; use = BR.rarePlan(RECIPES[potion].rare, rare, rarePool(), 1); }
+  const r = use && BR.recipe({ potion, mlvl: P.mlvl, owned, batch, avoid: G.recent || [] });
   if (!r) { toast(t('need_herbs')); return; }
-  $('#modal').classList.remove('on'); G.quest = 'brew'; G.noCount = false; BW = { potion, rare, batch: r.batch, r, k: r.lines.map(() => 0), done: false };
+  $('#modal').classList.remove('on'); G.quest = 'brew'; G.noCount = false; BW = { potion, rare, use, batch: r.batch, r, k: r.lines.map(() => 0), done: false };
   G.recent = (G.recent || []).concat(r.lines.map(l => l.p.key)).slice(-CFG.RECENT * 2);
-  show('brew'); renderBrew();
+  $('#brewCaul').innerHTML = ''; show('brew'); renderBrew();
 }
+const toRecipes = () => { openHome(); openRecipes(); };
+$('#brewRecipes').onclick = () => { saveSoon(true); toRecipes(); };
 // a line's amount from its counter: whole units, 1/d of a cup, or the smallest decimal step of a litre
 const lineDen = ln => ln.kind === 'herb' ? 1 : ln.scale.type === 'frac' ? ln.scale.d : ln.scale.type === 'dec' ? Math.round(1 / ln.scale.steps[ln.scale.steps.length - 1]) : 1;
 const lineVal = (ln, k) => ln.kind === 'herb' || ln.scale.type === 'whole' ? ME.I(k) : ln.scale.type === 'frac' ? ME.F(k, ln.scale.d) : ME.V(k, lineDen(ln), 'dec');
 const LIQ = { spring: '💧', moon: '🌙', oil: '🫒' };
 const lineHead = ln => ln.kind === 'herb' ? `${ING[ln.herb].em} <b>${nameOf(ING[ln.herb])}</b>` : `${LIQ[ln.liquid]} <b>${t('liq_' + ln.liquid)}</b> <small>(${t('u_' + ln.scale.unit)})</small>`;
 // the recipe line as a sentence: each kind of problem has its wording; others show the calculation ("Measure ¾ × 8")
+const ltrX = e => `<bdi dir="ltr">${exprHtml(e)}</bdi>`;   // a calculation reads left to right also in Hebrew
+const herbName = id => `${ING[id].em} ${nameOf(ING[id])}`;
 function lineText(ln) {
   const p = ln.p, o = p.ops || {}, herb = ln.kind === 'herb';
+  if (p.form === 'ratio') return herb ? t('ratio_hb', { a: o.a, b: o.b, n: o.h, h: herbName(ln.ratio) }) : t('ratio_lq', { a: o.a, b: exprHtml(o.b), u: t('u_' + ln.scale.unit), n: o.h, h: herbName(ln.ratio) });
+  if (!herb) return liquidText(ln);
   const key = { 'a+b': 'ph_add', 'a-b': 'ph_rest', 'a+□=c': 'ph_rest', '□-b=c': 'ph_start', 'a×b': herb ? 'ph_hand' : 'ph_spoon', 'a×10': herb ? 'ph_hand' : 'ph_spoon', 'a×100': 'ph_spoon',
     batch: 'ph_batch', double: 'ph_double', half: 'ph_half', 'a÷b': 'ph_share', 'a×□=c': 'ph_split', '□÷b=c': 'ph_whole' }[p.form];
-  return key && o.a != null && o.b != null ? t(key, { a: o.a, b: o.b }) : t('ph_calc', { x: exprHtml(p.e) });
+  return key && o.a != null && o.b != null ? t(key, { a: o.a, b: o.b }) : t('ph_calc', { x: ltrX(p.e) });
+}
+// the liquid line as a small story about the pitcher, the bottles or the recipe, in the jug's unit (the student's feedback, step 7: "The pitcher is ⅖ full…")
+const LQ_KEY = { 'a+b': 'lq_add', 'a-b': 'lq_left', 'a−b': 'lq_left', 'a+□=c': 'lq_fill', '□-b=c': 'lq_start', 'a×b': 'lq_spoon', 'a×10': 'lq_times', 'a×100': 'lq_times', double: 'lq_double', half: 'lq_half',
+  'a÷b': 'lq_share', 'a×□=c': 'lq_split', '□÷b=c': 'lq_whole', 'frac of': 'lq_of', 'p% of a': 'lq_of', 'a/n+b/n': 'lq_add', 'a/m+b/n': 'lq_add', 'a/n−b/n': 'lq_left', 'a/m−b/n': 'lq_left',
+  'a/n×k': 'lq_per', 'k×a/n': 'lq_per', 'a×p': 'lq_times', 'a÷p': 'lq_share', 'a/m×b/n': 'lq_ofx' };
+function liquidText(ln) {
+  const p = ln.p, o = p.ops || {}, u = t('u_' + ln.scale.unit), sides = p.e.split(/ [+−×÷] /);
+  let key = LQ_KEY[p.form];
+  if (key === 'lq_of') return t(key, { x: ltrX(p.e), u });
+  if (p.form === '=□/n') { const m = p.e.match(/^(\S+) = \[□\/(\d+)\]$/); if (m) return t('lq_scoop', { a: exprHtml(m[1]), b: exprHtml(`[1/${m[2]}]`) }); }
+  if (p.form === 'k÷a/n' || p.form === 'a/m÷b/n') return t('lq_scoops', { a: exprHtml(sides[0]), b: exprHtml(sides[1]) });
+  if (!key || (o.fa && sides.length !== 2)) return t('lq_calc', { x: ltrX(p.e), u });
+  let [a, b] = o.fa ? sides.map(s => exprHtml(s)) : [o.a, o.b];
+  if (p.form === 'k×a/n') [a, b] = [b, a];
+  if (o.fa && p.form === 'a×b') { if (ME.num(o.fa) < 1) key = 'lq_ofx'; else { key = 'lq_times'; [a, b] = [b, a]; } }   // decimals × decimals: "0.2 of the 3.1 L"
+  if (key === 'lq_left' && ln.scale.type === 'frac' && ME.num(o.fa) <= 1) key = 'lq_full';
+  return t(key, { a, b, u });
 }
 function renderBrew() {
   if (!BW) return; const { r } = BW;
   $('#brewTitle').innerHTML = `${POTIONS[BW.potion].em} ${pBoth(BW.potion)}${BW.batch > 1 ? ` ×${BW.batch}` : ''}`;
   $('#brewSub').textContent = t('brew_sub', { lvl: levelLbl(r.L) });
   $('#recipeCard').innerHTML = `<h3>📜 ${t('recipe_t')}</h3>` +
-    BW.rare.map(id => `<div class="rcLine fixed">${ING[id].em} <b>${nameOf(ING[id])}</b> × ${BW.batch} <small>${t('rc_fixed')}</small></div>`).join('') +
+    Object.entries(BW.use).map(([id, n]) => `<div class="rcLine fixed">${ING[id].em} <b>${nameOf(ING[id])}</b> × ${n} <small>${t('rc_fixed')}</small></div>`).join('') +
+    (Object.keys(BW.use).some(id => !BW.rare.includes(id)) ? `<div class="rcLine fixed"><small>♻️ ${t('rc_sub')}</small></div>` : '') +
     r.lines.map((ln, i) => `<div class="rcLine${BW.res ? (BW.res[i] ? ' ok' : ' bad') : ''}">${BW.res ? (BW.res[i] ? '✅ ' : '❌ ') : ''}${lineHead(ln)}: ${lineText(ln)}</div>`).join('');
   $('#brewTools').innerHTML = r.lines.map((ln, i) => {
     const v = lineVal(ln, BW.k[i]);
@@ -4016,7 +4073,7 @@ function renderBrew() {
       <div class="bjBtns">${steps.map(([u, lbl]) => `<button class="jbtn" data-i="${i}" data-d="${-u}" dir="ltr">−${lbl}</button><button class="jbtn" data-i="${i}" data-d="${u}" dir="ltr">+${lbl}</button>`).join('')}</div></div>`;
   }).join('');
   $('#brewGo').textContent = t('brew_go'); $('#brewGo').disabled = BW.done;
-  $('#brewCaul').innerHTML = `<span class="aura"></span>${cauldronArt(P.own.caul || 0)}`;
+  if (!$('#brewCaul .steam')) $('#brewCaul').innerHTML = `<span class="aura"></span>${cauldronArt(P.own.caul || 0)}<span class="steam"><i></i><i style="--sw:-10px"></i><i style="--sw:14px"></i></span>`;
 }
 let jugSeq = 0;
 function jugSvg(fill, ln) {   // a glass jug with a scale; the liquid rises with the amount
@@ -4043,26 +4100,31 @@ async function brewGo() {
   if (!BW || BW.done) return; const { r } = BW, vals = r.lines.map((ln, i) => lineVal(ln, BW.k[i])), res = BR.check(r.lines, vals);
   BW.res = res; renderBrew();
   r.lines.forEach((ln, i) => { P.craft.n++; if (res[i]) P.craft.ok++; after(record({ key: ln.p.key, p: Object.assign({}, ln.p, { lv: Math.min(ln.p.lv || r.L, r.L) }), src: 'craft' }, res[i])); });   // each line: one scored answer (craft weight)
-  const cau = $('#brewCaul'); cau.classList.add('brewing'); await sleep(900); cau.classList.remove('brewing');
-  if (res.every(Boolean)) {   // the potion(s)
-    BW.done = true; r.lines.forEach((ln, i) => { if (ln.kind === 'herb') P.inv[ln.herb] = Math.max(0, (P.inv[ln.herb] || 0) - BW.k[i]); });
-    BW.rare.forEach(id => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - BW.batch); });
-    const xp = BR.CFG.XP_LINE * r.lines.length; P.pot[BW.potion] = (P.pot[BW.potion] || 0) + BW.batch; P.xp += xp; saveSoon(true);
-    sfx.win(); confetti(['🧪', '✨', '🫧', POTIONS[BW.potion].em]); burst('🫧', 12, cau);
+  const cau = $('#brewCaul'); BW.done = true; $('#brewGo').disabled = true; cau.classList.add('brewing'); await sleep(1100); cau.classList.remove('brewing');
+  const useUp = () => { r.lines.forEach((ln, i) => { if (ln.kind === 'herb') P.inv[ln.herb] = Math.max(0, (P.inv[ln.herb] || 0) - BW.k[i]); }); Object.entries(BW.use).forEach(([id, n]) => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - n); }); };
+  if (res.every(Boolean)) {   // the potion(s) rise out of the cauldron
+    useUp(); const xp = BR.CFG.XP_LINE * r.lines.length; P.pot[BW.potion] = (P.pot[BW.potion] || 0) + BW.batch; P.xp += xp; saveSoon(true);
+    sfx.win(); cau.insertAdjacentHTML('beforeend', `<span class="potRise"><span class="packBottle">${potionSVG(BW.potion)}<i>${POTIONS[BW.potion].em}</i></span></span>`); burst('🫧', 12, cau);
+    await sleep(1500); confetti(['🧪', '✨', '🫧', POTIONS[BW.potion].em]);
     modal(t('pot_ready_t'), `<div style="text-align:center"><div style="display:inline-block;transform:scale(2);margin:26px"><span class="packBottle">${potionSVG(BW.potion)}<i>${POTIONS[BW.potion].em}</i></span></div><p>${t(BW.batch > 1 ? 'pots_ready_b' : 'pot_ready_b', { name: pBoth(BW.potion), n: BW.batch })}</p>${xpLine(xp)}</div>`,
-      [[t('back_home'), openHome], [t('back_map'), openMenu, true]]);
+      [[t('brew_more'), toRecipes], [t('back_home'), openHome], [t('back_map'), openMenu, true]]);
     return;
   }
-  // a wrong line: the worked example, then maybe the ingredients are lost (the liquids are free)
-  sfx.bad(); BW.done = true; const lost = Math.random() < BR.lossChance(wizLvl());
-  if (lost) { r.lines.forEach((ln, i) => { if (ln.kind === 'herb') P.inv[ln.herb] = Math.max(0, (P.inv[ln.herb] || 0) - BW.k[i]); }); BW.rare.forEach(id => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - BW.batch); }); }
-  saveSoon(true);
+  // a wrong line: a dark puff of smoke, the worked example, then maybe the ingredients are lost (the liquids are free)
+  sfx.bad(); const lost = Math.random() < BR.lossChance(wizLvl());
+  cau.insertAdjacentHTML('beforeend', `<span class="smokePuff">${[[-40, -70], [0, -95], [40, -70], [-20, -40], [25, -45]].map(([x, y], k) => `<i style="--dx:${x}px;--dy:${y}px;animation-delay:${k * .12}s"></i>`).join('')}</span>`);
+  if (lost) useUp(); saveSoon(true); await sleep(1400);
   const ex = r.lines.map((ln, i) => res[i] ? '' : `<div class="workEx"><div>${lineHead(ln)}: ${lineText(ln)}</div><div class="weEq">${exprHtml(ln.p.e, ln.amount)} ${ln.kind === 'liquid' ? t('u_' + ln.scale.unit) : ''}</div>${workModel(ln)}<div class="small">${t('you_put', { x: ME.fmtHtml(vals[i]) })}</div></div>`).join('');
-  modal(t('brew_fail_t'), ex + `<p>${t(lost ? 'brew_lost' : 'brew_kept')}</p>`, [[t('brew_again'), () => { const ok = BW.rare.every(id => (P.inv[id] || 0) >= BW.batch); ok ? startBrew(BW.potion, BW.rare, BW.batch) : openHome(); }], [t('back_home'), openHome, true]]);
+  modal(t('brew_fail_t'), ex + `<p>${t(lost ? 'brew_lost' : 'brew_kept')}</p>`, [[t('brew_again'), () => { const ok = BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), BW.batch) || BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), 1); ok ? startBrew(BW.potion, BW.rare, BW.batch) : toRecipes(); }], [t('back_recipes'), toRecipes], [t('back_home'), openHome, true]]);
 }
 // the picture model of a worked example (spec 04 §1): dots for small sums, an array for multiplication, groups for division, a bar for fractions, the jug for liquids
 function workModel(ln) {
   const p = ln.p, o = p.ops || {}, A = ln.amount, dot = (c, x, y) => `<circle cx="${x}" cy="${y}" r="5" fill="${c}"/>`, svg = (w, h, body) => `<svg class="weSvg" viewBox="0 0 ${w} ${h}" style="width:${Math.min(w * 1.4, 300)}px">${body}</svg>`;
+  if (p.form === 'ratio' && o.h <= 24) {   // a ratio: the first herb in groups of u, each group brings v
+    const g = o.h / o.a, w = o.a * 12 + 10, s = [];
+    for (let k = 0; k < g; k++) { s.push(`<rect x="${4 + k * w}" y="2" width="${w - 6}" height="18" rx="6" fill="none" stroke="#ffd166"/>`); for (let j = 0; j < o.a; j++) s.push(dot('#3ddc97', 12 + k * w + j * 12, 11)); s.push(`<text x="${1 + k * w + w / 2}" y="36" font-size="11" fill="#5fc8ff" text-anchor="middle">+${String(o.b).replace(/[[]]/g, '')}</text>`); }
+    return svg(g * w + 4, 42, s.join(''));
+  }
   if (['a+b', 'a-b', 'a+□=c'].includes(p.form) && o.a != null && o.a <= 20 && o.b != null) {
     const plus = p.form === 'a+b', tot = plus ? o.a + o.b : o.a, s = [];
     for (let k = 0; k < tot; k++) { const x = 10 + (k % 10) * 14 + (k % 10 >= 5 ? 6 : 0), y = 10 + Math.floor(k / 10) * 14; s.push(dot(plus ? (k < o.a ? '#5fc8ff' : '#ffd166') : (k < o.a - o.b ? '#ffd166' : '#ffffff44'), x, y)); if (!plus && k >= o.a - o.b) s.push(`<line x1="${x - 5}" y1="${y - 5}" x2="${x + 5}" y2="${y + 5}" stroke="#ff8b99" stroke-width="2"/>`); }

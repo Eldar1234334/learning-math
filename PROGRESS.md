@@ -388,3 +388,38 @@ Every spell was shown in the browser one family at a time; your comments were bu
 3. Put a wrong amount on purpose: the worked example and the loss roll.
 4. Teacher area → demo → math level 16 → Home → Power potion: choose the stones and ×3: a batch.
 5. Demo math level 27 or 30: the jug in cup fractions or litres.
+
+### Step 7, round 2 (after your check) ✅ (on the test site, waiting for your check)
+
+**Your three proposals are approved** (herbs from every win, rare items are not math, review herb lines at the fraction/decimal levels).
+
+**What changed**
+- **Effects:** the cauldron steams all the time, and harder while brewing. Success: the potion rises out of the cauldron in a golden glow, then the "ready" window. Failure: a dark puff of smoke, then the worked example.
+- **Brew another:** the "ready" window has **Brew another 🫕** (back to the recipe list, any potion). The brewing screen has a **📜 button** next to 🏡 to go back to the recipes, and the failure window has **📜 Back to the recipes**.
+- **Herb amounts vary:** the amounts were often 2 for two reasons. At some levels the level's own problems can't make small numbers (level 5 starts at 10). Also, a big first line left only 2 for the second line. Now the amount is chosen among everything that fits, never mostly the smallest. It is a problem of the level itself 9 times in 10, otherwise from a review level, and room is left for the next line. A test checks that 2 is rare.
+- **More herbs:** every win drops 3–5 herbs (4–6 from math level 7, 5–8 from 13, 6–9 from 22), so an average student has plenty for potions.
+- **Batches:** if you don't have enough of a chosen rare item, other items of the same kind fill in. The recipe card lists what goes in and says "♻️ Not enough of what you chose, so the cauldron uses other items of the same kind." The batch size only stops where all your items of that kind run out. A batch line now asks for 2–9 herbs per potion.
+- **Liquid lines are stories** in the jug's unit, not only a calculation:
+  - "Pour 15 drops, then 7 drops more." · "The pitcher has 60 drops. You pour 30 drops out of it. Pour in what is left."
+  - "The pitcher is ⅜ full. You pour ⅖ out of it. Pour in what is left (cups)." · "The potion needs 63 drops. 28 drops are already in. Pour the rest."
+  - "You poured 7 drops out of the pitcher and 2 were left. Pour as much as it had at first." · "Share 60 drops equally among 6 bottles. Pour one bottle." · "6 bottles have 8 drops each. Pour them all."
+  - "10 times the small recipe of 57 drops." · "Pour ¼ of 64 drops." · "¼ cup for each potion. The recipe is for 9 potions." · "Pour ⅞ of the 9/10 cup." · "Pour 80% of 170 drops."
+  - Equivalent fractions and fraction division use a **scoop**: "The recipe says ¼ cup, but your scoop holds ⅛ cup. Pour that many scoops." · "Your scoop holds ⅛ cup. How many scoops make 6 cups?"
+  - Decimal problems always use litres (no more "82.6 drops"). Problems that are not an amount ("4/12 = 1/□") are not used for liquids.
+- **Proportions (ratio lines):** from the easy step 16 (after division), about 1 recipe in 3 has a ratio line tied to the first herb:
+  - "For every 3 🍃 leaves, pour 15 drops. The recipe has 9 🍃 leaves." (45 drops)
+  - in the Heart potion between the two herbs: "For every 2 🍃 leaves, put in 3. The recipe has 6 🍃 leaves." (9 grass)
+  - At the fraction levels the liquid is in cups ("for every 2 leaves, ¾ cup"), at the decimal levels in litres ("for every 3 leaves, 0.25 L").
+  - The worked example shows the leaves in groups with "+15" under each group.
+- **Hebrew:** calculations in recipe lines read left to right ("3 × 5 − 9" was shown reversed).
+- **Tests:** 4 new brewing tests (102 in all): herb amounts vary, ratio lines, filling in rare items, liquid lines.
+
+**My proposal (please approve or change)**
+- **Ratio lines** from the easy step 16, in about 1 recipe of 3. The math ladder still has no ratio problems (your level 35 decision stays); ratios appear only in recipes, where they are concrete ("for every 2 leaves…").
+
+**How to check**
+1. Demo math level 17 → Home → cauldron → Heart: watch the steam; brew right (the potion rises) and wrong (the smoke). In the "ready" window, tap **Brew another**.
+2. On the brewing screen, tap 📜 to go back to the recipes.
+3. Keep 1 Fire stone and a few other stones → Power potion → choose the Fire stone ×4: the card fills in with other stones.
+4. Brew a few recipes at levels 3–10: the herb amounts vary; the liquid lines are stories.
+5. Levels 17+ (a few recipes): a ratio line. Levels 24, 27, 30, 33: cups, scoops and litres.
