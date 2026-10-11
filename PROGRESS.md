@@ -558,3 +558,28 @@ Every spell was shown in the browser one family at a time; your comments were bu
 - **The mannequin, fixed** (your report: "Leave at home" and "Take it" seemed reversed — the button showed the item's state, not what tapping does):
   - Each item now says where it is ("🎒 With you on quests" in green / "🏠 At home, on the mannequin" in gold), and the button says what it does ("Leave at home 🏠" / "Take it 🎒").
   - **The mannequin holds only the items left at home**, up to 2 of each kind (room for the second one is ready for when more items come). An item you take disappears from it, so you can see at a glance what is with you.
+
+---
+
+## Step 10: Tutorial and polish ✅ (on the test site, waiting for your check)
+
+**Goal:** a new student can start without help (HANDOFF phase 10).
+
+**What changed**
+- **A new math tutorial with Pip the owl** (it replaces the reading game's word tutorial). It plays once right after a new hero is created; Pip on the map replays it any time. About two minutes, in English or Hebrew, with Pip's voice in the game's language (Hebrew voice when the device has one; 🔊 Hear again, Voice on/off, Skip):
+  1. The map: tap the city gate.
+  2. A monster: the Ember Imp is fire 🔥; the badge shows it is weak to water 💧 and ice 🧊.
+  3. The spell book: open it; spell 2 is water, 5 ice, 3 fire, 4 stone; close it.
+  4. The cards: "Which card casts spell 2, water?" (1 + 1, 2 + 1, 3 + 1). From math level 5 the student also says the answer to cast it, like in the game.
+  5. A wrong card is explained: fire heals a fire monster, stone does nothing, and the monster attacks (watch your HP).
+  6. "Now you": which card casts spell 5, ice? The monster is beaten: coins and herbs.
+  7. A short look at Home (brewing, decorating) and the shop (potions, clothes, furniture; paying is math too).
+  The tutorial never changes the student's level, XP, coins or HP; only "tutorial done" is saved.
+- **Sounds:** coins clink on the counter (and a little cascade when you pay or change 10 coins), the hammer clangs on the anvil, the cauldron bubbles, the jars tick and the jug drips.
+- **Village Helper** stays hidden: the notice board on the map says "Coming soon" (as before).
+- **Fixed:** tapping the workshop on the map still checked math level 8; it now checks wizard level 8 (like its light).
+
+**How to check**
+1. Make a new hero (or tap Pip the owl on the map): the tutorial. Try a wrong card once.
+2. Switch to Hebrew and replay it: Hebrew text and voice.
+3. Shop, brew and forge with the sound on.

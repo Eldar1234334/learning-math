@@ -253,7 +253,7 @@ body.peace .foeWrap .foeBody{animation:none}
 @media (prefers-reduced-motion:reduce){.foeBody .mnWrap *{animation:none!important}}
 /* ----- new-player tutorial (Pip the owl) ----- */
 .coach{position:fixed;left:8px;right:8px;bottom:8px;z-index:45;max-width:760px;margin:0 auto;background:linear-gradient(160deg,#2a1d5e,#3a2a7a);border:2px solid var(--gold);border-radius:18px;padding:8px 12px 10px;box-shadow:0 6px 20px #0008}
-.coach[hidden]{display:none}
+.coach[hidden]{display:none}body.tutOn .coach{z-index:70}   /* above the spell book during the tutorial */
 .tutDots{display:flex;gap:6px;justify-content:center;margin-bottom:6px}.tutDots i{width:9px;height:9px;border-radius:50%;background:#ffffff33}.tutDots i.on{background:var(--gold)}.tutDots i.done{background:#3ddc97}
 .coachRow{display:flex;gap:12px;align-items:flex-start}
 .tutOwl{width:64px;flex:none}.tutOwl svg{width:100%;height:auto;display:block;overflow:visible}.tutOwl.talk{animation:owlTalk .5s ease-in-out 3}@keyframes owlTalk{50%{transform:translateY(-5px) rotate(-3deg)}}
@@ -953,7 +953,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="coachTxt"><div class="tutSay" id="tutSay" aria-live="polite"></div>
       <div class="coachBtns"><button class="btn" id="tutNext" hidden>Next</button><button class="btn ghost small" id="tutHear" title="Hear it again">🔊 Hear again</button><button class="btn ghost small" id="tutSound" aria-pressed="true">🔊 Voice on</button><button class="btn ghost small" id="tutSkip">Skip tutorial</button></div></div></div>
 </div>
-<div class="tutFin" id="tutFin"><div class="tutFinBox"><div id="tutFinOwl" style="width:90px;margin:0 auto"></div><h2>You're ready!</h2><p>Remember: Pip is on your shoulder. Tap the owl button on the map any time to see this again.</p><button class="btn" id="tutBegin">Start playing ▶</button></div></div>
+<div class="tutFin" id="tutFin"><div class="tutFinBox"><div id="tutFinOwl" style="width:90px;margin:0 auto"></div><h2 id="tutFinT"></h2><p id="tutFinB"></p><button class="btn" id="tutBegin"></button></div></div>
 <div id="book" class="bookOv" hidden>
   <div class="bookBox" role="dialog" aria-modal="true" aria-labelledby="bookTitle">
     <div class="bookTop"><h2 id="bookTitle" data-t="book_t"></h2><button class="ib" id="bookClose" data-tt="close">✕</button></div>
@@ -1270,6 +1270,27 @@ const STR = {
   forge_stop: ['✖ Stop forging', '✖ להפסיק לחשל'], forge_stop_t: ['Stop forging?', 'להפסיק לחשל?'], forge_stop_b: ['Nothing is used and no coins are paid. You can forge it again later.', 'שום דבר לא נגמר ולא משלמים מטבעות. אפשר לחשל שוב אחר כך.'],
   forge_stop_yes: ['Stop', 'להפסיק'], forge_stop_no: ['Keep forging', 'להמשיך לחשל'],
   tap_use: ['tap to use · {u} left', 'הקישו לשימוש · נשארו {u}'], auto_use: ['works by itself · {u} left', 'עובד לבד · נשארו {u}'], used_up_s: ['used in this quest', 'נוצל במסע הזה'], item_ready: ['{name} is ready! Tap it under the battle to use it.', '{name} מוכן! הקישו עליו מתחת לקרב כדי להשתמש בו.'],
+  tut_next: ['Next ▶', 'הבא ◀'], tut_got: ['Got it ▶', 'הבנתי ◀'], tut_done_btn: ['Let\'s play! ▶', 'בואו נשחק! ◀'], tut_hear: ['🔊 Hear again', '🔊 לשמוע שוב'], tut_voice_on: ['🔊 Voice on', '🔊 קול פועל'], tut_voice_off: ['🔇 Voice off', '🔇 קול כבוי'], tut_skip: ['Skip tutorial', 'לדלג על ההדרכה'],
+  tut_label: ['Tutorial', 'הדרכה'], tut_area: ['Dragon Peak', 'פסגת הדרקון'], no_effect_s: ['no effect', 'אין השפעה'],
+  tut_hi: ['Hi! I\'m Pip the owl. I\'ll show you how a math wizard plays. It takes about two minutes.', 'שלום! אני פיפ הינשוף. אראה לכם איך משחק קוסם החשבון. זה לוקח בערך שתי דקות.'],
+  tut_map: ['This is the map. Tap the city gate to go out on a quest!', 'זו המפה. הקישו על שער העיר כדי לצאת למסע!'],
+  tut_monster: ['A monster! The {mon} is a fire monster 🔥. Look here: it is weak to water 💧 and ice 🧊.', 'מפלצת! {mon} היא מפלצת אש 🔥. הסתכלו כאן: היא חלשה מול מים 💧 וקרח 🧊.'],
+  tut_book: ['Every spell has a number. Open your spell book to see them!', 'לכל כישוף יש מספר. פתחו את ספר הכישופים כדי לראות!'],
+  tut_book_in: ['Spell 2 is water 💧 and spell 5 is ice 🧊. Spell 3 is fire 🔥, and spell 4 is stone 🪨. Close the book when you are ready.', 'כישוף 2 הוא מים 💧 וכישוף 5 הוא קרח 🧊. כישוף 3 הוא אש 🔥 וכישוף 4 הוא אבן 🪨. סגרו את הספר כשאתם מוכנים.'],
+  tut_cards: ['Each card is a math problem. Its answer is the number of the spell you cast. Which card casts spell 2, water 💧?', 'כל קלף הוא תרגיל. התשובה שלו היא מספר הכישוף שתטילו. איזה קלף מטיל את כישוף 2, מים 💧?'],
+  tut_say: ['Now say the spell: what is {e}? Pick the answer to cast it.', 'עכשיו אמרו את הכישוף: כמה זה {e}? בחרו את התשובה כדי להטיל אותו.'],
+  tut_say_wrong: ['Not that number. Count again: what is {e}?', 'לא המספר הזה. חשבו שוב: כמה זה {e}?'],
+  tut_oops_fire: ['Oh no! That was spell 3, fire 🔥. A fire monster loves fire: it got stronger. And now it attacks!', 'אוי! זה היה כישוף 3, אש 🔥. מפלצת אש אוהבת אש: היא התחזקה. ועכשיו היא תוקפת!'],
+  tut_oops_stone: ['That was spell 4, stone 🪨. It does nothing to this monster. And now it attacks!', 'זה היה כישוף 4, אבן 🪨. הוא לא עושה כלום למפלצת הזאת. ועכשיו היא תוקפת!'],
+  tut_again: ['Try another card. Solve each problem in your head first.', 'נסו קלף אחר. פתרו כל תרגיל בראש קודם.'],
+  tut_hit: ['Great! 1 + 1 = 2, so you cast spell 2: water! It hurt the monster.', 'מעולה! 1 + 1 = 2, אז הטלתם את כישוף 2: מים! הוא פגע במפלצת.'],
+  tut_attack: ['Careful: monsters attack too. Watch your HP ❤️ under your wizard. Potions can heal you.', 'זהירות: גם מפלצות תוקפות. שימו לב לחיים ❤️ מתחת לקוסם. שיקויים יכולים לרפא.'],
+  tut_try: ['Now you! Which card casts spell 5, ice 🧊?', 'עכשיו אתם! איזה קלף מטיל את כישוף 5, קרח 🧊?'],
+  tut_win: ['You beat the monster! You win coins 🪙 and herbs 🌿 in every fight.', 'ניצחתם את המפלצת! בכל קרב מרוויחים מטבעות 🪙 וצמחים 🌿.'],
+  tut_home: ['This is your Home 🏡. Brew potions in the cauldron with your herbs, and decorate your room.', 'זה הבית שלכם 🏡. מבשלים שיקויים בקדרה מהצמחים, ומקשטים את החדר.'],
+  tut_shop: ['This is the shop 🏪. Buy potions, clothes and furniture with your coins. Paying is math too!', 'זו החנות 🏪. קונים שיקויים, בגדים ורהיטים במטבעות. גם התשלום הוא חשבון!'],
+  tut_grow: ['Every right answer makes you a stronger wizard: new spells, new monsters and new places. Good luck!', 'כל תשובה נכונה הופכת אתכם לקוסמים חזקים יותר: כישופים חדשים, מפלצות חדשות ומקומות חדשים. בהצלחה!'],
+  tut_fin_t: ['You\'re ready!', 'אתם מוכנים!'], tut_fin_b: ['Pip the owl waits on the map: tap it any time to see this again.', 'פיפ הינשוף מחכה במפה: הקישו עליו בכל זמן כדי לראות שוב.'], tut_begin: ['Start playing ▶', 'מתחילים לשחק ◀'],
   ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
@@ -1529,7 +1550,14 @@ const sfx = {
   bad: () => { tone(180, .35, 'sawtooth', .05); },
   hit: () => { tone(300, .08, 'square', .05); tone(200, .12, 'square', .05, .06); },
   win: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, .25, 'triangle', .08, i * .12)); },
-  up: () => { [440, 554, 659, 880, 1109].forEach((f, i) => tone(f, .2, 'triangle', .08, i * .09)); }
+  up: () => { [440, 554, 659, 880, 1109].forEach((f, i) => tone(f, .2, 'triangle', .08, i * .09)); },
+  // step 10: sounds for the shop, brewing and forging
+  coin: () => { tone(1568, .06, 'triangle', .05); tone(2093, .09, 'triangle', .04, .05); },                       // a coin on the counter
+  coins: () => { [0, .07, .14, .21, .3].forEach((d, i) => tone(1400 + i * 180, .07, 'triangle', .04, d)); },        // paying: a little cascade
+  clang: (d = 0) => { tone(880, .18, 'square', .035, d); tone(1320, .25, 'sine', .04, d); tone(2640, .12, 'sine', .02, d); },   // the hammer on the anvil
+  bubble: () => { [0, .18, .33, .5, .7].forEach((d, i) => tone(220 + (i % 3) * 90, .09, 'sine', .05, d)); },        // the cauldron bubbles
+  tick: () => { tone(1200, .03, 'triangle', .03); },                                                             // a jar or the jug moves one step
+  drop: () => { tone(900, .05, 'sine', .04); tone(600, .07, 'sine', .03, .04); }                                 // liquid into the jug
 };
 /* ---- the device's Hebrew voice (if it has one) ---- */
 let heVoice = null;
@@ -1673,7 +1701,7 @@ function newProfile(id, nick, gender, color, real, cls, skin, hair, grade) {
     sec: {}, created: Date.now(), updated: Date.now() });
   p.mplace = ME.RULES.placeAnswers;   // the placement phase: the first answers move a misplaced student fast (spec 01 §6)
   p.pot = Object.assign({}, STARTER_POTIONS);   // a free starter set waits at Home
-  p.tutorialDone = true;    // the reading game's tutorial is switched off; the new math tutorial comes in phase 10
+  p.tutorialDone = false;   // the math tutorial (step 10) plays once after the hero is created; the owl on the map replays it
   p.skin = skin || DEFAULT_SKIN; p.hair = hair || null; p.lookPrompt = false;   // a new hero chose their look already
   return p;
 }
@@ -1964,7 +1992,7 @@ function enterPlace(id) {
 }
 function walkTo(id) {
   if (TUT.on) { if (walking) return; if (!TUT.allowed || !TUT.allowed.includes(id)) { const el = document.querySelector(`.place[data-p="${id}"]`); if (el) { el.classList.remove('tutShake'); void el.offsetWidth; el.classList.add('tutShake'); } placeHero(START.x, START.y); tutSay("Not yet! Let's try the glowing place first."); return; } }
-  if (id === 'work' && P.mlvl < 8) { placeHero(START.x, START.y); toast(t('ws_locked')); tinker(); return; }
+  if (id === 'work' && wizLvl() < CFG.WORKSHOP_WIZ) { placeHero(START.x, START.y); toast(t('ws_locked')); tinker(); return; }
   if (walking) return;
   if (isLocked(id)) { placeHero(START.x, START.y); toast(t('quest_locked')); return; }
   walking = true;
@@ -2106,104 +2134,128 @@ const owlSVG = () => `<svg viewBox="0 0 100 110" aria-hidden="true">
   <g class="owlEye"><circle cx="60" cy="38" r="9" fill="#fff"/><circle cx="61" cy="39" r="4.6" fill="#2a2340"/><circle cx="59.4" cy="37" r="1.6" fill="#fff"/></g>
   <path d="M44 30 Q50 26 56 30" stroke="#6a4020" stroke-width="2.2" fill="none" stroke-linecap="round"/>
   <path d="M45 47 L55 47 L50 58Z" fill="#ffb13a"/><path d="M45 47 L55 47 L50 51Z" fill="#ffd27a"/></svg>`;
-const TUT_WORD = { water: ['מַיִם', '💧', 'מים'], ice: ['קֶרַח', '🧊', 'קרח'], fire: ['אֵשׁ', '🔥', 'אש'], wind: ['רוּחַ', '💨', 'רוח'], stone: ['אֶבֶן', '🪨', 'אבן'] };
-const TUT_SIGN = { bread: ['לחם', '🍞'], candle: ['נר', '🕯️'], egg: ['ביצה', '🥚'] };
 const tutWait = () => new Promise(r => { TUT.resolver = r; });
 const tutResolve = v => { if (TUT.resolver) { const r = TUT.resolver; TUT.resolver = null; r(v); } };
-function tutSpeak(text, he) {   // the English line with the device voice, the Hebrew word with the Hebrew voice (silent when there is no voice or the game is muted)
+function tutSpeak(text) {   // Pip speaks in the game's language (Hebrew with a Hebrew voice when the device has one); silent when muted or switched off
   try {
     if (muted || !TUT.sound || !window.speechSynthesis) return; speechSynthesis.cancel();
-    const vs = speechSynthesis.getVoices(), en = vs.find(v => /^en/i.test(v.lang)), hv = heVoice || findHeVoice();
-    const u = new SpeechSynthesisUtterance(text); if (en) { u.voice = en; u.lang = en.lang; } else u.lang = 'en-US'; u.rate = .95; u.volume = vol; speechSynthesis.speak(u);
-    if (he && hv) { const h = new SpeechSynthesisUtterance(he); h.voice = hv; h.lang = hv.lang; h.rate = .8; h.volume = vol; speechSynthesis.speak(h); }
+    const plain = String(text).replace(/<[^>]+>/g, '').replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu, '');   // no tags and no emoji in the voice
+    const vs = speechSynthesis.getVoices(), v = LANG === 'he' ? (heVoice || findHeVoice()) : vs.find(x => /^en/i.test(x.lang));
+    const u = new SpeechSynthesisUtterance(plain); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = LANG === 'he' ? 'he-IL' : 'en-US'; u.rate = LANG === 'he' ? .9 : .95; u.volume = vol; speechSynthesis.speak(u);
   } catch (e) {}
 }
-function tutSay(text, he) { TUT.last = [text, he]; $('#tutSay').textContent = text; const o = $('#tutOwl'); o.classList.remove('talk'); void o.offsetWidth; o.classList.add('talk'); tutSpeak(text, he); }
-function tutNext(label = 'Next') { const b = $('#tutNext'); b.textContent = label; b.hidden = false; b.focus && b.focus({ preventScroll: true }); return new Promise(r => { b.onclick = () => { b.hidden = true; r(); }; }); }
+function tutSay(key, vars) { TUT.last = [key, vars]; const s = t(key, vars); $('#tutSay').innerHTML = s; const o = $('#tutOwl'); o.classList.remove('talk'); void o.offsetWidth; o.classList.add('talk'); tutSpeak(s); }
+function tutNext(key = 'tut_next') { const b = $('#tutNext'); b.textContent = t(key); b.hidden = false; b.focus && b.focus({ preventScroll: true }); return new Promise(r => { b.onclick = () => { b.hidden = true; r(); }; }); }
 function tutHl(el) {   // a pulsing gold glow and a bouncing hand on one real button
   if (TUT.hlEl) { TUT.hlEl.classList.remove('tut-hl'); const h = TUT.hlEl.querySelector(':scope > .tutHand'); if (h) h.remove(); }
   TUT.hlEl = el || null; if (TUT.hlEl) { TUT.hlEl.classList.add('tut-hl'); const h = document.createElement('span'); h.className = 'tutHand'; h.textContent = '👆'; h.setAttribute('aria-hidden', 'true'); TUT.hlEl.appendChild(h); }
 }
-function tutDots(i) { $('#tutDots').innerHTML = Array.from({ length: 9 }, (_, k) => `<i class="${k < i ? 'done' : k === i ? 'on' : ''}"></i>`).join(''); }
-const tutHearts = (n, v) => (v ? '😊'.repeat(n) + '😐'.repeat(3 - n) : '❤️'.repeat(n) + '🖤'.repeat(3 - n));
-function tutScreen(view) {   // dress the real fight screen for the tutorial: a fixed Ember Imp on Dragon Peak, or the baker at the bakery
-  const v = view === 'village'; G.quest = v ? 'peace' : 'battle'; G.potUsed = true; G.noCount = true; G.snap = null; G.q = null; G.hearts = 3; G.locked = false;
-  show('game'); $('#who').textContent = P.nick; $('#tierLbl').textContent = 'Tutorial'; $('#xpFill').style.width = '0%';
-  ['#potBar', '#itemBar'].forEach(s => { $(s).style.display = 'none'; }); $('#abandonBtn').style.display = 'none'; $('#craftPic').style.display = 'none';
-  $('#nextBtn').classList.add('hidden'); $('#opts').classList.remove('hidden'); $('#qBig').innerHTML = ''; $('#qSub').textContent = ''; $('#fb').innerHTML = '';
-  $('#heroSvg').innerHTML = heroOf(P); $('#heroBox').classList.remove('hurt'); $('#heroBox').insertAdjacentHTML('beforeend', `<div class="pipShoulder" id="pipShoulder">${owlSVG()}</div>`);
-  $('#hearts').textContent = tutHearts(3, v);
-  if (!v) {
-    G.mon = { ...MON_DEF.imp, key: 'imp', boss: false, max: 2, hp: 2 }; G.site = null;
-    $('#stage').className = 'stage el-fire'; setStageBg('f:peak'); setAura('fire'); $('#aura').style.display = '';
-    $('#foeBody').className = 'foeBody art'; $('#foeBody').style.filter = 'drop-shadow(0 0 14px var(--aura)) drop-shadow(0 0 28px var(--aura)) drop-shadow(0 6px 8px #0008)';
-    $('#foeBody').innerHTML = `<div class="mnWrap"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART.MON.imp()}</svg></div>`;
-    $('#foeName').textContent = 'Ember Imp'; $('#hpFill').style.width = '100%'; $('#mid').innerHTML = '<b>Dragon Peak</b>';
-  } else {
-    G.mon = null; G.projs = null; G.site = SITES.find(s => s.name === 'Bakery'); G.vkey = 'bakery'; G.vskin = rnd(STAGE_BG.SKINS); G.vmood = ''; G.vkeyState = ''; G.q = { reveal: '🍞' };
-    $('#stage').className = 'stage'; setStageBg('v:bakery'); $('#aura').innerHTML = ''; $('#foeBody').className = 'foeBody'; $('#foeBody').style.filter = ''; $('#foeBody').textContent = '';
-    $('#foeName').textContent = 'Baker Ori'; $('#hpFill').style.width = '0%';
-    $('#mid').innerHTML = `<b>🥖 Bakery</b><div class="bubble" id="bubble">The festival is tomorrow and the oven is full of dough. I need bread for the table!</div>`; setMood('😟');
-  }
+const TUT_STEPS = 10;
+function tutDots(i) { $('#tutDots').innerHTML = Array.from({ length: TUT_STEPS }, (_, k) => `<i class="${k < i ? 'done' : k === i ? 'on' : ''}"></i>`).join(''); }
+// The tutorial fight (spec HANDOFF phase 10): the real fight screen with a fixed Ember Imp (fire, weak to water and ice) and the starting spells 2 💧, 3 🔥, 4 🪨, 5 🧊.
+// Nothing here touches the answer history, XP, coins, level or HP: only P.tutorialDone is saved.
+const TUT_FIGHT = { hp: 6, max: 9, me: 20 };   // the imp starts a little hurt, so a fire mistake visibly heals it
+function tutBars() {
+  const f = TUT_FIGHT; $('#hpFill').style.width = (100 * f.hp / f.max) + '%'; $('#foeName').innerHTML = `${esc(monName({ ...MON_DEF.imp, key: 'imp' }))} <small class="hpNum">${f.hp}/${f.max}</small>`;
+  $('#hearts').innerHTML = `<div class="heroHp"><i style="width:${100 * f.me / 20}%"></i></div><small class="hpNum">❤️ ${f.me}/20</small>`;
 }
-function tutOptions(list, title) {
-  $('#qTitle').textContent = title; const o = $('#opts'); o.innerHTML = '';
-  list.forEach(x => { const b = document.createElement('button'); b.className = 'opt heb w'; b.textContent = x.t; b.onclick = () => tutResolve({ x, b }); o.appendChild(b); });
+function tutScreen() {
+  G.quest = 'battle'; G.potUsed = true; G.noCount = true; G.snap = null; G.q = null; G.locked = false; G.group = false; G.st = null;
+  show('game'); $('#who').textContent = P.nick; $('#tierLbl').textContent = t('tut_label'); $('#xpFill').style.width = '0%';
+  ['#potBar', '#itemBar'].forEach(s => { $(s).style.display = 'none'; }); $('#abandonBtn').style.display = 'none'; $('#craftPic').style.display = 'none'; $('#armorBar').classList.remove('on');
+  $('#nextBtn').classList.add('hidden'); $('#opts').classList.remove('hidden'); $('#qBig').innerHTML = ''; $('#qSub').textContent = ''; $('#fb').innerHTML = '';
+  $('#heroSvg').innerHTML = heroOf(P); $('#heroBox').classList.remove('hurt'); if (!$('#pipShoulder')) $('#heroBox').insertAdjacentHTML('beforeend', `<div class="pipShoulder" id="pipShoulder">${owlSVG()}</div>`);
+  Object.assign(TUT_FIGHT, { hp: 6, me: 20 }); G.mon = { ...MON_DEF.imp, key: 'imp', el: 'fire', boss: false, max: 9, hp: 6 };
+  $('#stage').className = 'stage el-fire'; setStageBg('f:peak'); setAura('fire'); $('#aura').style.display = '';
+  $('#foeBody').className = 'foeBody art'; $('#foeBody').style.filter = 'drop-shadow(0 0 14px var(--aura)) drop-shadow(0 0 28px var(--aura)) drop-shadow(0 6px 8px #0008)';
+  $('#foeBody').innerHTML = `<div class="mnWrap"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART.MON.imp()}</svg></div>`;
+  const e = EL.fire; $('#mid').innerHTML = `<b>${t('tut_area')}</b><div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>`;
+  tutBars();
+}
+// cards: [expression, spell number]; the student picks one (a card shows only its problem, like in the game)
+function tutCards(list, title) {
+  $('#qTitle').textContent = title; $('#qSub').textContent = t('pick_s'); const o = $('#opts'); o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${list.length}, 1fr)`; o.innerHTML = '';
+  list.forEach(c => { const b = document.createElement('button'); b.className = 'opt card'; b.innerHTML = `<span class="cardEx">${exprHtml(c[0])}</span>`; b.onclick = () => tutResolve({ c, b }); o.appendChild(b); });
+}
+function tutSayOpts(n) {   // the incantation (from math level 5): say the card's answer to cast it
+  $('#qTitle').textContent = t('say_t'); const o = $('#opts'); o.className = 'opts'; o.style.gridTemplateColumns = 'repeat(3, 1fr)'; o.innerHTML = '';
+  shuffle([n - 1, n, n + 1]).forEach(v => { const b = document.createElement('button'); b.className = 'opt num'; b.textContent = v; b.onclick = () => tutResolve({ v, b }); o.appendChild(b); });
 }
 const tutBtns = () => [...document.querySelectorAll('#opts .opt')];
+const SPELL_EMO = { 2: '💧', 3: '🔥', 4: '🪨', 5: '🧊' };
+async function tutCast(n, ok) {   // the spell flies; water and ice hurt the fire imp, fire heals it, stone does nothing
+  const sl = ms => new Promise(r => setTimeout(r, ms)), em = SPELL_EMO[n];
+  await flySpell(em, n === 4); if (!ok()) return;
+  if (n === 2 || n === 5) { sfx.hit(); burst(em, 8); $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); TUT_FIGHT.hp = Math.max(0, TUT_FIGHT.hp - 3); floatText('−3', '#ffd166'); }
+  else if (n === 3) { sfx.bad(); burst('🔥', 6); TUT_FIGHT.hp = Math.min(TUT_FIGHT.max, TUT_FIGHT.hp + 2); floatText('+2', '#7dff9a'); }
+  else { sfx.bad(); floatText(t('no_effect_s'), '#ffffffcc'); }
+  tutBars(); await sl(600);
+}
+async function tutMonsterHits(ok) {
+  const sl = ms => new Promise(r => setTimeout(r, ms));
+  $('#foeBody').classList.add('atk'); await sl(250); if (!ok()) return; sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); TUT_FIGHT.me = Math.max(1, TUT_FIGHT.me - 3); tutBars(); floatText('−3 ❤️', '#ff9aa8', '#heroSvg');
+  setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500); await sl(900);
+}
+async function tutRound(cards, target, ok) {   // the student picks cards until the right spell is cast (and says it from math level 5)
+  const say = P.mlvl >= 5;
+  for (;;) {
+    const r = await tutWait(); if (!ok()) return false; const [, n] = r.c;
+    tutBtns().forEach(b => { b.disabled = true; }); r.b.classList.add(n === target ? 'good' : 'bad');
+    if (say) {   // the incantation: say the answer to cast the spell
+      tutSay('tut_say', { e: exprHtml(r.c[0]) }); tutSayOpts(n);
+      for (;;) { const s = await tutWait(); if (!ok()) return false; if (s.v === n) { s.b.classList.add('good'); break; } s.b.classList.add('bad'); s.b.disabled = true; sfx.bad(); tutSay('tut_say_wrong', { e: exprHtml(r.c[0]) }); }
+    }
+    await tutCast(n, ok); if (!ok()) return false;
+    if (n === target) return true;
+    tutSay(n === 3 ? 'tut_oops_fire' : 'tut_oops_stone'); await tutMonsterHits(ok); if (!ok()) return false; await tutNext('tut_got'); if (!ok()) return false;
+    tutCards(cards, t('pick_t', { mon: monName(G.mon) })); tutSay('tut_again');
+  }
+}
 async function playTutorial() {
-  const tok = ++TUT.tok, ok = () => tok === TUT.tok && TUT.on, sl = ms => new Promise(r => setTimeout(r, ms));
+  const tok = ++TUT.tok, ok = () => tok === TUT.tok && TUT.on;
   tutResolve(); tutHl(null); $('#tutFin').classList.remove('on'); $('#modal').classList.remove('on'); TUT.allowed = null;
   G.quest = null; openMenu(); tutDots(0);
-  tutSay("Hi! I'm Pip the owl. I'll show you how to play. It takes about a minute."); await tutNext('Next'); if (!ok()) return;
-  tutDots(1); TUT.allowed = ['gate']; tutSay("This is the map. Tap a place, or drag your hero to it. Let's go to the city gate!"); tutHl(document.querySelector('.place[data-p="gate"]'));
+  tutSay('tut_hi'); await tutNext(); if (!ok()) return;
+  tutDots(1); TUT.allowed = ['gate']; tutSay('tut_map'); tutHl(document.querySelector('.place[data-p="gate"]'));
   await tutWait(); if (!ok()) return; tutHl(null); TUT.allowed = null;
-  tutDots(2); tutScreen('fight');
-  tutSay('A monster! Monsters are afraid of certain words. Fire monsters hate water. Tap the word that means water.', TUT_WORD.water[2]);
-  tutOptions([{ t: TUT_WORD.fire[0] }, { t: TUT_WORD.water[0], ok: true }, { t: TUT_WORD.wind[0] }], 'Pick the spell that beats the Ember Imp'); tutHl(tutBtns()[1]);
-  for (;;) { const r = await tutWait(); if (!ok()) return; if (r.x.ok) { r.b.classList.add('good'); break; } tutSay('Not that one. Look for the glowing word!', TUT_WORD.water[2]); }
-  tutHl(null); tutBtns().forEach(b => { b.disabled = true; }); sfx.ok();
-  tutDots(3); await flySpell('💧'); if (!ok()) return; sfx.hit(); burst('💧', 8); $('#foeBody').classList.add('hit'); setTimeout(() => $('#foeBody').classList.remove('hit'), 400); $('#hpFill').style.width = '50%'; floatText('-1', '#ffd166');
-  tutSay('Great! You read the word and your spell hit the monster.'); await sl(2200); if (!ok()) return;
-  tutDots(4); tutSay('Careful! If you pick a wrong word, the monster attacks and you lose a heart. Watch.'); await sl(1800); if (!ok()) return;
-  $('#foeBody').classList.add('atk'); await sl(250); sfx.hit(); flashStage(); $('#heroBox').classList.add('hurt'); setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500); $('#hearts').textContent = tutHearts(2); floatText('−1 ❤️', '#ff9aa8');
-  await sl(1200); if (!ok()) return; tutSay("Don't worry: in the tutorial your heart comes back. In the real game you win hearts back as you play."); await sl(1500); $('#hearts').textContent = tutHearts(3); await tutNext('Got it'); if (!ok()) return;
-  tutDots(5); tutSay('Now you try! Which word beats fire?', TUT_WORD.ice[2]);
-  tutOptions([{ t: TUT_WORD.stone[0] }, { t: TUT_WORD.fire[0] }, { t: TUT_WORD.ice[0], ok: true }], 'Pick the spell that beats the Ember Imp');
-  for (;;) {
-    const r = await tutWait(); if (!ok()) return; if (r.x.ok) { r.b.classList.add('good'); break; }
-    r.b.classList.add('bad'); r.b.disabled = true; sfx.bad(); $('#foeBody').classList.add('atk'); await sl(300); $('#hearts').textContent = tutHearts(2); $('#heroBox').classList.add('hurt'); setTimeout(() => { $('#foeBody').classList.remove('atk'); $('#heroBox').classList.remove('hurt'); }, 500);
-    tutSay('Oops! The monster attacked. That is OK, your heart comes back. Try another word.'); await sl(1500); $('#hearts').textContent = tutHearts(3);
-  }
-  tutBtns().forEach(b => { b.disabled = true; }); sfx.ok(); await flySpell('🧊'); if (!ok()) return; sfx.hit(); burst('🧊', 8); $('#foeBody').classList.add('hit'); $('#hpFill').style.width = '0%'; await sl(800); $('#foeBody').classList.remove('hit'); $('#foeBody').classList.add('die'); $('#aura').style.display = 'none'; sfx.win(); await sl(800);
-  tutDots(6); tutSay('You beat the monster! Fighting is reading spells. Now let me show you the other way to play.'); await tutNext('Next'); if (!ok()) return;
-  G.quest = null; G.mon = null; openMenu(); tutDots(7); TUT.allowed = ['board']; tutSay('Some days you can help the villagers instead. Tap the notice board!'); tutHl(document.querySelector('.place[data-p="board"]'));
-  await tutWait(); if (!ok()) return; tutHl(null); TUT.allowed = null;
-  tutScreen('village'); tutDots(7); tutSay('The baker needs help. Read what he says, then tap the sign that has what he needs.', TUT_SIGN.bread[0]);
-  tutOptions([{ t: TUT_SIGN.candle[0] }, { t: TUT_SIGN.bread[0], ok: true }, { t: TUT_SIGN.egg[0] }], 'Read the signs and help!'); tutHl(tutBtns()[1]);
-  for (;;) { const r = await tutWait(); if (!ok()) return; if (r.x.ok) { r.b.classList.add('good'); break; } tutSay('Not that sign. Look for the glowing word!', TUT_SIGN.bread[0]); }
-  tutHl(null); tutBtns().forEach(b => { b.disabled = true; }); sfx.ok(); setMood('😊'); floatText('💛', '#ffd166');
-  tutDots(8); tutSay('Thank you! You helped the baker. Helping people builds the village.'); await sl(2600); if (!ok()) return;
+  tutDots(2); tutScreen(); $('#opts').innerHTML = ''; $('#qTitle').textContent = '';
+  tutSay('tut_monster', { mon: monName(G.mon) }); tutHl($('#mid .weakBadge')); await tutNext(); if (!ok()) return; tutHl(null);
+  tutDots(3); tutSay('tut_book'); TUT.wantBook = true; tutHl(document.querySelector('#game [data-book]'));
+  await tutWait(); if (!ok()) return; tutHl(null); TUT.wantBook = false;
+  tutSay('tut_book_in'); TUT.wantClose = true; tutHl($('#bookClose')); await tutWait(); if (!ok()) return; tutHl(null); TUT.wantClose = false;
+  const A = [['1 + 1', 2], ['2 + 1', 3], ['3 + 1', 4]], B = [['2 + 2', 4], ['3 + 2', 5], ['1 + 2', 3]];
+  tutDots(4); tutCards(A, t('pick_t', { mon: monName(G.mon) })); tutSay('tut_cards');
+  if (!await tutRound(A, 2, ok)) return;
+  tutDots(5); tutSay('tut_hit'); await tutNext(); if (!ok()) return;
+  tutDots(6); tutSay('tut_attack'); await tutMonsterHits(ok); if (!ok()) return; await tutNext('tut_got'); if (!ok()) return;
+  tutDots(7); tutCards(B, t('pick_t', { mon: monName(G.mon) })); tutSay('tut_try');
+  if (!await tutRound(B, 5, ok)) return;
+  TUT_FIGHT.hp = 0; tutBars(); $('#foeBody').classList.add('die'); $('#aura').style.display = 'none'; sfx.win(); confetti(['🪙', '✨', '🌿']);
+  tutSay('tut_win'); await tutNext(); if (!ok()) return;
+  tutDots(8); G.quest = null; G.mon = null; $('#foeBody').classList.remove('die', 'hit', 'atk'); openMenu();
+  tutSay('tut_home'); tutHl(document.querySelector('.place[data-p="home"]')); await tutNext(); if (!ok()) return;
+  tutSay('tut_shop'); tutHl(document.querySelector('.place[data-p="shop"]')); await tutNext(); if (!ok()) return; tutHl(null);
+  tutDots(9); tutSay('tut_grow'); await tutNext('tut_done_btn'); if (!ok()) return;
   tutFinish();
 }
 function tutFinish() {   // the end screen (also what "Skip tutorial" does). Only the tutorialDone flag is saved.
   TUT.tok++; tutResolve(); tutHl(null); TUT.allowed = null; tutDots(9); try { speechSynthesis.cancel(); } catch (e) {}
-  P.tutorialDone = true; saveSoon(true); $('#tutFinOwl').innerHTML = owlSVG(); $('#tutFin').classList.add('on'); $('#tutBegin').focus && $('#tutBegin').focus({ preventScroll: true });
+  P.tutorialDone = true; saveSoon(true); $('#tutFinOwl').innerHTML = owlSVG(); $('#tutFinT').textContent = t('tut_fin_t'); $('#tutFinB').textContent = t('tut_fin_b'); $('#tutBegin').textContent = t('tut_begin'); $('#tutFin').classList.add('on'); $('#tutBegin').focus && $('#tutBegin').focus({ preventScroll: true });
 }
 function tutClose() {
   TUT.on = false; TUT.tok++; $('#tutFin').classList.remove('on'); $('#coach').hidden = true; document.body.classList.remove('tutOn'); const ps = $('#pipShoulder'); if (ps) ps.remove();
   G.quest = null; G.mon = null; G.site = null; G.q = null; G.vkeyState = ''; $('#aura').style.display = ''; $('#foeBody').classList.remove('die', 'hit', 'atk'); openMenu();
 }
 function startTutorial() {
-  if (TUT.on) return; TUT.on = true; TUT.sound = true; $('#tutSound').textContent = '🔊 Voice on'; $('#tutSound').setAttribute('aria-pressed', 'true');
+  if (TUT.on) return; TUT.on = true; TUT.sound = true; $('#tutSound').textContent = t('tut_voice_on'); $('#tutSound').setAttribute('aria-pressed', 'true'); $('#tutHear').textContent = t('tut_hear'); $('#tutSkip').textContent = t('tut_skip');
   document.body.classList.add('tutOn'); $('#coach').hidden = false; $('#tutOwl').innerHTML = owlSVG(); playTutorial();
 }
 $('#tutSkip').onclick = tutFinish; $('#tutBegin').onclick = tutClose;
-$('#tutHear').onclick = () => tutSpeak(TUT.last[0], TUT.last[1]);
-$('#tutSound').onclick = e => { TUT.sound = !TUT.sound; e.currentTarget.setAttribute('aria-pressed', String(TUT.sound)); e.currentTarget.textContent = TUT.sound ? '🔊 Voice on' : '🔇 Voice off'; if (!TUT.sound) try { speechSynthesis.cancel(); } catch (x) {} };
+$('#tutHear').onclick = () => tutSpeak(t(TUT.last[0], TUT.last[1]));
+$('#tutSound').onclick = e => { TUT.sound = !TUT.sound; e.currentTarget.setAttribute('aria-pressed', String(TUT.sound)); e.currentTarget.textContent = t(TUT.sound ? 'tut_voice_on' : 'tut_voice_off'); if (!TUT.sound) try { speechSynthesis.cancel(); } catch (x) {} };
 $('#owlBtn').onclick = () => startTutorial();
 $('#owlBtn').innerHTML = owlSVG();
-$('#owlBtn').style.display = 'none';   // the reading tutorial is switched off; the new math tutorial comes in phase 10
+
 /* ====================== STAGE BACKGROUNDS ====================== */
 // One scene for each fight area and each village site (400x200 SVG, drawn with depth like the home and shop). Reused from the approved preview.
 const STAGE_BG = (() => {
@@ -3801,9 +3853,9 @@ function openBook() {
     const atk = all.filter(show);
     $('#bookPages').innerHTML = Object.keys(SB.ELEMENTS).filter(el => atk.some(s => s.el === el)).map(el => `<h4 class="bookSub">${SB.ELEMENTS[el].em} ${tl(SB.ELEMENTS[el].nm)}</h4>` + pages(atk.filter(s => s.el === el))).join('');
   } else $('#bookPages').innerHTML = pages(all.filter(show));
-  $('#book').hidden = false;
+  $('#book').hidden = false;  if (TUT.on && TUT.wantBook) tutResolve('book');   // the tutorial waits for the book
 }
-function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } }
+function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } if (TUT.on && TUT.wantClose) tutResolve('close'); }
 document.addEventListener('click', e => { if (e.target.closest('[data-book]')) { e.preventDefault(); openBook(); } });
 $('#bookClose').onclick = closeBook;
 $('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
@@ -4207,7 +4259,7 @@ $('#brewTools') && ($('#brewTools').onclick = e => {
   const b = e.target.closest('[data-d]'); if (!b || !BW || BW.done) return; const i = +b.dataset.i, ln = BW.r.lines[i], d = +b.dataset.d;
   const cap = ln.kind === 'herb' ? (P.inv[ln.herb] || 0) : Math.round(ln.scale.max * lineDen(ln));
   BW.k[i] = Math.max(0, Math.min(cap, BW.k[i] + d)); if (ln.kind === 'herb' && d > 0 && BW.k[i] === cap) toast(t('you_have', { n: cap }));
-  sfx.ok(); BW.res = null; renderBrew();
+  (ln.kind === 'herb' ? sfx.tick : sfx.drop)(); BW.res = null; renderBrew();
 });
 // tapping the jug sets the level roughly; the buttons fine-tune it
 document.addEventListener('click', e => {
@@ -4219,7 +4271,7 @@ async function brewGo() {
   if (!BW || BW.done) return; const { r } = BW, vals = r.lines.map((ln, i) => lineVal(ln, BW.k[i])), res = BR.check(r.lines, vals);
   BW.res = res; renderBrew();
   r.lines.forEach((ln, i) => { P.craft.n++; if (res[i]) P.craft.ok++; after(record({ key: ln.p.key, p: Object.assign({}, ln.p, { lv: Math.min(ln.p.lv || r.L, r.L) }), src: 'craft' }, res[i])); });   // each line: one scored answer (craft weight)
-  const cau = $('#brewCaul'); BW.done = true; $('#brewGo').disabled = true; cau.classList.add('brewing'); await sleep(1100); cau.classList.remove('brewing');
+  const cau = $('#brewCaul'); BW.done = true; $('#brewGo').disabled = true; cau.classList.add('brewing'); if (BW.forge) [0, .27, .54, .81].forEach(d => sfx.clang(d)); else sfx.bubble(); await sleep(1100); cau.classList.remove('brewing');
   const useUp = () => { r.lines.forEach((ln, i) => { if (ln.kind === 'herb') P.inv[ln.herb] = Math.max(0, (P.inv[ln.herb] || 0) - BW.k[i]); }); Object.entries(BW.use).forEach(([id, n]) => { P.inv[id] = Math.max(0, (P.inv[id] || 0) - n); }); };
   if (res.every(Boolean) && BW.forge) {   // a right blueprint: the item glows over the cauldron; nothing is used up before the payment
     const xp = BR.CFG.XP_LINE * r.lines.length; P.xp += xp; saveSoon(true); sfx.win();
@@ -4731,8 +4783,8 @@ function renderCheckout() {
 $('#checkout').onclick = e => {
   if (!CKS || CKS.done) return;
   if (e.target.closest('#ckHelpBtn')) { CKS.help = true; renderCheckout(); return; }
-  const a = e.target.closest('[data-add]'); if (a) { if (ckAdded() < 2 * ME.num(CKS.k.p.a) + 1000) { CKS.added[a.dataset.add]++; sfx.ok(); } $('#ckFb').innerHTML = ''; renderCheckout(); return; }
-  const w = e.target.closest('[data-swap]'); if (w) { const c = w.dataset.swap; if (CKS.added[c] >= 10) { CKS.added[c] -= 10; CKS.added[NEXT_COIN[c]]++; sfx.ok(); } renderCheckout(); return; }   // 10 coins → 1 coin of the next kind
+  const a = e.target.closest('[data-add]'); if (a) { if (ckAdded() < 2 * ME.num(CKS.k.p.a) + 1000) { CKS.added[a.dataset.add]++; sfx.coin(); } $('#ckFb').innerHTML = ''; renderCheckout(); return; }
+  const w = e.target.closest('[data-swap]'); if (w) { const c = w.dataset.swap; if (CKS.added[c] >= 10) { CKS.added[c] -= 10; CKS.added[NEXT_COIN[c]]++; sfx.coins(); } renderCheckout(); return; }   // 10 coins → 1 coin of the next kind
   const r = e.target.closest('[data-rm]'); if (r) { CKS.added[r.dataset.rm] = Math.max(0, CKS.added[r.dataset.rm] - (+r.dataset.n || 1)); renderCheckout(); return; }
   const o = e.target.closest('[data-o]'); if (o) ckAnswer(ME.eq(CKS.opts[+o.dataset.o], CKS.k.p.a), ME.fmtHtml(CKS.opts[+o.dataset.o]));
 };
@@ -4759,7 +4811,7 @@ function ckBought() {
   if (Math.floor(P.coins || 0) < cost || owns(s)) { openShop(); return; }
   P.coins = Math.round((P.coins - cost) * 1000) / 1000;
   if (s.kind === 'caul') P.own.caul = s.lv; else if (s.kind === 'potion') P.pot[s.pid] = (P.pot[s.pid] || 0) + qty; else if (s.kind === 'wear') P.wd.push(s.id); else P.own.decor.push(s.id);
-  P.xp += xp; saveSoon(true); sfx.win(); confetti(['🪙', '✨', s.em]); $('#ckFb').innerHTML = `✅ ${exprHtml(CKS.k.p.e, CKS.k.p.a)}`;
+  P.xp += xp; saveSoon(true); sfx.coins(); setTimeout(sfx.win, 350); confetti(['🪙', '✨', s.em]); $('#ckFb').innerHTML = `✅ ${exprHtml(CKS.k.p.e, CKS.k.p.a)}`;
   setTimeout(() => modal(t('thanks_t'), `<p style="text-align:center;font-size:3rem;margin:6px">${s.em}</p><p style="text-align:center">${t('bought', { n: ckItemName() })}${t(s.kind === 'potion' ? 'bought_pot' : s.kind === 'decor' ? 'bought_decor' : s.kind === 'wear' ? 'bought_wear' : 'bought_caul')}</p><p style="text-align:center">${t('ck_paid', { x: cost })} ${walletHtml(P.coins)}</p>${xpLine(xp)}`,
     [[t('keep_shop'), openShop], [t('go_home'), openHome], [t('back_map'), openMenu, true]]), 900);
 }
