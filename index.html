@@ -796,7 +796,8 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="card" id="admCodeCard"><b>🔑 School code</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">A device asks for this code once, the first time a student uses school mode on it. If the code leaks, change it: devices already set up keep working.</div>
     <div class="row" style="justify-content:flex-start;gap:10px"><span>Now: <b id="admCodeNow">…</b></span><input id="admCodeNew" type="text" maxlength="20" placeholder="New code, e.g. SUNNY-7" style="max-width:200px;padding:8px;font-size:1rem"><button class="btn ghost" id="admCodeSet" style="padding:8px 14px">Change</button></div>
-    <label class="small" style="display:block;margin-top:10px"><input type="checkbox" id="admSelfMove"> Students may move their own wizard to play at home (from the hero menu). When a school's access ends, they always can.</label></div>
+    <label class="small" style="display:block;margin-top:10px"><input type="checkbox" id="admSelfMove"> Students may move their own wizard to play at home (from the hero menu). When a school's access ends, they always can.</label>
+    <label class="small" style="display:block;margin-top:8px"><input type="checkbox" id="admPassOn"> The old teacher password still opens this area. Turn it off once everyone signs in by e-mail (only possible when you signed in by e-mail).</label></div>
   </div>
   <div class="card" id="admDemoCard"><b>🧪 Demo run</b><p class="small" style="margin:6px 0;opacity:.85">Try the game as a pretend student: pick any level, jump to the workshop, shop or home, start a quest, give yourself items. Nothing is saved and no student is changed.</p><button class="btn" id="admDemo">▶ Start a demo run</button></div>
 </section>
@@ -5249,7 +5250,7 @@ async function adminOpen() {
   toast('Checking…');
   try {
     const j = await adminCall('list');
-    if (!j.ok) { ADMKEY = ADMSESS = null; modal('Teacher area', `<p>${j.error === 'locked' ? 'Too many wrong tries. Please wait 10 minutes and try again.' : j.error === 'login' ? 'Your sign-in has ended. Please sign in again.' : 'That password is not right.'}</p>`, [['Try again', adminAsk], ['Close', null, true]]); return; }
+    if (!j.ok) { ADMKEY = ADMSESS = null; modal('Teacher area', `<p>${j.error === 'locked' ? 'Too many wrong tries. Please wait 10 minutes and try again.' : j.error === 'login' ? 'Your sign-in has ended. Please sign in again.' : j.error === 'nopass' ? 'This school no longer uses the teacher password. Sign in with your e-mail.' : 'That password is not right.'}</p>`, [['Try again', adminAsk], ['Close', null, true]]); return; }
     ADMME = j.me || { email: 'teacher password', role: 'owner' };
     show('admin'); admRoleView(); adminRender(j); if (admOwner()) { admLoadCode(); admLoadStaff(); }
   } catch (e) { ADMKEY = ADMSESS = null; modal('Teacher area', '<p>I could not reach the cloud. Please check the internet connection and try again.</p>', [['OK', null]]); }
@@ -5382,7 +5383,13 @@ $('#admPrint').onclick = async () => {   // printable login cards (schools spec 
   w.document.close();
   try { const r = await adminCall('cardsPrinted', { ids: list.map(s => s.id) }); if (r.ok) list.forEach(s => { s.card = true; }); adminTable(); } catch (x) {}   // "only students who never got a card" leaves them out next time
 };
-async function admLoadCode() { try { const c = await adminCall('getCode'); $('#admCodeNow').textContent = c.ok ? (c.code || '(not set)') : '?'; $('#admSelfMove').checked = !!c.selfMove; } catch (x) { $('#admCodeNow').textContent = '?'; } }
+async function admLoadCode() { try { const c = await adminCall('getCode'); $('#admCodeNow').textContent = c.ok ? (c.code || '(not set)') : '?'; $('#admSelfMove').checked = !!c.selfMove; $('#admPassOn').checked = !!c.password; $('#admPassOn').disabled = !ADMSESS && !c.password; } catch (x) { $('#admCodeNow').textContent = '?'; } }
+$('#admPassOn').onchange = async e => {   // schools spec §11.8: retire the old single teacher password
+  const on = e.target.checked;
+  if (!on && !ADMSESS) { e.target.checked = true; toast('Sign in with your e-mail first, then turn the password off'); return; }
+  const go = async () => { try { const r = await adminCall('setPassword', { on }); if (!r.ok) throw 0; e.target.checked = !!r.password; toast(on ? 'The teacher password works again' : 'The teacher password is off: staff sign in by e-mail'); } catch (x) { e.target.checked = !on; toast('Could not change. Try again.'); } };
+  if (on) go(); else modal('Turn off the teacher password', '<p>After this, the teacher area opens only with an e-mail code, for the school owner and the teachers in 👩‍🏫 Teachers. You can turn it on again here.</p>', [['Turn it off', go], ['Cancel', () => { e.target.checked = true; }, true]]);
+};
 $('#admSelfMove').onchange = async e => { try { const r = await adminCall('setSelfMove', { on: e.target.checked }); if (!r.ok) throw 0; toast(r.selfMove ? 'Students can now move their wizard home' : 'Only teachers move students home'); } catch (x) { e.target.checked = !e.target.checked; toast('Could not change. Try again.'); } };
 /* ----- move to home (schools spec §6.4): a hand-over file, or the file e-mailed to a parent; the child's device turns the hero into a home hero ----- */
 function admMoveAsk(id) {
@@ -5522,7 +5529,7 @@ async function ownHomeStats() {   // 🏠 home players: the Admin's list asks th
       : j.error === 'setup' ? '🏠 Home players: not connected yet (the script properties COUNT_URL and COUNT_KEY of the Admin\'s list).' : '🏠 Home players: could not be counted right now.';
   } catch (x) { box.textContent = ''; }
 }
-const SCHOOL_SCRIPT_V = 7;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
+const SCHOOL_SCRIPT_V = 8;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
 function ownRender(list) {
   const act = list.filter(s => s.status === 'active');
   $('#ownCards').innerHTML = [[act.length, 'active schools'], [act.reduce((a, s) => a + s.players, 0), 'students'], [act.reduce((a, s) => a + s.today, 0), 'played today']].map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');

@@ -26,6 +26,7 @@
    - { action: 'moveHome', id, email? }                → { ok, file, mailed }   move to home: the hand-over file (and, with a parent's e-mail, sent to it); the row becomes 'moved'
    - { action: 'undoMove', id }                         → { ok }   school owner, within 30 days
    - { action: 'setSelfMove', on }                      → { ok, selfMove }   school owner: students may move their own wizard home
+   - { action: 'setPassword', on }                      → { ok, password }   school owner: the old teacher password on or off (turning it off needs an e-mail sign-in)
    A device with the school token: { action: 'selfMove', token, id } → { ok }   allowed when the owner turned it on, or the school's access has ended
                                                           ('load' and 'save' answer { moved: true } for a moved student)
    A device with the school token: { action: 'classes', token } → { ok, classes: [ ... ] }   class names only
@@ -45,7 +46,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 7;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 8;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -113,7 +114,7 @@ function doPost(e) {
   if (a === 'stats') return out(stats(b));
   if (a === 'staffCode') return out(staffCode(b));
   if (a === 'staffVerify') return out(staffVerify(b));
-  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted', 'moveHome', 'undoMove', 'setSelfMove'].includes(a)) return out(admin(a, b));
+  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted', 'moveHome', 'undoMove', 'setSelfMove', 'setPassword'].includes(a)) return out(admin(a, b));
   if (String(b.token || '') !== token()) return out({ ok: false, error: 'school' });   // only devices set up with the school code
   if (a === 'load') return out(load(b));
   if (a === 'classes') return out({ ok: true, classes: classNames() });   // for the "I am new" class menu (class names only)
@@ -156,7 +157,7 @@ function save(b) {
 function admin(a, b) {
   const who = staffAuth(b); if (who.error) return { ok: false, error: who.error };
   const owner = who.role === 'owner', sees = cls => owner || who.classes === 'ALL' || who.classes.includes(clsKey(cls));   // a teacher sees only the classes they were given
-  if (['staffList', 'staffAdd', 'staffRemove', 'setCode', 'classAdd', 'classArchive', 'undoMove', 'setSelfMove'].includes(a) && !owner) return { ok: false, error: 'owner' };
+  if (['staffList', 'staffAdd', 'staffRemove', 'setCode', 'classAdd', 'classArchive', 'undoMove', 'setSelfMove', 'setPassword'].includes(a) && !owner) return { ok: false, error: 'owner' };
   if (a === 'me') return { ok: true, email: who.email, role: who.role, classes: who.classes };
   if (a === 'staffList') return { ok: true, staff: staffRows().map(s => ({ email: s.email, role: s.role, classes: s.classes, added: s.added })), owner: ownerEmail() };
   const sh = students(), id = cleanId(b.id);
@@ -168,7 +169,11 @@ function admin(a, b) {
     return { ok: true, me: { email: who.email, role: who.role }, school: props().getProperty('SCHOOL_NAME') || '', tz: Session.getScriptTimeZone(), today: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'), classes: classNames().filter(sees), students: rows.filter(r => r[C.id] !== '' && sees(r[C.cls])).map(r => ({ id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
       tier: num(r[C.mlvl]), wiz: num(r[C.wiz]), xp: num(r[C.xp]), answers: num(r[C.n]), accuracy: num(r[C.acc]), minutes: num(r[C.min]), coins: num(r[C.coins]), craftAcc: num(r[C.craft]), restarts: num(r[C.restarts]), last: iso(r[C.last]), lastDay: r[C.last] ? Utilities.formatDate(new Date(r[C.last]), Session.getScriptTimeZone(), 'yyyy-MM-dd') : '', card: !!printed[String(r[C.id])] })) };
   }
-  if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '', selfMove: props().getProperty('SELF_MOVE') === '1' };
+  if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '', selfMove: props().getProperty('SELF_MOVE') === '1', password: !!props().getProperty('ADMIN_KEY') && props().getProperty('PASSWORD_OFF') !== '1' };
+  if (a === 'setPassword') {   // retire the old single teacher password (schools spec §11.8): only someone signed in by e-mail can turn it off, so nobody is locked out
+    if (!b.on && !b.sess) return { ok: false, error: 'email' };
+    props().setProperty('PASSWORD_OFF', b.on ? '0' : '1'); logIt(who.email, 'teacher password', b.on ? 'on' : 'off'); return { ok: true, password: !!b.on && !!props().getProperty('ADMIN_KEY') };
+  }
   if (a === 'setSelfMove') { props().setProperty('SELF_MOVE', b.on ? '1' : '0'); logIt(who.email, 'students may move their wizard home', b.on ? 'on' : 'off'); return { ok: true, selfMove: !!b.on }; }
   if (a === 'setCode') { const code = normCode(b.code); if (code.length < 4 || code.length > 20) return { ok: false, error: 'code' }; const reg = toRegistry({ action: 'schoolCode', code }); if (reg && !reg.ok) return { ok: false, error: reg.error === 'taken' ? 'taken' : 'registry' }; props().setProperty('SCHOOL_CODE', code); logIt(who.email, 'school code changed', ''); return { ok: true, code }; }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -294,6 +299,7 @@ function staffAuth(b) {   // a staff session (e-mail code) or the old teacher pa
     const s = staffOf(em); if (!s) { c.remove('sess:' + sig(b.sess)); return { error: 'login' }; }   // removed from the Staff tab: the session ends at once
     return s;
   }
+  if (props().getProperty('PASSWORD_OFF') === '1') return { error: 'nopass' };   // this school signs in by e-mail only
   const tries = num(c.get('adminWrong')); if (tries >= LIMIT.adminTries[0]) return { error: 'locked' };
   const real = props().getProperty('ADMIN_KEY');
   if (!real || String(b.key || '') !== real) { c.put('adminWrong', String(tries + 1), LIMIT.adminTries[1]); return { error: 'wrong' }; }
