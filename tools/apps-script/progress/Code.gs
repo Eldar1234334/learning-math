@@ -16,7 +16,8 @@
    - { action: 'addClass', key, cls, names: [...] }     → { ok, made: [ { id, real, cls } ] }   a class list: numbers for the login cards
    - { action: 'getCode' | 'setCode', key, code }       → { ok, code }
 
-   Script properties (Project settings → Script properties): ADMIN_KEY (the teacher password), SCHOOL_CODE (for example SUNNY-7).
+   Script properties (Project settings → Script properties): ADMIN_KEY (the teacher password), SCHOOL_CODE (for example SUNNY-7), and SHEET_ID
+   (the sheet's id from its link) when the script is a separate project rather than opened with Extensions → Apps Script.
    SCHOOL_TOKEN is made by the script itself.
 */
 const SHEET = 'Students', REMOVED = 'Removed';
@@ -35,7 +36,7 @@ function over(name, lim) {   // a counter in the cache; true when this request g
   const c = CacheService.getScriptCache(), k = 'lim:' + name, n = num(c.get(k)) + 1; c.put(k, String(n), lim[1]); return n > lim[0];
 }
 function sheet(name, head) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet(); let sh = ss.getSheetByName(name);
+  const id = props().getProperty('SHEET_ID'), ss = id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet(); let sh = ss.getSheetByName(name);   // SHEET_ID: when the script is its own project (not opened from the sheet)
   if (!sh) { sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); }
   return sh;
 }
