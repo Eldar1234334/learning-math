@@ -33,6 +33,7 @@ h2{margin:.2em 0}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #9b6411}
 .btn.ghost{background:#fff1;color:#fff;box-shadow:none;border:1px solid #fff3}
 .btn:disabled{opacity:.5}
+select.clsSel{width:100%;padding:12px;border-radius:12px;border:2px solid #fff4;background:#0004;color:#fff;font:inherit;font-size:1.2rem;text-align:center}select.clsSel option{color:#222;background:#fff}
 input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;border-radius:12px;border:2px solid #fff4;background:#0004;color:#fff;font:inherit;font-size:1.3rem;text-align:center}
 .center{text-align:center}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center}
@@ -396,6 +397,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 /* teacher area */
 .adminLink{color:#fff;opacity:.5;font-size:.85rem;text-decoration:none;border-bottom:1px dotted #fff6}
 .adminLink:hover{opacity:.9}
+.badgeN{display:inline-block;min-width:1.4em;padding:0 .4em;border-radius:1em;background:#e74c3c;color:#fff;font-size:.85rem;text-align:center}.badgeN:empty{display:none}.waitRow input[type=text]{width:auto;padding:6px 8px;font-size:1rem;text-align:left}.waitRow select{padding:6px;font-size:1rem}
 .admcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:10px 0}
 .admcards>div{background:var(--panel);border:1px solid #fff2;border-radius:14px;padding:10px;text-align:center;font-size:.9rem}
 .admcards b{display:block;font-size:1.7rem;color:var(--gold)}
@@ -747,8 +749,11 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="small center" id="admWho" style="opacity:.8;margin:-4px 0 8px"></div>
   <div class="admcards" id="admCards"></div>
   <div class="small center" id="admApp" style="opacity:.85;margin:4px 0 10px"></div>
-  <div class="card" id="admWaitCard" style="display:none"><b>⏳ Waiting for approval</b>
-    <div class="small" style="opacity:.8;margin:4px 0 8px">Students who tapped "I am new". They can already play. ✅ = a real student of the school (joins the class). ❌ = not a student: removed, and their device moves the hero to offline play (the progress stays on that device).</div>
+  <div class="card" id="admWaitCard" style="display:none"><b>⏳ Waiting for approval <span id="admWaitN" class="badgeN"></span></b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">Students who tapped "I am new". They can already play. Tick the students who are really in your school, fix a name or class if needed, then approve. ❌ Reject = not a student of the school: removed, and their device moves the hero to offline play (the progress stays on that device).</div>
+    <div class="row" style="justify-content:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:6px"><select id="admWaitCls" style="padding:6px;font-size:1rem"></select>
+      <label class="small"><input type="checkbox" id="admWaitAll"> Select all</label>
+      <button class="btn" id="admApproveSel" style="padding:6px 12px">✅ Approve selected</button><button class="btn ghost" id="admApproveAll" style="padding:6px 12px">✅ Approve all</button><button class="btn ghost" id="admRejectSel" style="padding:6px 12px">❌ Reject selected</button></div>
     <div id="admWait"></div></div>
   <div class="card"><b>🏫 Classes and login cards</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">Add a class: the game gives each student a number and makes login cards to print and cut out (name, number and the school code).</div>
@@ -757,7 +762,9 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       <textarea id="admClsNames" rows="4" placeholder="One student per line: first and last name" style="flex:1;min-width:220px;padding:8px;font:inherit;font-size:1rem;border-radius:12px"></textarea>
       <button class="btn" id="admClsAdd" style="padding:8px 14px">➕ Add class</button></div>
     <div class="row" style="justify-content:flex-start;gap:10px;margin-top:10px"><span class="small">🖨 Login cards for</span><select id="admCardCls" style="padding:6px;font-size:1rem"></select><button class="btn ghost" id="admCards2" style="padding:8px 14px">🖨 Print cards</button></div>
-    <div class="small" id="admClsMsg" style="margin-top:6px"></div></div>
+    <div class="small" id="admClsMsg" style="margin-top:6px"></div>
+    <div id="admClsMenuBox" style="margin-top:10px;border-top:1px solid #fff2;padding-top:8px"><span class="small" style="opacity:.85">Classes in the "I am new" menu:</span> <span id="admClsMenu" class="small"></span>
+      <span class="row" style="display:inline-flex;gap:6px;margin-left:6px"><input id="admClsNew" type="text" maxlength="20" placeholder="New class" style="max-width:120px;padding:6px;font-size:1rem"><button class="btn ghost" id="admClsNewBtn" style="padding:6px 12px">➕</button></span></div></div>
   <div class="card" id="admStaffCard"><b>👩‍🏫 Teachers</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">Teachers sign in to this area with an e-mail code (no password). Each teacher sees and approves only the classes you give them.</div>
     <div id="admStaff"></div>
@@ -811,6 +818,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       <input id="regName" type="text" maxlength="40" data-tp="reg_name_ph" autocomplete="off">
       <label class="regLbl" data-t="reg_class_lbl"></label>
       <input id="regClass" type="text" maxlength="15" data-tp="reg_class_ph" autocomplete="off">
+      <select id="regClassSel" class="clsSel" style="display:none"></select>
       <div class="msg" id="regMsg"></div>
       <div class="row"><button class="btn ghost" id="regBack" data-t="back"></button><button class="btn" id="regGo" data-t="reg_go"></button></div>
     </div>
@@ -1234,7 +1242,7 @@ const STR = {
   reg_class_lbl: ['Your class', 'הכיתה שלכם'], reg_class_ph: ['For example 3B', 'למשל ג׳2'], reg_go: ['Get my number ▶', 'קבלת המספר שלי ◀'],
   reg_your: ['Your secret hero number is:', 'מספר הגיבור הסודי שלכם:'], reg_warn: ['✏️ <b>Write it down now!</b><br>You need this number every time you play.', '✏️ <b>כתבו אותו עכשיו!</b><br>צריך את המספר הזה בכל פעם שמשחקים.'],
   reg_tick: ['I wrote my number down', 'כתבתי את המספר שלי'], reg_next: ['Next: create my hero ▶', 'הבא: יצירת הגיבור שלי ◀'],
-  reg_badname: ['Please write your full name: first name and last name.', 'כתבו את השם המלא: שם פרטי ושם משפחה.'], reg_badclass: ['Please write your class.', 'כתבו את הכיתה.'],
+  reg_badname: ['Please write your full name: first name and last name.', 'כתבו את השם המלא: שם פרטי ושם משפחה.'], reg_badclass: ['Please choose your class.', 'בחרו את הכיתה.'], reg_class_pick: ['Choose your class…', 'בחרו את הכיתה…'],
   reg_making: ['Making your number…', 'יוצרים את המספר שלכם…'], err_generic: ['Something went wrong. Please try again.', 'משהו השתבש. נסו שוב.'],
   reg_tickfirst: ['Please write your number down and tick the box.', 'כתבו את המספר וסמנו את התיבה.'],
   // hero creator, look, wardrobe
@@ -1879,7 +1887,16 @@ async function joinCode(code) {   // the school code, once per device: the Admin
   lsSet('mw_school', j.token); lsSet('mw_school_url', url === CFG.SCRIPT_URL ? '' : url); lsSet('mw_school_name', name); lsSet('mw_school_id', id);
   return { ok: true };
 }
-const codeMsg = e => t(e === 'busy' ? 'sc_busy' : e === 'suspended' ? 'sc_ended' : 'sc_wrong');
+// "I am new": the class comes from the school's class list (a menu). If the school has no list yet, or it cannot be reached, the student types it.
+async function classMenu(sel, input) {
+  sel.style.display = 'none'; input.style.display = ''; let list = [];
+  try { if (schoolToken()) { const j = await schoolPost({ action: 'classes' }); if (j.ok) list = j.classes || []; } } catch (e) {}
+  if (!list.length) return;
+  sel.innerHTML = `<option value="">${t('reg_class_pick')}</option>` + list.map(c => `<option>${esc(c)}</option>`).join('');
+  sel.style.display = ''; input.style.display = 'none';
+}
+const classPicked = (sel, input) => sel.style.display !== 'none' ? sel.value : input.value.trim().replace(/\s+/g, ' ');
+const codeMsg = e =>t(e === 'busy' ? 'sc_busy' : e === 'suspended' ? 'sc_ended' : 'sc_wrong');
 async function schoolPost(body) {
   const r = await fetch(schoolUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ token: schoolToken() }, body)) });
   return r.json();
@@ -1981,10 +1998,10 @@ function removedByTeacher() {   // the teacher deleted this student: forget the 
   const id = P && P.id; P = null; try { if (id) localStorage.removeItem('mw_p_' + id); } catch (e) {}
   show('login'); modal(t('removed_t'), t('removed_b', { nb: t('new_plain') }), [[t('ok'), null]]);
 }
-$('#newBtn').onclick = () => { pendingMode = 'school'; $('#regName').value = ''; $('#regClass').value = ''; $('#regMsg').textContent = ''; $('#regMsg2').textContent = ''; $('#regTick').checked = false; $('#regForm').style.display = ''; $('#regDone').style.display = 'none'; show('register'); };
+$('#newBtn').onclick = () => { pendingMode = 'school'; $('#regName').value = ''; $('#regClass').value = ''; classMenu($('#regClassSel'), $('#regClass')); $('#regMsg').textContent = ''; $('#regMsg2').textContent = ''; $('#regTick').checked = false; $('#regForm').style.display = ''; $('#regDone').style.display = 'none'; show('register'); };
 $('#regBack').onclick = () => show('login');
 $('#regGo').onclick = async () => {
-  const name = $('#regName').value.trim().replace(/\s+/g, ' '), cls = $('#regClass').value.trim().replace(/\s+/g, ' '), msg = $('#regMsg');
+  const name = $('#regName').value.trim().replace(/\s+/g, ' '), cls = classPicked($('#regClassSel'), $('#regClass')), msg = $('#regMsg');
   if (name.length < 4 || !name.includes(' ')) { msg.textContent = t('reg_badname'); return; }
   if (!cls) { msg.textContent = t('reg_badclass'); return; }
   msg.textContent = t('reg_making'); $('#regGo').disabled = true;
@@ -1993,9 +2010,10 @@ $('#regGo').onclick = async () => {
     const c = genId(), r = await loadProfile(c); if (r.needCode) { $('#regGo').disabled = false; msg.textContent = ''; show('login'); openSchool(); return; }
     if (!(r.offline || (!r.profile && !r.deleted && !r.card && !r.rejected))) continue;
     if (!CFG.SCRIPT_URL) { id = c; break; }
-    try { const j = await schoolPost({ action: 'register', id: c, real: name, cls }); if (j.ok) id = c; else if (j.error !== 'taken') break; } catch (e) { break; }
+    try { const j = await schoolPost({ action: 'register', id: c, real: name, cls }); if (j.ok) id = c; else if (j.error === 'class') { id = ''; break; } else if (j.error !== 'taken') break; } catch (e) { break; }
   }
   $('#regGo').disabled = false; msg.textContent = '';
+  if (id === '') { classMenu($('#regClassSel'), $('#regClass')); msg.textContent = t('reg_badclass'); return; }   // the class list changed: choose again
   if (!id) { msg.textContent = t('err_generic'); return; }
   pendingMode = 'school'; pendingId = id; pendingReal = name; pendingCls = cls; lsSet('mw_last', id); $('#sid').value = id;
   $('#regId').textContent = id; $('#regForm').style.display = 'none'; $('#regDone').style.display = '';
@@ -5223,8 +5241,9 @@ async function adminAppUsers() {   // only a count: the app keeps no names and n
 }
 function adminRender(j) {
   const byId = {}; for (const s of j.students) if (!byId[s.id] || s.answers >= byId[s.id].answers) byId[s.id] = s;   // one row per student
+  ADM.classes = j.classes || [];
   const all = Object.values(byId); ADM.waiting = all.filter(s => s.status === 'waiting'); ADM.students = all.filter(s => s.status !== 'waiting');   // waiting students are not in the class reports until approved (login spec §3.1.1)
-  admWaiting(); admClassList();
+  admWaiting(); admClassList(); admClsMenu();
   const dayDiff = iso => { if (!iso) return 9999; const a = new Date(iso), n = new Date(); return Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5); };
   ADM.students.forEach(s => { s.days = dayDiff(s.last); });
   const played = ADM.students.filter(s => s.answers > 0), today = ADM.students.filter(s => s.days === 0).length, inactive = ADM.students.filter(s => s.days >= 7).length;
@@ -5234,16 +5253,51 @@ function adminRender(j) {
   adminTable(); adminAppUsers(); $('#admDetail').style.display = 'none';
 }
 /* ----- school mode in the teacher area (shared login spec §3.1.1): waiting students, class lists with login cards, the school code ----- */
-function admWaiting() {
-  const w = ADM.waiting || [], days = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : 0;
-  $('#admWaitCard').style.display = w.length ? '' : 'none';
-  $('#admWait').innerHTML = w.map(s => { const d = days(s.joined);
-    return `<div class="row waitRow" style="justify-content:space-between;flex-wrap:wrap;gap:8px;padding:6px 0;border-top:1px solid #fff2"><span><b>${esc(s.real || '?')}</b> · ${esc(s.cls || '')} <small style="opacity:.75">#${esc(s.id)}${s.nick ? ' · 🧙 ' + esc(s.nick) : ''} · ${d ? d + ' days ago' : 'today'}</small>${d >= 14 ? ' <b style="color:#ffb14a">⚠️ waiting 14+ days</b>' : ''}</span>
-      <span><button class="btn" data-ok="${esc(s.id)}" style="padding:6px 12px">✅ Student</button> <button class="btn ghost" data-no="${esc(s.id)}" style="padding:6px 12px">❌ Not a student</button></span></div>`; }).join('');
+function admWaiting() {   // the waiting list (schools spec §6.2): tick boxes, a class filter, approve selected / all, reject selected; the name and class can be fixed first
+  const all = ADM.waiting || [], days = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : 0;
+  $('#admWaitCard').style.display = all.length ? '' : 'none'; $('#admWaitN').textContent = all.length || '';
+  const f = $('#admWaitCls'), was = f.value, cls = [...new Set(all.map(s => s.cls).filter(Boolean))].sort();
+  f.innerHTML = '<option value="">All my classes</option>' + cls.map(c => `<option>${esc(c)}</option>`).join(''); f.value = cls.includes(was) ? was : '';
+  const pick = ADM.classes && ADM.classes.length ? ADM.classes : cls, w = all.filter(s => !f.value || s.cls === f.value);
+  $('#admWaitAll').checked = false;
+  $('#admWait').innerHTML = w.map(s => { const d = days(s.joined), opts = (pick.includes(s.cls) ? pick : [s.cls].concat(pick)).map(c => `<option${c === s.cls ? ' selected' : ''}>${esc(c)}</option>`).join('');
+    return `<div class="row waitRow" data-id="${esc(s.id)}" style="justify-content:flex-start;flex-wrap:wrap;gap:8px;padding:6px 0;border-top:1px solid #fff2"><input type="checkbox" class="wTick">
+      <input type="text" class="wName" maxlength="60" value="${esc(s.real || '')}" style="max-width:200px"> <select class="wCls">${opts}</select>
+      <small style="opacity:.75">#${esc(s.id)}${s.nick ? ' · 🧙 ' + esc(s.nick) : ''} · ${d ? d + (d === 1 ? ' day' : ' days') + ' waiting' : 'new today'}${s.answers ? ' · ' + s.answers + ' answers' : ''}</small></div>`; }).join('');
 }
-$('#admWait').onclick = async e => {
-  const ok = e.target.closest('[data-ok]'), no = e.target.closest('[data-no]'); if (!ok && !no) return; const id = (ok || no).dataset[ok ? 'ok' : 'no'];
-  try { const r = await adminCall(ok ? 'approve' : 'reject', { id }); if (!r.ok) throw 0; const j = await adminCall('list'); if (j.ok) adminRender(j); toast(ok ? 'Approved' : 'Removed'); } catch (x) { toast('Could not change. Try again.'); }
+$('#admWaitCls').onchange = () => admWaiting();
+$('#admWaitAll').onchange = e => document.querySelectorAll('#admWait .wTick').forEach(c => { c.checked = e.target.checked; });
+const admWaitItems = onlyTicked => [...document.querySelectorAll('#admWait .waitRow')].filter(r => !onlyTicked || r.querySelector('.wTick').checked)
+  .map(r => ({ id: r.dataset.id, real: r.querySelector('.wName').value.trim(), cls: r.querySelector('.wCls').value }));
+async function admWaitDo(action, items) {
+  if (!items.length) { toast('Tick at least one student'); return; }
+  try {
+    const r = await adminCall(action, { items }); if (!r.ok) throw 0;
+    const j = await adminCall('list'); if (j.ok) adminRender(j);
+    toast((action === 'approveMany' ? `✅ ${r.done} approved` : `❌ ${r.done} removed`) + (r.skipped ? ` · ${r.skipped} skipped` : ''));
+  } catch (x) { toast('Could not change. Try again.'); }
+}
+$('#admApproveSel').onclick = () => admWaitDo('approveMany', admWaitItems(true));
+$('#admApproveAll').onclick = () => {
+  const items = admWaitItems(false), c = $('#admWaitCls').value; if (!items.length) return;
+  modal('✅ Approve all', `<p>Approve ${items.length} student${items.length === 1 ? '' : 's'}${c ? ' in class ' + esc(c) : ''}?</p>`, [['Approve', () => admWaitDo('approveMany', items)], ['Cancel', null, true]]);
+};
+$('#admRejectSel').onclick = () => {
+  const items = admWaitItems(true); if (!items.length) { toast('Tick at least one student'); return; }
+  modal('❌ Reject', `<p>Remove ${items.length} student${items.length === 1 ? '' : 's'} as not students of the school? Their devices move the hero to offline play.</p>`, [['Reject', () => admWaitDo('rejectMany', items.map(i => ({ id: i.id })))], ['Cancel', null, true]]);
+};
+function admClsMenu() {   // the school owner's class list for "I am new" (a teacher does not see it)
+  $('#admClsMenuBox').style.display = admOwner() ? '' : 'none';
+  $('#admClsMenu').innerHTML = (ADM.classes || []).map(c => `<span class="chip" style="display:inline-block;margin:2px;padding:2px 8px;border-radius:10px;background:#fff2">${esc(c)} <a href="#" data-arch="${esc(c)}" title="Take off the menu" style="color:#fff;opacity:.7;text-decoration:none">✕</a></span>`).join('') || '<i>none yet: students type their class</i>';
+}
+$('#admClsMenu').onclick = e => {
+  const a = e.target.closest('[data-arch]'); if (!a) return; e.preventDefault();
+  modal('Take a class off the menu', `<p>New students will no longer see <b>${esc(a.dataset.arch)}</b> in the "I am new" menu. Its students stay as they are.</p>`,
+    [['Take off', async () => { try { const r = await adminCall('classArchive', { cls: a.dataset.arch }); if (!r.ok) throw 0; ADM.classes = r.classes; admClsMenu(); } catch (x) { toast('Could not change. Try again.'); } }], ['Cancel', null, true]]);
+};
+$('#admClsNewBtn').onclick = async () => {
+  const cls = $('#admClsNew').value.trim(); if (!cls) return;
+  try { const r = await adminCall('classAdd', { cls }); if (!r.ok) throw 0; ADM.classes = r.classes; $('#admClsNew').value = ''; admClsMenu(); } catch (x) { toast('Could not add the class. Try again.'); }
 };
 function admClassList() {   // the classes for the login cards
   const cls = [...new Set(ADM.students.map(s => s.cls).filter(Boolean))].sort();
@@ -5542,20 +5596,21 @@ async function needSchoolToken() {   // the school code once per device (when th
 async function joinSchool() {   // 📴 / 🏠 → 🏫: real name and class, then the hero's progress goes to the school sheet once the student confirms; the teacher approves
   if (!CFG.SCRIPT_URL) { toast(t('school_none')); return; }
   if (!await needSchoolToken()) return;
-  modal(t('join_school'), `<p>${t('join_info')}</p><label class="regLbl">${t('reg_name_lbl')}</label><input id="jsName" type="text" maxlength="40" autocomplete="off"><label class="regLbl">${t('reg_class_lbl')}</label><input id="jsCls" type="text" maxlength="15" autocomplete="off">`,
+  modal(t('join_school'), `<p>${t('join_info')}</p><label class="regLbl">${t('reg_name_lbl')}</label><input id="jsName" type="text" maxlength="40" autocomplete="off"><label class="regLbl">${t('reg_class_lbl')}</label><input id="jsCls" type="text" maxlength="15" autocomplete="off"><select id="jsClsSel" class="clsSel" style="display:none"></select>`,
     [[t('join_go'), async () => {
-      const name = $('#jsName').value.trim().replace(/\s+/g, ' '), cls = $('#jsCls').value.trim().replace(/\s+/g, ' ');
+      const name = $('#jsName').value.trim().replace(/\s+/g, ' '), cls = classPicked($('#jsClsSel'), $('#jsCls'));
       if (name.length < 4 || !name.includes(' ') || !cls) { toast(t(cls ? 'reg_badname' : 'reg_badclass')); return; }
       const data = JSON.stringify(noRealName(Object.assign({}, P)));
       for (let k = 0; k < 8; k++) {
         const id = genId();
-        try { const j = await schoolPost({ action: 'register', id, real: name, cls, nick: P.nick, data }); if (j.error === 'taken') continue; if (!j.ok) break;
+        try { const j = await schoolPost({ action: 'register', id, real: name, cls, nick: P.nick, data }); if (j.error === 'taken') continue; if (j.error === 'class') { toast(t('reg_badclass')); return; } if (!j.ok) break;
           const old = P.id; P.id = id; P.mode = 'school'; P.local = false; P.app = false; try { localStorage.removeItem('mw_p_' + old); } catch (e) {} lsSet('mw_last', id); saveSoon(true); openMenu();
           modal(t('join_done_t'), `<p>${t('reg_your')}</p><div class="bigId">${esc(id)}</div><p class="regWarn">${t('reg_warn')}</p>`, [[t('ok'), null]]); return;
         } catch (e) { break; }
       }
       toast(t('err_generic'));
     }], [t('cancel'), null, true]]);
+  classMenu($('#jsClsSel'), $('#jsCls'));
 }
 function copyToDevice() {   // 🏫 → 📴: a copy of the hero plays on this device; the school copy stays with the teacher
   modal(t('copy_home'), `<p>${t('copy_info')}</p>`, [[t('copy_go'), () => {

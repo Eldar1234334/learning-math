@@ -661,3 +661,9 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 - **Log tab** in the school's sheet: sign-ins, staff changes, approvals, deletions, code changes, with the staff e-mail.
 - The 🏠 home-players count shows only with the teacher password (it belongs to the Admin; an e-mail sign-in must not use up that service's wrong-key tries).
 - School script version 3. Mock tests: 20 staff checks (codes, roles, class limits, removal, log) and the 30 checks of part 1; the game screens tried as owner and as a teacher.
+
+### Part 3: the class menu and the waiting list (test site)
+- **"I am new" and "Join my school"** pick the class from a menu: the school's class list (the new *Classes* tab). A school without a list yet, or a device that cannot reach it, still types the class. The school script accepts only a class from the list (any upper/lower case; it keeps the list's spelling).
+- **The class list** is made from class lists added in the teacher area, and the first time from the classes the students already have. The school owner adds a class with no students yet, or takes one off the menu (its students stay).
+- **⏳ Waiting for approval** (red count): tick boxes, a class filter ("All my classes" or one class), Select all, **✅ Approve selected**, **✅ Approve all** (in the filter, with one short question: "Approve 14 students in class 3A?"), **❌ Reject selected**. The name and class can be fixed in the row before approving. A teacher approves or rejects only in their own classes and cannot move a student to another class; the script checks every student.
+- School script version 4. Mock tests: 19 class checks, and the 50 checks of parts 1 and 2; the game screens tried ("I am new" with the menu, fixing a name, approve selected, approve all in 4B).

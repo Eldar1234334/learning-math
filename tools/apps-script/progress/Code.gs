@@ -19,6 +19,9 @@
    - { action: 'staffList' }                            → { ok, owner, staff: [ { email, role, classes, added } ] }
    - { action: 'staffAdd', email, role, classes }       → { ok }   classes: 'ALL' or '3A,3B'
    - { action: 'staffRemove', email }                   → { ok }
+   - { action: 'approveMany' | 'rejectMany', items: [ { id, real?, cls? } ] } → { ok, done, skipped }   waiting students; the name and class can be fixed
+   - { action: 'classAdd' | 'classArchive', cls }       → { ok, classes }   school owner only (the Classes tab: the "I am new" class menu)
+   A device with the school token: { action: 'classes', token } → { ok, classes: [ ... ] }   class names only
    - { action: 'list', key }                            → { ok, students: [ { id, nick, real, cls, status, joined, tier, wiz, xp, accuracy, answers, minutes, coins, craftAcc, restarts, last } ] }
    - { action: 'student', key, id }                     → { ok, data, real, cls, status }
    - { action: 'approve' | 'reject' | 'deleteStudent', key, id } → { ok }
@@ -34,7 +37,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 3;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 4;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -97,9 +100,10 @@ function doPost(e) {
   if (a === 'stats') return out(stats(b));
   if (a === 'staffCode') return out(staffCode(b));
   if (a === 'staffVerify') return out(staffVerify(b));
-  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove'].includes(a)) return out(admin(a, b));
+  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive'].includes(a)) return out(admin(a, b));
   if (String(b.token || '') !== token()) return out({ ok: false, error: 'school' });   // only devices set up with the school code
   if (a === 'load') return out(load(b));
+  if (a === 'classes') return out({ ok: true, classes: classNames() });   // for the "I am new" class menu (class names only)
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try { return out(a === 'register' ? register(b) : a === 'save' ? save(b) : { ok: false, error: 'action' }); } finally { lock.releaseLock(); }
 }
@@ -117,7 +121,8 @@ function load(b) {
   return { ok: true, found: true, status: String(r[C.status]), data: data ? gameOnly(data) : '' };   // '' = a login card not used yet
 }
 function register(b) {
-  const id = cleanId(b.id), real = txt(b.real, 60), cls = txt(b.cls, 20); if (!id || real.length < 3 || !cls) return { ok: false, error: 'bad' };
+  const id = cleanId(b.id), real = txt(b.real, 60), typed = txt(b.cls, 20); if (!id || real.length < 3 || !typed) return { ok: false, error: 'bad' };
+  const known = classNames(), cls = known.find(c => clsKey(c) === clsKey(typed)) || typed; if (known.length && cls === typed && !known.includes(typed)) return { ok: false, error: 'class' };   // a class from the school's list
   const sh = students(); if (rowOf(sh, id) || removedWhy(id)) return { ok: false, error: 'taken' };
   const row = newRow(sh); sh.getRange(row, 1, 1, HEAD.length).setValues([[id, txt(b.nick, 30), real, cls, 'waiting', new Date().toISOString(), 0, 0, 0, 0, 0, 0, 0, 0, 0, '']]);
   if (typeof b.data === 'string' && b.data) writeData(sh, row, gameOnly(b.data));   // a hero that moves from home or offline play keeps its progress
@@ -137,14 +142,14 @@ function save(b) {
 function admin(a, b) {
   const who = staffAuth(b); if (who.error) return { ok: false, error: who.error };
   const owner = who.role === 'owner', sees = cls => owner || who.classes === 'ALL' || who.classes.includes(clsKey(cls));   // a teacher sees only the classes they were given
-  if (['staffList', 'staffAdd', 'staffRemove', 'setCode'].includes(a) && !owner) return { ok: false, error: 'owner' };
+  if (['staffList', 'staffAdd', 'staffRemove', 'setCode', 'classAdd', 'classArchive'].includes(a) && !owner) return { ok: false, error: 'owner' };
   if (a === 'me') return { ok: true, email: who.email, role: who.role, classes: who.classes };
   if (a === 'staffList') return { ok: true, staff: staffRows().map(s => ({ email: s.email, role: s.role, classes: s.classes, added: s.added })), owner: ownerEmail() };
   const sh = students(), id = cleanId(b.id);
   if (a === 'list') {
     const n = sh.getLastRow(), rows = n < 2 ? [] : sh.getRange(2, 1, n - 1, HEAD.length).getValues();
     const iso = v => v instanceof Date ? v.toISOString() : String(v || '');
-    return { ok: true, me: { email: who.email, role: who.role }, students: rows.filter(r => r[C.id] !== '' && sees(r[C.cls])).map(r => ({ id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
+    return { ok: true, me: { email: who.email, role: who.role }, classes: classNames().filter(sees), students: rows.filter(r => r[C.id] !== '' && sees(r[C.cls])).map(r => ({ id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
       tier: num(r[C.mlvl]), wiz: num(r[C.wiz]), xp: num(r[C.xp]), answers: num(r[C.n]), accuracy: num(r[C.acc]), minutes: num(r[C.min]), coins: num(r[C.coins]), craftAcc: num(r[C.craft]), restarts: num(r[C.restarts]), last: iso(r[C.last]) })) };
   }
   if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '' };
@@ -162,9 +167,29 @@ function admin(a, b) {
       const em = mailOf(b.email), f = staffRows().find(s => s.email === em); if (!f) return { ok: false, error: 'not found' };
       staffSheet().deleteRow(f.row); logIt(who.email, 'staff removed', em); return { ok: true };
     }
+    if (a === 'classAdd') { const cls = txt(b.cls, 20); if (!cls) return { ok: false, error: 'bad' }; ensureClass(cls); logIt(who.email, 'class created', cls); return { ok: true, classes: classNames() }; }
+    if (a === 'classArchive') {   // the class leaves the "I am new" menu; its students stay
+      const cs = classSheet(), n = cs.getLastRow(), k = clsKey(b.cls); if (n < 2) return { ok: false, error: 'not found' };
+      const v = cs.getRange(2, 1, n - 1, 1).getValues(), i = v.findIndex(r => clsKey(r[0]) === k); if (i < 0) return { ok: false, error: 'not found' };
+      cs.getRange(i + 2, 3).setValue(new Date().toISOString()); logIt(who.email, 'class archived', b.cls); return { ok: true, classes: classNames() };
+    }
+    if (a === 'approveMany' || a === 'rejectMany') {   // ticked waiting students; a teacher only in their classes; the name and class can be fixed before approving
+      const items = (Array.isArray(b.items) ? b.items : []).slice(0, 200), known = classNames(); let done = 0, skipped = 0;
+      for (const it of items) {
+        const sid = cleanId(it && it.id), rw = sid ? rowOf(sh, sid) : 0; if (!rw) { skipped++; continue; }
+        const r = sh.getRange(rw, 1, 1, HEAD.length).getValues()[0];
+        if (!sees(r[C.cls]) || r[C.status] !== 'waiting') { skipped++; continue; }
+        if (a === 'rejectMany') { sh.deleteRow(rw); if (!removedWhy(sid)) removedSheet().appendRow([sid, 'rejected', new Date().toISOString()]); logIt(who.email, 'rejected', sid); done++; continue; }
+        const real = txt(it.real, 60) || r[C.real], want = txt(it.cls, 20), cls = want ? (known.find(c => clsKey(c) === clsKey(want)) || want) : r[C.cls];
+        if (!sees(cls) || real.length < 2) { skipped++; continue; }
+        sh.getRange(rw, C.real + 1, 1, 3).setValues([[real, cls, 'approved']]); ensureClass(cls); logIt(who.email, 'approved', sid + (cls !== r[C.cls] ? ' → ' + cls : '')); done++;
+      }
+      return { ok: true, done, skipped };
+    }
     if (a === 'addClass') {
       const cls = txt(b.cls, 20), names = (b.names || []).map(x => txt(x, 60)).filter(x => x.length >= 2).slice(0, 60); if (!cls || !names.length) return { ok: false, error: 'bad' };
       if (!sees(cls)) return { ok: false, error: 'class' };
+      ensureClass(cls);
       const made = names.map(real => { const nid = newId(sh), row = newRow(sh); sh.getRange(row, 1, 1, HEAD.length).setValues([[nid, '', real, cls, 'approved', new Date().toISOString(), 0, 0, 0, 0, 0, 0, 0, 0, 0, '']]); return { id: nid, real, cls }; });
       logIt(who.email, 'class added', cls + ': ' + made.length + ' students'); return { ok: true, made };
     }
@@ -272,3 +297,22 @@ function staffVerify(b) {
   logIt(em, 'signed in', s.role); return { ok: true, sess, email: em, role: s.role };
 }
 function authorize() { MailApp.getRemainingDailyQuota(); staffSheet(); logSheet(); }   // run once from the editor after this update: e-mail permission and the new tabs
+
+/* ----- classes (schools spec §4): the Classes tab gives the "I am new" class menu. A class is made by adding a class list or by the school owner. ----- */
+const classSheet = () => sheet('Classes', ['class', 'created', 'archived']);
+function classNames() {   // the school's classes, not archived; the first time, the classes the students already have
+  const cs = classSheet(); let n = cs.getLastRow();
+  if (n < 2 && !props().getProperty('CLASSES_SEEDED')) {
+    props().setProperty('CLASSES_SEEDED', '1');
+    const sh = students(), m = sh.getLastRow(), seen = {};
+    if (m > 1) sh.getRange(2, C.cls + 1, m - 1, 1).getValues().forEach(r => { const c = txt(r[0], 20); if (c && !seen[clsKey(c)]) { seen[clsKey(c)] = 1; cs.appendRow([c, new Date().toISOString(), '']); } });
+    n = cs.getLastRow();
+  }
+  if (n < 2) return [];
+  return cs.getRange(2, 1, n - 1, 3).getValues().filter(r => r[0] !== '' && !r[2]).map(r => String(r[0])).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
+function ensureClass(cls) {   // adds the class (or brings an archived one back)
+  const cs = classSheet(), n = cs.getLastRow(), k = clsKey(cls);
+  if (n > 1) { const v = cs.getRange(2, 1, n - 1, 3).getValues(), i = v.findIndex(r => clsKey(r[0]) === k); if (i >= 0) { if (v[i][2]) cs.getRange(i + 2, 3).setValue(''); return; } }
+  cs.appendRow([cls, new Date().toISOString(), '']);
+}
