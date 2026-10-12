@@ -1,7 +1,7 @@
 {
-  "name": "Math Wizard",
-  "short_name": "Math Wizard",
-  "description": "An adventure game for practicing math: cast spells, beat monsters.",
+  "name": "SpellQuest: Math Adventure",
+  "short_name": "SpellQuest",
+  "description": "SpellQuest: Math Adventure: practice math by casting spells and beating monsters.",
   "start_url": "./?mode=app",
   "scope": "./",
   "display": "standalone",

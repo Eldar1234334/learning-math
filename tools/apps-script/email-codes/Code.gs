@@ -41,8 +41,8 @@ function sendCode(email) {
   if (sent >= DAY_MAX || MailApp.getRemainingDailyQuota() < 1) return { ok: false, error: 'busy' };
   const code = String(Math.floor(100000 + Math.random() * 900000));
   try {
-    MailApp.sendEmail({ to: email, subject: 'Math Wizard: your code / הקוד שלכם',
-      body: `Your Math Wizard code is ${code}\nIt works for 10 minutes.\n\nהקוד שלכם לקוסם החשבון: ${code}\nהוא עובד 10 דקות.\n\nIf you did not ask for it, you can ignore this e-mail.` });
+    MailApp.sendEmail({ to: email, subject: 'SpellQuest: your code / הקוד שלכם',
+      body: `Your SpellQuest: Math Adventure code is ${code}\nIt works for 10 minutes.\n\nהקוד שלכם ללחשים: הרפתקת חשבון: ${code}\nהוא עובד 10 דקות.\n\nIf you did not ask for it, you can ignore this e-mail.` });
   } catch (x) { return { ok: false, error: 'mail' }; }
   props.setProperty(dk, String(sent + 1));
   c.put('code:' + h, hash(code), CODE_TTL); c.put('sent:' + h, '1', RESEND); c.remove('tries:' + h);

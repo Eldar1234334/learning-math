@@ -1,4 +1,4 @@
-# Math Wizard
+# SpellQuest: Math Adventure (לחשים: הרפתקת חשבון)
 
 A math practice adventure for grades 1–6. The student is a wizard or a witch who fights monsters by casting spells from a spell book: every spell has a number, and the answer to a math problem is the spell that is cast.
 

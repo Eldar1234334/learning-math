@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Math Wizard</title>
+<title>SpellQuest: Math Adventure</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+Hebrew:wght@400;700&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
@@ -666,7 +666,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <body>
 
 <section id="gate" class="screen on">
-  <h1>🔒 Math Wizard</h1>
+  <h1>🔒 <span data-t="game_name"></span></h1>
   <p class="sub" data-t="gate_sub"></p>
   <div class="card center" style="max-width:380px;margin:24px auto">
     <input id="pass" type="password" inputmode="numeric" data-tp="gate_ph" autocomplete="off">
@@ -677,7 +677,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 
 <section id="login" class="screen">
   <div class="langBar"><button class="langBtn" data-lang-toggle></button></div>
-  <h1>✨ Math Wizard ✨</h1>
+  <h1>✨ <span data-t="game_name"></span> ✨</h1>
   <p class="sub" data-t="login_sub"></p>
   <div class="card center" style="max-width:420px;margin:24px auto">
     <h2 data-t="welcome"></h2>
@@ -1291,6 +1291,7 @@ const STR = {
   tut_shop: ['This is the shop 🏪. Buy potions, clothes and furniture with your coins. Paying is math too!', 'זו החנות 🏪. קונים שיקויים, בגדים ורהיטים במטבעות. גם התשלום הוא חשבון!'],
   tut_grow: ['Every right answer makes you a stronger wizard: new spells, new monsters and new places. Good luck!', 'כל תשובה נכונה הופכת אתכם לקוסמים חזקים יותר: כישופים חדשים, מפלצות חדשות ומקומות חדשים. בהצלחה!'],
   tut_fin_t: ['You\'re ready!', 'אתם מוכנים!'], tut_fin_b: ['Pip the owl waits on the map: tap it any time to see this again.', 'פיפ הינשוף מחכה במפה: הקישו עליו בכל זמן כדי לראות שוב.'], tut_begin: ['Start playing ▶', 'מתחילים לשחק ◀'],
+  game_name: ['SpellQuest: Math Adventure', 'לחשים: הרפתקת חשבון'],
   ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
@@ -1501,7 +1502,7 @@ function exprHtml(e, ans) {
 }
 // Fill every tagged text on the page: data-t (text), data-th (HTML), data-tp (placeholder), data-tt (title), data-ta (aria-label).
 function applyLang() {
-  const h = document.documentElement; h.lang = LANG; h.dir = LANG === 'he' ? 'rtl' : 'ltr';
+  const h = document.documentElement; h.lang = LANG; h.dir = LANG === 'he' ? 'rtl' : 'ltr'; document.title = t('game_name');   // the game's name (owner, step 11)
   document.querySelectorAll('[data-t]').forEach(e => { e.textContent = t(e.dataset.t); });
   document.querySelectorAll('[data-th]').forEach(e => { e.innerHTML = t(e.dataset.th); });
   document.querySelectorAll('[data-tp]').forEach(e => { e.placeholder = t(e.dataset.tp); });

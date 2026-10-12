@@ -599,3 +599,5 @@ Every spell was shown in the browser one family at a time; your comments were bu
 - **Setup steps for you:** `tools/apps-script/SETUP.md`.
 
 **Next:** you create the two services in `learningtoread.app@gmail.com` (about 10 minutes) and send me the two URLs; I put them in the game, test saving on the test site, and report.
+- **The game's new name** (owner): **SpellQuest: Math Adventure** / **לחשים: הרפתקת חשבון**: the page title (it follows the language), the login and start screens, the installed app's name (short: SpellQuest), and the app's code e-mail. The new icon comes from your picture.
+- **Waiting:** your logging spec (it may change how the progress sheet works), before you set up the two services.
