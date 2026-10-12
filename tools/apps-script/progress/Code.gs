@@ -14,12 +14,18 @@
    - { action: 'student', key, id }                     → { ok, data, real, cls, status }
    - { action: 'approve' | 'reject' | 'deleteStudent', key, id } → { ok }
    - { action: 'addClass', key, cls, names: [...] }     → { ok, made: [ { id, real, cls } ] }   a class list: numbers for the login cards
-   - { action: 'getCode' | 'setCode', key, code }       → { ok, code }
+   - { action: 'getCode' | 'setCode', key, code }       → { ok, code }   a new code is first checked with the Admin's school list (it must be free)
+   The Admin's school list (registry, schools spec §3.3, §3.5; it never gets names, classes or game data):
+   - { action: 'ping', setup }                          → { ok, owner, version }   only with this school's one-time setup token
+   - { action: 'stats', key }                           → { ok, players, today, last, version }   counts only; the key both sides got at registration
+   Run linkRegistry() once from the editor (after the script properties REGISTRY_URL and SETUP_TOKEN are set) to join the Admin's list.
 
    Script properties (Project settings → Script properties): ADMIN_KEY (the teacher password), SCHOOL_CODE (for example SUNNY-7), and SHEET_ID
    (the sheet's id from its link) when the script is a separate project rather than opened with Extensions → Apps Script.
-   SCHOOL_TOKEN is made by the script itself.
+   SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
+   WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
+const VERSION = 2;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -78,6 +84,8 @@ function doPost(e) {
   let b; try { b = JSON.parse(e.postData.contents); } catch (x) { return out({ ok: false, error: 'json' }); }
   const a = b.action || 'save';
   if (a === 'school') return out(school(b));
+  if (a === 'ping') return out(ping(b));
+  if (a === 'stats') return out(stats(b));
   if (['list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode'].includes(a)) return out(admin(a, b));
   if (String(b.token || '') !== token()) return out({ ok: false, error: 'school' });   // only devices set up with the school code
   if (a === 'load') return out(load(b));
@@ -129,7 +137,7 @@ function admin(a, b) {
       tier: num(r[C.mlvl]), wiz: num(r[C.wiz]), xp: num(r[C.xp]), answers: num(r[C.n]), accuracy: num(r[C.acc]), minutes: num(r[C.min]), coins: num(r[C.coins]), craftAcc: num(r[C.craft]), restarts: num(r[C.restarts]), last: iso(r[C.last]) })) };
   }
   if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '' };
-  if (a === 'setCode') { const code = normCode(b.code); if (code.length < 4 || code.length > 20) return { ok: false, error: 'code' }; props().setProperty('SCHOOL_CODE', code); return { ok: true, code }; }
+  if (a === 'setCode') { const code = normCode(b.code); if (code.length < 4 || code.length > 20) return { ok: false, error: 'code' }; const reg = toRegistry({ action: 'schoolCode', code }); if (reg && !reg.ok) return { ok: false, error: reg.error === 'taken' ? 'taken' : 'registry' }; props().setProperty('SCHOOL_CODE', code); return { ok: true, code }; }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     if (a === 'addClass') {
@@ -145,4 +153,42 @@ function admin(a, b) {
     }
     return { ok: false, error: 'action' };
   } finally { lock.releaseLock(); }
+}
+
+/* ----- the Admin's school list (registry): this school's script only ever sends it the school code, its own link and counts ----- */
+const sameKey = (a, b) => !!a && !!b && String(a) === String(b);
+function ping(b) {   // the Admin's list checks that this link belongs to the school owner it was told about
+  if (over('ping', [10, 600])) return { ok: false, error: 'busy' };
+  if (!sameKey(props().getProperty('SETUP_TOKEN'), b.setup)) return { ok: false, error: 'setup' };
+  return { ok: true, owner: Session.getEffectiveUser().getEmail(), version: VERSION };
+}
+function stats(b) {   // counts only: never a name, a class, a number or game data
+  if (over('stats', [20, 600])) return { ok: false, error: 'busy' };
+  if (!sameKey(props().getProperty('REGISTRY_KEY'), b.key)) return { ok: false, error: 'key' };
+  const sh = students(), n = sh.getLastRow(), rows = n < 2 ? [] : sh.getRange(2, 1, n - 1, HEAD.length).getValues();
+  const tz = Session.getScriptTimeZone(), day = d => Utilities.formatDate(d, tz, 'yyyy-MM-dd'), today = day(new Date());
+  let players = 0, played = 0, last = '';
+  rows.forEach(r => {
+    if (r[C.id] === '' || r[C.status] !== 'approved') return; players++;
+    const t = r[C.last] instanceof Date ? r[C.last] : r[C.last] ? new Date(r[C.last]) : null; if (!t || isNaN(t)) return;
+    if (day(t) === today) played++; const iso = t.toISOString(); if (iso > last) last = iso;
+  });
+  return { ok: true, players, today: played, last, version: VERSION };
+}
+function toRegistry(body) {   // null when this school is not on the Admin's list (then it works on its own, as before)
+  const p = props(), url = p.getProperty('REGISTRY_URL'), id = p.getProperty('REGISTRY_ID'), key = p.getProperty('REGISTRY_KEY');
+  if (!url || !id || !key) return null;
+  try { return JSON.parse(UrlFetchApp.fetch(url, { method: 'post', contentType: 'text/plain', payload: JSON.stringify(Object.assign({ id, key }, body)), muteHttpExceptions: true, followRedirects: true }).getContentText()); }
+  catch (x) { return { ok: false, error: 'registry' }; }
+}
+function linkRegistry() {   // run once from the editor, after setting the script properties REGISTRY_URL and SETUP_TOKEN (the Admin gives both)
+  const p = props(), reg = p.getProperty('REGISTRY_URL'), setup = p.getProperty('SETUP_TOKEN'), code = p.getProperty('SCHOOL_CODE');
+  if (!reg || !setup) throw new Error('Set the script properties REGISTRY_URL and SETUP_TOKEN first.');
+  if (!code) throw new Error('Set the script property SCHOOL_CODE first.');
+  let url = p.getProperty('WEB_APP_URL') || ''; if (!url) { try { url = ScriptApp.getService().getUrl() || ''; } catch (x) {} }
+  if (!/\/exec$/.test(url)) throw new Error('Deploy the web app first, then add its link (ending in /exec) as the script property WEB_APP_URL.');
+  const j = JSON.parse(UrlFetchApp.fetch(reg, { method: 'post', contentType: 'text/plain', payload: JSON.stringify({ action: 'registerSchool', setup, url, code: normCode(code), version: VERSION }), muteHttpExceptions: true, followRedirects: true }).getContentText());
+  if (!j.ok) throw new Error('The Admin\'s list said: ' + j.error + ({ setup: ' (the setup token is wrong or already used)', owner: ' (this script is not in the school owner\'s Google account the Admin entered)', taken: ' (another school has this code: change SCHOOL_CODE)', url: ' (WEB_APP_URL must end in /exec)', ping: ' (the list could not reach this web app: deploy it with access Anyone)' }[j.error] || ''));
+  p.setProperty('REGISTRY_ID', j.id); p.setProperty('REGISTRY_KEY', j.key); p.deleteProperty('SETUP_TOKEN');
+  Logger.log('Joined the Admin\'s list as ' + j.id + ' (' + j.name + ').');
 }

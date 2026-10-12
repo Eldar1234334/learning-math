@@ -33,7 +33,7 @@ h2{margin:.2em 0}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #9b6411}
 .btn.ghost{background:#fff1;color:#fff;box-shadow:none;border:1px solid #fff3}
 .btn:disabled{opacity:.5}
-input[type=text],input[type=password]{width:100%;padding:14px;border-radius:12px;border:2px solid #fff4;background:#0004;color:#fff;font:inherit;font-size:1.3rem;text-align:center}
+input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;border-radius:12px;border:2px solid #fff4;background:#0004;color:#fff;font:inherit;font-size:1.3rem;text-align:center}
 .center{text-align:center}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center}
 .msg{min-height:1.4em;color:#ffd0d6;text-align:center;margin:8px 0}
@@ -707,6 +707,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <!-- 🏫 school student: the student number from the teacher's card, or "I am new" -->
     <div id="schoolBox" style="display:none">
       <h2 data-t="welcome"></h2>
+      <p id="scName" class="small" style="opacity:.85"></p>
       <p id="loginHint" data-th="login_hint"></p>
       <input id="sid" type="text" data-tp="sid_ph" autocomplete="off" autocapitalize="characters" maxlength="20">
       <div class="msg" id="loginMsg"></div>
@@ -732,7 +733,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       <div><a href="#" class="adminLink backStart" data-t="back"></a></div>
     </div>
   </div>
-  <div class="center footLinks" id="adminWrap"><a href="#" id="adminLink" class="adminLink" data-t="teacher_link"></a><span class="sep"> · </span><a href="#" id="privLink" class="adminLink" data-t="priv_link"></a></div>
+  <div class="center footLinks" id="adminWrap"><a href="#" id="adminLink" class="adminLink" data-t="teacher_link"></a><span class="sep"> · </span><a href="#" id="privLink" class="adminLink" data-t="priv_link"></a><span id="ownerWrap" style="display:none"><span class="sep"> · </span><a href="#" id="ownerLink" class="adminLink">🔑 Admin</a></span></div>
   <div class="center"><button class="btn ghost" id="installBtn" style="display:none;margin-top:10px" data-t="install"></button></div>
   <div class="credit" data-t="credit"></div>
 </section>
@@ -768,6 +769,25 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   </div>
   <div class="card" id="admDetail" style="display:none"></div>
   <div class="card" id="admDemoCard"><b>🧪 Demo run</b><p class="small" style="margin:6px 0;opacity:.85">Try the game as a pretend student: pick any level, jump to the workshop, shop or home, start a quest, give yourself items. Nothing is saved and no student is changed.</p><button class="btn" id="admDemo">▶ Start a demo run</button></div>
+</section>
+
+<!-- 🔑 the Admin (the game's owner): the schools and their counts only. No student names, classes, numbers or progress ever reach this screen (schools spec §2, §3.5). -->
+<section id="owner" class="screen" style="max-width:1000px">
+  <div class="top">
+    <button class="ib" id="ownBack">← Back</button>
+    <h2 style="margin:0" class="grow">🔑 Admin: schools</h2>
+    <button class="btn ghost" id="ownRefresh" style="padding:8px 14px">⟳ Ask the schools for counts</button>
+  </div>
+  <div class="small center" style="opacity:.8;margin:0 0 10px">You see only how many students each school has and how many played today. Each school's names and progress stay in that school's own Google account.</div>
+  <div class="admcards" id="ownCards"></div>
+  <div class="card"><b>Schools</b><div class="tblwrap"><table id="ownTable"></table></div><div class="small" id="ownMsg" style="margin-top:6px"></div></div>
+  <div class="card"><b>➕ New school</b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">The Gmail must be the account that will keep the school's data (the school owner's). You get a one-time setup token for that school's script.</div>
+    <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap">
+      <input id="ownName" type="text" maxlength="60" placeholder="School name" style="max-width:260px;padding:8px;font-size:1rem">
+      <input id="ownGmail" type="email" maxlength="80" placeholder="School owner's Gmail" style="max-width:260px;padding:8px;font-size:1rem">
+      <button class="btn" id="ownAdd" style="padding:8px 14px">➕ Add school</button></div>
+    <div id="ownNew" style="margin-top:8px"></div></div>
 </section>
 
 <section id="register" class="screen">
@@ -1020,6 +1040,9 @@ const CFG = {
   // Paste the Apps Script web app URL here to save progress to the school Google Sheet.
   // Math Wizard has its OWN sheet and script (never the reading game's). Empty until that sheet is set up: progress stays on the device.
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxX-CK_aPvTzhPGkvlJrr4RKQNHoIkaaDOp-ERHV7qdz0HQhHdcUBc6HmNJR672aZ_7g/exec',   // the school sheet "SpellQuest Math – progress" (learningtoread.app@gmail.com; its own script, never the reading game's)
+  // The Admin's school list (tools/apps-script/registry/Code.gs): a school code is looked up there and gives that school's own link.
+  // Empty: every device uses SCRIPT_URL above. A device keeps the link it got, so a school keeps working while the list cannot be reached.
+  REGISTRY_URL: '',
   DAILY_SEC: 600,           // 10 minutes a day
   MIN_FIGHTS: 5, MAX_FIGHTS: 10,   // normal encounters before the boss / big request (rolled at random when a quest starts, never shown)
   MAX_HEARTS: 3,            // hearts (fights) or smileys (village) the student can have
@@ -1348,7 +1371,7 @@ const STR = {
   priv_body: ['<p><b>🏫 School student:</b> your game is saved on this device and in your school\'s Google Sheet, with your real name and class, so your teacher can see your progress. Only the school keeps it. A parent can ask the teacher to delete it.</p><p><b>🏠 Play at home:</b> your game stays on this device only. A parent signs up once with an e-mail code; the e-mail address is not saved, only a scrambled fingerprint to count how many families play. Each day the game also sends an anonymous "+1 played today".</p><p><b>📴 Offline:</b> nothing is sent anywhere.</p><p>A game kept only on a device can be lost (a lost phone, a cleared browser). Install the app, and use 💾 Save my hero to keep a backup file.</p>',
     '<p><b>🏫 תלמידי בית ספר:</b> המשחק נשמר במכשיר ובגיליון של בית הספר ב-Google, עם השם האמיתי והכיתה, כדי שהמורה יראה את ההתקדמות. רק בית הספר שומר אותו. הורה יכול לבקש מהמורה למחוק אותו.</p><p><b>🏠 משחק בבית:</b> המשחק נשמר רק במכשיר. הורה נרשם פעם אחת עם קוד במייל; כתובת המייל לא נשמרת, רק טביעה מוצפנת כדי לספור כמה משפחות משחקות. בכל יום המשחק שולח גם "+1 שיחקו היום" בלי שום פרט מזהה.</p><p><b>📴 בלי אינטרנט:</b> שום דבר לא נשלח.</p><p>משחק שנשמר רק במכשיר יכול ללכת לאיבוד (טלפון שאבד, דפדפן שנמחק). התקינו את האפליקציה, והשתמשו ב"💾 לשמור את הגיבור" כדי לשמור קובץ גיבוי.</p>'],
   sc_t: ['🏫 The school code', '🏫 קוד בית הספר'], sc_info: ['Type the code your teacher gave you (it is on your login card). This device remembers it.', 'הקלידו את הקוד שקיבלתם מהמורה (הוא על כרטיס הכניסה). המכשיר יזכור אותו.'],
-  sc_ph: ['School code', 'קוד בית הספר'], sc_go: ['Continue ▶', 'ממשיכים ◀'], sc_wrong: ['That code is not right. Ask your teacher.', 'הקוד הזה לא נכון. שאלו את המורה.'], sc_busy: ['Too many tries. Wait a few minutes.', 'יותר מדי ניסיונות. חכו כמה דקות.'],
+  sc_ph: ['School code', 'קוד בית הספר'], sc_go: ['Continue ▶', 'ממשיכים ◀'], sc_wrong: ['That code is not right. Ask your teacher.', 'הקוד הזה לא נכון. שאלו את המורה.'], sc_ended: ["Your school's access to the game has ended. Ask your teacher.", 'הגישה של בית הספר שלכם למשחק הסתיימה. שאלו את המורה.'], sc_busy: ['Too many tries. Wait a few minutes.', 'יותר מדי ניסיונות. חכו כמה דקות.'],
   rejected_t: ['🏫 Not on the school list', '🏫 לא ברשימת בית הספר'], rejected_b: ['Your teacher did not find you on the school list, so your hero now plays offline on this device. All your progress is kept here.', 'המורה לא מצא אתכם ברשימת בית הספר, אז הגיבור שלכם משחק עכשיו בלי אינטרנט במכשיר הזה. כל ההתקדמות נשמרת כאן.'],
   rejected_login: ['This number is not a student of the school. Ask your teacher, or play at home or offline.', 'המספר הזה לא שייך לתלמיד בבית הספר. שאלו את המורה, או שחקו בבית או בלי אינטרנט.'],
   join_school: ['🏫 Join my school', '🏫 להצטרף לבית הספר'], sign_home: ['🏠 Sign up to play at home', '🏠 להירשם למשחק בבית'], copy_home: ['📴 Also play on this device', '📴 לשחק גם במכשיר הזה'],
@@ -1830,8 +1853,24 @@ function saveSoon(now) {
 }
 // 🏫 school mode talks to the school sheet (tools/apps-script/progress/Code.gs). Everything is a POST with the device's school token (from the school code); nothing secret in a URL.
 const schoolToken = () => lsGet('mw_school') || '';
+const schoolUrl = () => lsGet('mw_school_url') || CFG.SCRIPT_URL;   // this device's school (from the Admin's school list), or the first school
+const post = (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }).then(r => r.json());
+async function joinCode(code) {   // the school code, once per device: the Admin's list says which school it is, then that school gives the device its token
+  let url = CFG.SCRIPT_URL, name = '', id = '';
+  if (CFG.REGISTRY_URL) {
+    let r = null; try { r = await post(CFG.REGISTRY_URL, { action: 'resolve', code }); } catch (e) {}   // the list cannot be reached: try the first school
+    if (r && !r.ok) return { error: r.error === 'suspended' ? 'suspended' : r.error === 'busy' ? 'busy' : 'code' };
+    if (r && r.ok) { url = r.url; name = r.name; id = r.id; }
+  }
+  if (!url) return { error: 'code' };
+  const j = await post(url, { action: 'school', code });
+  if (!j.ok || !j.token) return { error: j.error === 'busy' ? 'busy' : 'code' };
+  lsSet('mw_school', j.token); lsSet('mw_school_url', url === CFG.SCRIPT_URL ? '' : url); lsSet('mw_school_name', name); lsSet('mw_school_id', id);
+  return { ok: true };
+}
+const codeMsg = e => t(e === 'busy' ? 'sc_busy' : e === 'suspended' ? 'sc_ended' : 'sc_wrong');
 async function schoolPost(body) {
-  const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ token: schoolToken() }, body)) });
+  const r = await fetch(schoolUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ token: schoolToken() }, body)) });
   return r.json();
 }
 function noRealName(p) { if (p) { delete p.real; delete p.cls; } return p; }   // the real name and class live only in the school sheet, never on the device or in the game data
@@ -5024,7 +5063,7 @@ window.addEventListener('pagehide', () => { if (P) saveSoon(true); });
 // The password is checked by the Google script, never by this page, and it is kept in memory only (gone when the tab closes).
 let ADMKEY = null; const ADM = { students: [], sortKey: 'last', sortDir: -1, filter: '' };
 async function adminCall(action, extra) {
-  const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, key: ADMKEY }, extra || {})) });
+  const r = await fetch(schoolUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, key: ADMKEY }, extra || {})) });
   return r.json();
 }
 /* ----- Demo run (teacher area): a pretend student with a small control panel, to try every feature. Nothing is saved anywhere (no cloud, no device storage); leaving the demo reloads the game. ----- */
@@ -5215,6 +5254,74 @@ async function adminStudent(id) {
 }
 $('#adminLink').onclick = e => { e.preventDefault(); adminAsk(); };
 $('#admBack').onclick = () => { ADMKEY = null; show('login'); };
+
+/* ====================== 🔑 ADMIN (the game's owner): the Admin's school list (tools/apps-script/registry/Code.gs) ======================
+   Separate from the teacher area: an e-mail code (only the Admin's e-mail gets one), then a session token kept in memory only.
+   It shows schools and their counts, never a student. */
+let OWNTOK = null, OWNEMAIL = '';
+const ownCall = (action, extra) => post(CFG.REGISTRY_URL, Object.assign({ action, token: OWNTOK }, extra || {}));
+if (CFG.REGISTRY_URL) $('#ownerWrap').style.display = '';
+$('#ownerLink').onclick = e => {
+  e.preventDefault(); if (APP || !CFG.REGISTRY_URL) return;
+  if (OWNTOK) { ownOpen(); return; }
+  modal('🔑 Admin', '<p class="small">Your Admin e-mail. A 6-digit code is sent to it (any other e-mail gets nothing).</p><input id="ownEm" type="email" autocomplete="email" style="margin:6px 0">',
+    [['Send code', async () => {
+      OWNEMAIL = $('#ownEm').value.trim(); if (!OWNEMAIL) return;
+      try { const j = await post(CFG.REGISTRY_URL, { action: 'adminCode', email: OWNEMAIL }); if (!j.ok) throw j.error; } catch (x) { toast(x === 'busy' ? 'Too many tries. Wait a minute.' : 'Could not reach the school list.'); return; }
+      ownAskCode();
+    }], ['Cancel', null, true]]);
+  setTimeout(() => { const i = $('#ownEm'); if (i) i.focus(); }, 60);
+};
+function ownAskCode() {
+  modal('🔑 Admin', `<p class="small">If ${esc(OWNEMAIL)} is the Admin e-mail, a code is on its way (it works for 10 minutes).</p><input id="ownCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="margin:6px 0">`,
+    [['Open', async () => {
+      try {
+        const j = await post(CFG.REGISTRY_URL, { action: 'adminVerify', email: OWNEMAIL, code: $('#ownCode').value.trim() });
+        if (!j.ok) { modal('🔑 Admin', `<p>${j.error === 'expired' ? 'The code has expired. Ask for a new one.' : j.error === 'locked' ? 'Too many wrong tries. Ask for a new code.' : 'That code is not right.'}</p>`, [['Try again', j.error === 'wrong' ? ownAskCode : () => $('#ownerLink').click()], ['Close', null, true]]); return; }
+        OWNTOK = j.token; ownOpen();
+      } catch (x) { toast('Could not reach the school list.'); }
+    }], ['Cancel', null, true]]);
+  setTimeout(() => { const i = $('#ownCode'); if (i) i.focus(); }, 60);
+}
+async function ownOpen(refresh) {
+  show('owner'); $('#ownMsg').textContent = refresh ? 'Asking each school for its counts…' : 'Loading…';
+  try {
+    const j = await ownCall(refresh ? 'refresh' : 'schools');
+    if (!j.ok) { if (j.error === 'login') { OWNTOK = null; show('login'); toast('Please sign in again'); } else $('#ownMsg').textContent = 'Could not load the schools.'; return; }
+    ownRender(j.schools); $('#ownMsg').textContent = '';
+  } catch (x) { $('#ownMsg').textContent = 'Could not reach the school list. Check the internet connection.'; }
+}
+function ownRender(list) {
+  const act = list.filter(s => s.status === 'active');
+  $('#ownCards').innerHTML = [[act.length, 'active schools'], [act.reduce((a, s) => a + s.players, 0), 'students'], [act.reduce((a, s) => a + s.today, 0), 'played today']].map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
+  const when = iso => iso ? new Date(iso).toLocaleDateString() : '–', st = { active: '🟢 active', suspended: '⏸ suspended', 'waiting setup': '⏳ waiting setup' };
+  $('#ownTable').innerHTML = '<thead><tr><th>School</th><th>Code</th><th>Status</th><th>Students</th><th>Played today</th><th>Last active</th><th>Script</th><th></th></tr></thead><tbody>' +
+    (list.length ? list.map(s => `<tr><td><b>${esc(s.name)}</b> <small style="opacity:.7">${esc(s.id)}</small><br><small style="opacity:.8">${esc(s.owner)}</small></td><td>${esc(s.code || '–')}</td><td>${st[s.status] || esc(s.status)}</td>
+      <td>${s.players}</td><td>${s.today}</td><td>${when(s.last)}</td><td>${s.version ? 'v' + esc(s.version) : '–'}</td>
+      <td style="white-space:nowrap">${s.status === 'active' ? `<button class="btn ghost" data-st="suspended" data-id="${esc(s.id)}" style="padding:4px 10px">⏸ Suspend</button>` : s.status === 'suspended' ? `<button class="btn ghost" data-st="active" data-id="${esc(s.id)}" style="padding:4px 10px">▶ Resume</button>` : ''}
+      <button class="btn ghost" data-del="${esc(s.id)}" data-name="${esc(s.name)}" style="padding:4px 10px">🗑</button></td></tr>`).join('') : '<tr><td colspan="8" style="opacity:.7">No schools yet.</td></tr>') + '</tbody>';
+}
+$('#ownTable').onclick = e => {
+  const s = e.target.closest('[data-st]'), d = e.target.closest('[data-del]');
+  if (s) { const go = async () => { try { const r = await ownCall('setStatus', { id: s.dataset.id, status: s.dataset.st }); if (!r.ok) throw 0; ownOpen(); } catch (x) { toast('Could not change it. Try again.'); } };
+    if (s.dataset.st === 'suspended') modal('⏸ Suspend school', '<p>Its students can no longer play in school mode or save to the school. They can move their wizard to play at home. The school keeps all of its data.</p>', [['Suspend', go], ['Cancel', null, true]]); else go(); }
+  if (d) modal('🗑 Remove school', `<p>Remove <b>${esc(d.dataset.name)}</b> from your list? Its code stops working. The school keeps its own sheet and data.</p>`,
+    [['Remove', async () => { try { const r = await ownCall('deleteSchool', { id: d.dataset.del }); if (!r.ok) throw 0; ownOpen(); } catch (x) { toast('Could not remove it. Try again.'); } }], ['Cancel', null, true]]);
+};
+$('#ownAdd').onclick = async () => {
+  const name = $('#ownName').value.trim(), owner = $('#ownGmail').value.trim(), box = $('#ownNew');
+  if (name.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(owner)) { box.textContent = 'Type the school name and the owner\'s Gmail.'; return; }
+  $('#ownAdd').disabled = true; box.textContent = 'Adding…';
+  try {
+    const r = await ownCall('newSchool', { name, owner }); if (!r.ok) throw 0;
+    box.innerHTML = `<p>✅ <b>${esc(name)}</b> (${esc(r.id)}) is waiting for setup. Give the school owner these two, for their script's properties (shown only now):</p>
+      <p class="small">REGISTRY_URL<br><code style="user-select:all;word-break:break-all">${esc(CFG.REGISTRY_URL)}</code></p><p class="small">SETUP_TOKEN<br><code style="user-select:all">${esc(r.setup)}</code></p>`;
+    $('#ownName').value = ''; $('#ownGmail').value = ''; ownOpen();
+  } catch (x) { box.textContent = 'Could not add the school. Try again.'; }
+  $('#ownAdd').disabled = false;
+};
+$('#ownRefresh').onclick = () => ownOpen(true);
+$('#ownBack').onclick = () => show('login');
 $('#admRefresh').onclick = async () => { try { const j = await adminCall('list'); if (j.ok) adminRender(j); } catch (e) { toast('Could not refresh'); } };
 $('#admSearch').oninput = () => { ADM.filter = $('#admSearch').value; adminTable(); };
 $('#admTable').onclick = e => {
@@ -5286,15 +5393,16 @@ function openSchool() {   // 🏫 the school code first (once per device, when t
   $('#startBox').style.display = 'none'; $('#appLogin').style.display = 'none';
   const needCode = CFG.SCRIPT_URL && !schoolToken();
   $('#schoolCodeBox').style.display = needCode ? '' : 'none'; $('#schoolBox').style.display = needCode ? 'none' : ''; $('#scMsg').textContent = '';
+  $('#scName').textContent = lsGet('mw_school_name') ? '🏫 ' + lsGet('mw_school_name') : '';
   (needCode ? $('#schoolCode') : $('#sid')).focus();
 }
 $('#scGo').onclick = async () => {
   const code = $('#schoolCode').value.trim(), msg = $('#scMsg'); if (code.length < 3) { msg.textContent = t('sc_wrong'); return; }
   msg.textContent = t('checking'); $('#scGo').disabled = true;
   try {
-    const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'school', code }) }), j = await r.json();
-    if (j.ok && j.token) { lsSet('mw_school', j.token); $('#schoolCode').value = ''; openSchool(); }
-    else msg.textContent = t(j.error === 'busy' ? 'sc_busy' : 'sc_wrong');
+    const j = await joinCode(code);
+    if (j.ok) { $('#schoolCode').value = ''; openSchool(); }
+    else msg.textContent = codeMsg(j.error);
   } catch (e) { msg.textContent = t('app_noinet'); }
   $('#scGo').disabled = false;
 };
@@ -5347,8 +5455,8 @@ async function needSchoolToken() {   // the school code once per device (when th
   if (schoolToken()) return true;
   return new Promise(res => {
     modal(t('sc_t'), `<p class="small">${t('sc_info')}</p><input id="mvCode" type="text" maxlength="20" autocapitalize="characters" placeholder="${t('sc_ph')}"><div class="msg" id="mvMsg"></div>`, [[t('sc_go'), async () => {
-      try { const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'school', code: $('#mvCode').value.trim() }) }), j = await r.json();
-        if (j.ok && j.token) { lsSet('mw_school', j.token); res(true); } else { toast(t('sc_wrong')); res(false); } } catch (e) { toast(t('app_noinet')); res(false); } }], [t('cancel'), () => res(false), true]]);
+      try { const j = await joinCode($('#mvCode').value.trim());
+        if (j.ok) res(true); else { toast(codeMsg(j.error)); res(false); } } catch (e) { toast(t('app_noinet')); res(false); } }], [t('cancel'), () => res(false), true]]);
   });
 }
 async function joinSchool() {   // 📴 / 🏠 → 🏫: real name and class, then the hero's progress goes to the school sheet once the student confirms; the teacher approves

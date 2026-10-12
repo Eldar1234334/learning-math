@@ -36,3 +36,18 @@ Paste the new code → **💾 Save** → **Deploy → Manage deployments** → �
 
 ## Play at home (part 3)
 Home players use the counting service shared with the reading game (every call says `game: 'math'`). That service is updated in its own Apps Script project, not from this repo: paste the new code → 💾 Save → Deploy → Manage deployments → ✏️ → New version → Deploy.
+
+## The Admin's school list (schools spec, part 1)
+One small sheet and script that only the Admin (the game's owner) uses. It turns a school code into that school's own link and keeps each school's **counts only** (students, played today, script version). No names, classes, numbers or progress ever go there.
+
+1. Signed in as the Admin's Google account, open **script.google.com → New project**. Name it **SpellQuest Math – schools (Admin)**.
+2. Paste https://raw.githubusercontent.com/Eldar1234334/learning-math/test-phase12/tools/apps-script/registry/Code.gs → **💾 Save**.
+3. **⚙️ Project Settings → Script properties → Add**: `ADMIN_EMAIL` = the e-mail that should get the Admin's sign-in codes → **Save**.
+4. Back in the editor, choose the function **setup** → **▶ Run** → allow the permissions. It makes the sheet "SpellQuest Math – schools (Admin: counts only)" and a daily count.
+5. **Deploy → New deployment → Web app**: Execute as **Me**, access **Anyone** → **Deploy**. Send me the link (ending in `/exec`); it goes into the game as `REGISTRY_URL`.
+
+### Adding a school
+1. In the game: **🔑 Admin** (bottom of the start screen) → your e-mail → the code from the e-mail.
+2. **➕ New school**: the school's name and the Gmail of the account that will keep its data. The game shows `REGISTRY_URL` and a one-time `SETUP_TOKEN`.
+3. In that account, the school's script (the steps at the top of this page, with the newest Code.gs): add the script properties `REGISTRY_URL`, `SETUP_TOKEN` and `WEB_APP_URL` (its own web app link) → choose the function **linkRegistry** → **▶ Run** → allow. The school is now **active**: its code works, and its counts reach your list.
+4. The school's code is changed only in that school's teacher area. Two schools can never have the same code.
