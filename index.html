@@ -47,6 +47,10 @@ input[type=text],input[type=password]{width:100%;padding:14px;border-radius:12px
 .questcard{flex:1 1 300px;text-align:left;border:2px solid #fff3;border-radius:20px;padding:18px;background:var(--panel);min-height:150px}
 #world{position:relative;width:100%;max-width:760px;margin:0 auto;aspect-ratio:100/70;border-radius:20px;overflow:hidden;border:2px solid #fff3;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 #worldArt{position:absolute;inset:0;width:100%;height:100%}
+#backupBtn{display:none}#menu.on #backupBtn:not([style*="none"]){display:block;position:fixed;left:8px;bottom:46px;z-index:50;font:inherit;font-size:.78rem;color:#fff;background:#1b1340cc;border:1px solid #fff4;border-radius:18px;padding:7px 12px;cursor:pointer}
+.modeBtns{display:grid;gap:10px;margin:8px 0}.modeBtn{display:flex;align-items:center;gap:12px;text-align:start;font:inherit;color:#fff;background:#ffffff14;border:2px solid #ffffff33;border-radius:16px;padding:12px 14px;cursor:pointer}.modeBtn:hover{border-color:var(--gold);background:#ffd16618}.modeBtn .mIco{font-size:2rem}.modeBtn .mTxt{display:flex;flex-direction:column}.modeBtn b{font-size:1.15rem}.modeBtn small{opacity:.8}
+.heroList{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}.heroChip{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;color:#fff;background:#ffffff14;border:2px solid #ffffff33;border-radius:14px;padding:6px 10px;cursor:pointer;min-width:84px}.heroChip:hover{border-color:var(--gold)}.heroChip .hcHero svg{width:44px;height:56px;display:block}.heroChip .hcBadge{position:absolute;top:2px;inset-inline-end:4px}
+.footLinks{margin-top:6px}.modeBadge{font-size:.9em}
 #logoutBtn{display:none}#menu.on #logoutBtn{display:block;position:fixed;left:8px;bottom:8px;z-index:50;font:inherit;font-size:.78rem;color:#fff;background:#1b1340cc;border:1px solid #fff4;border-radius:18px;padding:7px 12px;cursor:pointer}
 .place{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:4px;color:#fff;cursor:pointer;width:30%}
 .place .pIcon{font-size:clamp(2rem,8vw,3.6rem);line-height:1;filter:drop-shadow(0 3px 3px #0008);transition:transform .2s}
@@ -679,13 +683,33 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="langBar"><button class="langBtn" data-lang-toggle></button></div>
   <h1>✨ <span data-t="game_name"></span> ✨</h1>
   <p class="sub" data-t="login_sub"></p>
-  <div class="card center" style="max-width:420px;margin:24px auto">
-    <h2 data-t="welcome"></h2>
-    <p id="loginHint" data-th="login_hint"></p>
-    <input id="sid" type="text" data-tp="sid_ph" autocomplete="off" autocapitalize="characters" maxlength="20">
+  <div class="card center" style="max-width:440px;margin:18px auto">
+    <!-- the start screen (shared login spec §4): heroes on this device, then the three modes -->
+    <div id="startBox">
+      <div id="heroesBox" style="display:none"><div class="small" style="margin-bottom:6px" data-t="continue_as"></div><div id="heroList" class="heroList"></div></div>
+      <div class="modeBtns">
+        <button class="modeBtn" data-mode="school"><span class="mIco">🏫</span><span class="mTxt"><b data-t="m_school"></b><small data-t="m_school_d"></small></span></button>
+        <button class="modeBtn" data-mode="home"><span class="mIco">🏠</span><span class="mTxt"><b data-t="m_home"></b><small data-t="m_home_d"></small></span></button>
+        <button class="modeBtn" data-mode="off"><span class="mIco">📴</span><span class="mTxt"><b data-t="m_off"></b><small data-t="m_off_d"></small></span></button>
+      </div>
+      <button class="btn ghost" id="loadHeroBtn" style="margin-top:10px" data-t="load_hero"></button><input type="file" id="heroFile" accept=".json,application/json" hidden>
+    </div>
+    <!-- 🏫 school student: the student number from the teacher's card, or "I am new" -->
+    <div id="schoolBox" style="display:none">
+      <h2 data-t="welcome"></h2>
+      <p id="loginHint" data-th="login_hint"></p>
+      <input id="sid" type="text" data-tp="sid_ph" autocomplete="off" autocapitalize="characters" maxlength="20">
+      <div class="msg" id="loginMsg"></div>
+      <button class="btn" id="loginBtn" data-t="login_go"></button>
+      <div class="or" id="orLine" data-t="or"></div>
+      <button class="btn ghost" id="newBtn" data-t="new_btn"></button>
+      <div><a href="#" class="adminLink backStart" data-t="back"></a></div>
+    </div>
+    <!-- 🏠 play at home: a parent's e-mail code, once per device -->
     <div id="appLogin" style="display:none">
-      <div id="appHeroesBox" style="display:none"><div class="small" style="margin-bottom:6px" data-t="continue_as"></div><div id="appHeroes"></div><div class="or" data-t="or"></div></div>
+      <h2 data-t="m_home"></h2>
       <div id="appStep1">
+        <p class="small" data-t="home_info"></p>
         <button class="btn" id="appSignBtn" data-t="app_sign"></button>
         <div class="small" style="opacity:.8;margin:4px 0 8px" data-t="app_sign_note"></div>
       </div>
@@ -693,19 +717,12 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
         <input id="appEmail" type="email" data-tp="app_email_ph" autocomplete="email" autocapitalize="none" maxlength="80">
         <button class="btn" id="appSend" style="margin-top:8px" data-t="app_send"></button>
         <div id="appCodeBox" style="display:none;margin-top:10px"><div class="small" data-t="app_code_lbl"></div><input id="appCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="margin:6px 0"><button class="btn" id="appVerify" data-t="app_verify"></button><div><a href="#" id="appResend" class="adminLink" data-t="app_resend"></a></div></div>
-        <div class="msg" id="appMsg"></div>
-        <a href="#" id="appBack" class="adminLink" data-t="back"></a>
       </div>
-      <div class="or" id="appOr" data-t="or"></div>
-      <button class="btn ghost" id="appOffline" data-t="app_offline"></button>
+      <div class="msg" id="appMsg"></div>
+      <div><a href="#" class="adminLink backStart" data-t="back"></a></div>
     </div>
-    <div class="msg" id="loginMsg"></div>
-    <button class="btn" id="loginBtn" data-t="login_go"></button>
-    <div class="or" id="orLine" data-t="or"></div>
-    <button class="btn ghost" id="newBtn" data-t="new_btn"></button>
   </div>
-  <div class="center" id="adminWrap"><a href="#" id="adminLink" class="adminLink" data-t="teacher_link"></a></div>
-  <div class="credit" id="privNote" style="display:none"></div>
+  <div class="center footLinks" id="adminWrap"><a href="#" id="adminLink" class="adminLink" data-t="teacher_link"></a><span class="sep"> · </span><a href="#" id="privLink" class="adminLink" data-t="priv_link"></a></div>
   <div class="center"><button class="btn ghost" id="installBtn" style="display:none;margin-top:10px" data-t="install"></button></div>
   <div class="credit" data-t="credit"></div>
 </section>
@@ -849,7 +866,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <button class="owlBtn" id="owlBtn" title="Show me how to play" aria-label="Show me how to play"></button>
   </div>
   <div class="row" style="margin-top:10px"><button class="btn ghost danger" id="abandonMapBtn" style="display:none" data-t="abandon_map"></button></div>
-  <button class="ghostSmall" id="logoutBtn" data-t="logout"></button>
+  <button class="ghostSmall" id="backupBtn" data-t="save_hero"></button><button class="ghostSmall" id="logoutBtn" data-t="logout"></button>
   <div class="credit small" data-t="credit"></div>
 </section>
 
@@ -1292,6 +1309,19 @@ const STR = {
   tut_grow: ['Every right answer makes you a stronger wizard: new spells, new monsters and new places. Good luck!', 'כל תשובה נכונה הופכת אתכם לקוסמים חזקים יותר: כישופים חדשים, מפלצות חדשות ומקומות חדשים. בהצלחה!'],
   tut_fin_t: ['You\'re ready!', 'אתם מוכנים!'], tut_fin_b: ['Pip the owl waits on the map: tap it any time to see this again.', 'פיפ הינשוף מחכה במפה: הקישו עליו בכל זמן כדי לראות שוב.'], tut_begin: ['Start playing ▶', 'מתחילים לשחק ◀'],
   game_name: ['SpellQuest: Math Adventure', 'לחשים: הרפתקת חשבון'],
+  m_school: ['I\'m a school student', 'אני תלמיד או תלמידה בבית ספר'], m_school_d: ['Sign in with the number from your teacher', 'נכנסים עם המספר מהמורה'],
+  m_home: ['Play at home', 'משחקים בבית'], m_home_d: ['A parent signs up once; your game stays on this device', 'הורה נרשם פעם אחת; המשחק נשמר במכשיר'],
+  m_off: ['Play offline', 'משחקים בלי אינטרנט'], m_off_d: ['No sign-up; your game stays on this device', 'בלי הרשמה; המשחק נשמר במכשיר'],
+  home_info: ['Ask a parent to type their e-mail. We send a code to check it. The e-mail is not saved: we only count how many families play.', 'בקשו מהורה להקליד את כתובת המייל שלו. נשלח קוד כדי לבדוק אותה. הכתובת לא נשמרת: אנחנו רק סופרים כמה משפחות משחקות.'],
+  home_soon: ['Play at home opens soon. Meanwhile you can play offline.', 'משחק בבית ייפתח בקרוב. בינתיים אפשר לשחק בלי אינטרנט.'],
+  now_home: ['🏠 Your hero now plays at home.', '🏠 הגיבור שלכם משחק עכשיו בבית.'],
+  load_hero: ['📂 Load a hero', '📂 לטעון גיבור'], save_hero: ['💾 Save my hero', '💾 לשמור את הגיבור'], hero_saved: ['💾 Your hero is saved in a file. Keep it safe!', '💾 הגיבור נשמר בקובץ. שמרו אותו במקום בטוח!'],
+  file_bad: ['This file is damaged or is not a hero file.', 'הקובץ הזה פגום או שהוא לא קובץ של גיבור.'], file_other: ['This file is not from SpellQuest: Math Adventure.', 'הקובץ הזה לא מהמשחק לחשים: הרפתקת חשבון.'],
+  file_school: ['This is a school hero. Sign in with your student number instead.', 'זה גיבור של בית ספר. היכנסו עם מספר התלמיד.'],
+  file_ok: ['Load <b>{nick}</b> (saved {d})? It replaces the copy of this hero on this device.', 'לטעון את <b>{nick}</b> (נשמר ב-{d})? הוא יחליף את העותק של הגיבור הזה במכשיר.'], load_yes: ['Load ▶', 'לטעון ◀'],
+  priv_link: ['🔒 Privacy', '🔒 פרטיות'], priv_t: ['🔒 Privacy: what is saved, and where', '🔒 פרטיות: מה נשמר, ואיפה'],
+  priv_body: ['<p><b>🏫 School student:</b> your game is saved on this device and in your school\'s Google Sheet, with your real name and class, so your teacher can see your progress. Only the school keeps it. A parent can ask the teacher to delete it.</p><p><b>🏠 Play at home:</b> your game stays on this device only. A parent signs up once with an e-mail code; the e-mail address is not saved, only a scrambled fingerprint to count how many families play. Each day the game also sends an anonymous "+1 played today".</p><p><b>📴 Offline:</b> nothing is sent anywhere.</p><p>A game kept only on a device can be lost (a lost phone, a cleared browser). Install the app, and use 💾 Save my hero to keep a backup file.</p>',
+    '<p><b>🏫 תלמידי בית ספר:</b> המשחק נשמר במכשיר ובגיליון של בית הספר ב-Google, עם השם האמיתי והכיתה, כדי שהמורה יראה את ההתקדמות. רק בית הספר שומר אותו. הורה יכול לבקש מהמורה למחוק אותו.</p><p><b>🏠 משחק בבית:</b> המשחק נשמר רק במכשיר. הורה נרשם פעם אחת עם קוד במייל; כתובת המייל לא נשמרת, רק טביעה מוצפנת כדי לספור כמה משפחות משחקות. בכל יום המשחק שולח גם "+1 שיחקו היום" בלי שום פרט מזהה.</p><p><b>📴 בלי אינטרנט:</b> שום דבר לא נשלח.</p><p>משחק שנשמר רק במכשיר יכול ללכת לאיבוד (טלפון שאבד, דפדפן שנמחק). התקינו את האפליקציה, והשתמשו ב"💾 לשמור את הגיבור" כדי לשמור קובץ גיבוי.</p>'],
   ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
@@ -1731,6 +1761,7 @@ function migrate(p) {
   p.style = p.style || null; p.acc = p.acc || {}; p.wd = p.wd || [];   // the wardrobe: robe style, accessories, and what you own of them
   p.beard = p.beard || (p.gender === 'f' ? 'none' : 'short');
   p.items = p.items || blankUses(); p.itemUses = p.itemUses || { battle: blankUses(), peace: blankUses() }; p.ws = p.ws || { on: false, hi: false };   // the Artificer: magic items, uses this quest, workshop seen
+  p.mode = p.mode || (p.local ? 'off' : p.app ? 'home' : 'school');   // the login mode (login spec): heroes made before it keep their old way
   p.v = PROFILE_V;
   return p;
 }
@@ -1755,12 +1786,12 @@ function saveSoon(now) {
   P.updated = Date.now(); pruneSec();
   lsSet('mw_p_' + P.id, JSON.stringify(P));
   clearTimeout(saveTimer);
-  if (!CFG.SCRIPT_URL) { setCloud('none'); return; }
+  if (!CFG.SCRIPT_URL || heroMode(P) !== 'school') { setCloud('none'); return; }   // only school heroes are saved online (login spec §2)
   setCloud('pend');
   saveTimer = setTimeout(cloudSave, now ? 0 : 4000);
 }
 async function cloudSave() {
-  if (!P || !CFG.SCRIPT_URL) return;
+  if (!P || !CFG.SCRIPT_URL || heroMode(P) !== 'school') return;
   const total = Object.values(P.sec).reduce((a, b) => a + b, 0);
   const body = JSON.stringify({ id: P.id, nick: P.nick, mlvl: P.mlvl, tier: P.mlvl, wiz: wizLvl(), xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
     min: Math.round(total / 60), coins: Math.floor(P.coins || 0), craftAcc: P.craft && P.craft.n ? Math.round(100 * P.craft.ok / P.craft.n) : 0, restarts: P.restartsTotal || 0, real: P.real || '', cls: P.cls || '', data: JSON.stringify(P) });
@@ -1819,18 +1850,16 @@ function confetti(emojis = ['⭐', '✨', '🎉', '🪄']) {
 const norm = s => s.trim().toUpperCase().replace(/\s+/g, '');
 let pendingId = '', cr = { g: 'm', color: COLORS[1], skin: SKINS[2], hair: null };
 
-$('#sid').value = lsGet(APP ? 'mw_app_last' : 'mw_last') || '';
+$('#sid').value = lsGet('mw_last') || '';
 $('#sid').addEventListener('keydown', e => { if (e.key === 'Enter') $('#loginBtn').click(); });
 $('#loginBtn').onclick = async () => {
-  const id = APP ? $('#sid').value.trim().toLowerCase() : norm($('#sid').value), msg = $('#loginMsg');
-  if (APP && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(id)) { msg.textContent = t('login_bademail'); return; }
-  if (!APP && id.length < 4) { msg.textContent = t('login_short'); return; }
+  const id = norm($('#sid').value), msg = $('#loginMsg');   // 🏫 school mode: the student number
+  if (id.length < 4) { msg.textContent = t('login_short'); return; }
   msg.textContent = t('login_looking'); $('#loginBtn').disabled = true;
   const r = await loadProfile(id);
   $('#loginBtn').disabled = false; msg.textContent = '';
-  lsSet(APP ? 'mw_app_last' : 'mw_last', id);
+  lsSet('mw_last', id);
   if (r.profile) { enterProfile(r.profile); setCloud(CFG.SCRIPT_URL ? (r.offline ? 'off' : 'ok') : 'none'); openMenu(); return; }
-  if (APP) { modal(t('newhero_t'), t('newhero_b', { id: esc(id) }), [[t('yes_create'), () => { pendingId = id; pendingReal = pendingCls = ''; openCreator(); }], [t('no_mistyped'), null, true]]); return; }
   if (r.deleted) { modal(t('removed_t'), t('removed_b', { nb: t('new_plain') }), [[t('new_btn'), () => $('#newBtn').click()], [t('ok'), null, true]]); return; }
   modal(t('unknown_t'), t('unknown_b', { id: esc(id), warn: r.offline ? t('unknown_off') : '', nb: t('new_plain') }),
     [[t('try_again'), null], [t('new_btn'), () => $('#newBtn').click(), true]]);
@@ -1845,7 +1874,7 @@ function removedByTeacher() {   // the teacher deleted this student: forget the 
   const id = P && P.id; P = null; try { if (id) localStorage.removeItem('mw_p_' + id); } catch (e) {}
   show('login'); modal(t('removed_t'), t('removed_b', { nb: t('new_plain') }), [[t('ok'), null]]);
 }
-$('#newBtn').onclick = () => { $('#regName').value = ''; $('#regClass').value = ''; $('#regMsg').textContent = ''; $('#regMsg2').textContent = ''; $('#regTick').checked = false; $('#regForm').style.display = ''; $('#regDone').style.display = 'none'; show('register'); };
+$('#newBtn').onclick = () => { pendingMode = 'school'; $('#regName').value = ''; $('#regClass').value = ''; $('#regMsg').textContent = ''; $('#regMsg2').textContent = ''; $('#regTick').checked = false; $('#regForm').style.display = ''; $('#regDone').style.display = 'none'; show('register'); };
 $('#regBack').onclick = () => show('login');
 $('#regGo').onclick = async () => {
   const name = $('#regName').value.trim().replace(/\s+/g, ' '), cls = $('#regClass').value.trim().replace(/\s+/g, ' '), msg = $('#regMsg');
@@ -1856,7 +1885,7 @@ $('#regGo').onclick = async () => {
   for (let k = 0; k < 8 && !id; k++) { const c = genId(), r = await loadProfile(c); if (r.offline || (!r.profile && !r.deleted)) id = c; }   // a number nobody has used (offline, the chance of a clash is tiny)
   $('#regGo').disabled = false; msg.textContent = '';
   if (!id) { msg.textContent = t('err_generic'); return; }
-  pendingId = id; pendingReal = name; pendingCls = cls; lsSet(APP ? 'mw_app_last' : 'mw_last', id); $('#sid').value = id;
+  pendingMode = 'school'; pendingId = id; pendingReal = name; pendingCls = cls; lsSet('mw_last', id); $('#sid').value = id;
   $('#regId').textContent = id; $('#regForm').style.display = 'none'; $('#regDone').style.display = '';
 };
 $('#regNext').onclick = () => { if (!$('#regTick').checked) { $('#regMsg2').textContent = t('reg_tickfirst'); return; } openCreator(); };
@@ -1937,7 +1966,7 @@ document.querySelectorAll('.gbtn').forEach(b => b.onclick = () => { cr.g = b.dat
 $('#createBtn').onclick = () => {
   const nick = $('#nick').value.trim();
   if (nick.length < 2) { $('#creatorMsg').textContent = t('nick_short'); return; }
-  P = newProfile(pendingId, nick, cr.g, cr.color, pendingReal, pendingCls, cr.skin, cr.hair, cr.grade); P.lang = LANG; P.beard = cr.g === 'm' ? cr.beard : 'none'; if (APP) { P.app = true; if (pendingId.startsWith('local-')) P.local = true; } pendingReal = pendingCls = ''; saveSoon(true); openMenu(); if (!P.tutorialDone) startTutorial();
+  P = newProfile(pendingId, nick, cr.g, cr.color, pendingReal, pendingCls, cr.skin, cr.hair, cr.grade); P.lang = LANG; P.beard = cr.g === 'm' ? cr.beard : 'none'; P.mode = pendingMode; if (P.mode !== 'school') { P.real = ''; P.cls = ''; keepDeviceData(); }   /* the hero's mode (login spec); a device-only hero keeps no real name or class */ pendingReal = pendingCls = ''; saveSoon(true); openMenu(); if (!P.tutorialDone) startTutorial();
 };
 
 /* ====================== MENU ====================== */
@@ -1953,7 +1982,7 @@ const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>
 function openMenu() {
   G.quest = null; show('menu');
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
-  $('#menuWho').textContent = P.nick;
+  $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
   $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
   $('#menuXp').style.width = xpPct() + '%';
@@ -2018,7 +2047,8 @@ document.querySelectorAll('.place').forEach(b => b.onclick = () => walkTo(b.data
   };
   h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
 })();
-$('#logoutBtn').onclick = async () => { saveSoon(true); await sleep(300); P = null; $('#sid').value = ''; show('login'); };
+$('#logoutBtn').onclick = async () => { saveSoon(true); await sleep(300); P = null; $('#sid').value = ''; renderStart(); show('login'); };
+$('#backupBtn').onclick = () => saveHeroFile();
 $('#menuMute').onclick = $('#muteBtn').onclick = () => setMute(!muted);
 $('#homeBtn').onclick = () => { saveSoon(true); openMenu(); };
 
@@ -5110,26 +5140,43 @@ const ssSet = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) {} };
   $('#pass').addEventListener('keydown', e => { if (e.key === 'Enter') $('#gateBtn').click(); });
 })();
 
-/* ----- app: sign up with an e-mail code (so the number of users is known), or play offline. Game data never leaves the device. ----- */
-function appHeroList() {   // heroes saved on this device by the app
-  const out = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!k.startsWith('mw_p_')) continue; const p = JSON.parse(localStorage.getItem(k)); if (p && p.app) out.push(p); } } catch (e) {}
+/* ----- the start screen (shared login and privacy spec, part 1): heroes on this device, and three modes the user chooses on any device (web or installed app).
+   🏫 school student: the student number (the school sheet comes in part 2) · 🏠 play at home: a parent's e-mail code, game data on the device only · 📴 offline: nothing sent.
+   School heroes are not listed (shared devices: each student types their number). ----- */
+const MODE_BADGE = { school: '🏫', home: '🏠', off: '📴' };
+const heroMode = p => p.mode || (p.local ? 'off' : p.app ? 'home' : 'school');   // heroes made before the modes: web = school, app = home or offline
+function deviceHeroes() {   // private and offline heroes saved on this device, last played first
+  const out = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!k.startsWith('mw_p_')) continue; const p = JSON.parse(localStorage.getItem(k)); if (p && heroMode(p) !== 'school') out.push(p); } } catch (e) {}
   return out.sort((a, b) => (b.updated || 0) - (a.updated || 0));
 }
-function renderAppLogin() {
-  const hs = appHeroList(); $('#appHeroesBox').style.display = hs.length ? '' : 'none';
-  $('#appHeroes').innerHTML = hs.map(p => `<button class="btn appHero" data-id="${esc(p.id)}">${p.local ? '📴' : '✅'} ${esc(p.nick)}</button>`).join('');
-  $('#appStep1').style.display = VERIFY_URL ? '' : 'none'; $('#appOr').style.display = VERIFY_URL ? '' : 'none';   // no e-mail service yet: offline play only
-  $('#appStep2').style.display = 'none'; $('#appMsg').textContent = '';
+let pendingMode = 'school';
+function renderStart() {   // back to the first view of the start screen
+  const hs = deviceHeroes(); $('#heroesBox').style.display = hs.length ? '' : 'none';
+  $('#heroList').innerHTML = hs.map(p => `<button class="heroChip" data-id="${esc(p.id)}"><span class="hcHero">${heroOf(p)}</span><b>${esc(p.nick)}</b><span class="hcBadge">${MODE_BADGE[heroMode(p)]}</span></button>`).join('');
+  $('#startBox').style.display = ''; $('#schoolBox').style.display = 'none'; $('#appLogin').style.display = 'none'; $('#loginMsg').textContent = ''; $('#appMsg').textContent = '';
+}
+function keepDeviceData() { try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} }   // ask the browser not to clear a device-only hero (spec §6)
+async function enterDeviceHero(id) {
+  const r = await loadProfile(id); if (!r.profile) return;
+  enterProfile(r.profile); P.mode = heroMode(P); setCloud('none'); keepDeviceData(); openMenu();
+}
+$('#heroList').onclick = e => { const b = e.target.closest('.heroChip'); if (b) enterDeviceHero(b.dataset.id); };
+document.querySelectorAll('.backStart').forEach(a => { a.onclick = e => { e.preventDefault(); renderStart(); }; });
+$('.modeBtns').onclick = e => {
+  const b = e.target.closest('.modeBtn'); if (!b) return; const m = b.dataset.mode;
+  if (m === 'school') { $('#startBox').style.display = 'none'; $('#schoolBox').style.display = ''; $('#sid').focus(); return; }
+  if (m === 'home') { $('#startBox').style.display = 'none'; $('#appLogin').style.display = ''; renderHome(); return; }
+  pendingMode = 'off'; pendingId = 'local-' + Math.random().toString(36).slice(2, 10); pendingReal = pendingCls = ''; openCreator();   // 📴 offline: a hero on this device
+};
+function renderHome() {   // 🏠 the e-mail step (the counting service is set up in part 3; until then this mode explains and offers offline play)
+  $('#appStep1').style.display = ''; $('#appStep2').style.display = 'none'; $('#appMsg').textContent = '';
+  $('#appSignBtn').disabled = !VERIFY_URL; if (!VERIFY_URL) $('#appMsg').textContent = t('home_soon');
 }
 async function appPost(body) {
-  const r = await fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }); return r.json();
+  const r = await fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ game: 'math' }, body)) }); return r.json();
 }
-if (APP) {
-  $('#sid').style.display = 'none'; $('#loginBtn').style.display = 'none'; $('#loginHint').style.display = 'none'; $('#appLogin').style.display = ''; renderAppLogin();
-  $('#privNote').dataset.t = VERIFY_URL ? 'priv_email' : 'priv_local';
-  $('#appHeroes').onclick = async e => { const b = e.target.closest('.appHero'); if (!b) return; const r = await loadProfile(b.dataset.id); if (r.profile) { enterProfile(r.profile); setCloud('none'); openMenu(); } };
-  $('#appSignBtn').onclick = () => { $('#appStep1').style.display = 'none'; $('#appStep2').style.display = ''; $('#appEmail').focus(); };
-  $('#appBack').onclick = e => { e.preventDefault(); renderAppLogin(); };
+$('#appSignBtn').onclick = () => { $('#appStep1').style.display = 'none'; $('#appStep2').style.display = ''; $('#appEmail').focus(); };
+{
   const sendCode = async () => {
     const em = $('#appEmail').value.trim().toLowerCase(), msg = $('#appMsg');
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { msg.textContent = t('login_bademail'); return; }
@@ -5148,22 +5195,36 @@ if (APP) {
     msg.textContent = t('checking'); $('#appVerify').disabled = true;
     try {
       const j = await appPost({ action: 'appVerify', email: em, code });
-      if (j.ok) {
-        const r = await loadProfile(em); msg.textContent = '';
-        if (r.profile) { enterProfile(r.profile); P.app = true; setCloud('none'); openMenu(); }   // this email already has a hero on this device
-        else { pendingId = em; pendingReal = pendingCls = ''; openCreator(); }
+      if (j.ok) {   // the e-mail is not kept: the hero gets a device id
+        msg.textContent = ''; pendingMode = 'home'; pendingId = 'home-' + Math.random().toString(36).slice(2, 10); pendingReal = pendingCls = '';
+        if (P && heroMode(P) === 'off') { P.mode = 'home'; P.local = false; saveSoon(true); openMenu(); toast(t('now_home')); } else openCreator();   // an offline hero signs up (spec §5)
       } else msg.textContent = t({ wrong: 'app_e_wrong', expired: 'app_e_expired', locked: 'app_e_locked' }[j.error] || 'app_e_try');
     } catch (e) { msg.textContent = t('app_noinet2'); }
     $('#appVerify').disabled = false;
   };
-  $('#appOffline').onclick = () => { pendingId = 'local-' + Math.random().toString(36).slice(2, 10); pendingReal = pendingCls = ''; openCreator(); };
 }
-/* ----- app mode: texts and hidden parts ----- */
-if (APP) {
-  $('#newBtn').style.display = 'none'; $('#orLine').style.display = 'none'; $('#adminWrap').style.display = 'none'; $('#installBtn').style.display = 'none'; $('#privNote').style.display = '';
+/* ----- the backup file (spec §6): "Save my hero" downloads the hero; "Load a hero" restores it on any device. Checked by game id, version and a checksum. ----- */
+const fnv = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };
+function saveHeroFile() {
+  if (!P) return; const p = Object.assign({}, P); delete p.real; delete p.cls;   // no real name or class in the file
+  const prof = JSON.stringify(p), file = JSON.stringify({ game: 'math', app: 'SpellQuest: Math Adventure', v: PROFILE_V, saved: new Date().toISOString(), sum: fnv(prof), profile: prof });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([file], { type: 'application/json' })); a.download = `SpellQuest-${(P.nick || 'hero').replace(/[^\w֐-׿-]+/g, '_')}.json`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast(t('hero_saved'));
 }
+$('#loadHeroBtn').onclick = () => { $('#heroFile').value = ''; $('#heroFile').click(); };
+$('#heroFile').onchange = async e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  let w, p; try { w = JSON.parse(await f.text()); p = JSON.parse(w.profile); } catch (x) { modal(t('load_hero'), t('file_bad'), [[t('ok'), null]]); return; }
+  if (w.game !== 'math' || !p || !p.id || !p.nick) { modal(t('load_hero'), t('file_other'), [[t('ok'), null]]); return; }
+  if (fnv(w.profile) !== w.sum) { modal(t('load_hero'), t('file_bad'), [[t('ok'), null]]); return; }
+  if (heroMode(p) === 'school') { modal(t('load_hero'), t('file_school'), [[t('ok'), null]]); return; }
+  modal(t('load_hero'), t('file_ok', { nick: esc(p.nick), d: new Date(w.saved).toLocaleDateString() }), [[t('load_yes'), () => { lsSet('mw_p_' + p.id, JSON.stringify(migrate(p))); enterDeviceHero(p.id); }], [t('cancel'), null, true]]);
+};
+/* ----- the privacy page (spec §4, §9): what each mode saves and where ----- */
+$('#privLink').onclick = e => { e.preventDefault(); modal(t('priv_t'), t('priv_body'), [[t('ok'), null]]); };
+if (APP) $('#installBtn').style.display = 'none';
 /* init */
-applyLang(); setMute(muted); setCloud(CFG.SCRIPT_URL ? '' : 'none');
+applyLang(); setMute(muted); setCloud(CFG.SCRIPT_URL ? '' : 'none'); renderStart();
 </script>
 </body>
 </html>

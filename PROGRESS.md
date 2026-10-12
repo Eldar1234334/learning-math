@@ -587,7 +587,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 
 ---
 
-## Step 11: Saving (in progress: waiting for your two URLs)
+## Step 11: Login and saving (in parts; part 1 on the test site)
 
 **Goal:** progress saves to a **new, separate** Google Sheet with its own Apps Script, and the teacher sees the math level (HANDOFF §8).
 
@@ -601,3 +601,17 @@ Every spell was shown in the browser one family at a time; your comments were bu
 **Next:** you create the two services in `learningtoread.app@gmail.com` (about 10 minutes) and send me the two URLs; I put them in the game, test saving on the test site, and report.
 - **The game's new name** (owner): **SpellQuest: Math Adventure** / **לחשים: הרפתקת חשבון**: the page title (it follows the language), the login and start screens, the installed app's name (short: SpellQuest), and the app's code e-mail. The new icon comes from your picture.
 - **Waiting:** your logging spec (it may change how the progress sheet works), before you set up the two services.
+
+### Step 11, part 1: the start screen with three modes ✅ (on the test site, waiting for your check)
+The shared login and privacy design (from the design session; kept locally, not in this public repo) replaces the old plan for this step. Your decisions: the two games **share the reading game's counting service** (I prepare its small change, you deploy it), and the step is built **in parts**.
+- **The start screen** (the same in the web version and the installed app): heroes on this device first ("Continue as:", each with its badge), then three modes:
+  - 🏫 **I'm a school student**: the student number, or "I am new" (the school sheet, the school code, class lists and teacher approval come in part 2).
+  - 🏠 **Play at home**: a parent's e-mail code (it opens in part 3, with the counting service; until then it says so and suggests offline play).
+  - 📴 **Play offline**: make a hero right away; nothing is sent anywhere.
+- **Device heroes** (home and offline) are listed on the start screen; school heroes are not (shared devices: each student types their number). The menu shows the hero's badge (🏫 / 🏠 / 📴).
+- **Only school heroes are saved online.** A device hero keeps no real name or class, and the game asks the browser to keep its data.
+- **💾 Save my hero** (menu, device heroes) downloads a backup file; **📂 Load a hero** (start screen) restores it on any device. The file is checked (game, version, a checksum), has no real name or class, and a school hero cannot be loaded this way.
+- **🔒 Privacy** (start screen) explains in both languages what each mode saves and where.
+- Earlier in this step: the new name **SpellQuest: Math Adventure / לחשים: הרפתקת חשבון**. The new icon waits for the picture file.
+
+**How to check:** open the test site → the start screen. Play offline (a hero is made, the tutorial runs), save the hero file from the menu, log out: the hero is listed; Load a hero restores it. Tap 🔒 Privacy.
