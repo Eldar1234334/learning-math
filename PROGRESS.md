@@ -699,3 +699,6 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 - **🏫 School owner → "The old teacher password still opens this area"**: the school owner turns it off once everyone signs in by e-mail, and can turn it on again. Only someone signed in **by e-mail** can turn it off (so nobody is locked out); then the password answers "This school no longer uses the teacher password". New schools never had one.
 - The owner decides when; my suggestion: after phase 12 is live and you have signed in by e-mail on the live site.
 - School script version 8. Mock tests: 25 staff checks (5 new), 112 in all; the game's 111 tests.
+
+## 🚀 Phase 12 live (2026-10-12)
+The owner approved going live: `main` has the schools and roles (parts 1–8). Devices already in the first school keep working; the old teacher password still works until the school owner turns it off.
