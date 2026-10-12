@@ -51,7 +51,7 @@ input[type=text],input[type=password]{width:100%;padding:14px;border-radius:12px
 #backupBtn{display:none}#menu.on #backupBtn:not([style*="none"]){display:block;position:fixed;left:8px;bottom:46px;z-index:50;font:inherit;font-size:.78rem;color:#fff;background:#1b1340cc;border:1px solid #fff4;border-radius:18px;padding:7px 12px;cursor:pointer}
 .modeBtns{display:grid;gap:10px;margin:8px 0}.modeBtn{display:flex;align-items:center;gap:12px;text-align:start;font:inherit;color:#fff;background:#ffffff14;border:2px solid #ffffff33;border-radius:16px;padding:12px 14px;cursor:pointer}.modeBtn:hover{border-color:var(--gold);background:#ffd16618}.modeBtn .mIco{font-size:2rem}.modeBtn .mTxt{display:flex;flex-direction:column}.modeBtn b{font-size:1.15rem}.modeBtn small{opacity:.8}
 .heroList{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}.heroChip{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;color:#fff;background:#ffffff14;border:2px solid #ffffff33;border-radius:14px;padding:6px 10px;cursor:pointer;min-width:84px}.heroChip:hover{border-color:var(--gold)}.heroChip .hcHero svg{width:44px;height:56px;display:block}.heroChip .hcBadge{position:absolute;top:2px;inset-inline-end:4px}
-.footLinks{margin-top:6px}.modeBadge{font-size:.9em}
+.footLinks{margin-top:6px}.modeBadge{font-size:.9em;cursor:pointer;background:#ffffff1a;border-radius:10px;padding:0 6px}.modeBadge:hover{background:#ffd16633}
 #logoutBtn{display:none}#menu.on #logoutBtn{display:block;position:fixed;left:8px;bottom:8px;z-index:50;font:inherit;font-size:.78rem;color:#fff;background:#1b1340cc;border:1px solid #fff4;border-radius:18px;padding:7px 12px;cursor:pointer}
 .place{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:4px;color:#fff;cursor:pointer;width:30%}
 .place .pIcon{font-size:clamp(2rem,8vw,3.6rem);line-height:1;filter:drop-shadow(0 3px 3px #0008);transition:transform .2s}
@@ -695,6 +695,15 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       </div>
       <div class="small" style="margin-top:10px;opacity:.85"><span data-t="have_backup"></span> <a href="#" id="loadHeroBtn" class="adminLink" data-t="load_hero"></a></div><input type="file" id="heroFile" accept=".json,application/json" hidden>
     </div>
+    <!-- 🏫 the school code, once per device (shared login spec §3.1) -->
+    <div id="schoolCodeBox" style="display:none">
+      <h2 data-t="sc_t"></h2>
+      <p class="small" data-t="sc_info"></p>
+      <input id="schoolCode" type="text" data-tp="sc_ph" autocomplete="off" autocapitalize="characters" maxlength="20">
+      <div class="msg" id="scMsg"></div>
+      <button class="btn" id="scGo" data-t="sc_go"></button>
+      <div><a href="#" class="adminLink backStart" data-t="back"></a></div>
+    </div>
     <!-- 🏫 school student: the student number from the teacher's card, or "I am new" -->
     <div id="schoolBox" style="display:none">
       <h2 data-t="welcome"></h2>
@@ -736,6 +745,20 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   </div>
   <div class="admcards" id="admCards"></div>
   <div class="small center" id="admApp" style="opacity:.85;margin:4px 0 10px"></div>
+  <div class="card" id="admWaitCard" style="display:none"><b>⏳ Waiting for approval</b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">Students who tapped "I am new". They can already play. ✅ = a real student of the school (joins the class). ❌ = not a student: removed, and their device moves the hero to offline play (the progress stays on that device).</div>
+    <div id="admWait"></div></div>
+  <div class="card"><b>🏫 Classes and login cards</b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">Add a class: the game gives each student a number and makes login cards to print and cut out (name, number and the school code).</div>
+    <div class="row" style="justify-content:flex-start;align-items:flex-start;gap:10px">
+      <input id="admClsName" type="text" maxlength="20" placeholder="Class, e.g. 3B" style="max-width:140px;padding:8px;font-size:1rem">
+      <textarea id="admClsNames" rows="4" placeholder="One student per line: first and last name" style="flex:1;min-width:220px;padding:8px;font:inherit;font-size:1rem;border-radius:12px"></textarea>
+      <button class="btn" id="admClsAdd" style="padding:8px 14px">➕ Add class</button></div>
+    <div class="row" style="justify-content:flex-start;gap:10px;margin-top:10px"><span class="small">🖨 Login cards for</span><select id="admCardCls" style="padding:6px;font-size:1rem"></select><button class="btn ghost" id="admCards2" style="padding:8px 14px">🖨 Print cards</button></div>
+    <div class="small" id="admClsMsg" style="margin-top:6px"></div></div>
+  <div class="card"><b>🔑 School code</b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">A device asks for this code once, the first time a student uses school mode on it. If the code leaks, change it: devices already set up keep working.</div>
+    <div class="row" style="justify-content:flex-start;gap:10px"><span>Now: <b id="admCodeNow">…</b></span><input id="admCodeNew" type="text" maxlength="20" placeholder="New code, e.g. SUNNY-7" style="max-width:200px;padding:8px;font-size:1rem"><button class="btn ghost" id="admCodeSet" style="padding:8px 14px">Change</button></div></div>
   <div class="card">
     <div class="row" style="justify-content:space-between"><b>Students</b>
       <input id="admSearch" type="text" placeholder="Search name or number…" style="max-width:260px;padding:8px;font-size:1rem">
@@ -1015,7 +1038,7 @@ const CFG = {
 };
 const coinUnit = lv => CFG.COIN_BY_MLVL.reduce((u, [from, x]) => lv >= from ? x : u, 1);
 const VERIFY_URL = '';   // the installed app's e-mail code service: Math Wizard gets its OWN (never the reading game's), set up in phase 11. Empty: the app offers offline play only.
-if (APP) CFG.SCRIPT_URL = '';        // the app never saves any game data online
+// (the installed app may be a school device too: school mode saves online in the app as well, login spec §4)
 
 /* ====================== CONTENT ====================== */
 // The emoji that flies at the monster for a spell of each element (the spell book itself comes in phase 3).
@@ -1324,6 +1347,18 @@ const STR = {
   priv_link: ['🔒 Privacy', '🔒 פרטיות'], priv_t: ['🔒 Privacy: what is saved, and where', '🔒 פרטיות: מה נשמר, ואיפה'],
   priv_body: ['<p><b>🏫 School student:</b> your game is saved on this device and in your school\'s Google Sheet, with your real name and class, so your teacher can see your progress. Only the school keeps it. A parent can ask the teacher to delete it.</p><p><b>🏠 Play at home:</b> your game stays on this device only. A parent signs up once with an e-mail code; the e-mail address is not saved, only a scrambled fingerprint to count how many families play. Each day the game also sends an anonymous "+1 played today".</p><p><b>📴 Offline:</b> nothing is sent anywhere.</p><p>A game kept only on a device can be lost (a lost phone, a cleared browser). Install the app, and use 💾 Save my hero to keep a backup file.</p>',
     '<p><b>🏫 תלמידי בית ספר:</b> המשחק נשמר במכשיר ובגיליון של בית הספר ב-Google, עם השם האמיתי והכיתה, כדי שהמורה יראה את ההתקדמות. רק בית הספר שומר אותו. הורה יכול לבקש מהמורה למחוק אותו.</p><p><b>🏠 משחק בבית:</b> המשחק נשמר רק במכשיר. הורה נרשם פעם אחת עם קוד במייל; כתובת המייל לא נשמרת, רק טביעה מוצפנת כדי לספור כמה משפחות משחקות. בכל יום המשחק שולח גם "+1 שיחקו היום" בלי שום פרט מזהה.</p><p><b>📴 בלי אינטרנט:</b> שום דבר לא נשלח.</p><p>משחק שנשמר רק במכשיר יכול ללכת לאיבוד (טלפון שאבד, דפדפן שנמחק). התקינו את האפליקציה, והשתמשו ב"💾 לשמור את הגיבור" כדי לשמור קובץ גיבוי.</p>'],
+  sc_t: ['🏫 The school code', '🏫 קוד בית הספר'], sc_info: ['Type the code your teacher gave you (it is on your login card). This device remembers it.', 'הקלידו את הקוד שקיבלתם מהמורה (הוא על כרטיס הכניסה). המכשיר יזכור אותו.'],
+  sc_ph: ['School code', 'קוד בית הספר'], sc_go: ['Continue ▶', 'ממשיכים ◀'], sc_wrong: ['That code is not right. Ask your teacher.', 'הקוד הזה לא נכון. שאלו את המורה.'], sc_busy: ['Too many tries. Wait a few minutes.', 'יותר מדי ניסיונות. חכו כמה דקות.'],
+  rejected_t: ['🏫 Not on the school list', '🏫 לא ברשימת בית הספר'], rejected_b: ['Your teacher did not find you on the school list, so your hero now plays offline on this device. All your progress is kept here.', 'המורה לא מצא אתכם ברשימת בית הספר, אז הגיבור שלכם משחק עכשיו בלי אינטרנט במכשיר הזה. כל ההתקדמות נשמרת כאן.'],
+  rejected_login: ['This number is not a student of the school. Ask your teacher, or play at home or offline.', 'המספר הזה לא שייך לתלמיד בבית הספר. שאלו את המורה, או שחקו בבית או בלי אינטרנט.'],
+  join_school: ['🏫 Join my school', '🏫 להצטרף לבית הספר'], sign_home: ['🏠 Sign up to play at home', '🏠 להירשם למשחק בבית'], copy_home: ['📴 Also play on this device', '📴 לשחק גם במכשיר הזה'],
+  mode_info_school: ['This hero is saved in your school\'s sheet, and your teacher sees your progress.', 'הגיבור הזה נשמר בגיליון של בית הספר, והמורה רואה את ההתקדמות.'],
+  mode_info_home: ['This hero plays at home and is kept on this device only. Save a backup file now and then.', 'הגיבור הזה משחק בבית ונשמר רק במכשיר הזה. כדאי לשמור קובץ גיבוי מדי פעם.'],
+  mode_info_off: ['This hero plays offline and is kept on this device only. Save a backup file now and then.', 'הגיבור הזה משחק בלי אינטרנט ונשמר רק במכשיר הזה. כדאי לשמור קובץ גיבוי מדי פעם.'],
+  school_none: ['School saving is not set up yet.', 'השמירה של בית הספר עוד לא מוכנה.'],
+  join_info: ['Your hero joins your school\'s sheet with all its progress. Your teacher will confirm that you are a student.', 'הגיבור מצטרף לגיליון של בית הספר עם כל ההתקדמות. המורה יאשר שאתם תלמידים.'], join_go: ['Join ▶', 'מצטרפים ◀'],
+  join_done_t: ['🏫 You joined your school!', '🏫 הצטרפתם לבית הספר!'],
+  copy_info: ['A copy of your hero will play on this device, offline. The school copy stays with your teacher.', 'עותק של הגיבור ישחק במכשיר הזה, בלי אינטרנט. העותק של בית הספר נשאר אצל המורה.'], copy_go: ['Make a copy ▶', 'ליצור עותק ◀'], copy_done: ['📴 Your copy plays on this device.', '📴 העותק שלכם משחק במכשיר הזה.'],
   ck_sum: ['On the tray', 'על המגש'],
   ck_help_btn: ['Use the coin tray (help)', 'להיעזר במגש המטבעות'], ck_help_on: ['The coin tray helps you count. With help, the answer counts a little less.', 'מגש המטבעות עוזר לספור. עם עזרה, התשובה נחשבת קצת פחות.'],
   ck_fee: ['The merchant kept a fee of {x} 🪙.', 'המוכר לקח עמלה של {x} 🪙.'], ck_saleoff_tray: ['Sale today! {n} costs {p}, {tag}. Put the sale price on the counter.', 'מבצע היום! {n} עולה {p}, {tag}. שימו על הדלפק את מחיר המבצע.'],
@@ -1763,6 +1798,7 @@ function migrate(p) {
   p.style = p.style || null; p.acc = p.acc || {}; p.wd = p.wd || [];   // the wardrobe: robe style, accessories, and what you own of them
   p.beard = p.beard || (p.gender === 'f' ? 'none' : 'short');
   p.items = p.items || blankUses(); p.itemUses = p.itemUses || { battle: blankUses(), peace: blankUses() }; p.ws = p.ws || { on: false, hi: false };   // the Artificer: magic items, uses this quest, workshop seen
+  noRealName(p);   // never a real name or class on the device (login spec §9)
   p.mode = p.mode || (p.local ? 'off' : p.app ? 'home' : 'school');   // the login mode (login spec): heroes made before it keep their old way
   p.v = PROFILE_V;
   return p;
@@ -1792,37 +1828,53 @@ function saveSoon(now) {
   setCloud('pend');
   saveTimer = setTimeout(cloudSave, now ? 0 : 4000);
 }
+// 🏫 school mode talks to the school sheet (tools/apps-script/progress/Code.gs). Everything is a POST with the device's school token (from the school code); nothing secret in a URL.
+const schoolToken = () => lsGet('mw_school') || '';
+async function schoolPost(body) {
+  const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ token: schoolToken() }, body)) });
+  return r.json();
+}
+function noRealName(p) { if (p) { delete p.real; delete p.cls; } return p; }   // the real name and class live only in the school sheet, never on the device or in the game data
 async function cloudSave() {
   if (!P || !CFG.SCRIPT_URL || heroMode(P) !== 'school') return;
   const total = Object.values(P.sec).reduce((a, b) => a + b, 0);
-  const body = JSON.stringify({ id: P.id, nick: P.nick, mlvl: P.mlvl, tier: P.mlvl, wiz: wizLvl(), xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
-    min: Math.round(total / 60), coins: Math.floor(P.coins || 0), craftAcc: P.craft && P.craft.n ? Math.round(100 * P.craft.ok / P.craft.n) : 0, restarts: P.restartsTotal || 0, real: P.real || '', cls: P.cls || '', data: JSON.stringify(P) });
+  const body = { action: 'save', id: P.id, nick: P.nick, mlvl: P.mlvl, wiz: wizLvl(), xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
+    min: Math.round(total / 60), coins: Math.floor(P.coins || 0), craftAcc: P.craft && P.craft.n ? Math.round(100 * P.craft.ok / P.craft.n) : 0, restarts: P.restartsTotal || 0, data: JSON.stringify(noRealName(Object.assign({}, P))) };
   try {
-    const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body, keepalive: body.length < 60000 });
-    const j = await r.json();
+    const j = await schoolPost(body);
     if (j.deleted) { removedByTeacher(); return; }   // the teacher deleted this student
-    if (j.conflict && j.data) {         // cloud copy is newer: adopt it
+    if (j.rejected) { rejectedByTeacher(); return; }  // the teacher said this is not a student of the school: the hero moves to offline play
+    if (j.conflict && j.data) {         // the sheet's copy has more answers: adopt it
       const c = migrate(JSON.parse(j.data)); Object.assign(P, c); lsSet('mw_p_' + P.id, JSON.stringify(P));
     }
-    setCloud('ok');
+    setCloud(j.ok ? 'ok' : 'off');
   } catch (e) { setCloud('off'); }
 }
+// load a hero: the device's copy, and for school numbers the sheet's copy (game data only). card: a number from the teacher's class list that has no hero yet.
 async function loadProfile(id) {
-  let local = null, cloud = null, offline = false, deleted = false;
+  let local = null, cloud = null, offline = false, deleted = false, rejected = false, card = false, needCode = false;
   try { const t = lsGet('mw_p_' + id); if (t) local = JSON.parse(t); } catch (e) {}
-  if (CFG.SCRIPT_URL) {
-    try {
-      const r = await fetch(CFG.SCRIPT_URL + '?action=load&id=' + encodeURIComponent(id));
-      const j = await r.json();
-      if (j.ok && j.deleted) deleted = true;
-      if (j.ok && j.found && j.data) cloud = JSON.parse(j.data);
+  const school = !/^(local-|home-)/.test(id) && !(local && heroMode(local) !== 'school');
+  if (CFG.SCRIPT_URL && school) {
+    if (!schoolToken()) needCode = true;
+    else try {
+      const j = await schoolPost({ action: 'load', id });
+      if (!j.ok && j.error === 'school') { lsSet('mw_school', ''); needCode = true; }   // the school was set up again: ask for the code once more
+      else if (!j.ok) offline = true;
+      else if (j.deleted) deleted = true; else if (j.rejected) rejected = true;
+      else if (j.found && j.data) cloud = JSON.parse(j.data); else if (j.found) card = true;
     } catch (e) { offline = true; }
   }
   // the copy with more answers wins; on a tie, the one saved last (crafting and shopping do not add answers)
   const newer = (a, b) => a.n !== b.n ? a.n > b.n : (a.updated || 0) >= (b.updated || 0);
   if (deleted) { try { localStorage.removeItem('mw_p_' + id); } catch (e) {} return { profile: null, offline, deleted: true }; }
   const best = migrate((cloud && local) ? (newer(cloud, local) ? cloud : local) : (cloud || local));
-  return { profile: best, offline };
+  return { profile: best, offline, rejected, card: card && !best, needCode };
+}
+function rejectedByTeacher() {   // shared login spec §3.1.1: the hero moves to offline play, keeping its progress on this device
+  if (!P) return; const old = P.id; P.mode = 'off'; P.id = 'local-' + Math.random().toString(36).slice(2, 10); noRealName(P);
+  try { localStorage.removeItem('mw_p_' + old); } catch (e) {} lsSet('mw_p_' + P.id, JSON.stringify(P)); setCloud('none'); openMenu();
+  modal(t('rejected_t'), t('rejected_b'), [[t('ok'), null]]);
 }
 
 /* ====================== SCREENS / MODAL ====================== */
@@ -1862,6 +1914,9 @@ $('#loginBtn').onclick = async () => {
   $('#loginBtn').disabled = false; msg.textContent = '';
   lsSet('mw_last', id);
   if (r.profile) { enterProfile(r.profile); setCloud(CFG.SCRIPT_URL ? (r.offline ? 'off' : 'ok') : 'none'); openMenu(); return; }
+  if (r.needCode) { openSchool(); return; }   // this device has no school code yet
+  if (r.card) { pendingMode = 'school'; pendingId = id; pendingReal = pendingCls = ''; openCreator(); return; }   // a login card from the teacher: make the hero
+  if (r.rejected) { modal(t('rejected_t'), t('rejected_login'), [[t('ok'), null]]); return; }
   if (r.deleted) { modal(t('removed_t'), t('removed_b', { nb: t('new_plain') }), [[t('new_btn'), () => $('#newBtn').click()], [t('ok'), null, true]]); return; }
   modal(t('unknown_t'), t('unknown_b', { id: esc(id), warn: r.offline ? t('unknown_off') : '', nb: t('new_plain') }),
     [[t('try_again'), null], [t('new_btn'), () => $('#newBtn').click(), true]]);
@@ -1884,7 +1939,12 @@ $('#regGo').onclick = async () => {
   if (!cls) { msg.textContent = t('reg_badclass'); return; }
   msg.textContent = t('reg_making'); $('#regGo').disabled = true;
   let id = null;
-  for (let k = 0; k < 8 && !id; k++) { const c = genId(), r = await loadProfile(c); if (r.offline || (!r.profile && !r.deleted)) id = c; }   // a number nobody has used (offline, the chance of a clash is tiny)
+  for (let k = 0; k < 8 && !id; k++) {   // a number nobody has used; in school mode the sheet keeps it as a WAITING student (the teacher approves)
+    const c = genId(), r = await loadProfile(c); if (r.needCode) { $('#regGo').disabled = false; msg.textContent = ''; show('login'); openSchool(); return; }
+    if (!(r.offline || (!r.profile && !r.deleted && !r.card && !r.rejected))) continue;
+    if (!CFG.SCRIPT_URL) { id = c; break; }
+    try { const j = await schoolPost({ action: 'register', id: c, real: name, cls }); if (j.ok) id = c; else if (j.error !== 'taken') break; } catch (e) { break; }
+  }
   $('#regGo').disabled = false; msg.textContent = '';
   if (!id) { msg.textContent = t('err_generic'); return; }
   pendingMode = 'school'; pendingId = id; pendingReal = name; pendingCls = cls; lsSet('mw_last', id); $('#sid').value = id;
@@ -1968,7 +2028,7 @@ document.querySelectorAll('.gbtn').forEach(b => b.onclick = () => { cr.g = b.dat
 $('#createBtn').onclick = () => {
   const nick = $('#nick').value.trim();
   if (nick.length < 2) { $('#creatorMsg').textContent = t('nick_short'); return; }
-  P = newProfile(pendingId, nick, cr.g, cr.color, pendingReal, pendingCls, cr.skin, cr.hair, cr.grade); P.lang = LANG; P.beard = cr.g === 'm' ? cr.beard : 'none'; P.mode = pendingMode; if (P.mode !== 'school') { P.real = ''; P.cls = ''; keepDeviceData(); }   /* the hero's mode (login spec); a device-only hero keeps no real name or class */ pendingReal = pendingCls = ''; saveSoon(true); openMenu(); if (!P.tutorialDone) startTutorial();
+  P = newProfile(pendingId, nick, cr.g, cr.color, '', '', cr.skin, cr.hair, cr.grade);   /* the real name and class were sent to the school sheet at sign-up; the device does not keep them */ P.lang = LANG; P.beard = cr.g === 'm' ? cr.beard : 'none'; P.mode = pendingMode; if (P.mode !== 'school') { P.real = ''; P.cls = ''; keepDeviceData(); }   /* the hero's mode (login spec); a device-only hero keeps no real name or class */ pendingReal = pendingCls = ''; saveSoon(true); openMenu(); if (!P.tutorialDone) startTutorial();
 };
 
 /* ====================== MENU ====================== */
@@ -1984,7 +2044,7 @@ const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>
 function openMenu() {
   G.quest = null; show('menu');
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
-  $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
+  $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
   $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
   $('#menuXp').style.width = xpPct() + '%';
@@ -5031,7 +5091,7 @@ async function adminOpen() {
   try {
     const j = await adminCall('list');
     if (!j.ok) { ADMKEY = null; modal('Teacher area', `<p>${j.error === 'locked' ? 'Too many wrong tries. Please wait 10 minutes and try again.' : 'That password is not right.'}</p>`, [['Try again', adminAsk], ['Close', null, true]]); return; }
-    show('admin'); adminRender(j);
+    show('admin'); adminRender(j); admLoadCode();
   } catch (e) { ADMKEY = null; modal('Teacher area', '<p>I could not reach the cloud. Please check the internet connection and try again.</p>', [['OK', null]]); }
 }
 async function adminAppUsers() {   // only a count: the app keeps no names and no emails
@@ -5043,7 +5103,8 @@ async function adminAppUsers() {   // only a count: the app keeps no names and n
 }
 function adminRender(j) {
   const byId = {}; for (const s of j.students) if (!byId[s.id] || s.answers >= byId[s.id].answers) byId[s.id] = s;   // one row per student
-  ADM.students = Object.values(byId);
+  const all = Object.values(byId); ADM.waiting = all.filter(s => s.status === 'waiting'); ADM.students = all.filter(s => s.status !== 'waiting');   // waiting students are not in the class reports until approved (login spec §3.1.1)
+  admWaiting(); admClassList();
   const dayDiff = iso => { if (!iso) return 9999; const a = new Date(iso), n = new Date(); return Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5); };
   ADM.students.forEach(s => { s.days = dayDiff(s.last); });
   const played = ADM.students.filter(s => s.answers > 0), today = ADM.students.filter(s => s.days === 0).length, inactive = ADM.students.filter(s => s.days >= 7).length;
@@ -5052,6 +5113,51 @@ function adminRender(j) {
     .map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
   adminTable(); adminAppUsers(); $('#admDetail').style.display = 'none';
 }
+/* ----- school mode in the teacher area (shared login spec §3.1.1): waiting students, class lists with login cards, the school code ----- */
+function admWaiting() {
+  const w = ADM.waiting || [], days = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : 0;
+  $('#admWaitCard').style.display = w.length ? '' : 'none';
+  $('#admWait').innerHTML = w.map(s => { const d = days(s.joined);
+    return `<div class="row waitRow" style="justify-content:space-between;flex-wrap:wrap;gap:8px;padding:6px 0;border-top:1px solid #fff2"><span><b>${esc(s.real || '?')}</b> · ${esc(s.cls || '')} <small style="opacity:.75">#${esc(s.id)}${s.nick ? ' · 🧙 ' + esc(s.nick) : ''} · ${d ? d + ' days ago' : 'today'}</small>${d >= 14 ? ' <b style="color:#ffb14a">⚠️ waiting 14+ days</b>' : ''}</span>
+      <span><button class="btn" data-ok="${esc(s.id)}" style="padding:6px 12px">✅ Student</button> <button class="btn ghost" data-no="${esc(s.id)}" style="padding:6px 12px">❌ Not a student</button></span></div>`; }).join('');
+}
+$('#admWait').onclick = async e => {
+  const ok = e.target.closest('[data-ok]'), no = e.target.closest('[data-no]'); if (!ok && !no) return; const id = (ok || no).dataset[ok ? 'ok' : 'no'];
+  try { const r = await adminCall(ok ? 'approve' : 'reject', { id }); if (!r.ok) throw 0; const j = await adminCall('list'); if (j.ok) adminRender(j); toast(ok ? 'Approved' : 'Removed'); } catch (x) { toast('Could not change. Try again.'); }
+};
+function admClassList() {   // the classes for the login cards
+  const cls = [...new Set(ADM.students.map(s => s.cls).filter(Boolean))].sort();
+  $('#admCardCls').innerHTML = cls.map(c => `<option>${esc(c)}</option>`).join('') || '<option value="">(no classes yet)</option>';
+}
+$('#admClsAdd').onclick = async () => {
+  const cls = $('#admClsName').value.trim(), names = $('#admClsNames').value.split('\n').map(x => x.trim().replace(/\s+/g, ' ')).filter(x => x.length >= 2), m = $('#admClsMsg');
+  if (!cls || !names.length) { m.textContent = 'Type the class and at least one name.'; return; }
+  m.textContent = 'Adding…'; $('#admClsAdd').disabled = true;
+  try {
+    const r = await adminCall('addClass', { cls, names }); if (!r.ok) throw 0;
+    m.textContent = `✅ ${r.made.length} students added to ${cls}. Print their login cards below.`; $('#admClsNames').value = '';
+    const j = await adminCall('list'); if (j.ok) adminRender(j); $('#admCardCls').value = cls;
+  } catch (x) { m.textContent = 'Could not add the class. Try again.'; }
+  $('#admClsAdd').disabled = false;
+};
+$('#admCards2').onclick = async () => {   // printable login cards: name, class, number and the school code, 8 on a page
+  const cls = $('#admCardCls').value; if (!cls) return;
+  let code = ''; try { const c = await adminCall('getCode'); code = c.code || ''; } catch (x) {}
+  const list = ADM.students.filter(s => s.cls === cls).sort((a, b) => (a.real || '').localeCompare(b.real || ''));
+  const w = window.open('', '_blank'); if (!w) { toast('Allow pop-ups to print the cards'); return; }
+  const card = s => `<div class="c"><div class="g">✨ SpellQuest: Math Adventure ✨<br><span dir="rtl">לחשים: הרפתקת חשבון</span></div><div class="n">${esc(s.real || '')}</div><div class="k">Class / <span dir="rtl">כיתה</span>: <bdi dir="ltr"><b>${esc(cls)}</b></bdi></div>
+    <div class="row"><div>Student number<br><span dir="rtl">מספר תלמיד</span><b>${esc(s.id)}</b></div><div>School code<br><span dir="rtl">קוד בית הספר</span><b>${esc(code)}</b></div></div><div class="u">${esc(location.origin + location.pathname)}</div></div>`;
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Login cards ${esc(cls)}</title><style>body{font-family:system-ui,Arial,sans-serif;margin:10mm}.grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+    .c{border:1.5px dashed #555;border-radius:4mm;padding:5mm;break-inside:avoid;min-height:58mm;box-sizing:border-box;gap:2mm;display:flex;flex-direction:column;justify-content:space-between}.g{font-weight:700;color:#5b3fb0;text-align:center;font-size:11pt}
+    .n{font-size:16pt;font-weight:700;text-align:center}.k{text-align:center}.row{display:flex;justify-content:space-around;gap:8mm;text-align:center;font-size:9pt}.row>div{flex:1}.row b{display:block;font-size:16pt;letter-spacing:1px;font-family:monospace;margin-top:1mm;white-space:nowrap}.u{text-align:center;font-size:7pt;color:#666}
+    @media print{.noprint{display:none}}</style></head><body><p class="noprint"><button onclick="print()">🖨 Print</button> ${list.length} cards · class ${esc(cls)}</p><div class="grid">${list.map(card).join('')}</div></body></html>`);
+  w.document.close();
+};
+async function admLoadCode() { try { const c = await adminCall('getCode'); $('#admCodeNow').textContent = c.ok ? (c.code || '(not set)') : '?'; } catch (x) { $('#admCodeNow').textContent = '?'; } }
+$('#admCodeSet').onclick = async () => {
+  const code = $('#admCodeNew').value.trim(); if (code.length < 4) { toast('The code needs at least 4 letters or digits'); return; }
+  try { const r = await adminCall('setCode', { code }); if (!r.ok) throw 0; $('#admCodeNow').textContent = r.code; $('#admCodeNew').value = ''; toast('School code changed'); } catch (x) { toast('Could not change the code'); }
+};
 const agoText = d => d === 0 ? 'today' : d === 1 ? 'yesterday' : d >= 9999 ? 'never' : d + ' days ago';
 function adminTable() {
   const cols = [['nick', 'Student'], ['tier', 'Level'], ['wiz', 'Wizard'], ['accuracy', 'Accuracy'], ['answers', 'Answers'], ['minutes', 'Minutes'], ['coins', 'Coins'], ['craftAcc', 'Crafting'], ['restarts', 'Restarts'], ['last', 'Last played']];
@@ -5068,7 +5174,7 @@ async function adminStudent(id) {
   const box = $('#admDetail'); box.style.display = ''; box.innerHTML = 'Loading…'; box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   try {
     const j = await adminCall('student', { id }); if (!j.ok) throw new Error(j.error);
-    const p = JSON.parse(j.data), st = Object.entries(p.stats || {}).map(([k, [r, w]]) => ({ k, r, w, n: r + w }));
+    const p = Object.assign(JSON.parse(j.data), { real: j.real, cls: j.cls }), st = Object.entries(p.stats || {}).map(([k, [r, w]]) => ({ k, r, w, n: r + w }));
     const total = st.reduce((a, x) => a + x.n, 0), right = st.reduce((a, x) => a + x.r, 0), pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '–';
     const sum = o => Object.values(o || {}).reduce((a, b) => a + b, 0);
     // skills: what kind of questions, how many, how well
@@ -5103,7 +5209,7 @@ async function adminStudent(id) {
       `<div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn ghost danger" id="admDelete">🗑 Delete this student…</button></div>`;
     $('#admDetailClose').onclick = () => { box.style.display = 'none'; };
     $('#admDelete').onclick = () => modal('🗑 Delete this student?', `<p>You are about to delete <b>${esc(p.nick)}</b>${p.real ? ' (' + esc(p.real) + (p.cls ? ', ' + esc(p.cls) : '') + ')' : ''}, number <b>${esc(p.id)}</b>.</p><p><b>All their progress is removed from the sheet for good. This cannot be undone,</b> and the number can never be used again.</p>`,
-      [['Yes, delete', async () => { try { const r = await adminCall('deleteStudent', { id: p.id }); if (r.ok) { ADM.students = ADM.students.filter(s => s.id !== p.id); box.style.display = 'none'; adminRender({ students: ADM.students }); toast('Student deleted'); } else toast('Could not delete: ' + (r.error || '')); } catch (e) { toast('Could not reach the cloud'); } }], ['Cancel', null, true]]);
+      [['Yes, delete', async () => { try { const r = await adminCall('deleteStudent', { id: p.id }); if (r.ok) { ADM.students = ADM.students.filter(s => s.id !== p.id); box.style.display = 'none'; adminRender({ students: ADM.students.concat(ADM.waiting || []) }); toast('Student deleted'); } else toast('Could not delete: ' + (r.error || '')); } catch (e) { toast('Could not reach the cloud'); } }], ['Cancel', null, true]]);
   } catch (e) { box.innerHTML = '<p>Could not load this student. ' + esc(e.message || '') + '</p>'; }
 }
 $('#adminLink').onclick = e => { e.preventDefault(); adminAsk(); };
@@ -5155,7 +5261,7 @@ let pendingMode = 'school';
 function renderStart() {   // back to the first view of the start screen
   const hs = deviceHeroes(); $('#heroesBox').style.display = hs.length ? '' : 'none';
   $('#heroList').innerHTML = hs.map(p => `<button class="heroChip" data-id="${esc(p.id)}"><span class="hcHero">${heroOf(p)}</span><b>${esc(p.nick)}</b><span class="hcBadge">${MODE_BADGE[heroMode(p)]}</span></button>`).join('');
-  $('#startBox').style.display = ''; $('#schoolBox').style.display = 'none'; $('#appLogin').style.display = 'none'; $('#loginMsg').textContent = ''; $('#appMsg').textContent = '';
+  $('#startBox').style.display = ''; $('#schoolBox').style.display = 'none'; $('#schoolCodeBox').style.display = 'none'; $('#appLogin').style.display = 'none'; $('#loginMsg').textContent = ''; $('#appMsg').textContent = '';
 }
 function keepDeviceData() { try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} }   // ask the browser not to clear a device-only hero (spec §6)
 async function enterDeviceHero(id) {
@@ -5166,10 +5272,27 @@ $('#heroList').onclick = e => { const b = e.target.closest('.heroChip'); if (b) 
 document.querySelectorAll('.backStart').forEach(a => { a.onclick = e => { e.preventDefault(); renderStart(); }; });
 $('.modeBtns').onclick = e => {
   const b = e.target.closest('.modeBtn'); if (!b) return; const m = b.dataset.mode;
-  if (m === 'school') { $('#startBox').style.display = 'none'; $('#schoolBox').style.display = ''; $('#sid').focus(); return; }
+  if (m === 'school') { openSchool(); return; }
   if (m === 'home') { $('#startBox').style.display = 'none'; $('#appLogin').style.display = ''; renderHome(); return; }
   pendingMode = 'off'; pendingId = 'local-' + Math.random().toString(36).slice(2, 10); pendingReal = pendingCls = ''; openCreator();   // 📴 offline: a hero on this device
 };
+function openSchool() {   // 🏫 the school code first (once per device, when the school sheet is set up), then the student number
+  $('#startBox').style.display = 'none'; $('#appLogin').style.display = 'none';
+  const needCode = CFG.SCRIPT_URL && !schoolToken();
+  $('#schoolCodeBox').style.display = needCode ? '' : 'none'; $('#schoolBox').style.display = needCode ? 'none' : ''; $('#scMsg').textContent = '';
+  (needCode ? $('#schoolCode') : $('#sid')).focus();
+}
+$('#scGo').onclick = async () => {
+  const code = $('#schoolCode').value.trim(), msg = $('#scMsg'); if (code.length < 3) { msg.textContent = t('sc_wrong'); return; }
+  msg.textContent = t('checking'); $('#scGo').disabled = true;
+  try {
+    const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'school', code }) }), j = await r.json();
+    if (j.ok && j.token) { lsSet('mw_school', j.token); $('#schoolCode').value = ''; openSchool(); }
+    else msg.textContent = t(j.error === 'busy' ? 'sc_busy' : 'sc_wrong');
+  } catch (e) { msg.textContent = t('app_noinet'); }
+  $('#scGo').disabled = false;
+};
+$('#schoolCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('#scGo').click(); });
 function renderHome() {   // 🏠 the e-mail step (the counting service is set up in part 3; until then this mode explains and offers offline play)
   $('#appStep1').style.display = ''; $('#appStep2').style.display = 'none'; $('#appMsg').textContent = '';
   $('#appSignBtn').disabled = !VERIFY_URL; if (!VERIFY_URL) $('#appMsg').textContent = t('home_soon');
@@ -5205,6 +5328,48 @@ $('#appSignBtn').onclick = () => { $('#appStep1').style.display = 'none'; $('#ap
     $('#appVerify').disabled = false;
   };
 }
+/* ----- moving a hero between modes (shared login spec §5): tap the mode badge in the menu ----- */
+function openModeMenu() {
+  if (!P) return; const m = heroMode(P), btns = [];
+  if (m !== 'school') btns.push([t('save_hero'), saveHeroFile], [t('join_school'), joinSchool]);
+  if (m === 'off' && VERIFY_URL) btns.push([t('sign_home'), () => { show('login'); $('#startBox').style.display = 'none'; $('#appLogin').style.display = ''; renderHome(); }]);
+  if (m === 'school') btns.push([t('copy_home'), copyToDevice]);
+  btns.push([t('close'), null, true]);
+  modal(`${MODE_BADGE[m]} ${t('m_' + m)}`, `<p>${t('mode_info_' + m)}</p>`, btns);
+}
+async function needSchoolToken() {   // the school code once per device (when the school sheet is set up)
+  if (schoolToken()) return true;
+  return new Promise(res => {
+    modal(t('sc_t'), `<p class="small">${t('sc_info')}</p><input id="mvCode" type="text" maxlength="20" autocapitalize="characters" placeholder="${t('sc_ph')}"><div class="msg" id="mvMsg"></div>`, [[t('sc_go'), async () => {
+      try { const r = await fetch(CFG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'school', code: $('#mvCode').value.trim() }) }), j = await r.json();
+        if (j.ok && j.token) { lsSet('mw_school', j.token); res(true); } else { toast(t('sc_wrong')); res(false); } } catch (e) { toast(t('app_noinet')); res(false); } }], [t('cancel'), () => res(false), true]]);
+  });
+}
+async function joinSchool() {   // 📴 / 🏠 → 🏫: real name and class, then the hero's progress goes to the school sheet once the student confirms; the teacher approves
+  if (!CFG.SCRIPT_URL) { toast(t('school_none')); return; }
+  if (!await needSchoolToken()) return;
+  modal(t('join_school'), `<p>${t('join_info')}</p><label class="regLbl">${t('reg_name_lbl')}</label><input id="jsName" type="text" maxlength="40" autocomplete="off"><label class="regLbl">${t('reg_class_lbl')}</label><input id="jsCls" type="text" maxlength="15" autocomplete="off">`,
+    [[t('join_go'), async () => {
+      const name = $('#jsName').value.trim().replace(/\s+/g, ' '), cls = $('#jsCls').value.trim().replace(/\s+/g, ' ');
+      if (name.length < 4 || !name.includes(' ') || !cls) { toast(t(cls ? 'reg_badname' : 'reg_badclass')); return; }
+      const data = JSON.stringify(noRealName(Object.assign({}, P)));
+      for (let k = 0; k < 8; k++) {
+        const id = genId();
+        try { const j = await schoolPost({ action: 'register', id, real: name, cls, nick: P.nick, data }); if (j.error === 'taken') continue; if (!j.ok) break;
+          const old = P.id; P.id = id; P.mode = 'school'; P.local = false; P.app = false; try { localStorage.removeItem('mw_p_' + old); } catch (e) {} lsSet('mw_last', id); saveSoon(true); openMenu();
+          modal(t('join_done_t'), `<p>${t('reg_your')}</p><div class="bigId">${esc(id)}</div><p class="regWarn">${t('reg_warn')}</p>`, [[t('ok'), null]]); return;
+        } catch (e) { break; }
+      }
+      toast(t('err_generic'));
+    }], [t('cancel'), null, true]]);
+}
+function copyToDevice() {   // 🏫 → 📴: a copy of the hero plays on this device; the school copy stays with the teacher
+  modal(t('copy_home'), `<p>${t('copy_info')}</p>`, [[t('copy_go'), () => {
+    saveSoon(true); const c = noRealName(JSON.parse(JSON.stringify(P))); c.id = 'local-' + Math.random().toString(36).slice(2, 10); c.mode = 'off';
+    lsSet('mw_p_' + c.id, JSON.stringify(c)); P = c; keepDeviceData(); setCloud('none'); openMenu(); toast(t('copy_done'));
+  }], [t('cancel'), null, true]]);
+}
+document.addEventListener('click', e => { if (e.target.closest('#menuWho .modeBadge')) openModeMenu(); });
 /* ----- the backup file (spec §6): "Save my hero" downloads the hero; "Load a hero" restores it on any device. Checked by game id, version and a checksum. ----- */
 const fnv = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };
 function saveHeroFile() {

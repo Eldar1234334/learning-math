@@ -616,3 +616,19 @@ The shared login and privacy design (from the design session; kept locally, not 
 
 **How to check:** open the test site → the start screen. Play offline (a hero is made, the tutorial runs), save the hero file from the menu, log out: the hero is listed; Load a hero restores it. Tap 🔒 Privacy.
 - After your check: the menu button is now **🚪 Switch hero** (not every player is a student), and "Load a hero" is a small link at the bottom of the start screen ("Have a backup file of your hero? 📂 Load a hero"): it restores a home or offline hero from its 💾 backup file on a new device or after the browser's data was cleared.
+
+### Step 11, part 2: school mode ✅ (ready; it goes live when you set up the school sheet)
+- **The school sheet's script** (`tools/apps-script/progress/Code.gs`, rewritten): everything is a POST (nothing secret in a URL); loading returns **game data only** (never the real name or class) and is **limited** per number and per minute; only devices with the **school code** can load or save; the teacher password locks after 5 wrong tries.
+- **School code:** the first time school mode is used on a device, it asks for the code (it is on the login cards). The device keeps a school token, so changing the code later does not stop devices that are already set up.
+- **"I am new"** registers a **waiting** student (real name and class go to the sheet only). The student plays at once.
+- **The teacher area** (once the sheet is set up):
+  - **⏳ Waiting for approval:** ✅ Student (joins the class) or ❌ Not a student (removed; that device moves the hero to offline play, keeping its progress). A student waiting 14+ days is marked.
+  - **🏫 Classes and login cards:** type a class and a list of names → each gets a student number → **🖨 Print cards** (name, class, number, school code, 8 to a page, to cut out). A student signs in with the number from the card and makes the hero.
+  - **🔑 School code:** see and change it.
+- **The real name and class are never on the device** (not in the local copy, not in the game data, not in the backup file); the teacher sees them from the sheet.
+- **Moving a hero** (tap the mode badge next to the name in the menu): an offline or home hero can **🏫 Join my school** (name and class; its progress goes to the sheet; the teacher approves) or save a backup; a school hero can **📴 Also play on this device** (a copy; the school copy stays with the teacher); an offline hero can sign up to play at home (part 3).
+- The installed app can be a school device too (school mode saves online in the app as well).
+- I removed the separate e-mail service I wrote earlier: home players will use the reading game's counting service (your decision).
+- Everything was tested here with the real script running against a pretend sheet: a new student (code, "I am new", waiting), the teacher list, adding a class, the login cards, a card login, approve, reject (the device moves the hero offline), delete, joining the school from offline, copying a school hero.
+
+**What you need to do:** set up the school sheet with the steps in `tools/apps-script/SETUP.md` (about 5 minutes; you choose a teacher password and a school code) and send me the URL. I then put it in the game and we check it together on the test site.
