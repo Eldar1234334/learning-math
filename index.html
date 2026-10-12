@@ -399,6 +399,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .adminLink:hover{opacity:.9}
 #admTable .tk{width:28px;text-align:center;cursor:default}
 .admPlayed{margin:8px 0;padding:8px 12px;border-radius:12px;background:#2ecc7122;font-size:1rem}.admPlayed b{font-size:1.2rem}
+.mvBtn{margin-left:6px;padding:2px 8px;border-radius:10px;border:1px solid #fff5;background:#fff1;color:#fff;font:inherit;font-size:.75rem;cursor:pointer}.mvBtn:hover{background:#fff3}
 .badgeN{display:inline-block;min-width:1.4em;padding:0 .4em;border-radius:1em;background:#e74c3c;color:#fff;font-size:.85rem;text-align:center}.badgeN:empty{display:none}.waitRow input[type=text]{width:auto;padding:6px 8px;font-size:1rem;text-align:left}.waitRow select{padding:6px;font-size:1rem}
 .admcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:10px 0}
 .admcards>div{background:var(--panel);border:1px solid #fff2;border-radius:14px;padding:10px;text-align:center;font-size:.9rem}
@@ -757,6 +758,9 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       <label class="small"><input type="checkbox" id="admWaitAll"> Select all</label>
       <button class="btn" id="admApproveSel" style="padding:6px 12px">✅ Approve selected</button><button class="btn ghost" id="admApproveAll" style="padding:6px 12px">✅ Approve all</button><button class="btn ghost" id="admRejectSel" style="padding:6px 12px">❌ Reject selected</button></div>
     <div id="admWait"></div></div>
+  <div class="card" id="admMovedCard" style="display:none"><b>🏠 Moved to home</b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">These students now play at home. Their names and progress are kept here for 30 days, so the school owner can undo a move; then only the number stays.</div>
+    <div id="admMoved"></div></div>
   <div class="card"><b>🏫 Classes and login cards</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">Add a class: the game gives each student a number and makes login cards to print and cut out (name, number and the school code).</div>
     <div class="row" style="justify-content:flex-start;align-items:flex-start;gap:10px">
@@ -778,7 +782,8 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="small" id="admStaffMsg" style="margin-top:6px"></div></div>
   <div class="card" id="admCodeCard"><b>🔑 School code</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">A device asks for this code once, the first time a student uses school mode on it. If the code leaks, change it: devices already set up keep working.</div>
-    <div class="row" style="justify-content:flex-start;gap:10px"><span>Now: <b id="admCodeNow">…</b></span><input id="admCodeNew" type="text" maxlength="20" placeholder="New code, e.g. SUNNY-7" style="max-width:200px;padding:8px;font-size:1rem"><button class="btn ghost" id="admCodeSet" style="padding:8px 14px">Change</button></div></div>
+    <div class="row" style="justify-content:flex-start;gap:10px"><span>Now: <b id="admCodeNow">…</b></span><input id="admCodeNew" type="text" maxlength="20" placeholder="New code, e.g. SUNNY-7" style="max-width:200px;padding:8px;font-size:1rem"><button class="btn ghost" id="admCodeSet" style="padding:8px 14px">Change</button></div>
+    <label class="small" style="display:block;margin-top:10px"><input type="checkbox" id="admSelfMove"> Students may move their own wizard to play at home (from the hero menu). When a school's access ends, they always can.</label></div>
   <div class="card">
     <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><b>Students</b>
       <select id="admStuCls" style="padding:6px;font-size:1rem"></select>
@@ -1398,6 +1403,14 @@ const STR = {
   sc_ph: ['School code', 'קוד בית הספר'], sc_go: ['Continue ▶', 'ממשיכים ◀'], sc_wrong: ['That code is not right. Ask your teacher.', 'הקוד הזה לא נכון. שאלו את המורה.'], sc_ended: ["Your school's access to the game has ended. Ask your teacher.", 'הגישה של בית הספר שלכם למשחק הסתיימה. שאלו את המורה.'], sc_busy: ['Too many tries. Wait a few minutes.', 'יותר מדי ניסיונות. חכו כמה דקות.'],
   rejected_t: ['🏫 Not on the school list', '🏫 לא ברשימת בית הספר'], rejected_b: ['Your teacher did not find you on the school list, so your hero now plays offline on this device. All your progress is kept here.', 'המורה לא מצא אתכם ברשימת בית הספר, אז הגיבור שלכם משחק עכשיו בלי אינטרנט במכשיר הזה. כל ההתקדמות נשמרת כאן.'],
   rejected_login: ['This number is not a student of the school. Ask your teacher, or play at home or offline.', 'המספר הזה לא שייך לתלמיד בבית הספר. שאלו את המורה, או שחקו בבית או בלי אינטרנט.'],
+  moved_t: ['🏠 Your wizard moved home', '🏠 הקוסם שלך עבר הביתה'],
+  moved_b: ['<p>Your school moved your wizard to play at home. All of its progress stays on this device. Ask a parent to sign up with their e-mail, so you can keep playing.</p>', '<p>בית הספר העביר את הקוסם שלך למשחק בבית. כל ההתקדמות נשארת במכשיר הזה. בקשו מהורה להירשם עם המייל שלו, כדי להמשיך לשחק.</p>'],
+  moved_self_b: ['<p>Your wizard now plays at home on this device, with all of its progress. Ask a parent to sign up with their e-mail.</p>', '<p>הקוסם שלך משחק עכשיו בבית במכשיר הזה, עם כל ההתקדמות. בקשו מהורה להירשם עם המייל שלו.</p>'],
+  moved_login: ['<p>Your teacher moved this wizard to play at home. If it is not on this device, ask a parent for the hand-over file and choose "Load a hero".</p>', '<p>המורה העביר את הקוסם הזה למשחק בבית. אם הוא לא במכשיר הזה, בקשו מהורה את קובץ ההעברה ובחרו "טעינת גיבור".</p>'],
+  self_move: ['🏠 Move my wizard to home', '🏠 להעביר את הקוסם שלי הביתה'], self_move_go: ['Move it home', 'להעביר הביתה'],
+  self_move_info: ['<p>Your wizard leaves the school and plays at home on this device, with all of its progress. Your teacher will no longer see it. A parent can sign up with their e-mail.</p>', '<p>הקוסם עוזב את בית הספר וממשיך לשחק בבית במכשיר הזה, עם כל ההתקדמות. המורה כבר לא יראה אותו. הורה יכול להירשם עם המייל שלו.</p>'],
+  ended_t: ['🏫 School access has ended', '🏫 הגישה של בית הספר הסתיימה'], keep_wiz: ['🏠 Keep my wizard (move to home)', '🏠 לשמור את הקוסם שלי (להעביר הביתה)'],
+  ended_b: ["<p>Your school's access to the game has ended. You can keep your wizard: it moves to play at home on this device, with all of its progress.</p>", '<p>הגישה של בית הספר שלכם למשחק הסתיימה. אפשר לשמור את הקוסם: הוא עובר למשחק בבית במכשיר הזה, עם כל ההתקדמות.</p>'],
   join_school: ['🏫 Join my school', '🏫 להצטרף לבית הספר'], sign_home: ['🏠 Sign up to play at home', '🏠 להירשם למשחק בבית'], copy_home: ['📴 Also play on this device', '📴 לשחק גם במכשיר הזה'],
   mode_info_school: ['This hero is saved in your school\'s sheet, and your teacher sees your progress.', 'הגיבור הזה נשמר בגיליון של בית הספר, והמורה רואה את ההתקדמות.'],
   mode_info_home: ['This hero plays at home and is kept on this device only. Save a backup file now and then.', 'הגיבור הזה משחק בבית ונשמר רק במכשיר הזה. כדאי לשמור קובץ גיבוי מדי פעם.'],
@@ -1889,7 +1902,7 @@ async function joinCode(code) {   // the school code, once per device: the Admin
   if (!url) return { error: 'code' };
   const j = await post(url, { action: 'school', code });
   if (!j.ok || !j.token) return { error: j.error === 'busy' ? 'busy' : 'code' };
-  lsSet('mw_school', j.token); lsSet('mw_school_url', url === CFG.SCRIPT_URL ? '' : url); lsSet('mw_school_name', name); lsSet('mw_school_id', id);
+  lsSet('mw_school', j.token); lsSet('mw_school_url', url === CFG.SCRIPT_URL ? '' : url); lsSet('mw_school_name', name); lsSet('mw_school_id', id); lsSet('mw_suspended', '0'); lsSet('mw_stchk', '');
   return { ok: true };
 }
 // "I am new": the class comes from the school's class list (a menu). If the school has no list yet, or it cannot be reached, the student types it.
@@ -1909,6 +1922,7 @@ async function schoolPost(body) {
 function noRealName(p) { if (p) { delete p.real; delete p.cls; } return p; }   // the real name and class live only in the school sheet, never on the device or in the game data
 async function cloudSave() {
   if (!P || !CFG.SCRIPT_URL || heroMode(P) !== 'school') return;
+  if (lsGet('mw_suspended') === '1') { setCloud('off'); return; }   // the school's access has ended: nothing is saved to the school
   const total = Object.values(P.sec).reduce((a, b) => a + b, 0);
   const body = { action: 'save', id: P.id, nick: P.nick, mlvl: P.mlvl, wiz: wizLvl(), xp: P.xp, n: P.n, acc: P.n ? Math.round(100 * P.ok / P.n) : 0,
     min: Math.round(total / 60), coins: Math.floor(P.coins || 0), craftAcc: P.craft && P.craft.n ? Math.round(100 * P.craft.ok / P.craft.n) : 0, restarts: P.restartsTotal || 0, data: JSON.stringify(noRealName(Object.assign({}, P))) };
@@ -1916,6 +1930,7 @@ async function cloudSave() {
     const j = await schoolPost(body);
     if (j.deleted) { removedByTeacher(); return; }   // the teacher deleted this student
     if (j.rejected) { rejectedByTeacher(); return; }  // the teacher said this is not a student of the school: the hero moves to offline play
+    if (j.moved) { movedHome(false); return; }   // the teacher moved this hero home
     if (j.conflict && j.data) {         // the sheet's copy has more answers: adopt it
       const c = migrate(JSON.parse(j.data)); Object.assign(P, c); lsSet('mw_p_' + P.id, JSON.stringify(P));
     }
@@ -1924,7 +1939,7 @@ async function cloudSave() {
 }
 // load a hero: the device's copy, and for school numbers the sheet's copy (game data only). card: a number from the teacher's class list that has no hero yet.
 async function loadProfile(id) {
-  let local = null, cloud = null, offline = false, deleted = false, rejected = false, card = false, needCode = false;
+  let local = null, cloud = null, offline = false, deleted = false, rejected = false, moved = false, card = false, needCode = false;
   try { const t = lsGet('mw_p_' + id); if (t) local = JSON.parse(t); } catch (e) {}
   const school = !/^(local-|home-)/.test(id) && !(local && heroMode(local) !== 'school');
   if (CFG.SCRIPT_URL && school) {
@@ -1933,20 +1948,41 @@ async function loadProfile(id) {
       const j = await schoolPost({ action: 'load', id });
       if (!j.ok && j.error === 'school') { lsSet('mw_school', ''); needCode = true; }   // the school was set up again: ask for the code once more
       else if (!j.ok) offline = true;
-      else if (j.deleted) deleted = true; else if (j.rejected) rejected = true;
+      else if (j.deleted) deleted = true; else if (j.rejected) rejected = true; else if (j.moved) moved = true;
       else if (j.found && j.data) cloud = JSON.parse(j.data); else if (j.found) card = true;
+      if (j.ok && 'selfMove' in j) lsSet('mw_selfmove', j.selfMove ? '1' : '0');   // the school owner lets students move their own wizard home
     } catch (e) { offline = true; }
   }
   // the copy with more answers wins; on a tie, the one saved last (crafting and shopping do not add answers)
   const newer = (a, b) => a.n !== b.n ? a.n > b.n : (a.updated || 0) >= (b.updated || 0);
   if (deleted) { try { localStorage.removeItem('mw_p_' + id); } catch (e) {} return { profile: null, offline, deleted: true }; }
   const best = migrate((cloud && local) ? (newer(cloud, local) ? cloud : local) : (cloud || local));
-  return { profile: best, offline, rejected, card: card && !best, needCode };
+  return { profile: best, offline, rejected, moved, card: card && !best, needCode };
 }
 function rejectedByTeacher() {   // shared login spec §3.1.1: the hero moves to offline play, keeping its progress on this device
   if (!P) return; const old = P.id; P.mode = 'off'; P.id = 'local-' + Math.random().toString(36).slice(2, 10); noRealName(P);
   try { localStorage.removeItem('mw_p_' + old); } catch (e) {} lsSet('mw_p_' + P.id, JSON.stringify(P)); setCloud('none'); openMenu();
   modal(t('rejected_t'), t('rejected_b'), [[t('ok'), null]]);
+}
+function movedHome(self) {   // schools spec §6.4: the hero leaves the school and plays on this device with all its progress; a parent can sign it up for home play
+  if (!P) return; const old = P.id; P.mode = 'off'; P.local = true; P.id = 'local-' + Math.random().toString(36).slice(2, 10); noRealName(P);
+  try { localStorage.removeItem('mw_p_' + old); } catch (e) {} lsSet('mw_p_' + P.id, JSON.stringify(P)); lsSet('mw_last', P.id); keepDeviceData(); setCloud('none'); openMenu();
+  const btns = VERIFY_URL ? [[t('sign_home'), () => { show('login'); $('#startBox').style.display = 'none'; $('#appLogin').style.display = ''; renderHome(); }], [t('later'), null, true]] : [[t('ok'), null]];
+  modal(t('moved_t'), t(self ? 'moved_self_b' : 'moved_b'), btns);
+}
+async function selfMoveGo() {   // the student moves their own wizard home (allowed by the school owner, or the school's access has ended)
+  try { await schoolPost({ action: 'selfMove', id: P.id }); } catch (e) {}   // tell the school if it can be reached; the device does the rest
+  movedHome(true);
+}
+function askSelfMove() { modal(t('self_move'), t('self_move_info'), [[t('self_move_go'), selfMoveGo], [t('cancel'), null, true]]); }
+async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: no school-mode play; the student may keep the wizard (at most one check an hour, when online)
+  if (!P || heroMode(P) !== 'school' || !CFG.REGISTRY_URL || !lsGet('mw_school_id')) return;
+  const now = Date.now(), last = +(lsGet('mw_stchk') || 0);
+  if (now - last > 36e5) {
+    try { const j = await post(CFG.REGISTRY_URL, { action: 'status', id: lsGet('mw_school_id') }); if (j.ok) { lsSet('mw_stchk', String(now)); lsSet('mw_suspended', j.status === 'suspended' ? '1' : '0'); } } catch (e) {}
+  }
+  if (lsGet('mw_suspended') !== '1' || !P || heroMode(P) !== 'school') return;
+  modal(t('ended_t'), t('ended_b'), [[t('keep_wiz'), selfMoveGo], [t('ok'), () => { P = null; show('login'); renderStart(); }, true]]);
 }
 
 /* ====================== SCREENS / MODAL ====================== */
@@ -1985,10 +2021,12 @@ $('#loginBtn').onclick = async () => {
   const r = await loadProfile(id);
   $('#loginBtn').disabled = false; msg.textContent = '';
   lsSet('mw_last', id);
+  if (r.profile && r.moved) { enterProfile(r.profile); movedHome(false); return; }   // the teacher moved this hero home: it keeps playing on this device
   if (r.profile) { enterProfile(r.profile); setCloud(CFG.SCRIPT_URL ? (r.offline ? 'off' : 'ok') : 'none'); openMenu(); return; }
   if (r.needCode) { openSchool(); return; }   // this device has no school code yet
   if (r.card) { pendingMode = 'school'; pendingId = id; pendingReal = pendingCls = ''; openCreator(); return; }   // a login card from the teacher: make the hero
   if (r.rejected) { modal(t('rejected_t'), t('rejected_login'), [[t('ok'), null]]); return; }
+  if (r.moved) { modal(t('moved_t'), t('moved_login'), [[t('ok'), null]]); return; }
   if (r.deleted) { modal(t('removed_t'), t('removed_b', { nb: t('new_plain') }), [[t('new_btn'), () => $('#newBtn').click()], [t('ok'), null, true]]); return; }
   modal(t('unknown_t'), t('unknown_b', { id: esc(id), warn: r.offline ? t('unknown_off') : '', nb: t('new_plain') }),
     [[t('try_again'), null], [t('new_btn'), () => $('#newBtn').click(), true]]);
@@ -2116,6 +2154,7 @@ function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1)
 const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>`;
 function openMenu() {
   pingPlayed();   // (home heroes: once a day)
+  setTimeout(checkSchoolOpen, 0);   // (school heroes: is the school's access still on?)
   G.quest = null; show('menu');
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
   $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
@@ -5247,8 +5286,8 @@ async function adminAppUsers() {   // only a count: the app keeps no names and n
 function adminRender(j) {
   const byId = {}; for (const s of j.students) if (!byId[s.id] || s.answers >= byId[s.id].answers) byId[s.id] = s;   // one row per student
   ADM.classes = j.classes || []; ADM.school = j.school || ''; ADM.ticked.clear();
-  const all = Object.values(byId); ADM.waiting = all.filter(s => s.status === 'waiting'); ADM.students = all.filter(s => s.status !== 'waiting');   // waiting students are not in the class reports until approved (login spec §3.1.1)
-  admWaiting(); admClassList(); admClsMenu();
+  const all = Object.values(byId); ADM.waiting = all.filter(s => s.status === 'waiting'); ADM.moved = all.filter(s => s.status === 'moved' && s.real); ADM.students = all.filter(s => s.status !== 'waiting' && s.status !== 'moved');   // waiting students are not in the class reports until approved (login spec §3.1.1)
+  admWaiting(); admClassList(); admClsMenu(); admMovedList();
   const dayDiff = iso => { if (!iso) return 9999; const a = new Date(iso), n = new Date(); return Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5); };
   const dayN = d => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 864e5;   // "today" in the school's time zone, when the script says so
   ADM.students.forEach(s => { s.days = j.today ? (s.lastDay ? Math.round(dayN(j.today) - dayN(s.lastDay)) : 9999) : dayDiff(s.last); });
@@ -5347,7 +5386,38 @@ $('#admPrint').onclick = async () => {   // printable login cards (schools spec 
   w.document.close();
   try { const r = await adminCall('cardsPrinted', { ids: list.map(s => s.id) }); if (r.ok) list.forEach(s => { s.card = true; }); adminTable(); } catch (x) {}   // "only students who never got a card" leaves them out next time
 };
-async function admLoadCode() { try { const c = await adminCall('getCode'); $('#admCodeNow').textContent = c.ok ? (c.code || '(not set)') : '?'; } catch (x) { $('#admCodeNow').textContent = '?'; } }
+async function admLoadCode() { try { const c = await adminCall('getCode'); $('#admCodeNow').textContent = c.ok ? (c.code || '(not set)') : '?'; $('#admSelfMove').checked = !!c.selfMove; } catch (x) { $('#admCodeNow').textContent = '?'; } }
+$('#admSelfMove').onchange = async e => { try { const r = await adminCall('setSelfMove', { on: e.target.checked }); if (!r.ok) throw 0; toast(r.selfMove ? 'Students can now move their wizard home' : 'Only teachers move students home'); } catch (x) { e.target.checked = !e.target.checked; toast('Could not change. Try again.'); } };
+/* ----- move to home (schools spec §6.4): a hand-over file, or the file e-mailed to a parent; the child's device turns the hero into a home hero ----- */
+function admMoveAsk(id) {
+  const s = ADM.students.find(x => x.id === id); if (!s) return;
+  modal('🏠 Move to home', `<p>Move <b>${esc(s.real || s.nick)}</b> (#${esc(id)}) to play at home? The school will no longer see this wizard's progress. The family keeps playing with all of it.</p>
+    <p class="small">Give the family the wizard: download a hand-over file, or type a parent's e-mail and the school sends it (the address is not kept).</p>
+    <input id="mvEmail" type="email" placeholder="Parent's e-mail (optional)" autocomplete="off" style="margin:6px 0">`,
+    [['📄 Hand-over file', () => admMoveGo(s, '')], ['✉️ Send to the parent', () => { const em = ($('#mvEmail').value || '').trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { toast('Type the parent\'s e-mail'); admMoveAsk(id); return; } admMoveGo(s, em); }], ['Cancel', null, true]]);
+}
+async function admMoveGo(s, email) {
+  toast('Moving…');
+  try {
+    const r = await adminCall('moveHome', { id: s.id, email });
+    if (!r.ok) { toast(r.error === 'nohero' ? 'This student never played: there is no wizard to send yet' : r.error === 'mail' ? 'The e-mail could not be sent. Try the hand-over file.' : 'Could not move. Try again.'); return; }
+    if (r.file && !email) {   // the hand-over file: the game's backup file, an offline hero on any device
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([r.file], { type: 'application/json' })); a.download = `SpellQuest-${(s.nick || s.id).replace(/[^\w֐-׿-]+/g, '_')}-hand-over.json`;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    }
+    const j = await adminCall('list'); if (j.ok) adminRender(j);
+    modal('🏠 Moved to home', `<p>${esc(s.real || s.nick)} now plays at home.${email ? ' The wizard was e-mailed to the parent.' : r.file ? ' Give the family the downloaded file: on their device, "Load a hero" at the bottom of the start screen.' : ' (This student never played, so there was no wizard to hand over.)'}</p><p class="small">If the child plays on the same device as before, the wizard moves home by itself the next time the game opens.</p>`, [['OK', null]]);
+  } catch (x) { toast('Could not move. Try again.'); }
+}
+function admMovedList() {
+  const m = ADM.moved || []; $('#admMovedCard').style.display = m.length ? '' : 'none';
+  $('#admMoved').innerHTML = m.map(s => `<div class="row" style="justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #fff2"><span><b>${esc(s.real)}</b> · ${esc(s.cls || '')} <small style="opacity:.75">#${esc(s.id)}</small></span>${admOwner() ? `<button class="btn ghost" data-undo="${esc(s.id)}" style="padding:4px 10px">↩ Undo</button>` : ''}</div>`).join('');
+}
+$('#admMoved').onclick = async e => {
+  const b = e.target.closest('[data-undo]'); if (!b) return;
+  try { const r = await adminCall('undoMove', { id: b.dataset.undo }); if (!r.ok) throw r.error; const j = await adminCall('list'); if (j.ok) adminRender(j); toast('Back in the class. (If the device already moved the wizard home, the student logs in again with the number.)'); }
+  catch (x) { toast(x === 'too late' ? 'More than 30 days: it can no longer be undone' : 'Could not undo. Try again.'); }
+};
 $('#admCodeSet').onclick = async () => {
   const code = $('#admCodeNew').value.trim(); if (code.length < 4) { toast('The code needs at least 4 letters or digits'); return; }
   try { const r = await adminCall('setCode', { code }); if (!r.ok) throw 0; $('#admCodeNow').textContent = r.code; $('#admCodeNew').value = ''; toast('School code changed'); } catch (x) { toast('Could not change the code'); }
@@ -5361,7 +5431,7 @@ function adminTable() {   // the students list (schools spec §6.1): class filte
   $('#admPlayed').innerHTML = `🟢 Played today: <b>${played}</b> of ${shown.length}${c ? ' · class ' + esc(c) : ''}`;
   const allT = rows.length > 0 && rows.every(s => ADM.ticked.has(s.id));
   $('#admTable').innerHTML = `<thead><tr><th class="tk"><input type="checkbox" id="admTickAll"${allT ? ' checked' : ''}></th>` + cols.map(([k, l]) => `<th data-k="${k}">${l}${ADM.sortKey === k ? (ADM.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '</tr></thead><tbody>' +
-    (rows.length ? rows.map(s => `<tr data-id="${esc(s.id)}"><td class="tk"><input type="checkbox" class="sTick"${ADM.ticked.has(s.id) ? ' checked' : ''}></td><td><span class="dot ${s.days === 0 ? 'on' : s.days >= 7 ? 'old' : ''}"></span><b>${esc(s.nick || '–')}</b> <small style="opacity:.7">#${esc(s.id)}</small>${s.card ? ' <small title="Login card printed">🪪</small>' : ''}${s.real ? `<br><small style="opacity:.85">${esc(s.real)}</small>` : ""}</td>
+    (rows.length ? rows.map(s => `<tr data-id="${esc(s.id)}"><td class="tk"><input type="checkbox" class="sTick"${ADM.ticked.has(s.id) ? ' checked' : ''}></td><td><span class="dot ${s.days === 0 ? 'on' : s.days >= 7 ? 'old' : ''}"></span><b>${esc(s.nick || '–')}</b> <small style="opacity:.7">#${esc(s.id)}</small>${s.card ? ' <small title="Login card printed">🪪</small>' : ''} <button class="mvBtn" data-mv="${esc(s.id)}" title="Move to home">🏠 Move to home</button>${s.real ? `<br><small style="opacity:.85">${esc(s.real)}</small>` : ""}</td>
       <td>${esc(s.cls || '')}</td><td>${s.tier}: ${esc(tierName(s.tier))}</td><td>${s.wiz || '–'}</td><td><span class="pbar2"><i style="width:${s.accuracy}%"></i></span>${s.answers ? s.accuracy + '%' : '–'}</td><td>${s.answers}</td><td>${s.minutes}</td><td>${s.coins || 0}</td><td>${s.craftAcc ? s.craftAcc + "%" : "–"}</td><td>${s.restarts || 0}</td><td>${agoText(s.days)}</td></tr>`).join('')
       : '<tr><td colspan="12" style="opacity:.7">No students found.</td></tr>') + '</tbody>';
   admPrintLabel();
@@ -5485,6 +5555,7 @@ $('#admTable').onclick = e => {
   if (e.target.id === 'admTickAll') { admShown().forEach(s => { if (e.target.checked) ADM.ticked.add(s.id); else ADM.ticked.delete(s.id); }); adminTable(); return; }
   if (e.target.classList.contains('sTick')) { const id = e.target.closest('tr').dataset.id; if (e.target.checked) ADM.ticked.add(id); else ADM.ticked.delete(id); admPrintLabel(); return; }
   if (e.target.closest('.tk')) return;
+  const mv = e.target.closest('[data-mv]'); if (mv) { admMoveAsk(mv.dataset.mv); return; }
   const th = e.target.closest('th'); if (th) { const k = th.dataset.k; ADM.sortDir = ADM.sortKey === k ? -ADM.sortDir : (k === 'nick' ? 1 : -1); ADM.sortKey = k; adminTable(); return; }
   const tr = e.target.closest('tbody tr[data-id]'); if (tr) adminStudent(tr.dataset.id);
 };
@@ -5608,6 +5679,7 @@ function openModeMenu() {
   if (m !== 'school') btns.push([t('save_hero'), saveHeroFile], [t('join_school'), joinSchool]);
   if (m === 'off' && VERIFY_URL) btns.push([t('sign_home'), () => { show('login'); $('#startBox').style.display = 'none'; $('#appLogin').style.display = ''; renderHome(); }]);
   if (m === 'school') btns.push([t('copy_home'), copyToDevice]);
+  if (m === 'school' && (lsGet('mw_selfmove') === '1' || lsGet('mw_suspended') === '1')) btns.push([t('self_move'), askSelfMove]);   // schools spec §6.4
   btns.push([t('close'), null, true]);
   modal(`${MODE_BADGE[m]} ${t('m_' + m)}`, `<p>${t('mode_info_' + m)}</p>`, btns);
 }

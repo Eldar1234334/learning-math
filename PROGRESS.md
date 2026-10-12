@@ -674,3 +674,11 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 - **🖨 Print login cards** (moved from the classes card): for the ticked students, or else everyone shown; "only students who never got a card" leaves out students already printed (the new *Cards* tab; a 🪪 next to their number). The card now also shows the school's name and three short "how to log in" lines in English and Hebrew.
 - Not built (yet): minutes played today, and a QR code on the cards.
 - School script version 5 (still works with the live game). Mock tests: all 70 checks; the screens tried (class filter, played today, ticking, cards for ticked, cards for new only).
+
+### Part 5: move to home (test site)
+- **🏠 Move to home** next to each student's name (teacher area): a hand-over file to download, or the file e-mailed to a parent by the school's own Gmail (the address is not kept). The file is the game's backup file, an offline hero with all its progress and no real name or class; on any device, "Load a hero" opens it, and the 📴 badge offers the parent's e-mail sign-up for home play.
+- The student's row becomes **moved**: no longer counted as a player. For 30 days the name, class and progress stay, and the school owner can **↩ Undo** (the *Moved* tab and the "🏠 Moved to home" card); after that only the number and the date stay, so the number is never used again. A teacher moves only students of their classes. Moves and undos go to the Log.
+- **The child's device:** the next load or save hears "moved"; the hero becomes a device hero with all its progress, and the game offers the parent's e-mail sign-up.
+- **The student moves their own wizard** ("🏠 Move my wizard to home" in the hero's mode menu): when the school owner turns it on (a new setting in the school code card, off by default), or always when the school's access has ended.
+- **A suspended school** (the Admin's list): school heroes check at most once an hour when online. Then "School access has ended": no school play or saving; **🏠 Keep my wizard (move to home)**.
+- School script version 6. Mock tests: 22 move checks and the 70 earlier checks; the game's 111 tests; tried end to end in the game (move, the device turning home, the file on a new device, a suspended school).

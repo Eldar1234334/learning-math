@@ -23,6 +23,11 @@
    - { action: 'classAdd' | 'classArchive', cls }       → { ok, classes }   school owner only (the Classes tab: the "I am new" class menu)
    - { action: 'cardsPrinted', ids: [...] }             → { ok, marked }   login cards printed (the Cards tab); 'list' tells each student's card: true/false,
                                                           and lastDay / today in the school's time zone (for "Played today")
+   - { action: 'moveHome', id, email? }                → { ok, file, mailed }   move to home: the hand-over file (and, with a parent's e-mail, sent to it); the row becomes 'moved'
+   - { action: 'undoMove', id }                         → { ok }   school owner, within 30 days
+   - { action: 'setSelfMove', on }                      → { ok, selfMove }   school owner: students may move their own wizard home
+   A device with the school token: { action: 'selfMove', token, id } → { ok }   allowed when the owner turned it on, or the school's access has ended
+                                                          ('load' and 'save' answer { moved: true } for a moved student)
    A device with the school token: { action: 'classes', token } → { ok, classes: [ ... ] }   class names only
    - { action: 'list', key }                            → { ok, students: [ { id, nick, real, cls, status, joined, tier, wiz, xp, accuracy, answers, minutes, coins, craftAcc, restarts, last } ] }
    - { action: 'student', key, id }                     → { ok, data, real, cls, status }
@@ -39,7 +44,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 5;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 6;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -102,12 +107,12 @@ function doPost(e) {
   if (a === 'stats') return out(stats(b));
   if (a === 'staffCode') return out(staffCode(b));
   if (a === 'staffVerify') return out(staffVerify(b));
-  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted'].includes(a)) return out(admin(a, b));
+  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted', 'moveHome', 'undoMove', 'setSelfMove'].includes(a)) return out(admin(a, b));
   if (String(b.token || '') !== token()) return out({ ok: false, error: 'school' });   // only devices set up with the school code
   if (a === 'load') return out(load(b));
   if (a === 'classes') return out({ ok: true, classes: classNames() });   // for the "I am new" class menu (class names only)
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
-  try { return out(a === 'register' ? register(b) : a === 'save' ? save(b) : { ok: false, error: 'action' }); } finally { lock.releaseLock(); }
+  try { return out(a === 'register' ? register(b) : a === 'save' ? save(b) : a === 'selfMove' ? selfMove(b) : { ok: false, error: 'action' }); } finally { lock.releaseLock(); }
 }
 function school(b) {
   if (over('code', LIMIT.codeTries)) return { ok: false, error: 'busy' };
@@ -119,8 +124,9 @@ function load(b) {
   if (over('all', LIMIT.loadAll) || over('id:' + id, LIMIT.loadPerId)) return { ok: false, error: 'busy' };
   const why = removedWhy(id); if (why) return { ok: true, found: false, deleted: why === 'deleted', rejected: why === 'rejected' };
   const sh = students(), row = rowOf(sh, id); if (!row) return { ok: true, found: false };
-  const r = sh.getRange(row, 1, 1, HEAD.length).getValues()[0], data = readData(sh, row);
-  return { ok: true, found: true, status: String(r[C.status]), data: data ? gameOnly(data) : '' };   // '' = a login card not used yet
+  const r = sh.getRange(row, 1, 1, HEAD.length).getValues()[0]; if (r[C.status] === 'moved') return { ok: true, found: false, moved: true };   // moved to home: the device turns the hero into a home hero
+  const data = readData(sh, row);
+  return { ok: true, found: true, status: String(r[C.status]), data: data ? gameOnly(data) : '', selfMove: props().getProperty('SELF_MOVE') === '1' };   // '' = a login card not used yet
 }
 function register(b) {
   const id = cleanId(b.id), real = txt(b.real, 60), typed = txt(b.cls, 20); if (!id || real.length < 3 || !typed) return { ok: false, error: 'bad' };
@@ -134,7 +140,7 @@ function save(b) {
   const id = cleanId(b.id); if (!id || typeof b.data !== 'string') return { ok: false, error: 'bad' };
   const why = removedWhy(id); if (why) return why === 'rejected' ? { ok: true, rejected: true } : { ok: true, deleted: true };
   const sh = students(), row = rowOf(sh, id); if (!row) return { ok: false, error: 'unknown' };   // only numbers made by the teacher or "I am new"
-  const r = sh.getRange(row, 1, 1, HEAD.length).getValues()[0];
+  const r = sh.getRange(row, 1, 1, HEAD.length).getValues()[0]; if (r[C.status] === 'moved') return { ok: true, moved: true };
   if (num(r[C.n]) > num(b.n) && readData(sh, row)) return { ok: true, conflict: true, data: gameOnly(readData(sh, row)) };   // the copy with more answers wins
   r[C.nick] = txt(b.nick, 30); r[C.mlvl] = num(b.mlvl); r[C.wiz] = num(b.wiz); r[C.xp] = num(b.xp); r[C.n] = num(b.n); r[C.acc] = num(b.acc); r[C.min] = num(b.min);
   r[C.coins] = num(b.coins); r[C.craft] = num(b.craftAcc); r[C.restarts] = num(b.restarts); r[C.last] = new Date().toISOString();
@@ -144,18 +150,20 @@ function save(b) {
 function admin(a, b) {
   const who = staffAuth(b); if (who.error) return { ok: false, error: who.error };
   const owner = who.role === 'owner', sees = cls => owner || who.classes === 'ALL' || who.classes.includes(clsKey(cls));   // a teacher sees only the classes they were given
-  if (['staffList', 'staffAdd', 'staffRemove', 'setCode', 'classAdd', 'classArchive'].includes(a) && !owner) return { ok: false, error: 'owner' };
+  if (['staffList', 'staffAdd', 'staffRemove', 'setCode', 'classAdd', 'classArchive', 'undoMove', 'setSelfMove'].includes(a) && !owner) return { ok: false, error: 'owner' };
   if (a === 'me') return { ok: true, email: who.email, role: who.role, classes: who.classes };
   if (a === 'staffList') return { ok: true, staff: staffRows().map(s => ({ email: s.email, role: s.role, classes: s.classes, added: s.added })), owner: ownerEmail() };
   const sh = students(), id = cleanId(b.id);
   if (a === 'list') {
+    purgeMoved(sh);
     const n = sh.getLastRow(), rows = n < 2 ? [] : sh.getRange(2, 1, n - 1, HEAD.length).getValues();
     const iso = v => v instanceof Date ? v.toISOString() : String(v || '');
     const printed = cardsPrinted();
     return { ok: true, me: { email: who.email, role: who.role }, school: props().getProperty('SCHOOL_NAME') || '', tz: Session.getScriptTimeZone(), today: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'), classes: classNames().filter(sees), students: rows.filter(r => r[C.id] !== '' && sees(r[C.cls])).map(r => ({ id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
       tier: num(r[C.mlvl]), wiz: num(r[C.wiz]), xp: num(r[C.xp]), answers: num(r[C.n]), accuracy: num(r[C.acc]), minutes: num(r[C.min]), coins: num(r[C.coins]), craftAcc: num(r[C.craft]), restarts: num(r[C.restarts]), last: iso(r[C.last]), lastDay: r[C.last] ? Utilities.formatDate(new Date(r[C.last]), Session.getScriptTimeZone(), 'yyyy-MM-dd') : '', card: !!printed[String(r[C.id])] })) };
   }
-  if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '' };
+  if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '', selfMove: props().getProperty('SELF_MOVE') === '1' };
+  if (a === 'setSelfMove') { props().setProperty('SELF_MOVE', b.on ? '1' : '0'); logIt(who.email, 'students may move their wizard home', b.on ? 'on' : 'off'); return { ok: true, selfMove: !!b.on }; }
   if (a === 'setCode') { const code = normCode(b.code); if (code.length < 4 || code.length > 20) return { ok: false, error: 'code' }; const reg = toRegistry({ action: 'schoolCode', code }); if (reg && !reg.ok) return { ok: false, error: reg.error === 'taken' ? 'taken' : 'registry' }; props().setProperty('SCHOOL_CODE', code); logIt(who.email, 'school code changed', ''); return { ok: true, code }; }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
@@ -204,6 +212,8 @@ function admin(a, b) {
     }
     const row = id ? rowOf(sh, id) : 0, r = row ? sh.getRange(row, 1, 1, HEAD.length).getValues()[0] : null;
     if (r && !sees(r[C.cls])) return { ok: false, error: 'class' };   // checked here every time, not only by hiding buttons in the game
+    if (a === 'moveHome') return moveHome(sh, row, r, id, b, who);
+    if (a === 'undoMove') return undoMove(sh, row, r, id, who);
     if (a === 'student') { if (!row) return { ok: false, error: 'not found' }; return { ok: true, data: gameOnly(readData(sh, row) || '{}'), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]) }; }
     if (a === 'approve') { if (!row) return { ok: false, error: 'not found' }; sh.getRange(row, C.status + 1).setValue('approved'); logIt(who.email, 'approved', id); return { ok: true }; }
     if (a === 'reject' || a === 'deleteStudent') {   // rejected: the device moves the hero to offline play; deleted: the device forgets the hero
@@ -327,3 +337,67 @@ function ensureClass(cls) {   // adds the class (or brings an archived one back)
 }
 const cardSheet = () => sheet('Cards', ['id', 'card printed', 'by']);
 function cardsPrinted() { const cs = cardSheet(), n = cs.getLastRow(), o = {}; if (n > 1) cs.getRange(2, 1, n - 1, 1).getValues().forEach(r => { o[String(r[0])] = 1; }); return o; }
+
+/* ----- move to home (schools spec §6.4): the school gives the hero to the family. A hand-over file (the game's backup file: an offline hero
+   on any device, which the family can sign up to play at home) is downloaded or e-mailed to a parent; the student's row becomes "moved".
+   For 30 days the school owner can undo it (the name, class and progress are kept in the Moved tab and the row); then they are cleared, and
+   only the number and the date stay, so the number is never used again. ----- */
+const MOVED_DAYS = 30;
+const movedSheet = () => sheet('Moved', ['id', 'moved', 'by', 'real name', 'class', 'cleared']);
+const fnv = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };   // the same check as the game's backup file
+function handOver(sh, row, r) {   // the game's backup file format (index.html saveHeroFile), as an offline hero
+  let p = {}; try { p = JSON.parse(gameOnly(readData(sh, row)) || '{}'); } catch (x) {}
+  if (!p.id) return '';   // a login card that was never used: nothing to hand over
+  p.id = 'local-' + Utilities.getUuid().replace(/-/g, '').slice(0, 8); p.mode = 'off'; p.local = true; delete p.real; delete p.cls;
+  const prof = JSON.stringify(p);
+  return JSON.stringify({ game: 'math', app: 'SpellQuest: Math Adventure', v: p.v || 1, saved: new Date().toISOString(), sum: fnv(prof), profile: prof, movedFrom: props().getProperty('SCHOOL_NAME') || '' });
+}
+function markMoved(sh, row, r, id, by) {
+  movedSheet().appendRow([id, new Date().toISOString(), by, String(r[C.real]), String(r[C.cls]), '']);
+  sh.getRange(row, C.status + 1).setValue('moved');
+}
+function moveHome(sh, row, r, id, b, who) {
+  if (!row) return { ok: false, error: 'not found' };
+  if (!['approved', 'waiting'].includes(String(r[C.status]))) return { ok: false, error: 'status' };
+  const file = handOver(sh, row, r), em = mailOf(b.email);
+  if (em) {
+    if (!EMAIL_RE.test(em)) return { ok: false, error: 'email' };
+    if (!file) return { ok: false, error: 'nohero' };
+    const school = props().getProperty('SCHOOL_NAME') || 'the school', nick = String(r[C.nick] || 'the wizard');
+    try {
+      MailApp.sendEmail({ to: em, name: 'SpellQuest Math', subject: 'SpellQuest: Math Adventure: ' + nick + ' can keep playing at home',
+        body: school + ' moved ' + nick + ' to play at home. The attached file is the wizard with all of its progress.\n\nOn the device the child will play on: open the game → "Load a hero" (at the bottom of the start screen) → choose this file. Then tap the 📴 badge next to the name → "Sign up to play at home" (a parent\'s e-mail).\n\n' +
+          'בית הספר העביר את ' + nick + ' למשחק בבית. הקובץ המצורף הוא הקוסם עם כל ההתקדמות שלו. במכשיר של הילד: פותחים את המשחק ← "טעינת גיבור" ← בוחרים את הקובץ.\n\nWe do not keep this e-mail address. / איננו שומרים את כתובת המייל.',
+        attachments: [Utilities.newBlob(file, 'application/json', 'SpellQuest-' + nick.replace(/[^\w֐-׿-]+/g, '_') + '.json')] });
+    } catch (x) { return { ok: false, error: 'mail' }; }
+  }
+  markMoved(sh, row, r, id, who.email); logIt(who.email, 'moved to home', id + (em ? ' (file e-mailed to a parent)' : ' (hand-over file)'));
+  return { ok: true, file, mailed: !!em };
+}
+function undoMove(sh, row, r, id, who) {
+  if (!row || r[C.status] !== 'moved') return { ok: false, error: 'not found' };
+  const ms = movedSheet(), n = ms.getLastRow(), v = n > 1 ? ms.getRange(2, 1, n - 1, 6).getValues() : [];
+  let i = -1; for (let k = v.length - 1; k >= 0; k--) if (String(v[k][0]) === id) { i = k; break; }
+  if (i < 0 || v[i][5]) return { ok: false, error: 'too late' };   // after 30 days the name and progress are gone
+  sh.getRange(row, C.real + 1, 1, 3).setValues([[v[i][3], v[i][4], 'approved']]); ms.deleteRow(i + 2);
+  logIt(who.email, 'move to home undone', id); return { ok: true };
+}
+function purgeMoved(sh) {   // after 30 days: keep only the number and the date
+  const ms = movedSheet(), n = ms.getLastRow(); if (n < 2) return;
+  const v = ms.getRange(2, 1, n - 1, 6).getValues(), old = Date.now() - MOVED_DAYS * 864e5;
+  v.forEach((m, k) => {
+    if (m[5] || new Date(m[1]).getTime() > old) return;
+    const row = rowOf(sh, String(m[0]));
+    if (row) { sh.getRange(row, C.nick + 1, 1, 3).setValues([['', '', '']]); sh.getRange(row, C.mlvl + 1, 1, HEAD.length - C.mlvl).setValue(''); sh.getRange(row, DATA_COL, 1, MAX_CHUNKS).setValue(''); }
+    ms.getRange(k + 2, 4, 1, 3).setValues([['', '', new Date().toISOString()]]);
+  });
+}
+function selfMove(b) {   // the student moves their own wizard home: when the school owner allows it, or when the school's access has ended (the device does the rest)
+  const id = cleanId(b.id); if (!id) return { ok: false, error: 'id' };
+  const sh = students(), row = rowOf(sh, id); if (!row) return { ok: false, error: 'unknown' };
+  const r = sh.getRange(row, 1, 1, HEAD.length).getValues()[0]; if (r[C.status] === 'moved') return { ok: true };
+  let allowed = props().getProperty('SELF_MOVE') === '1';
+  if (!allowed) { const reg = toRegistry({ action: 'status' }); allowed = !!(reg && reg.status === 'suspended'); }
+  if (!allowed) return { ok: false, error: 'not allowed' };
+  markMoved(sh, row, r, id, 'the student'); logIt('the student', 'moved to home', id); return { ok: true };
+}
