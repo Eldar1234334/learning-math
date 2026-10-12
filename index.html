@@ -744,6 +744,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <h2 style="margin:0" class="grow">🔧 Teacher area</h2>
     <button class="btn ghost" id="admRefresh" style="padding:8px 14px">⟳ Refresh</button>
   </div>
+  <div class="small center" id="admWho" style="opacity:.8;margin:-4px 0 8px"></div>
   <div class="admcards" id="admCards"></div>
   <div class="small center" id="admApp" style="opacity:.85;margin:4px 0 10px"></div>
   <div class="card" id="admWaitCard" style="display:none"><b>⏳ Waiting for approval</b>
@@ -757,7 +758,17 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       <button class="btn" id="admClsAdd" style="padding:8px 14px">➕ Add class</button></div>
     <div class="row" style="justify-content:flex-start;gap:10px;margin-top:10px"><span class="small">🖨 Login cards for</span><select id="admCardCls" style="padding:6px;font-size:1rem"></select><button class="btn ghost" id="admCards2" style="padding:8px 14px">🖨 Print cards</button></div>
     <div class="small" id="admClsMsg" style="margin-top:6px"></div></div>
-  <div class="card"><b>🔑 School code</b>
+  <div class="card" id="admStaffCard"><b>👩‍🏫 Teachers</b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">Teachers sign in to this area with an e-mail code (no password). Each teacher sees and approves only the classes you give them.</div>
+    <div id="admStaff"></div>
+    <div class="row" style="justify-content:flex-start;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px">
+      <input id="admStaffEm" type="email" maxlength="80" placeholder="Teacher's e-mail" style="max-width:240px;padding:8px;font-size:1rem">
+      <input id="admStaffCls" type="text" maxlength="120" placeholder="Classes, e.g. 3A, 3B" style="max-width:180px;padding:8px;font-size:1rem">
+      <label class="small"><input type="checkbox" id="admStaffAll"> All classes</label>
+      <label class="small"><input type="checkbox" id="admStaffOwner"> Also a school owner</label>
+      <button class="btn" id="admStaffAdd" style="padding:8px 14px">➕ Add teacher</button></div>
+    <div class="small" id="admStaffMsg" style="margin-top:6px"></div></div>
+  <div class="card" id="admCodeCard"><b>🔑 School code</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">A device asks for this code once, the first time a student uses school mode on it. If the code leaks, change it: devices already set up keep working.</div>
     <div class="row" style="justify-content:flex-start;gap:10px"><span>Now: <b id="admCodeNow">…</b></span><input id="admCodeNew" type="text" maxlength="20" placeholder="New code, e.g. SUNNY-7" style="max-width:200px;padding:8px;font-size:1rem"><button class="btn ghost" id="admCodeSet" style="padding:8px 14px">Change</button></div></div>
   <div class="card">
@@ -5059,13 +5070,14 @@ setInterval(() => {
 document.addEventListener('visibilitychange', () => { if (document.hidden && P) saveSoon(true); });
 window.addEventListener('pagehide', () => { if (P) saveSoon(true); });
 
-/* ====================== TEACHER (ADMIN) AREA ====================== */
-// The password is checked by the Google script, never by this page, and it is kept in memory only (gone when the tab closes).
-let ADMKEY = null; const ADM = { students: [], sortKey: 'last', sortDir: -1, filter: '' };
+/* ====================== TEACHER AREA (the school's staff: the school owner and teachers) ====================== */
+// Staff sign in with an e-mail code from their school's own script (or the old teacher password). The session or password is checked by
+// the school's Google script, never by this page, and it is kept in memory only (gone when the tab closes).
+let ADMKEY = null, ADMSESS = null, ADMURL = '', ADMME = null; const ADM = { students: [], sortKey: 'last', sortDir: -1, filter: '' };
 async function adminCall(action, extra) {
-  const r = await fetch(schoolUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, key: ADMKEY }, extra || {})) });
-  return r.json();
+  return post(ADMURL || schoolUrl(), Object.assign({ action }, ADMSESS ? { sess: ADMSESS } : { key: ADMKEY }, extra || {}));
 }
+const admOwner = () => !ADMME || ADMME.role === 'owner';
 /* ----- Demo run (teacher area): a pretend student with a small control panel, to try every feature. Nothing is saved anywhere (no cloud, no device storage); leaving the demo reloads the game. ----- */
 function startDemo() {
   if (document.querySelector("#demoTab")) { openMenu(); return; }
@@ -5122,20 +5134,88 @@ $('#admDemo').onclick = () => startDemo();
 function adminAsk() {
   if (APP) return;   // there is no teacher area in the app
   if (!CFG.SCRIPT_URL) { modal(t('teacher_link'), t('adm_nocloud'), [[t('adm_demo'), startDemo], [t('close'), null, true]]); return; }   // no sheet yet: the demo still works
-  modal(t('teacher_link'), t('adm_pass') + '<input id="admPass" type="password" autocomplete="off" style="margin:6px 0">', [[t('open'), adminOpen], [t('cancel'), null, true]]);
+  const field = (id, type, ph, extra) => `<input id="${id}" type="${type}" placeholder="${ph}" autocomplete="off" style="margin:6px 0" ${extra || ''}>`;
+  const schoolPart = admKnowsSchool() ? `<p class="small" style="opacity:.85">🏫 ${esc(lsGet('mw_school_name') || 'This device\'s school')}</p>` : field('admSc', 'text', 'School code', 'autocapitalize="characters" maxlength="20"');
+  modal(t('teacher_link'), schoolPart + '<p class="small">Your e-mail. If your school added it, a 6-digit code is sent to it.</p>' + field('admEm', 'email', 'teacher@example.com', 'autocomplete="email"') +
+    '<p class="small" style="margin-top:8px"><a href="#" id="admUsePass" class="adminLink" style="opacity:.8">Use the teacher password instead</a></p>',
+    [['Send code', admSendCode], [t('cancel'), null, true]]);
+  setTimeout(() => { const i = $('#admSc') || $('#admEm'); if (i) i.focus(); const p = $('#admUsePass'); if (p) p.onclick = e => { e.preventDefault(); const sc = $('#admSc') ? $('#admSc').value : ''; $('#modal').classList.remove('on'); admAskPass(sc); }; }, 60);
+}
+// a device that joined a school (or a game with only the first school) knows where the teacher area is; otherwise the school code finds it
+const admKnowsSchool = () => !CFG.REGISTRY_URL || !!lsGet('mw_school_id') || (!!schoolToken() && !lsGet('mw_school_url'));
+async function admFindSchool(code) {   // → the school's link, or throws a message
+  if (admKnowsSchool() && !code) return schoolUrl();
+  if (!code) throw 'Type your school code.';
+  let r; try { r = await post(CFG.REGISTRY_URL, { action: 'resolve', code }); } catch (e) { throw 'I could not reach the cloud. Please check the internet connection.'; }
+  if (!r.ok) throw r.error === 'suspended' ? 'Your school\'s access to the game has ended.' : r.error === 'busy' ? 'Too many tries. Wait a minute.' : 'That school code is not right.';
+  return r.url;
+}
+async function admSendCode() {
+  const em = ($('#admEm').value || '').trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { toast('Type your e-mail'); adminAsk(); return; }
+  try {
+    ADMURL = await admFindSchool($('#admSc') ? $('#admSc').value.trim() : '');
+    const j = await post(ADMURL, { action: 'staffCode', email: em }); if (!j.ok) throw j.error === 'busy' ? 'Too many tries. Wait a minute.' : 'The school could not send the e-mail. Try again later.';
+  } catch (x) { modal(t('teacher_link'), `<p>${esc(typeof x === 'string' ? x : 'I could not reach the cloud. Please check the internet connection.')}</p>`, [['Try again', adminAsk], [t('close'), null, true]]); return; }
+  admAskCode(em);
+}
+function admAskCode(em) {
+  modal(t('teacher_link'), `<p class="small">If ${esc(em)} is on your school's staff list, a code is on its way (it works for 10 minutes). Check the spam folder too.</p><input id="admCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="margin:6px 0">`,
+    [[t('open'), async () => {
+      try {
+        const j = await post(ADMURL, { action: 'staffVerify', email: em, code: $('#admCode').value.trim() });
+        if (!j.ok) { modal(t('teacher_link'), `<p>${j.error === 'expired' ? 'The code has expired. Ask for a new one.' : j.error === 'locked' ? 'Too many wrong tries. Ask for a new code.' : 'That code is not right.'}</p>`, [['Try again', j.error === 'wrong' ? () => admAskCode(em) : adminAsk], [t('close'), null, true]]); return; }
+        ADMSESS = j.sess; ADMKEY = null; adminOpen();
+      } catch (x) { toast('I could not reach the cloud.'); }
+    }], [t('cancel'), null, true]]);
+  setTimeout(() => { const i = $('#admCode'); if (i) { i.focus(); i.onkeydown = e => { if (e.key === 'Enter') $('#mBtns button').click(); }; } }, 60);
+}
+function admAskPass(sc) {   // the old single teacher password: it opens the area as the school owner
+  const need = !admKnowsSchool();
+  modal(t('teacher_link'), (need ? `<input id="admSc" type="text" placeholder="School code" autocomplete="off" autocapitalize="characters" maxlength="20" style="margin:6px 0" value="${esc(sc || '')}">` : '') + t('adm_pass') + '<input id="admPass" type="password" autocomplete="off" style="margin:6px 0">',
+    [[t('open'), async () => {
+      ADMKEY = $('#admPass').value; if (!ADMKEY) return;
+      try { ADMURL = await admFindSchool(need ? $('#admSc').value.trim() : ''); } catch (x) { ADMKEY = null; modal(t('teacher_link'), `<p>${esc(typeof x === 'string' ? x : '')}</p>`, [['Try again', () => admAskPass(sc)], [t('close'), null, true]]); return; }
+      ADMSESS = null; adminOpen();
+    }], [t('cancel'), null, true]]);
   setTimeout(() => { const i = $('#admPass'); if (i) { i.focus(); i.onkeydown = e => { if (e.key === 'Enter') $('#mBtns button').click(); }; } }, 60);
 }
 async function adminOpen() {
-  ADMKEY = $('#admPass').value; if (!ADMKEY) return;
   toast('Checking…');
   try {
     const j = await adminCall('list');
-    if (!j.ok) { ADMKEY = null; modal('Teacher area', `<p>${j.error === 'locked' ? 'Too many wrong tries. Please wait 10 minutes and try again.' : 'That password is not right.'}</p>`, [['Try again', adminAsk], ['Close', null, true]]); return; }
-    show('admin'); adminRender(j); admLoadCode();
-  } catch (e) { ADMKEY = null; modal('Teacher area', '<p>I could not reach the cloud. Please check the internet connection and try again.</p>', [['OK', null]]); }
+    if (!j.ok) { ADMKEY = ADMSESS = null; modal('Teacher area', `<p>${j.error === 'locked' ? 'Too many wrong tries. Please wait 10 minutes and try again.' : j.error === 'login' ? 'Your sign-in has ended. Please sign in again.' : 'That password is not right.'}</p>`, [['Try again', adminAsk], ['Close', null, true]]); return; }
+    ADMME = j.me || { email: 'teacher password', role: 'owner' };
+    show('admin'); admRoleView(); adminRender(j); if (admOwner()) { admLoadCode(); admLoadStaff(); }
+  } catch (e) { ADMKEY = ADMSESS = null; modal('Teacher area', '<p>I could not reach the cloud. Please check the internet connection and try again.</p>', [['OK', null]]); }
 }
+function admRoleView() {   // the school owner manages staff and the school code; a teacher sees only their classes
+  const own = admOwner();
+  $('#admWho').textContent = ADMME.email === 'teacher password' ? 'Signed in with the teacher password (school owner)' : `Signed in as ${ADMME.email} (${own ? 'school owner' : 'teacher'})`;
+  $('#admCodeCard').style.display = own ? '' : 'none'; $('#admStaffCard').style.display = own ? '' : 'none';
+}
+async function admLoadStaff() {
+  try {
+    const j = await adminCall('staffList'); if (!j.ok) return;
+    $('#admStaff').innerHTML = `<div class="small" style="opacity:.8;padding:4px 0">👑 ${esc(j.owner || '')} · school owner (the Google account that keeps the sheet)</div>` +
+      (j.staff.length ? j.staff.map(s => `<div class="row" style="justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #fff2"><span><b>${esc(s.email)}</b> · ${s.role === 'owner' ? 'school owner' : 'teacher'} · <small>${s.classes === 'ALL' ? 'all classes' : esc(s.classes.join(', '))}</small></span>
+        <button class="btn ghost" data-rm="${esc(s.email)}" style="padding:4px 10px">Remove</button></div>`).join('') : '<div class="small" style="opacity:.7;padding:4px 0">No teachers yet.</div>');
+  } catch (x) {}
+}
+$('#admStaff').onclick = e => {
+  const b = e.target.closest('[data-rm]'); if (!b) return;
+  modal('Remove teacher', `<p>Remove <b>${esc(b.dataset.rm)}</b>? They are signed out at once and can no longer open the teacher area.</p>`,
+    [['Remove', async () => { try { const r = await adminCall('staffRemove', { email: b.dataset.rm }); if (!r.ok) throw 0; admLoadStaff(); toast('Removed'); } catch (x) { toast('Could not remove. Try again.'); } }], ['Cancel', null, true]]);
+};
+$('#admStaffAdd').onclick = async () => {
+  const email = $('#admStaffEm').value.trim(), all = $('#admStaffAll').checked, classes = all ? 'ALL' : $('#admStaffCls').value.trim(), role = $('#admStaffOwner').checked ? 'owner' : 'teacher', m = $('#admStaffMsg');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { m.textContent = 'Type the teacher\'s e-mail.'; return; }
+  if (role === 'teacher' && !classes) { m.textContent = 'Type their classes (for example 3A, 3B) or tick "All classes".'; return; }
+  try { const r = await adminCall('staffAdd', { email, role, classes }); if (!r.ok) throw 0; m.textContent = `✅ ${email} can now sign in to the teacher area with an e-mail code.`; $('#admStaffEm').value = ''; $('#admStaffCls').value = ''; admLoadStaff(); }
+  catch (x) { m.textContent = 'Could not add. Try again.'; }
+};
 async function adminAppUsers() {   // only a count: the app keeps no names and no emails
-  if (!VERIFY_URL) { $('#admApp').textContent = ''; return; }
+  if (!VERIFY_URL || !ADMKEY) { $('#admApp').textContent = ''; return; }   // only with the password: a staff e-mail sign-in has no key for the home count (and must not use up its wrong-key tries)
   try {
     const r = await fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'appStats', game: 'math', key: ADMKEY }) }), j = await r.json();
     if (j.ok) $('#admApp').innerHTML = `🏠 Home players (signed up by a parent's e-mail): <b>${j.total}</b> in total · ${j.week} new this week · ${j.day} new today` + (j.playedDay != null ? ` · played today: <b>${j.playedDay}</b> · this week: ${j.playedWeek}` : ''); else $('#admApp').textContent = '';
@@ -5253,7 +5333,7 @@ async function adminStudent(id) {
   } catch (e) { box.innerHTML = '<p>Could not load this student. ' + esc(e.message || '') + '</p>'; }
 }
 $('#adminLink').onclick = e => { e.preventDefault(); adminAsk(); };
-$('#admBack').onclick = () => { ADMKEY = null; show('login'); };
+$('#admBack').onclick = () => { ADMKEY = ADMSESS = ADMME = null; ADMURL = ''; show('login'); };
 
 /* ====================== 🔑 ADMIN (the game's owner): the Admin's school list (tools/apps-script/registry/Code.gs) ======================
    Separate from the teacher area: an e-mail code (only the Admin's e-mail gets one), then a session token kept in memory only.

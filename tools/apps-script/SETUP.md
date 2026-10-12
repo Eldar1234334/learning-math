@@ -51,3 +51,7 @@ One small sheet and script that only the Admin (the game's owner) uses. It turns
 2. **➕ New school**: the school's name and the Gmail of the account that will keep its data. The game shows `REGISTRY_URL` and a one-time `SETUP_TOKEN`.
 3. In that account, the school's script (the steps at the top of this page, with the newest Code.gs): add the script properties `REGISTRY_URL`, `SETUP_TOKEN` and `WEB_APP_URL` (its own web app link) → choose the function **linkRegistry** → **▶ Run** → allow. The school is now **active**: its code works, and its counts reach your list.
 4. The school's code is changed only in that school's teacher area. Two schools can never have the same code.
+
+## Teachers (part 2)
+After pasting a school script of version 3 or newer: **Deploy → Manage deployments → ✏️ → New version → Deploy**, then choose the function **authorize** → **▶ Run** → allow (the script now sends the teachers' sign-in codes from the school's own Gmail, and makes the *Staff* and *Log* tabs).
+The school owner (the Google account that runs the script) signs in to the teacher area with an e-mail code and adds teachers in **👩‍🏫 Teachers**.

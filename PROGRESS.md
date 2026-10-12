@@ -654,3 +654,10 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 - **The school script** (version 2): answers the list's check and its counts (approved students, played today, last active; never names); a new school code is first checked with the list, so two schools never share a code. A school that is not on the list works as before.
 - **Students:** the school code is looked up in the list, and the device keeps its school's link and name ("🏫 Sunny School" above the number). A suspended school's code says that its access has ended. If the list cannot be reached, a device that already has its school keeps working.
 - Tested with a mock of Google's services: 30 checks (sign-in, single-use codes, wrong owner, used token, taken code, suspended, counts with no names, rate limits) and the game screens.
+
+### Part 2: teachers sign in with an e-mail code (test site)
+- **🔧 Teacher area sign-in:** the school code (only on a device that does not know its school yet), then the teacher's e-mail; the school's own script e-mails a 6-digit code (10 minutes, once, 5 tries). Any other e-mail gets the same answer and no mail. "Use the teacher password instead" still works and counts as the school owner, until the owner retires it.
+- **Roles:** the **school owner** is the Google account that runs the school's script (and anyone the owner marks as "also a school owner"). Only the owner sees **👩‍🏫 Teachers** (add by e-mail with their classes, or all classes; remove: signed out at once) and the school code. A **teacher** sees, opens, approves and deletes only students of their own classes; the school script checks this on every call, not only the screen.
+- **Log tab** in the school's sheet: sign-ins, staff changes, approvals, deletions, code changes, with the staff e-mail.
+- The 🏠 home-players count shows only with the teacher password (it belongs to the Admin; an e-mail sign-in must not use up that service's wrong-key tries).
+- School script version 3. Mock tests: 20 staff checks (codes, roles, class limits, removal, log) and the 30 checks of part 1; the game screens tried as owner and as a teacher.
