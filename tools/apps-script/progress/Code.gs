@@ -47,7 +47,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 11;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 12;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -448,8 +448,15 @@ function setupKit() {
   if (url && !webAppWorks(url)) url = '';   // a link that does not answer (not deployed yet, or not for "Anyone")
   if (!url) { try { const u = normUrl(ScriptApp.getService().getUrl() || ''); if (/\/exec$/.test(u) && webAppWorks(u)) url = u; } catch (x) {} }   // the web app, once the school owner deployed it
   if (!url) {   // Google lets only the account owner deploy a web app: one short step, then this menu again
-    const r = ui.prompt('SpellQuest: one more step (1 minute)',
-      'Your school sheet is ready. Now the link the game uses:\n\n1. Extensions → Apps Script (a new tab opens).\n2. Blue button Deploy → New deployment.\n3. Click ⚙️ next to "Select type" → Web app.\n4. Execute as: Me. Who has access: Anyone. → Deploy → Authorize access → Allow.\n5. Copy the Web app URL, come back to this tab, and paste it below.\n\n(Or press Cancel, deploy, and choose 🧙 SpellQuest → Set up my school again.)', ui.ButtonSet.OK_CANCEL);
+    const r = ui.prompt('SpellQuest: last step (2 minutes)',
+      'Your school sheet is ready. The game now needs your school\'s web app link. In this same window:\n\n' +
+      '1. Menu Extensions → Apps Script. A new tab opens.\n' +
+      '2. In that tab: blue button Deploy → New deployment → ⚙️ (next to "Select type") → Web app.\n' +
+      '3. Execute as: Me. Who has access: Anyone. → Deploy → Authorize access → your account → Allow.\n' +
+      '4. Click Copy under "Web app URL". Come back to this tab and paste it here → OK.\n' +
+      '(Already deployed? In the Apps Script tab: Deploy → Manage deployments → Copy.)\n\n' +
+      'עוד צעד אחד: תפריט Extensions ← Apps Script. בלשונית שנפתחת: Deploy ← New deployment ← ⚙️ ← Web app. ' +
+      'Execute as: Me, Who has access: Anyone ← Deploy ← Allow. מעתיקים את ה-Web app URL, חוזרים ללשונית הזו ומדביקים כאן ← OK.', ui.ButtonSet.OK_CANCEL);
     const pasted = normUrl(r.getSelectedButton() === ui.Button.OK ? r.getResponseText().trim() : '');
     if (!/^https:\/\/script\.google\.com\/.*\/exec$/.test(pasted)) { if (pasted) ui.alert('SpellQuest', 'That is not the Web app URL (it starts with https://script.google.com and ends with /exec). Choose 🧙 SpellQuest → Set up my school again.', ui.ButtonSet.OK); return; }
     if (!webAppWorks(pasted)) { ui.alert('SpellQuest', 'That link does not answer yet. In the deployment, "Who has access" must be Anyone (Deploy → Manage deployments → ✏️). Then choose 🧙 SpellQuest → Set up my school again.', ui.ButtonSet.OK); return; }

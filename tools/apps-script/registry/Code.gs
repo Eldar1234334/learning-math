@@ -22,7 +22,7 @@
    home counts on the Admin screen). SHEET_ID and SALT are made by the script itself.
    Run setup() once from the editor: it makes the sheet, asks for the permissions and starts the daily count.
 */
-const VERSION = 3;
+const VERSION = 4;
 const HEAD = ['id', 'name', 'code', 'web app', 'owner gmail', 'status', 'games', 'players', 'active today', 'last active', 'script version', 'created', 'setup token', 'key', 'kit'];
 const C = { id: 0, name: 1, code: 2, url: 3, owner: 4, status: 5, games: 6, players: 7, today: 8, last: 9, ver: 10, created: 11, setup: 12, key: 13, kit: 14 };
 const LIMIT = { resolve: [40, 60], miss: [30, 60], status: [300, 60], register: [10, 600], adminCode: [5, 3600], adminAll: [30, 60] };   // [how many, in how many seconds]
@@ -144,7 +144,8 @@ function admin(a, b) {
     const code = normCode(b.code);   // with a code, the school gets a kit (one link for the school owner), and the code is kept for it
     if (code && (code.length < 4 || code.length > 20)) return { ok: false, error: 'code' };
     if (code && codeTaken(code)) return { ok: false, error: 'taken' };
-    const ids = rows().map(r => num(String(r[C.id]).replace(/\D/g, ''))), id = 'S' + (Math.max(0, ...ids) + 1);
+    const ids = rows().map(r => num(String(r[C.id]).replace(/\D/g, ''))), p = props();   // numbers are never used twice, even after a school is removed
+    const n = Math.max(num(p.getProperty('NEXT_ID')), Math.max(0, ...ids) + 1, 3), id = 'S' + n; p.setProperty('NEXT_ID', String(n + 1));   // (S1 and S2 were used before this counter)
     const setup = Utilities.getUuid().replace(/-/g, '');
     book().appendRow([id, name, code, '', owner, 'waiting setup', games.join(','), 0, 0, '', '', new Date().toISOString(), hash(setup), '', '']);
     const kit = code ? makeKit(id, name, code, setup) : null;
