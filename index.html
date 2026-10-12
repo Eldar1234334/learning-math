@@ -751,7 +751,6 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   </div>
   <div class="small center" id="admWho" style="opacity:.8;margin:-4px 0 8px"></div>
   <div class="admcards" id="admCards"></div>
-  <div class="small center" id="admApp" style="opacity:.85;margin:4px 0 10px"></div>
   <div class="card" id="admWaitCard" style="display:none"><b>⏳ Waiting for approval <span id="admWaitN" class="badgeN"></span></b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">Students who tapped "I am new". They can already play. Tick the students who are really in your school, fix a name or class if needed, then approve. ❌ Reject = not a student of the school: removed, and their device moves the hero to offline play (the progress stays on that device).</div>
     <div class="row" style="justify-content:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:6px"><select id="admWaitCls" style="padding:6px;font-size:1rem"></select>
@@ -770,6 +769,20 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="small" id="admClsMsg" style="margin-top:6px"></div>
     <div id="admClsMenuBox" style="margin-top:10px;border-top:1px solid #fff2;padding-top:8px"><span class="small" style="opacity:.85">Classes in the "I am new" menu:</span> <span id="admClsMenu" class="small"></span>
       <span class="row" style="display:inline-flex;gap:6px;margin-left:6px"><input id="admClsNew" type="text" maxlength="20" placeholder="New class" style="max-width:120px;padding:6px;font-size:1rem"><button class="btn ghost" id="admClsNewBtn" style="padding:6px 12px">➕</button></span></div></div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><b>Students</b>
+      <select id="admStuCls" style="padding:6px;font-size:1rem"></select>
+      <input id="admSearch" type="text" placeholder="Search name or number…" style="max-width:260px;padding:8px;font-size:1rem">
+      <button class="btn ghost" id="admCsv" style="padding:8px 14px">⬇ Download (CSV)</button></div>
+    <div class="admPlayed" id="admPlayed"></div>
+    <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap;margin:6px 0"><button class="btn ghost" id="admPrint" style="padding:6px 12px">🖨 Print login cards</button>
+      <span class="small" id="admPrintFor" style="opacity:.85"></span><label class="small"><input type="checkbox" id="admPrintNew"> only students who never got a card</label></div>
+    <div class="tblwrap"><table id="admTable"></table></div>
+    <div class="small" style="opacity:.7;margin-top:6px">Tick students to print only their cards. Tap a student to see details. Tap a column title to sort.</div>
+  </div>
+  <div class="card" id="admDetail" style="display:none"></div>
+  <div id="admOwnerArea">
+  <h3 style="margin:22px 4px 6px">🏫 School owner <small style="font-weight:400;opacity:.75;font-size:.8rem">only the school owner sees this part: who may use the teacher area, the school code and the school's settings</small></h3>
   <div class="card" id="admStaffCard"><b>👩‍🏫 Teachers</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">Teachers sign in to this area with an e-mail code (no password). Each teacher sees and approves only the classes you give them.</div>
     <div id="admStaff"></div>
@@ -784,18 +797,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="small" style="opacity:.8;margin:4px 0 8px">A device asks for this code once, the first time a student uses school mode on it. If the code leaks, change it: devices already set up keep working.</div>
     <div class="row" style="justify-content:flex-start;gap:10px"><span>Now: <b id="admCodeNow">…</b></span><input id="admCodeNew" type="text" maxlength="20" placeholder="New code, e.g. SUNNY-7" style="max-width:200px;padding:8px;font-size:1rem"><button class="btn ghost" id="admCodeSet" style="padding:8px 14px">Change</button></div>
     <label class="small" style="display:block;margin-top:10px"><input type="checkbox" id="admSelfMove"> Students may move their own wizard to play at home (from the hero menu). When a school's access ends, they always can.</label></div>
-  <div class="card">
-    <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><b>Students</b>
-      <select id="admStuCls" style="padding:6px;font-size:1rem"></select>
-      <input id="admSearch" type="text" placeholder="Search name or number…" style="max-width:260px;padding:8px;font-size:1rem">
-      <button class="btn ghost" id="admCsv" style="padding:8px 14px">⬇ Download (CSV)</button></div>
-    <div class="admPlayed" id="admPlayed"></div>
-    <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap;margin:6px 0"><button class="btn ghost" id="admPrint" style="padding:6px 12px">🖨 Print login cards</button>
-      <span class="small" id="admPrintFor" style="opacity:.85"></span><label class="small"><input type="checkbox" id="admPrintNew"> only students who never got a card</label></div>
-    <div class="tblwrap"><table id="admTable"></table></div>
-    <div class="small" style="opacity:.7;margin-top:6px">Tick students to print only their cards. Tap a student to see details. Tap a column title to sort.</div>
   </div>
-  <div class="card" id="admDetail" style="display:none"></div>
   <div class="card" id="admDemoCard"><b>🧪 Demo run</b><p class="small" style="margin:6px 0;opacity:.85">Try the game as a pretend student: pick any level, jump to the workshop, shop or home, start a quest, give yourself items. Nothing is saved and no student is changed.</p><button class="btn" id="admDemo">▶ Start a demo run</button></div>
 </section>
 
@@ -808,6 +810,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   </div>
   <div class="small center" style="opacity:.8;margin:0 0 10px">You see only how many students each school has and how many played today. Each school's names and progress stay in that school's own Google account.</div>
   <div class="admcards" id="ownCards"></div>
+  <div class="small center" id="ownHome" style="opacity:.85;margin:4px 0 10px"></div>
   <div class="card"><b>Schools</b><div class="tblwrap"><table id="ownTable"></table></div><div class="small" id="ownMsg" style="margin-top:6px"></div></div>
   <div class="card"><b>➕ New school</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">The Gmail must be the account that will keep the school's data (the school owner's). You get a one-time setup token for that school's script.</div>
@@ -5254,7 +5257,7 @@ async function adminOpen() {
 function admRoleView() {   // the school owner manages staff and the school code; a teacher sees only their classes
   const own = admOwner();
   $('#admWho').textContent = ADMME.email === 'teacher password' ? 'Signed in with the teacher password (school owner)' : `Signed in as ${ADMME.email} (${own ? 'school owner' : 'teacher'})`;
-  $('#admCodeCard').style.display = own ? '' : 'none'; $('#admStaffCard').style.display = own ? '' : 'none';
+  $('#admOwnerArea').style.display = own ? '' : 'none';
 }
 async function admLoadStaff() {
   try {
@@ -5276,13 +5279,6 @@ $('#admStaffAdd').onclick = async () => {
   try { const r = await adminCall('staffAdd', { email, role, classes }); if (!r.ok) throw 0; m.textContent = `✅ ${email} can now sign in to the teacher area with an e-mail code.`; $('#admStaffEm').value = ''; $('#admStaffCls').value = ''; admLoadStaff(); }
   catch (x) { m.textContent = 'Could not add. Try again.'; }
 };
-async function adminAppUsers() {   // only a count: the app keeps no names and no emails
-  if (!VERIFY_URL || !ADMKEY) { $('#admApp').textContent = ''; return; }   // only with the password: a staff e-mail sign-in has no key for the home count (and must not use up its wrong-key tries)
-  try {
-    const r = await fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'appStats', game: 'math', key: ADMKEY }) }), j = await r.json();
-    if (j.ok) $('#admApp').innerHTML = `🏠 Home players (signed up by a parent's e-mail): <b>${j.total}</b> in total · ${j.week} new this week · ${j.day} new today` + (j.playedDay != null ? ` · played today: <b>${j.playedDay}</b> · this week: ${j.playedWeek}` : ''); else $('#admApp').textContent = '';
-  } catch (e) { $('#admApp').textContent = ''; }
-}
 function adminRender(j) {
   const byId = {}; for (const s of j.students) if (!byId[s.id] || s.answers >= byId[s.id].answers) byId[s.id] = s;   // one row per student
   ADM.classes = j.classes || []; ADM.school = j.school || ''; ADM.ticked.clear();
@@ -5295,7 +5291,7 @@ function adminRender(j) {
   const avg = played.length ? Math.round(played.reduce((a, s) => a + s.accuracy, 0) / played.length) : 0;
   $('#admCards').innerHTML = [[ADM.students.length, 'students'], [today, 'played today'], [inactive, 'not played for 7+ days'], [avg + '%', 'average accuracy'], [Math.round(ADM.students.reduce((a, s) => a + s.minutes, 0)), 'total minutes']]
     .map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
-  adminTable(); adminAppUsers(); $('#admDetail').style.display = 'none';
+  adminTable(); $('#admDetail').style.display = 'none';
 }
 /* ----- school mode in the teacher area (shared login spec §3.1.1): waiting students, class lists with login cards, the school code ----- */
 function admWaiting() {   // the waiting list (schools spec §6.2): tick boxes, a class filter, approve selected / all, reject selected; the name and class can be fixed first
@@ -5515,21 +5511,35 @@ async function ownOpen(refresh) {
   try {
     const j = await ownCall(refresh ? 'refresh' : 'schools');
     if (!j.ok) { if (j.error === 'login') { OWNTOK = null; show('login'); toast('Please sign in again'); } else $('#ownMsg').textContent = 'Could not load the schools.'; return; }
-    ownRender(j.schools); $('#ownMsg').textContent = '';
+    ownRender(j.schools); $('#ownMsg').textContent = ''; ownHomeStats();
   } catch (x) { $('#ownMsg').textContent = 'Could not reach the school list. Check the internet connection.'; }
 }
+async function ownHomeStats() {   // 🏠 home players: the Admin's list asks the counting service (shared with the reading game) for the math game's counts only
+  const box = $('#ownHome');
+  try {
+    const j = await ownCall('homeStats');
+    box.innerHTML = j.ok ? `🏠 Home players (signed up by a parent's e-mail): <b>${j.total}</b> in total · ${j.week} new this week · ${j.day} new today` + (j.playedDay != null ? ` · played today: <b>${j.playedDay}</b> · this week: ${j.playedWeek}` : '')
+      : j.error === 'setup' ? '🏠 Home players: not connected yet (the script properties COUNT_URL and COUNT_KEY of the Admin\'s list).' : '🏠 Home players: could not be counted right now.';
+  } catch (x) { box.textContent = ''; }
+}
+const SCHOOL_SCRIPT_V = 6;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
 function ownRender(list) {
   const act = list.filter(s => s.status === 'active');
   $('#ownCards').innerHTML = [[act.length, 'active schools'], [act.reduce((a, s) => a + s.players, 0), 'students'], [act.reduce((a, s) => a + s.today, 0), 'played today']].map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
   const when = iso => iso ? new Date(iso).toLocaleDateString() : '–', st = { active: '🟢 active', suspended: '⏸ suspended', 'waiting setup': '⏳ waiting setup' };
   $('#ownTable').innerHTML = '<thead><tr><th>School</th><th>Code</th><th>Status</th><th>Students</th><th>Played today</th><th>Last active</th><th>Script</th><th></th></tr></thead><tbody>' +
     (list.length ? list.map(s => `<tr><td><b>${esc(s.name)}</b> <small style="opacity:.7">${esc(s.id)}</small><br><small style="opacity:.8">${esc(s.owner)}</small></td><td>${esc(s.code || '–')}</td><td>${st[s.status] || esc(s.status)}</td>
-      <td>${s.players}</td><td>${s.today}</td><td>${when(s.last)}</td><td>${s.version ? 'v' + esc(s.version) : '–'}</td>
-      <td style="white-space:nowrap">${s.status === 'active' ? `<button class="btn ghost" data-st="suspended" data-id="${esc(s.id)}" style="padding:4px 10px">⏸ Suspend</button>` : s.status === 'suspended' ? `<button class="btn ghost" data-st="active" data-id="${esc(s.id)}" style="padding:4px 10px">▶ Resume</button>` : ''}
+      <td>${s.players}</td><td>${s.today}</td><td>${when(s.last)}</td><td>${s.version ? 'v' + esc(s.version) + (+s.version < SCHOOL_SCRIPT_V ? ` <small title="Newer: v${SCHOOL_SCRIPT_V}. The school owner pastes the new script and deploys a new version.">⚠ update</small>` : '') : '–'}</td>
+      <td style="white-space:nowrap">${s.status === 'active' ? `<button class="btn ghost" data-st="suspended" data-id="${esc(s.id)}" style="padding:4px 10px">⏸ Suspend</button>` : s.status === 'suspended' ? `<button class="btn ghost" data-st="active" data-id="${esc(s.id)}" style="padding:4px 10px">▶ Resume</button>` : `<button class="btn ghost" data-setup="${esc(s.id)}" data-name="${esc(s.name)}" style="padding:4px 10px">🔑 New setup token</button>`}
       <button class="btn ghost" data-del="${esc(s.id)}" data-name="${esc(s.name)}" style="padding:4px 10px">🗑</button></td></tr>`).join('') : '<tr><td colspan="8" style="opacity:.7">No schools yet.</td></tr>') + '</tbody>';
 }
 $('#ownTable').onclick = e => {
-  const s = e.target.closest('[data-st]'), d = e.target.closest('[data-del]');
+  const s = e.target.closest('[data-st]'), d = e.target.closest('[data-del]'), su = e.target.closest('[data-setup]');
+  if (su) modal('🔑 New setup token', `<p>Make a new setup token for <b>${esc(su.dataset.name)}</b>? The old one stops working.</p>`, [['Make it', async () => {
+    try { const r = await ownCall('newSetup', { id: su.dataset.setup }); if (!r.ok) throw 0;
+      $('#ownNew').innerHTML = `<p>🔑 <b>${esc(su.dataset.name)}</b>: give the school owner these two, for their script's properties (shown only now):</p><p class="small">REGISTRY_URL<br><code style="user-select:all;word-break:break-all">${esc(CFG.REGISTRY_URL)}</code></p><p class="small">SETUP_TOKEN<br><code style="user-select:all">${esc(r.setup)}</code></p>`;
+      $('#ownNew').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (x) { toast('Could not make it. Try again.'); } }], ['Cancel', null, true]]);
   if (s) { const go = async () => { try { const r = await ownCall('setStatus', { id: s.dataset.id, status: s.dataset.st }); if (!r.ok) throw 0; ownOpen(); } catch (x) { toast('Could not change it. Try again.'); } };
     if (s.dataset.st === 'suspended') modal('⏸ Suspend school', '<p>Its students can no longer play in school mode or save to the school. They can move their wizard to play at home. The school keeps all of its data.</p>', [['Suspend', go], ['Cancel', null, true]]); else go(); }
   if (d) modal('🗑 Remove school', `<p>Remove <b>${esc(d.dataset.name)}</b> from your list? Its code stops working. The school keeps its own sheet and data.</p>`,

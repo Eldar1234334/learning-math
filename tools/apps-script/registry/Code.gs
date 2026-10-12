@@ -15,11 +15,14 @@
    - { action: 'newSchool', token, name, owner, games }→ { ok, id, setup }   the setup token goes to the school owner
    - { action: 'setStatus', token, id, status }        → { ok }   'active' · 'suspended'
    - { action: 'deleteSchool', token, id }             → { ok }   only the row here; the school keeps its own sheet
+   - { action: 'newSetup', token, id }                 → { ok, setup }   a new setup token for a school still waiting
+   - { action: 'homeStats', token }                    → { ok, total, week, day, playedDay, playedWeek }   the 🏠 home players (needs COUNT_URL, COUNT_KEY)
 
-   Script properties: ADMIN_EMAIL (the Admin's e-mail). SHEET_ID and SALT are made by the script itself.
+   Script properties: ADMIN_EMAIL (the Admin's e-mail); COUNT_URL and COUNT_KEY (the 🏠 home players' counting service and its key, for the
+   home counts on the Admin screen). SHEET_ID and SALT are made by the script itself.
    Run setup() once from the editor: it makes the sheet, asks for the permissions and starts the daily count.
 */
-const VERSION = 1;
+const VERSION = 2;
 const HEAD = ['id', 'name', 'code', 'web app', 'owner gmail', 'status', 'games', 'players', 'active today', 'last active', 'script version', 'created', 'setup token', 'key'];
 const C = { id: 0, name: 1, code: 2, url: 3, owner: 4, status: 5, games: 6, players: 7, today: 8, last: 9, ver: 10, created: 11, setup: 12, key: 13 };
 const LIMIT = { resolve: [40, 60], miss: [30, 60], status: [300, 60], register: [10, 600], adminCode: [5, 3600], adminAll: [30, 60] };   // [how many, in how many seconds]
@@ -61,7 +64,7 @@ function doPost(e) {
   try {
     if (a === 'registerSchool') return out(registerSchool(b));
     if (a === 'schoolCode') return out(schoolCode(b));
-    if (['schools', 'refresh', 'newSchool', 'setStatus', 'deleteSchool'].includes(a)) return out(admin(a, b));
+    if (['schools', 'refresh', 'newSchool', 'setStatus', 'deleteSchool', 'homeStats', 'newSetup'].includes(a)) return out(admin(a, b));
     return out({ ok: false, error: 'action' });
   } finally { lock.releaseLock(); }
 }
@@ -133,6 +136,7 @@ function admin(a, b) {
   if (!String(b.token || '') || cache().get('adm:' + hash(b.token)) !== '1') return { ok: false, error: 'login' };
   if (a === 'refresh') pullCounts();
   if (a === 'schools' || a === 'refresh') return { ok: true, schools: listSchools() };
+  if (a === 'homeStats') return homeStats();
   if (a === 'newSchool') {
     const name = txt(b.name, 60), owner = mail(b.owner), games = ['math'];   // only the math game for now (owner, 2026-10-11)
     if (name.length < 2 || !EMAIL_RE.test(owner)) return { ok: false, error: 'bad' };
@@ -142,6 +146,10 @@ function admin(a, b) {
     return { ok: true, id, setup };
   }
   const f = findRow(r => String(r[C.id]) === String(b.id || '') && r[C.status] !== 'deleted'); if (!f) return { ok: false, error: 'school' };
+  if (a === 'newSetup') {   // a new one-time setup token for a school still waiting (the old one stops working)
+    if (f.r[C.status] !== 'waiting setup') return { ok: false, error: 'bad' };
+    const setup = Utilities.getUuid().replace(/-/g, ''); put(f.row, C.setup, hash(setup)); return { ok: true, setup };
+  }
   if (a === 'setStatus') { if (!['active', 'suspended'].includes(b.status) || f.r[C.status] === 'waiting setup') return { ok: false, error: 'bad' }; put(f.row, C.status, b.status); return { ok: true }; }
   if (a === 'deleteSchool') { book().deleteRow(f.row); return { ok: true }; }
   return { ok: false, error: 'action' };
@@ -165,4 +173,10 @@ function setup() {   // run once from the editor
   book(); MailApp.getRemainingDailyQuota(); UrlFetchApp.getRequest('https://script.google.com');
   if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'daily')) ScriptApp.newTrigger('daily').timeBased().everyDays(1).atHour(5).create();
   Logger.log('Sheet: ' + SpreadsheetApp.openById(props().getProperty('SHEET_ID')).getUrl());
+}
+function homeStats() {   // the 🏠 home players (the counting service shared with the reading game): counts only. Script property COUNT_URL and COUNT_KEY.
+  const p = props(), url = p.getProperty('COUNT_URL'), key = p.getProperty('COUNT_KEY'); if (!url || !key) return { ok: false, error: 'setup' };
+  try { const j = JSON.parse(UrlFetchApp.fetch(url, { method: 'post', contentType: 'text/plain', payload: JSON.stringify({ action: 'appStats', game: 'math', key }), muteHttpExceptions: true, followRedirects: true }).getContentText());
+    return j.ok ? { ok: true, total: j.total, week: j.week, day: j.day, playedDay: j.playedDay, playedWeek: j.playedWeek } : { ok: false, error: j.error || 'count' }; }
+  catch (x) { return { ok: false, error: 'count' }; }
 }

@@ -682,3 +682,9 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 - **The student moves their own wizard** ("🏠 Move my wizard to home" in the hero's mode menu): when the school owner turns it on (a new setting in the school code card, off by default), or always when the school's access has ended.
 - **A suspended school** (the Admin's list): school heroes check at most once an hour when online. Then "School access has ended": no school play or saving; **🏠 Keep my wizard (move to home)**.
 - School script version 6. Mock tests: 22 move checks and the 70 earlier checks; the game's 111 tests; tried end to end in the game (move, the device turning home, the file on a new device, a suspended school).
+
+### Part 6: the Admin screen with counts; the school owner's part (test site)
+- **🔑 Admin:** the **🏠 home players** count moved here from the teacher area (the Admin's list asks the counting service for the math game's counts; script properties COUNT_URL and COUNT_KEY of the Admin's list). Schools with an older school script are marked "⚠ update". A school still waiting for setup gets **🔑 New setup token** (the old one stops working). The counts refresh daily and on "Ask the schools for counts".
+- **🔧 Teacher area:** the school owner's cards (👩‍🏫 Teachers, the school code and the self-move setting) are grouped at the bottom under **🏫 School owner** (schools spec §7: the school owner's screen is the teacher screen with extra parts). Teachers do not see it.
+- Admin's list script version 2. Mock tests: 34 list checks; the screens tried.
+- Still open from spec §7 (a later part, if wanted): rename classes and move students between classes, "New school year", school settings (time zone, approve new students automatically, require real name), export / delete all school data.
