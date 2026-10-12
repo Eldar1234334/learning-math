@@ -122,7 +122,7 @@ function load(b) {
 }
 function register(b) {
   const id = cleanId(b.id), real = txt(b.real, 60), typed = txt(b.cls, 20); if (!id || real.length < 3 || !typed) return { ok: false, error: 'bad' };
-  const known = classNames(), cls = known.find(c => clsKey(c) === clsKey(typed)) || typed; if (known.length && cls === typed && !known.includes(typed)) return { ok: false, error: 'class' };   // a class from the school's list
+  const known = classNames(), cls = known.find(c => clsKey(c) === clsKey(typed)) || typed; if (b.menu && known.length && cls === typed && !known.includes(typed)) return { ok: false, error: 'class' };   // a class from the school's list (games older than the class menu still send a typed class)
   const sh = students(); if (rowOf(sh, id) || removedWhy(id)) return { ok: false, error: 'taken' };
   const row = newRow(sh); sh.getRange(row, 1, 1, HEAD.length).setValues([[id, txt(b.nick, 30), real, cls, 'waiting', new Date().toISOString(), 0, 0, 0, 0, 0, 0, 0, 0, 0, '']]);
   if (typeof b.data === 'string' && b.data) writeData(sh, row, gameOnly(b.data));   // a hero that moves from home or offline play keeps its progress

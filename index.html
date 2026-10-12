@@ -2010,7 +2010,7 @@ $('#regGo').onclick = async () => {
     const c = genId(), r = await loadProfile(c); if (r.needCode) { $('#regGo').disabled = false; msg.textContent = ''; show('login'); openSchool(); return; }
     if (!(r.offline || (!r.profile && !r.deleted && !r.card && !r.rejected))) continue;
     if (!CFG.SCRIPT_URL) { id = c; break; }
-    try { const j = await schoolPost({ action: 'register', id: c, real: name, cls }); if (j.ok) id = c; else if (j.error === 'class') { id = ''; break; } else if (j.error !== 'taken') break; } catch (e) { break; }
+    try { const j = await schoolPost({ action: 'register', id: c, real: name, cls, menu: true }); if (j.ok) id = c; else if (j.error === 'class') { id = ''; break; } else if (j.error !== 'taken') break; } catch (e) { break; }
   }
   $('#regGo').disabled = false; msg.textContent = '';
   if (id === '') { classMenu($('#regClassSel'), $('#regClass')); msg.textContent = t('reg_badclass'); return; }   // the class list changed: choose again
@@ -5603,7 +5603,7 @@ async function joinSchool() {   // 📴 / 🏠 → 🏫: real name and class, th
       const data = JSON.stringify(noRealName(Object.assign({}, P)));
       for (let k = 0; k < 8; k++) {
         const id = genId();
-        try { const j = await schoolPost({ action: 'register', id, real: name, cls, nick: P.nick, data }); if (j.error === 'taken') continue; if (j.error === 'class') { toast(t('reg_badclass')); return; } if (!j.ok) break;
+        try { const j = await schoolPost({ action: 'register', id, real: name, cls, nick: P.nick, data, menu: true }); if (j.error === 'taken') continue; if (j.error === 'class') { toast(t('reg_badclass')); return; } if (!j.ok) break;
           const old = P.id; P.id = id; P.mode = 'school'; P.local = false; P.app = false; try { localStorage.removeItem('mw_p_' + old); } catch (e) {} lsSet('mw_last', id); saveSoon(true); openMenu();
           modal(t('join_done_t'), `<p>${t('reg_your')}</p><div class="bigId">${esc(id)}</div><p class="regWarn">${t('reg_warn')}</p>`, [[t('ok'), null]]); return;
         } catch (e) { break; }
