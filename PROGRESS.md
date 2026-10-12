@@ -599,7 +599,7 @@ Every spell was shown in the browser one family at a time; your comments were bu
 - **Setup steps for you:** `tools/apps-script/SETUP.md`.
 
 **Next:** you create the two services in `learningtoread.app@gmail.com` (about 10 minutes) and send me the two URLs; I put them in the game, test saving on the test site, and report.
-- **The game's new name** (owner): **SpellQuest: Math Adventure** / **לחשים: הרפתקת חשבון**: the page title (it follows the language), the login and start screens, the installed app's name (short: SpellQuest), and the app's code e-mail. The new icon comes from your picture.
+- **The game's new name** (owner): **SpellQuest: Math Adventure** / **לחשים: הרפתקת חשבון**: the page title (it follows the language), the login and start screens, the installed app's name (short: SpellQuest), and the app's code e-mail. The new icon is your picture of the wizard hat with + − × ÷ (app icons, the Apple icon and the browser tab).
 - **Waiting:** your logging spec (it may change how the progress sheet works), before you set up the two services.
 
 ### Step 11, part 1: the start screen with three modes ✅ (on the test site, waiting for your check)
@@ -612,6 +612,6 @@ The shared login and privacy design (from the design session; kept locally, not 
 - **Only school heroes are saved online.** A device hero keeps no real name or class, and the game asks the browser to keep its data.
 - **💾 Save my hero** (menu, device heroes) downloads a backup file; **📂 Load a hero** (start screen) restores it on any device. The file is checked (game, version, a checksum), has no real name or class, and a school hero cannot be loaded this way.
 - **🔒 Privacy** (start screen) explains in both languages what each mode saves and where.
-- Earlier in this step: the new name **SpellQuest: Math Adventure / לחשים: הרפתקת חשבון**. The new icon waits for the picture file.
+- Earlier in this step: the new name **SpellQuest: Math Adventure / לחשים: הרפתקת חשבון**. The new icon is your wizard hat with + − × ÷ (also the browser tab icon).
 
 **How to check:** open the test site → the start screen. Play offline (a hero is made, the tutorial runs), save the hero file from the menu, log out: the hero is listed; Load a hero restores it. Tap 🔒 Privacy.
