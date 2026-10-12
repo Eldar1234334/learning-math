@@ -693,7 +693,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
         <button class="modeBtn" data-mode="home"><span class="mIco">🏠</span><span class="mTxt"><b data-t="m_home"></b><small data-t="m_home_d"></small></span></button>
         <button class="modeBtn" data-mode="off"><span class="mIco">📴</span><span class="mTxt"><b data-t="m_off"></b><small data-t="m_off_d"></small></span></button>
       </div>
-      <button class="btn ghost" id="loadHeroBtn" style="margin-top:10px" data-t="load_hero"></button><input type="file" id="heroFile" accept=".json,application/json" hidden>
+      <div class="small" style="margin-top:10px;opacity:.85"><span data-t="have_backup"></span> <a href="#" id="loadHeroBtn" class="adminLink" data-t="load_hero"></a></div><input type="file" id="heroFile" accept=".json,application/json" hidden>
     </div>
     <!-- 🏫 school student: the student number from the teacher's card, or "I am new" -->
     <div id="schoolBox" style="display:none">
@@ -1203,7 +1203,7 @@ const STR = {
   map: ['Map', 'מפה'], your_hero: ['Your hero', 'הגיבור שלכם'], chapter: ['Chapter {n}: {area}', 'פרק {n}: {area}'], coming_soon: ['Coming soon', 'בקרוב'],
   pl_gate: ['City gate', 'שער העיר'], pl_gate_d: ['Monsters', 'מפלצות'], pl_board: ['Notice board', 'לוח המודעות'], pl_board_d: ['Villagers', 'תושבי הכפר'],
   pl_home: ['Home', 'בית'], pl_home_d: ['Potions', 'שיקויים'], pl_work: ['Workshop', 'סדנה'], pl_work_d: ['Magic items', 'חפצי קסם'], pl_shop: ['Shop', 'חנות'], pl_shop_d: ['Buy things', 'קניות'],
-  pl_shut: ['Shuttered', 'סגור'], abandon_map: ['🏳️ Abandon quest', '🏳️ עזיבת המסע'], logout: ['🚪 Switch student', '🚪 החלפת תלמיד'],
+  pl_shut: ['Shuttered', 'סגור'], abandon_map: ['🏳️ Abandon quest', '🏳️ עזיבת המסע'], logout: ['🚪 Switch hero', '🚪 החלפת גיבור'],
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
@@ -1316,6 +1316,7 @@ const STR = {
   home_info: ['Ask a parent to type their e-mail. We send a code to check it. The e-mail is not saved: we only count how many families play.', 'בקשו מהורה להקליד את כתובת המייל שלו. נשלח קוד כדי לבדוק אותה. הכתובת לא נשמרת: אנחנו רק סופרים כמה משפחות משחקות.'],
   home_soon: ['Play at home opens soon. Meanwhile you can play offline.', 'משחק בבית ייפתח בקרוב. בינתיים אפשר לשחק בלי אינטרנט.'],
   now_home: ['🏠 Your hero now plays at home.', '🏠 הגיבור שלכם משחק עכשיו בבית.'],
+  have_backup: ['Have a backup file of your hero?', 'יש לכם קובץ גיבוי של הגיבור?'],
   load_hero: ['📂 Load a hero', '📂 לטעון גיבור'], save_hero: ['💾 Save my hero', '💾 לשמור את הגיבור'], hero_saved: ['💾 Your hero is saved in a file. Keep it safe!', '💾 הגיבור נשמר בקובץ. שמרו אותו במקום בטוח!'],
   file_bad: ['This file is damaged or is not a hero file.', 'הקובץ הזה פגום או שהוא לא קובץ של גיבור.'], file_other: ['This file is not from SpellQuest: Math Adventure.', 'הקובץ הזה לא מהמשחק לחשים: הרפתקת חשבון.'],
   file_school: ['This is a school hero. Sign in with your student number instead.', 'זה גיבור של בית ספר. היכנסו עם מספר התלמיד.'],
@@ -5212,7 +5213,7 @@ function saveHeroFile() {
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([file], { type: 'application/json' })); a.download = `SpellQuest-${(P.nick || 'hero').replace(/[^\w֐-׿-]+/g, '_')}.json`;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast(t('hero_saved'));
 }
-$('#loadHeroBtn').onclick = () => { $('#heroFile').value = ''; $('#heroFile').click(); };
+$('#loadHeroBtn').onclick = e => { e.preventDefault(); $('#heroFile').value = ''; $('#heroFile').click(); };   // restores a home or offline hero from its backup file (a new device, a cleared browser)
 $('#heroFile').onchange = async e => {
   const f = e.target.files && e.target.files[0]; if (!f) return;
   let w, p; try { w = JSON.parse(await f.text()); p = JSON.parse(w.profile); } catch (x) { modal(t('load_hero'), t('file_bad'), [[t('ok'), null]]); return; }

@@ -615,3 +615,4 @@ The shared login and privacy design (from the design session; kept locally, not 
 - Earlier in this step: the new name **SpellQuest: Math Adventure / לחשים: הרפתקת חשבון**. The new icon is your wizard hat with + − × ÷ (also the browser tab icon).
 
 **How to check:** open the test site → the start screen. Play offline (a hero is made, the tutorial runs), save the hero file from the menu, log out: the hero is listed; Load a hero restores it. Tap 🔒 Privacy.
+- After your check: the menu button is now **🚪 Switch hero** (not every player is a student), and "Load a hero" is a small link at the bottom of the start screen ("Have a backup file of your hero? 📂 Load a hero"): it restores a home or offline hero from its 💾 backup file on a new device or after the browser's data was cleared.
