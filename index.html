@@ -5522,7 +5522,7 @@ async function ownHomeStats() {   // 🏠 home players: the Admin's list asks th
       : j.error === 'setup' ? '🏠 Home players: not connected yet (the script properties COUNT_URL and COUNT_KEY of the Admin\'s list).' : '🏠 Home players: could not be counted right now.';
   } catch (x) { box.textContent = ''; }
 }
-const SCHOOL_SCRIPT_V = 6;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
+const SCHOOL_SCRIPT_V = 7;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
 function ownRender(list) {
   const act = list.filter(s => s.status === 'active');
   $('#ownCards').innerHTML = [[act.length, 'active schools'], [act.reduce((a, s) => a + s.players, 0), 'students'], [act.reduce((a, s) => a + s.today, 0), 'played today']].map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');

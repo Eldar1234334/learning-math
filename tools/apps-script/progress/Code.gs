@@ -37,6 +37,7 @@
    The Admin's school list (registry, schools spec §3.3, §3.5; it never gets names, classes or game data):
    - { action: 'ping', setup }                          → { ok, owner, version }   only with this school's one-time setup token
    - { action: 'stats', key }                           → { ok, players, today, last, version }   counts only; the key both sides got at registration
+   A new school: run setupSchool() once from the editor (after the script property SCHOOL_CODE): it makes the school's own sheet. See SETUP-school.md.
    Run linkRegistry() once from the editor (after the script properties REGISTRY_URL and SETUP_TOKEN are set) to join the Admin's list.
 
    Script properties (Project settings → Script properties): ADMIN_KEY (the teacher password), SCHOOL_CODE (for example SUNNY-7), and SHEET_ID
@@ -44,7 +45,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 6;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 7;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -60,8 +61,13 @@ const txt = (s, n) => String(s || '').trim().replace(/\s+/g, ' ').slice(0, n);
 function over(name, lim) {   // a counter in the cache; true when this request goes over the limit
   const c = CacheService.getScriptCache(), k = 'lim:' + name, n = num(c.get(k)) + 1; c.put(k, String(n), lim[1]); return n > lim[0];
 }
+function book() {   // the school's sheet: SHEET_ID, or the sheet this script is attached to, or (a new school) a sheet it makes in the school's own account
+  const p = props(), id = p.getProperty('SHEET_ID'); let ss = id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) { ss = SpreadsheetApp.create('SpellQuest Math – ' + (p.getProperty('SCHOOL_NAME') || 'school') + ' (students)'); p.setProperty('SHEET_ID', ss.getId()); }
+  return ss;
+}
 function sheet(name, head) {
-  const id = props().getProperty('SHEET_ID'), ss = id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet(); let sh = ss.getSheetByName(name);   // SHEET_ID: when the script is its own project (not opened from the sheet)
+  const ss = book(); let sh = ss.getSheetByName(name);
   if (!sh) { sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); }
   return sh;
 }
@@ -400,4 +406,11 @@ function selfMove(b) {   // the student moves their own wizard home: when the sc
   if (!allowed) { const reg = toRegistry({ action: 'status' }); allowed = !!(reg && reg.status === 'suspended'); }
   if (!allowed) return { ok: false, error: 'not allowed' };
   markMoved(sh, row, r, id, 'the student'); logIt('the student', 'moved to home', id); return { ok: true };
+}
+function setupSchool() {   // a new school: run once from the editor (after the script property SCHOOL_CODE). Makes the school's sheet and its tabs, and asks for the permissions.
+  if (!props().getProperty('SCHOOL_CODE')) throw new Error('First add the script property SCHOOL_CODE (the code students type, for example SUNNY-7).');
+  MailApp.getRemainingDailyQuota(); UrlFetchApp.getRequest('https://script.google.com');
+  students(); staffSheet(); logSheet(); classSheet(); removedSheet();
+  const first = book().getSheetByName('Sheet1'); if (first && book().getSheets().length > 1 && first.getLastRow() === 0) book().deleteSheet(first);
+  Logger.log('The school sheet: ' + book().getUrl() + '\nThe school owner (signs in to the teacher area): ' + ownerEmail() + '\nNext: Deploy → New deployment → Web app (Execute as: Me, Who has access: Anyone).');
 }

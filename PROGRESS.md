@@ -688,3 +688,8 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 - **🔧 Teacher area:** the school owner's cards (👩‍🏫 Teachers, the school code and the self-move setting) are grouped at the bottom under **🏫 School owner** (schools spec §7: the school owner's screen is the teacher screen with extra parts). Teachers do not see it.
 - Admin's list script version 2. Mock tests: 34 list checks; the screens tried.
 - Still open from spec §7 (a later part, if wanted): rename classes and move students between classes, "New school year", school settings (time zone, approve new students automatically, require real name), export / delete all school data.
+
+### Part 7: a new school sets itself up; the checklist (test site)
+- **The school script makes its own sheet:** a new school pastes `Code.gs` into a new Apps Script project in its own Google account, adds SCHOOL_CODE, and runs **setupSchool** once: it makes the sheet "SpellQuest Math – school (students)" in that account with all its tabs, and asks for the permissions. No template sheet to copy, and no teacher password (the school owner signs in by e-mail code).
+- **tools/apps-script/SETUP-school.md:** the Admin's checklist for the setup call (before, on, and after the call; updates; what stays where).
+- School script version 7. Mock tests: 11 new-school checks (a second school in another account: its own sheet and code, the list sends each code to its own school, no student data in the other school or in the Admin's list), and all 96 earlier checks.
