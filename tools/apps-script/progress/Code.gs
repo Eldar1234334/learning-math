@@ -47,7 +47,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 10;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 11;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -268,6 +268,7 @@ function linkRegistry() {   // run once from the editor, after setting the scrip
   if (!reg || !setup) throw new Error('Set the script properties REGISTRY_URL and SETUP_TOKEN first.');
   if (!code) throw new Error('Set the script property SCHOOL_CODE first.');
   let url = p.getProperty('WEB_APP_URL') || ''; if (!url) { try { url = ScriptApp.getService().getUrl() || ''; } catch (x) {} }
+  url = normUrl(url);
   if (!/\/exec$/.test(url)) throw new Error('Deploy the web app first, then add its link (ending in /exec) as the script property WEB_APP_URL.');
   const j = JSON.parse(UrlFetchApp.fetch(reg, { method: 'post', contentType: 'text/plain', payload: JSON.stringify({ action: 'registerSchool', setup, url, code: normCode(code), version: VERSION }), muteHttpExceptions: true, followRedirects: true }).getContentText());
   if (!j.ok) throw new Error('The Admin\'s list said: ' + j.error + ({ setup: ' (the setup token is wrong or already used)', owner: ' (this script is not in the school owner\'s Google account the Admin entered)', taken: ' (another school has this code: change SCHOOL_CODE)', url: ' (WEB_APP_URL must end in /exec)', ping: ' (the list could not reach this web app: deploy it with access Anyone)' }[j.error] || ''));
@@ -443,13 +444,15 @@ function setupKit() {
   if (!p.getProperty('SCHOOL_CODE') || !p.getProperty('REGISTRY_URL') || !p.getProperty('SETUP_TOKEN')) { ui.alert('SpellQuest', 'This sheet has no setup values. Ask the Admin for your school\'s kit link, and make a copy of that one.', ui.ButtonSet.OK); return; }
   const ss = SpreadsheetApp.getActiveSpreadsheet(); ss.rename('SpellQuest Math – ' + (p.getProperty('SCHOOL_NAME') || 'school') + ' (students)');
   setupSchool();   // the sheet's tabs and the permissions
-  let url = p.getProperty('WEB_APP_URL') || '';
-  if (!url) { try { const u = ScriptApp.getService().getUrl() || ''; if (/\/exec$/.test(u)) url = u; } catch (x) {} }   // the web app, once the school owner deployed it
+  let url = normUrl(p.getProperty('WEB_APP_URL') || '');
+  if (url && !webAppWorks(url)) url = '';   // a link that does not answer (not deployed yet, or not for "Anyone")
+  if (!url) { try { const u = normUrl(ScriptApp.getService().getUrl() || ''); if (/\/exec$/.test(u) && webAppWorks(u)) url = u; } catch (x) {} }   // the web app, once the school owner deployed it
   if (!url) {   // Google lets only the account owner deploy a web app: one short step, then this menu again
     const r = ui.prompt('SpellQuest: one more step (1 minute)',
       'Your school sheet is ready. Now the link the game uses:\n\n1. Extensions → Apps Script (a new tab opens).\n2. Blue button Deploy → New deployment.\n3. Click ⚙️ next to "Select type" → Web app.\n4. Execute as: Me. Who has access: Anyone. → Deploy → Authorize access → Allow.\n5. Copy the Web app URL, come back to this tab, and paste it below.\n\n(Or press Cancel, deploy, and choose 🧙 SpellQuest → Set up my school again.)', ui.ButtonSet.OK_CANCEL);
-    const pasted = r.getSelectedButton() === ui.Button.OK ? r.getResponseText().trim() : '';
+    const pasted = normUrl(r.getSelectedButton() === ui.Button.OK ? r.getResponseText().trim() : '');
     if (!/^https:\/\/script\.google\.com\/.*\/exec$/.test(pasted)) { if (pasted) ui.alert('SpellQuest', 'That is not the Web app URL (it starts with https://script.google.com and ends with /exec). Choose 🧙 SpellQuest → Set up my school again.', ui.ButtonSet.OK); return; }
+    if (!webAppWorks(pasted)) { ui.alert('SpellQuest', 'That link does not answer yet. In the deployment, "Who has access" must be Anyone (Deploy → Manage deployments → ✏️). Then choose 🧙 SpellQuest → Set up my school again.', ui.ButtonSet.OK); return; }
     url = pasted;
   }
   p.setProperty('WEB_APP_URL', url);
@@ -462,4 +465,9 @@ function kitInfo() {
   if (!p.getProperty('REGISTRY_ID')) { ui.alert('SpellQuest', 'Not set up yet: 🧙 SpellQuest → Set up my school.', ui.ButtonSet.OK); return; }
   ui.alert('✅ ' + (p.getProperty('SCHOOL_NAME') || 'Your school') + ' is ready',
     'School code (students type it once on each device): ' + p.getProperty('SCHOOL_CODE') + '\n\nThe game: https://eldar1234334.github.io/learning-math/\n\nNext: open the game → 🔧 Teacher area → the school code → your e-mail (' + ownerEmail() + ') → the code from your inbox. There you add teachers and classes.\n\nThis sheet keeps your school\'s data. Keep it in this Google account; only you can open it.', ui.ButtonSet.OK);
+}
+// A Google Workspace account writes its web app links as …/a/macros/<school domain>/s/<id>/exec; the same web app answers at …/macros/s/<id>/exec.
+const normUrl = u => String(u || '').trim().replace(/^https:\/\/script\.google\.com\/a\/macros\/[^/]+\/s\//, 'https://script.google.com/macros/s/');
+function webAppWorks(u) {   // does the link answer as this school's web app (deployed, for "Anyone")?
+  try { const r = UrlFetchApp.fetch(u, { muteHttpExceptions: true, followRedirects: true }); return r.getResponseCode() === 200 && /SpellQuest Math progress/.test(r.getContentText()); } catch (x) { return false; }
 }
