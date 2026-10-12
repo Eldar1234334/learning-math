@@ -633,3 +633,8 @@ The shared login and privacy design (from the design session; kept locally, not 
 
 **What you need to do:** set up the school sheet with the steps in `tools/apps-script/SETUP.md` (about 5 minutes; you choose a teacher password and a school code) and send me the URL. I then put it in the game and we check it together on the test site.
 - **The school sheet is set up** (2026-10-12), in `learningtoread.app@gmail.com`: the sheet **SpellQuest Math – progress** and its script, a separate Apps Script project with the same name (Google's editor would not open from the sheet with several accounts signed in, so the script finds the sheet by `SHEET_ID`). You set the teacher password and the school code and allowed the script; I did the rest in your Chrome. The game on the test site now saves school heroes to it.
+
+---
+
+## 🚀 Live (2026-10-12)
+The owner approved going live. `main` now has everything up to step 11 part 2, so the game is at https://eldar1234334.github.io/learning-math/ (the test site stays at /test/). Still to come: step 11 part 3 (🏠 play at home, with the reading game's counting service), then the Village Helper spec.
