@@ -16,7 +16,8 @@ Takes about 10 minutes. The school owner shares their screen; they do every step
    - **Time zone**: the school's (it decides what "played today" means).
    - **Script properties → Add script property**: `SCHOOL_CODE` = the school code, `REGISTRY_URL` and `SETUP_TOKEN` = the two lines from the Admin → **Save script properties**.
 4. Back in the editor: choose the function **setupSchool** → **▶ Run** → **Review permissions** → the owner's account → (if Google warns that the app is not verified: **Advanced → Go to SpellQuest Math – school (unsafe)**) → **Allow**. The log shows the link of the school's new sheet.
-5. **Deploy → New deployment** → ⚙️ **Web app**: Execute as **Me**, Who has access **Anyone** → **Deploy** → copy the **Web app URL** (ends in `/exec`).
+5. **Deploy → New deployment** → ⚙️ **Web app**: Execute as **Me**, Who has access **Anyone** → **Deploy** → **Authorize access** → the owner's account → **Allow** → copy the **Web app URL** (ends in `/exec`; also in **Deploy → Manage deployments**).
+   *If Google says "Something went wrong" (it happens when several Google accounts are signed in at once): reload the page and deploy again.*
    *If "Anyone" is not offered, the school's Google Workspace does not allow it: its IT admin has to allow it, or use another Google account.*
 6. **⚙️ Project Settings → Script properties**: add `WEB_APP_URL` = that link → **Save**.
 7. Editor: choose **linkRegistry** → **▶ Run** → **Allow**. The log says **"Joined the Admin's list as S…"**. Your Admin screen now shows the school as 🟢 active.
