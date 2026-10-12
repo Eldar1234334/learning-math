@@ -814,10 +814,11 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="small center" id="ownHome" style="opacity:.85;margin:4px 0 10px"></div>
   <div class="card"><b>Schools</b><div class="tblwrap"><table id="ownTable"></table></div><div class="small" id="ownMsg" style="margin-top:6px"></div></div>
   <div class="card"><b>➕ New school</b>
-    <div class="small" style="opacity:.8;margin:4px 0 8px">The Gmail must be the account that will keep the school's data (the school owner's). You get a one-time setup token for that school's script.</div>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">The school's Google account keeps all of the school's data (Google Workspace or Gmail; use the school's own account, not a teacher's personal one). With a school code, you get a school kit: one link for the school owner that sets everything up.</div>
     <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap">
       <input id="ownName" type="text" maxlength="60" placeholder="School name" style="max-width:260px;padding:8px;font-size:1rem">
-      <input id="ownGmail" type="email" maxlength="80" placeholder="School owner's Gmail" style="max-width:260px;padding:8px;font-size:1rem">
+      <input id="ownGmail" type="email" maxlength="80" placeholder="The school's Google account" style="max-width:260px;padding:8px;font-size:1rem">
+      <input id="ownCode2" type="text" maxlength="20" placeholder="School code, e.g. SUNNY-7" autocapitalize="characters" style="max-width:200px;padding:8px;font-size:1rem">
       <button class="btn" id="ownAdd" style="padding:8px 14px">➕ Add school</button></div>
     <div id="ownNew" style="margin-top:8px"></div></div>
 </section>
@@ -5534,7 +5535,7 @@ async function ownHomeStats() {   // 🏠 home players: the Admin's list asks th
       : j.error === 'setup' ? '🏠 Home players: not connected yet (the script properties COUNT_URL and COUNT_KEY of the Admin\'s list).' : '🏠 Home players: could not be counted right now.';
   } catch (x) { box.textContent = ''; }
 }
-const SCHOOL_SCRIPT_V = 9;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
+const SCHOOL_SCRIPT_V = 10;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
 function ownRender(list) {
   const act = list.filter(s => s.status === 'active');
   $('#ownCards').innerHTML = [[act.length, 'active schools'], [act.reduce((a, s) => a + s.players, 0), 'students'], [act.reduce((a, s) => a + s.today, 0), 'played today']].map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
@@ -5548,24 +5549,33 @@ function ownRender(list) {
 $('#ownTable').onclick = e => {
   const s = e.target.closest('[data-st]'), d = e.target.closest('[data-del]'), su = e.target.closest('[data-setup]');
   if (su) modal('🔑 New setup token', `<p>Make a new setup token for <b>${esc(su.dataset.name)}</b>? The old one stops working.</p>`, [['Make it', async () => {
-    try { const r = await ownCall('newSetup', { id: su.dataset.setup }); if (!r.ok) throw 0;
-      $('#ownNew').innerHTML = `<p>🔑 <b>${esc(su.dataset.name)}</b>: give the school owner these two, for their script's properties (shown only now):</p><p class="small">REGISTRY_URL<br><code style="user-select:all;word-break:break-all">${esc(CFG.REGISTRY_URL)}</code></p><p class="small">SETUP_TOKEN<br><code style="user-select:all">${esc(r.setup)}</code></p>`;
-      $('#ownNew').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } catch (x) { toast('Could not make it. Try again.'); } }], ['Cancel', null, true]]);
+    try { const r = await ownCall('newSetup', { id: su.dataset.setup }); if (!r.ok) throw 0; ownShowNew(su.dataset.name, su.dataset.setup, r); } catch (x) { toast('Could not make it. Try again.'); } }], ['Cancel', null, true]]);
   if (s) { const go = async () => { try { const r = await ownCall('setStatus', { id: s.dataset.id, status: s.dataset.st }); if (!r.ok) throw 0; ownOpen(); } catch (x) { toast('Could not change it. Try again.'); } };
     if (s.dataset.st === 'suspended') modal('⏸ Suspend school', '<p>Its students can no longer play in school mode or save to the school. They can move their wizard to play at home. The school keeps all of its data.</p>', [['Suspend', go], ['Cancel', null, true]]); else go(); }
   if (d) modal('🗑 Remove school', `<p>Remove <b>${esc(d.dataset.name)}</b> from your list? Its code stops working. The school keeps its own sheet and data.</p>`,
     [['Remove', async () => { try { const r = await ownCall('deleteSchool', { id: d.dataset.del }); if (!r.ok) throw 0; ownOpen(); } catch (x) { toast('Could not remove it. Try again.'); } }], ['Cancel', null, true]]);
 };
+function ownShowNew(name, id, r) {   // the school kit link (or, without a kit, the two values for the script's properties)
+  const copyBtn = v => `<button class="btn ghost" data-copyv="${esc(v)}" style="padding:4px 10px">Copy</button>`;
+  $('#ownNew').innerHTML = r.kit
+    ? `<p>✅ <b>${esc(name)}</b>${id ? ' (' + esc(id) + ')' : ''}: send the school owner this one link. They open it signed in to the school's Google account → <b>Make a copy</b> → menu <b>🧙 SpellQuest → Set up my school</b> → <b>Allow</b>.</p>
+       <p class="small" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><code style="user-select:all;word-break:break-all;flex:1 1 260px">${esc(r.kit)}</code>${copyBtn(r.kit)}</p>
+       <p class="small" style="opacity:.8">The link works once (its setup token is single-use, and only for the Google account you entered). When the school is linked, the kit is deleted by itself.</p>`
+    : `<p>✅ <b>${esc(name)}</b>${id ? ' (' + esc(id) + ')' : ''} is waiting for setup.${r.kitError ? ' (No kit: ' + esc(r.kitError) + ')' : ''} Give the school owner these two, for their script's properties (shown only now):</p>
+       <p class="small">REGISTRY_URL<br><code style="user-select:all;word-break:break-all">${esc(CFG.REGISTRY_URL)}</code></p><p class="small">SETUP_TOKEN<br><code style="user-select:all">${esc(r.setup)}</code></p>`;
+  $('#ownNew').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+$('#ownNew').onclick = e => { const b = e.target.closest('[data-copyv]'); if (!b) return; try { navigator.clipboard.writeText(b.dataset.copyv).then(() => toast('Copied'), () => toast('Select the link and copy it')); } catch (x) { toast('Select the link and copy it'); } };
 $('#ownAdd').onclick = async () => {
-  const name = $('#ownName').value.trim(), owner = $('#ownGmail').value.trim(), box = $('#ownNew');
-  if (name.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(owner)) { box.textContent = 'Type the school name and the owner\'s Gmail.'; return; }
-  $('#ownAdd').disabled = true; box.textContent = 'Adding…';
+  const name = $('#ownName').value.trim(), owner = $('#ownGmail').value.trim(), code = $('#ownCode2').value.trim(), box = $('#ownNew');
+  if (name.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(owner)) { box.textContent = 'Type the school name and the school\'s Google account.'; return; }
+  if (code && code.replace(/\s+/g, '').length < 4) { box.textContent = 'The school code needs at least 4 letters or digits.'; return; }
+  $('#ownAdd').disabled = true; box.textContent = code ? 'Adding the school and making its kit…' : 'Adding…';
   try {
-    const r = await ownCall('newSchool', { name, owner }); if (!r.ok) throw 0;
-    box.innerHTML = `<p>✅ <b>${esc(name)}</b> (${esc(r.id)}) is waiting for setup. Give the school owner these two, for their script's properties (shown only now):</p>
-      <p class="small">REGISTRY_URL<br><code style="user-select:all;word-break:break-all">${esc(CFG.REGISTRY_URL)}</code></p><p class="small">SETUP_TOKEN<br><code style="user-select:all">${esc(r.setup)}</code></p>`;
-    $('#ownName').value = ''; $('#ownGmail').value = ''; ownOpen();
+    const r = await ownCall('newSchool', { name, owner, code });
+    if (!r.ok) { box.textContent = r.error === 'taken' ? 'Another school already has this code. Choose another one.' : r.error === 'code' ? 'The school code needs 4 to 20 letters or digits.' : 'Could not add the school. Try again.'; $('#ownAdd').disabled = false; return; }
+    ownShowNew(name, r.id, r);
+    $('#ownName').value = ''; $('#ownGmail').value = ''; $('#ownCode2').value = ''; ownOpen();
   } catch (x) { box.textContent = 'Could not add the school. Try again.'; }
   $('#ownAdd').disabled = false;
 };

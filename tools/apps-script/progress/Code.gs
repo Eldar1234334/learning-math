@@ -47,7 +47,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 9;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 10;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -421,4 +421,57 @@ function setupSchool() {   // a new school: run once from the editor (after the 
   students(); staffSheet(); logSheet(); classSheet(); removedSheet();
   const first = book().getSheetByName('Sheet1'); if (first && book().getSheets().length > 1 && first.getLastRow() === 0) book().deleteSheet(first);
   Logger.log('The school sheet: ' + book().getUrl() + '\nThe school owner (signs in to the teacher area): ' + ownerEmail() + '\nNext: Deploy → New deployment → Web app (Execute as: Me, Who has access: Anyone).');
+}
+
+/* ----- the school kit (one link from the Admin): the school owner makes a copy of the kit sheet, then 🧙 SpellQuest → Set up my school
+   does the rest: the settings (from the Setup tab), the sheet's tabs, the web app (through the Apps Script API), and joining the Admin's list. ----- */
+const KIT_TAB = 'Setup', KIT_KEYS = ['SCHOOL_NAME', 'SCHOOL_CODE', 'REGISTRY_URL', 'SETUP_TOKEN'];
+function onOpen() {
+  try { SpreadsheetApp.getUi().createMenu('🧙 SpellQuest').addItem('Set up my school', 'setupKit').addItem('Show my school\'s links', 'kitInfo').addToUi(); } catch (x) {}
+}
+function kitSheet() { const ss = SpreadsheetApp.getActiveSpreadsheet(); return ss ? ss.getSheetByName(KIT_TAB) : null; }
+function kitValues() {   // the Setup tab: a key in column A, its value in column B
+  const sh = kitSheet(), o = {}; if (!sh || !sh.getLastRow()) return o;
+  sh.getRange(1, 1, sh.getLastRow(), 2).getValues().forEach(r => { const k = String(r[0]).trim(); if (KIT_KEYS.includes(k)) o[k] = String(r[1]).trim(); });
+  return o;
+}
+function kitSet(key, value) { const sh = kitSheet(); if (!sh) return; const v = sh.getRange(1, 1, sh.getLastRow(), 1).getValues(); for (let i = 0; i < v.length; i++) if (String(v[i][0]).trim() === key) { sh.getRange(i + 1, 2).setValue(value); return; } }
+function setupKit() {
+  const ui = SpreadsheetApp.getUi(), p = props(), v = kitValues();
+  if (p.getProperty('REGISTRY_ID')) { kitInfo(); return; }   // already done
+  KIT_KEYS.forEach(k => { if (v[k] && v[k] !== '(used)') p.setProperty(k, v[k]); });
+  if (!p.getProperty('SCHOOL_CODE') || !p.getProperty('REGISTRY_URL') || !p.getProperty('SETUP_TOKEN')) { ui.alert('SpellQuest', 'This sheet has no setup values. Ask the Admin for your school\'s kit link, and make a copy of that one.', ui.ButtonSet.OK); return; }
+  const ss = SpreadsheetApp.getActiveSpreadsheet(); ss.rename('SpellQuest Math – ' + (p.getProperty('SCHOOL_NAME') || 'school') + ' (students)');
+  setupSchool();   // the sheet's tabs and the permissions
+  let url = p.getProperty('WEB_APP_URL') || '';
+  if (!url) {
+    const d = deployWebApp();
+    if (d.error) {
+      ui.alert('SpellQuest: one more step', d.error === 'api'
+        ? 'Google needs one switch first:\n\n1. Open script.google.com/home/usersettings (in this same Google account).\n2. Turn on "Google Apps Script API".\n3. Come back here: 🧙 SpellQuest → Set up my school.\n\n(' + d.msg + ')'
+        : 'The web app could not be made automatically (' + d.msg + ').\n\nExtensions → Apps Script → Deploy → New deployment → ⚙️ Web app: Execute as Me, Who has access Anyone → Deploy. Then come back here: 🧙 SpellQuest → Set up my school.', ui.ButtonSet.OK);
+      return;
+    }
+    url = d.url; p.setProperty('WEB_APP_URL', url);
+  }
+  try { linkRegistry(); } catch (e) { ui.alert('SpellQuest: almost done', e.message + '\n\nFix it, then 🧙 SpellQuest → Set up my school again.', ui.ButtonSet.OK); return; }
+  kitSet('SETUP_TOKEN', '(used)');
+  kitInfo();
+}
+function deployWebApp() {   // the web app, through the Apps Script API (the user setting "Google Apps Script API" must be on)
+  const base = 'https://script.googleapis.com/v1/projects/' + ScriptApp.getScriptId(), h = { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() };
+  const call = (path, body) => { const r = UrlFetchApp.fetch(base + path, { method: 'post', contentType: 'application/json', headers: h, payload: JSON.stringify(body), muteHttpExceptions: true }); let j = {}; try { j = JSON.parse(r.getContentText() || '{}'); } catch (x) {} return { code: r.getResponseCode(), j }; };
+  const why = r => (r.j.error && r.j.error.message) || ('HTTP ' + r.code);
+  const ver = call('/versions', { description: 'SpellQuest school v' + VERSION });
+  if (ver.code !== 200) return { error: ver.code === 403 ? 'api' : 'deploy', msg: why(ver) };
+  const dep = call('/deployments', { versionNumber: ver.j.versionNumber, manifestFileName: 'appsscript', description: 'SpellQuest school v' + VERSION });
+  if (dep.code !== 200) return { error: dep.code === 403 ? 'api' : 'deploy', msg: why(dep) };
+  const ep = (dep.j.entryPoints || []).find(e => e.entryPointType === 'WEB_APP');
+  return ep && ep.webApp && ep.webApp.url ? { url: ep.webApp.url } : { error: 'deploy', msg: 'no web app in the deployment' };
+}
+function kitInfo() {
+  const ui = SpreadsheetApp.getUi(), p = props();
+  if (!p.getProperty('REGISTRY_ID')) { ui.alert('SpellQuest', 'Not set up yet: 🧙 SpellQuest → Set up my school.', ui.ButtonSet.OK); return; }
+  ui.alert('✅ ' + (p.getProperty('SCHOOL_NAME') || 'Your school') + ' is ready',
+    'School code (students type it once on each device): ' + p.getProperty('SCHOOL_CODE') + '\n\nThe game: https://eldar1234334.github.io/learning-math/\n\nNext: open the game → 🔧 Teacher area → the school code → your e-mail (' + ownerEmail() + ') → the code from your inbox. There you add teachers and classes.\n\nThis sheet keeps your school\'s data. Keep it in this Google account; only you can open it.', ui.ButtonSet.OK);
 }

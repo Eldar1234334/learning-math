@@ -22,9 +22,9 @@
    home counts on the Admin screen). SHEET_ID and SALT are made by the script itself.
    Run setup() once from the editor: it makes the sheet, asks for the permissions and starts the daily count.
 */
-const VERSION = 2;
-const HEAD = ['id', 'name', 'code', 'web app', 'owner gmail', 'status', 'games', 'players', 'active today', 'last active', 'script version', 'created', 'setup token', 'key'];
-const C = { id: 0, name: 1, code: 2, url: 3, owner: 4, status: 5, games: 6, players: 7, today: 8, last: 9, ver: 10, created: 11, setup: 12, key: 13 };
+const VERSION = 3;
+const HEAD = ['id', 'name', 'code', 'web app', 'owner gmail', 'status', 'games', 'players', 'active today', 'last active', 'script version', 'created', 'setup token', 'key', 'kit'];
+const C = { id: 0, name: 1, code: 2, url: 3, owner: 4, status: 5, games: 6, players: 7, today: 8, last: 9, ver: 10, created: 11, setup: 12, key: 13, kit: 14 };
 const LIMIT = { resolve: [40, 60], miss: [30, 60], status: [300, 60], register: [10, 600], adminCode: [5, 3600], adminAll: [30, 60] };   // [how many, in how many seconds]
 const URL_RE = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]{20,}\/exec$/;
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -45,6 +45,7 @@ function book() {   // its own small sheet, made on first use (this script is no
   if (id) ss = SpreadsheetApp.openById(id); else { ss = SpreadsheetApp.create('SpellQuest Math – schools (Admin: counts only)'); p.setProperty('SHEET_ID', ss.getId()); }
   let sh = ss.getSheetByName('Schools');
   if (!sh) { sh = ss.getSheets()[0]; sh.setName('Schools'); sh.getRange(1, 1, 1, HEAD.length).setValues([HEAD]); sh.setFrozenRows(1); sh.getRange('A:N').setNumberFormat('@'); }
+  else if (sh.getRange(1, HEAD.length).getValue() !== HEAD[HEAD.length - 1]) sh.getRange(1, HEAD.length).setValue(HEAD[HEAD.length - 1]);   // a sheet from before the kit column
   return sh;
 }
 function rows() { const sh = book(), n = sh.getLastRow(); return n < 2 ? [] : sh.getRange(2, 1, n - 1, HEAD.length).getValues(); }
@@ -100,7 +101,7 @@ function registerSchool(b) {
   if (mail(ping.owner) !== mail(f.r[C.owner])) return { ok: false, error: 'owner' };
   const key = Utilities.getUuid() + Utilities.getUuid(), sh = book();
   sh.getRange(f.row, C.code + 1, 1, 2).setValues([[code, url]]);
-  put(f.row, C.status, 'active'); put(f.row, C.ver, String(num(ping.version))); put(f.row, C.setup, ''); put(f.row, C.key, key);
+  put(f.row, C.status, 'active'); put(f.row, C.ver, String(num(ping.version))); put(f.row, C.setup, ''); put(f.row, C.key, key); dropKit(f.r[C.kit]); put(f.row, C.kit, '');   // the kit did its job: the shared copy goes to the bin
   return { ok: true, id: String(f.r[C.id]), key, name: String(f.r[C.name]) };
 }
 function bySchoolKey(b) { const f = findRow(r => String(r[C.id]) === String(b.id || '') && r[C.status] !== 'deleted'); return f && String(b.key || '') && String(f.r[C.key]) === String(b.key) ? f : null; }
@@ -140,18 +141,24 @@ function admin(a, b) {
   if (a === 'newSchool') {
     const name = txt(b.name, 60), owner = mail(b.owner), games = ['math'];   // only the math game for now (owner, 2026-10-11)
     if (name.length < 2 || !EMAIL_RE.test(owner)) return { ok: false, error: 'bad' };
+    const code = normCode(b.code);   // with a code, the school gets a kit (one link for the school owner), and the code is kept for it
+    if (code && (code.length < 4 || code.length > 20)) return { ok: false, error: 'code' };
+    if (code && codeTaken(code)) return { ok: false, error: 'taken' };
     const ids = rows().map(r => num(String(r[C.id]).replace(/\D/g, ''))), id = 'S' + (Math.max(0, ...ids) + 1);
     const setup = Utilities.getUuid().replace(/-/g, '');
-    book().appendRow([id, name, '', '', owner, 'waiting setup', games.join(','), 0, 0, '', '', new Date().toISOString(), hash(setup), '']);
-    return { ok: true, id, setup };
+    book().appendRow([id, name, code, '', owner, 'waiting setup', games.join(','), 0, 0, '', '', new Date().toISOString(), hash(setup), '', '']);
+    const kit = code ? makeKit(id, name, code, setup) : null;
+    return { ok: true, id, setup, kit: kit && kit.link, kitError: kit && kit.error };
   }
   const f = findRow(r => String(r[C.id]) === String(b.id || '') && r[C.status] !== 'deleted'); if (!f) return { ok: false, error: 'school' };
   if (a === 'newSetup') {   // a new one-time setup token for a school still waiting (the old one stops working)
     if (f.r[C.status] !== 'waiting setup') return { ok: false, error: 'bad' };
-    const setup = Utilities.getUuid().replace(/-/g, ''); put(f.row, C.setup, hash(setup)); return { ok: true, setup };
+    const setup = Utilities.getUuid().replace(/-/g, ''); put(f.row, C.setup, hash(setup));
+    const kit = f.r[C.code] ? makeKit(String(f.r[C.id]), String(f.r[C.name]), String(f.r[C.code]), setup) : null;
+    return { ok: true, setup, kit: kit && kit.link, kitError: kit && kit.error };
   }
   if (a === 'setStatus') { if (!['active', 'suspended'].includes(b.status) || f.r[C.status] === 'waiting setup') return { ok: false, error: 'bad' }; put(f.row, C.status, b.status); return { ok: true }; }
-  if (a === 'deleteSchool') { book().deleteRow(f.row); return { ok: true }; }
+  if (a === 'deleteSchool') { dropKit(f.r[C.kit]); book().deleteRow(f.row); return { ok: true }; }
   return { ok: false, error: 'action' };
 }
 function listSchools() {   // never the key or the setup token
@@ -180,3 +187,51 @@ function homeStats() {   // the 🏠 home players (the counting service shared w
     return j.ok ? { ok: true, total: j.total, week: j.week, day: j.day, playedDay: j.playedDay, playedWeek: j.playedWeek } : { ok: false, error: j.error || 'count' }; }
   catch (x) { return { ok: false, error: 'count' }; }
 }
+
+/* ----- the school kit: a Google Sheet with the school script inside. The template is made once by makeTemplate() and refreshed by
+   updateTemplate() (both through the Apps Script API: the user setting "Google Apps Script API" must be on). For each new school with a
+   code, newSchool copies the template, writes the school's values into its Setup tab and shares it "anyone with the link can view";
+   the school owner opens the …/copy link, which makes the school's own copy in the school's Google account. ----- */
+const RAW = () => 'https://raw.githubusercontent.com/Eldar1234334/learning-math/' + (props().getProperty('CODE_BRANCH') || 'main') + '/tools/apps-script/progress/';   // script property CODE_BRANCH: try a test branch first
+function scriptApi(method, path, body) {
+  const r = UrlFetchApp.fetch('https://script.googleapis.com/v1' + path, { method, contentType: 'application/json', headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, payload: body ? JSON.stringify(body) : undefined, muteHttpExceptions: true });
+  const j = JSON.parse(r.getContentText() || '{}'); if (r.getResponseCode() !== 200) throw new Error('Apps Script API: ' + ((j.error && j.error.message) || r.getResponseCode()));
+  return j;
+}
+function kitTab(ss) {   // the Setup tab the school owner sees first
+  const sh = ss.getSheets()[0]; sh.setName('Setup'); sh.clear();
+  sh.getRange(1, 1, 9, 2).setValues([
+    ['🧙 SpellQuest: Math Adventure: your school kit', ''],
+    ['1. Make sure you are signed in with the school\'s Google account (top right corner).', ''],
+    ['2. File → Make a copy (if you opened the kit link, you already did).', ''],
+    ['3. In your copy: the 🧙 SpellQuest menu (top, next to Help) → Set up my school → Allow.', ''],
+    ['Your school\'s data stays in this sheet, in your Google account. The game\'s owner sees only counts.', ''],
+    ['SCHOOL_NAME', ''], ['SCHOOL_CODE', ''], ['REGISTRY_URL', ''], ['SETUP_TOKEN', '']]);
+  sh.getRange(1, 1).setFontSize(14).setFontWeight('bold'); sh.setColumnWidth(1, 560); sh.setColumnWidth(2, 420); sh.getRange('A6:A9').setFontColor('#777777');
+}
+function makeTemplate() {   // run once from the editor: the template sheet and its school script
+  const p = props(); let id = p.getProperty('TEMPLATE_ID');
+  if (!id) { const ss = SpreadsheetApp.create('SpellQuest Math – school kit (template)'); kitTab(ss); id = ss.getId(); p.setProperty('TEMPLATE_ID', id); }
+  if (!p.getProperty('TEMPLATE_SCRIPT')) p.setProperty('TEMPLATE_SCRIPT', scriptApi('post', '/projects', { title: 'SpellQuest Math – school', parentId: id }).scriptId);
+  updateTemplate();
+  Logger.log('The kit template: ' + SpreadsheetApp.openById(id).getUrl());
+}
+function updateTemplate() {   // the newest school script (GitHub, main) into the template: new kits get it
+  const sid = props().getProperty('TEMPLATE_SCRIPT'); if (!sid) throw new Error('Run makeTemplate first.');
+  const code = UrlFetchApp.fetch(RAW() + 'Code.gs').getContentText(), manifest = UrlFetchApp.fetch(RAW() + 'appsscript.json').getContentText();
+  scriptApi('put', '/projects/' + sid + '/content', { files: [{ name: 'appsscript', type: 'JSON', source: manifest }, { name: 'Code', type: 'SERVER_JS', source: code }] });
+  Logger.log('Template updated: school script v' + ((code.match(/const VERSION = (\d+)/) || [])[1] || '?'));
+}
+function makeKit(id, name, code, setup) {   // → { link } or { error }
+  const t = props().getProperty('TEMPLATE_ID'); if (!t) return { error: 'no template (run makeTemplate)' };
+  try {
+    const f = DriveApp.getFileById(t).makeCopy('SpellQuest Math – ' + name + ' (school kit)'), ss = SpreadsheetApp.openById(f.getId()), sh = ss.getSheetByName('Setup');
+    const self = props().getProperty('SELF_URL') || ScriptApp.getService().getUrl(); if (!URL_RE.test(self)) throw new Error("this list's own link is unknown: add the script property SELF_URL");
+    const vals = { SCHOOL_NAME: name, SCHOOL_CODE: code, REGISTRY_URL: self, SETUP_TOKEN: setup };
+    const keys = sh.getRange(1, 1, sh.getLastRow(), 1).getValues(); keys.forEach((r, i) => { if (r[0] in vals) sh.getRange(i + 1, 2).setValue(vals[r[0]]); });
+    f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    const row = findRow(r => String(r[C.id]) === id); if (row) { dropKit(row.r[C.kit]); put(row.row, C.kit, f.getId()); }
+    return { link: 'https://docs.google.com/spreadsheets/d/' + f.getId() + '/copy' };
+  } catch (x) { return { error: String(x.message || x) }; }
+}
+function dropKit(fileId) { if (!fileId) return; try { DriveApp.getFileById(String(fileId)).setTrashed(true); } catch (x) {} }

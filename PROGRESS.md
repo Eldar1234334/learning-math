@@ -703,3 +703,10 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 ## 🚀 Phase 12 live (2026-10-12)
 The owner approved going live: `main` has the schools and roles (parts 1–8). Devices already in the first school keep working; the old teacher password still works until the school owner turns it off.
 - **Fix (2026-10-12):** after a school turns its teacher password off, the sign-in box no longer offers "Use the teacher password instead" (the school script says how staff sign in: action `signin`, version 9). A device that does not know its school yet asks the school after the code, and explains instead of asking for the password.
+
+### The school kit: one link for a new school (test site)
+- **🔑 Admin → ➕ New school** now also takes the **school code**. The Admin's list then makes a **school kit**: a copy of the kit template (a Google Sheet with the school script inside) with that school's name, code, the list's link and the one-time setup token in its *Setup* tab, shared "anyone with the link can view". The Admin sends one link (…/copy).
+- **The school owner:** opens the link signed in to the school's Google account → **Make a copy** → menu **🧙 SpellQuest → Set up my school** → **Allow**. The script (version 10) reads the Setup tab, makes the school's tabs in that copy, deploys its own web app through the Apps Script API, joins the Admin's list, marks the token used and shows "✅ … is ready" with the school code and the next steps. If the Google setting "Google Apps Script API" is off, it shows the one switch to turn on.
+- When the school joins, the shared kit goes to the bin by itself; **🔑 New setup token** makes a new kit (the old one goes to the bin). A copy in another Google account cannot join (the token is single-use and only for the Google account the Admin entered).
+- The Admin's list (version 3) keeps the template: `makeTemplate()` once, `updateTemplate()` after each school script change (both through the Apps Script API; script property CODE_BRANCH picks the GitHub branch, default main).
+- Mock tests: 13 kit checks, and all 114 earlier checks; the game's 111 tests.
