@@ -1037,7 +1037,7 @@ const CFG = {
   RECENT: 10                // a problem is not repeated within this many turns (spec 01 §5.2)
 };
 const coinUnit = lv => CFG.COIN_BY_MLVL.reduce((u, [from, x]) => lv >= from ? x : u, 1);
-const VERIFY_URL = '';   // the installed app's e-mail code service: Math Wizard gets its OWN (never the reading game's), set up in phase 11. Empty: the app offers offline play only.
+const VERIFY_URL = 'https://script.google.com/macros/s/AKfycbzIuiBkwzq4w-qRp7npB04m6T61X2sOniQ3fP95A_amw0wuyjst3YHtJKfVGUAUL5As/exec';   // 🏠 play at home: the counting service SHARED with the reading game (owner decision, login spec §7); every call says game: 'math'. It sends and checks the e-mail code and counts people by a one-way fingerprint; the address is not kept.
 // (the installed app may be a school device too: school mode saves online in the app as well, login spec §4)
 
 /* ====================== CONTENT ====================== */
@@ -2042,6 +2042,7 @@ const wizLvl = () => SB.wizLevel(P.xp || 0);
 function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1); return wl >= SB.MAX_WIZ ? 100 : 100 * (P.xp - x0) / (x1 - x0); }   // progress to the next wizard level
 const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>`;
 function openMenu() {
+  pingPlayed();   // (home heroes: once a day)
   G.quest = null; show('menu');
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
   $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
@@ -5097,8 +5098,8 @@ async function adminOpen() {
 async function adminAppUsers() {   // only a count: the app keeps no names and no emails
   if (!VERIFY_URL) { $('#admApp').textContent = ''; return; }
   try {
-    const r = await fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'appStats', key: ADMKEY }) }), j = await r.json();
-    if (j.ok) $('#admApp').innerHTML = `📱 App users (verified by email): <b>${j.total}</b> in total · ${j.week} new this week · ${j.day} new today`; else $('#admApp').textContent = '';
+    const r = await fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'appStats', game: 'math', key: ADMKEY }) }), j = await r.json();
+    if (j.ok) $('#admApp').innerHTML = `🏠 Home players (signed up by a parent's e-mail): <b>${j.total}</b> in total · ${j.week} new this week · ${j.day} new today` + (j.playedDay != null ? ` · played today: <b>${j.playedDay}</b> · this week: ${j.playedWeek}` : ''); else $('#admApp').textContent = '';
   } catch (e) { $('#admApp').textContent = ''; }
 }
 function adminRender(j) {
@@ -5264,6 +5265,11 @@ function renderStart() {   // back to the first view of the start screen
   $('#startBox').style.display = ''; $('#schoolBox').style.display = 'none'; $('#schoolCodeBox').style.display = 'none'; $('#appLogin').style.display = 'none'; $('#loginMsg').textContent = ''; $('#appMsg').textContent = '';
 }
 function keepDeviceData() { try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} }   // ask the browser not to clear a device-only hero (spec §6)
+// 🏠 the anonymous "played today" count (login spec §3.2): on the first play of each day, a home hero's device sends only +1 for the game and the date (no id, no fingerprint)
+function pingPlayed() {
+  if (!P || heroMode(P) !== 'home' || !VERIFY_URL) return; const d = today(); if (lsGet('mw_played') === d) return; lsSet('mw_played', d);
+  try { fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'played', game: 'math', day: d }) }).catch(() => {}); } catch (e) {}
+}
 async function enterDeviceHero(id) {
   const r = await loadProfile(id); if (!r.profile) return;
   enterProfile(r.profile); P.mode = heroMode(P); setCloud('none'); keepDeviceData(); openMenu();

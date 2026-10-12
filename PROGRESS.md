@@ -638,3 +638,9 @@ The shared login and privacy design (from the design session; kept locally, not 
 
 ## 🚀 Live (2026-10-12)
 The owner approved going live. `main` now has everything up to step 11 part 2, so the game is at https://eldar1234334.github.io/learning-math/ (the test site stays at /test/). Still to come: step 11 part 3 (🏠 play at home, with the reading game's counting service), then the Village Helper spec.
+
+### Step 11, part 3: play at home (game side on the test site; the service change waits for its code)
+- **🏠 Play at home is on:** a parent's e-mail gets a 6-digit code from the counting service **shared with the reading game** (every call says `game: 'math'`). After the code, the student makes a 🏠 hero that lives on the device only; the e-mail address is not kept anywhere in the game.
+- **"Played today":** on the first play of each day, a home hero's device sends only `+1` with the game and the date (no id, nothing that tells devices or people apart).
+- **Teacher area:** "🏠 Home players: … total · … new this week · … new today", and "played today / this week" once the service reports it.
+- **Waiting for the service's code:** today the shared service does not know about `game`, so math sign-ups are counted together with the reading game's, and "played today" is ignored. The small change (store the game with the fingerprint, count "played today" per game and day, a code e-mail that names the right game) needs the service's current code, which you copy from its Apps Script project. You deploy it; I don't.
