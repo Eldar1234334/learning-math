@@ -10,6 +10,7 @@
    - { action: 'save', token, id, nick, mlvl, wiz, xp, n, acc, min, coins, craftAcc, restarts, data }
                                                         → { ok } · { ok, conflict, data } · { ok, deleted } · { ok, rejected } · { ok: false, error: 'unknown' }
    Staff sign-in (schools spec §3.4): an e-mail code, only for the school owner (the Google account that runs this script) and the e-mails in the Staff tab:
+   - { action: 'signin' }                               → { ok, password }   does the old teacher password still work here?
    - { action: 'staffCode', email }                     → { ok }   always the same answer
    - { action: 'staffVerify', email, code }             → { ok, sess, email, role } · { ok: false, error: 'wrong' | 'expired' | 'locked' }
    Teacher area: every action below takes { sess } (a staff session, 6 hours) or { key } (the old teacher password, the script property ADMIN_KEY,
@@ -46,7 +47,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 8;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 9;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -112,6 +113,7 @@ function doPost(e) {
   if (a === 'school') return out(school(b));
   if (a === 'ping') return out(ping(b));
   if (a === 'stats') return out(stats(b));
+  if (a === 'signin') return out({ ok: true, password: !!props().getProperty('ADMIN_KEY') && props().getProperty('PASSWORD_OFF') !== '1' });   // how staff sign in here (the game hides the password link when it is off)
   if (a === 'staffCode') return out(staffCode(b));
   if (a === 'staffVerify') return out(staffVerify(b));
   if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted', 'moveHome', 'undoMove', 'setSelfMove', 'setPassword'].includes(a)) return out(admin(a, b));

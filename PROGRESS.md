@@ -702,3 +702,4 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 
 ## 🚀 Phase 12 live (2026-10-12)
 The owner approved going live: `main` has the schools and roles (parts 1–8). Devices already in the first school keep working; the old teacher password still works until the school owner turns it off.
+- **Fix (2026-10-12):** after a school turns its teacher password off, the sign-in box no longer offers "Use the teacher password instead" (the school script says how staff sign in: action `signin`, version 9). A device that does not know its school yet asks the school after the code, and explains instead of asking for the password.

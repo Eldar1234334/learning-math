@@ -5206,6 +5206,10 @@ function adminAsk() {
     '<p class="small" style="margin-top:8px"><a href="#" id="admUsePass" class="adminLink" style="opacity:.8">Use the teacher password instead</a></p>',
     [['Send code', admSendCode], [t('cancel'), null, true]]);
   setTimeout(() => { const i = $('#admSc') || $('#admEm'); if (i) i.focus(); const p = $('#admUsePass'); if (p) p.onclick = e => { e.preventDefault(); const sc = $('#admSc') ? $('#admSc').value : ''; $('#modal').classList.remove('on'); admAskPass(sc); }; }, 60);
+  if (admKnowsSchool()) admPassWorks(schoolUrl()).then(on => { const p = $('#admUsePass'); if (!on && p) p.parentElement.style.display = 'none'; });   // a school that retired the password: no password link
+}
+async function admPassWorks(url) {   // false only when the school says its teacher password is off (older school scripts do not say: true)
+  try { const j = await post(url, { action: 'signin' }); return !(j.ok && j.password === false); } catch (e) { return true; }
 }
 // a device that joined a school (or a game with only the first school) knows where the teacher area is; otherwise the school code finds it
 const admKnowsSchool = () => !CFG.REGISTRY_URL || !!lsGet('mw_school_id') || (!!schoolToken() && !lsGet('mw_school_url'));
@@ -5242,6 +5246,7 @@ function admAskPass(sc) {   // the old single teacher password: it opens the are
     [[t('open'), async () => {
       ADMKEY = $('#admPass').value; if (!ADMKEY) return;
       try { ADMURL = await admFindSchool(need ? $('#admSc').value.trim() : ''); } catch (x) { ADMKEY = null; modal(t('teacher_link'), `<p>${esc(typeof x === 'string' ? x : '')}</p>`, [['Try again', () => admAskPass(sc)], [t('close'), null, true]]); return; }
+      if (!await admPassWorks(ADMURL)) { ADMKEY = null; modal(t('teacher_link'), '<p>This school no longer uses the teacher password. Sign in with your e-mail.</p>', [['Sign in with e-mail', adminAsk], [t('close'), null, true]]); return; }
       ADMSESS = null; adminOpen();
     }], [t('cancel'), null, true]]);
   setTimeout(() => { const i = $('#admPass'); if (i) { i.focus(); i.onkeydown = e => { if (e.key === 'Enter') $('#mBtns button').click(); }; } }, 60);
@@ -5529,7 +5534,7 @@ async function ownHomeStats() {   // 🏠 home players: the Admin's list asks th
       : j.error === 'setup' ? '🏠 Home players: not connected yet (the script properties COUNT_URL and COUNT_KEY of the Admin\'s list).' : '🏠 Home players: could not be counted right now.';
   } catch (x) { box.textContent = ''; }
 }
-const SCHOOL_SCRIPT_V = 8;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
+const SCHOOL_SCRIPT_V = 9;   // the newest school script (tools/apps-script/progress/Code.gs VERSION): older schools are marked
 function ownRender(list) {
   const act = list.filter(s => s.status === 'active');
   $('#ownCards').innerHTML = [[act.length, 'active schools'], [act.reduce((a, s) => a + s.players, 0), 'students'], [act.reduce((a, s) => a + s.today, 0), 'played today']].map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
