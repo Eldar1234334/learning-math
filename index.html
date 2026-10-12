@@ -5199,7 +5199,7 @@ function startDemo() {
 }
 $('#admDemo').onclick = () => startDemo();
 function adminAsk() {
-  if (APP) return;   // there is no teacher area in the app
+  // (the installed app opens the teacher area too: staff use it on school devices)
   if (!CFG.SCRIPT_URL) { modal(t('teacher_link'), t('adm_nocloud'), [[t('adm_demo'), startDemo], [t('close'), null, true]]); return; }   // no sheet yet: the demo still works
   const field = (id, type, ph, extra) => `<input id="${id}" type="${type}" placeholder="${ph}" autocomplete="off" style="margin:6px 0" ${extra || ''}>`;
   const schoolPart = admKnowsSchool() ? `<p class="small" style="opacity:.85">🏫 ${esc(lsGet('mw_school_name') || 'This device\'s school')}</p>` : field('admSc', 'text', 'School code', 'autocapitalize="characters" maxlength="20"');
@@ -5498,7 +5498,7 @@ let OWNTOK = null, OWNEMAIL = '';
 const ownCall = (action, extra) => post(CFG.REGISTRY_URL, Object.assign({ action, token: OWNTOK }, extra || {}));
 if (CFG.REGISTRY_URL) $('#ownerWrap').style.display = '';
 $('#ownerLink').onclick = e => {
-  e.preventDefault(); if (APP || !CFG.REGISTRY_URL) return;
+  e.preventDefault(); if (!CFG.REGISTRY_URL) return;
   if (OWNTOK) { ownOpen(); return; }
   modal('🔑 Admin', '<p class="small">Your Admin e-mail. A 6-digit code is sent to it (any other e-mail gets nothing).</p><input id="ownEm" type="email" autocomplete="email" style="margin:6px 0">',
     [['Send code', async () => {
