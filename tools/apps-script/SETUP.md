@@ -35,4 +35,4 @@ Paste the new code → **💾 Save** → **Deploy → Manage deployments** → �
 - The script itself keeps a school token (made automatically): devices that entered the school code keep working after the code changes.
 
 ## Play at home (part 3)
-Home players use the reading game's existing counting service, with a small change. I will prepare that change and its steps when you send me that service's current code.
+Home players use the counting service shared with the reading game (every call says `game: 'math'`). That service is updated in its own Apps Script project, not from this repo: paste the new code → 💾 Save → Deploy → Manage deployments → ✏️ → New version → Deploy.
