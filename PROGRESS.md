@@ -617,7 +617,7 @@ The shared login and privacy design (from the design session; kept locally, not 
 **How to check:** open the test site → the start screen. Play offline (a hero is made, the tutorial runs), save the hero file from the menu, log out: the hero is listed; Load a hero restores it. Tap 🔒 Privacy.
 - After your check: the menu button is now **🚪 Switch hero** (not every player is a student), and "Load a hero" is a small link at the bottom of the start screen ("Have a backup file of your hero? 📂 Load a hero"): it restores a home or offline hero from its 💾 backup file on a new device or after the browser's data was cleared.
 
-### Step 11, part 2: school mode ✅ (ready; it goes live when you set up the school sheet)
+### Step 11, part 2: school mode ✅ (live on the test site, waiting for your check)
 - **The school sheet's script** (`tools/apps-script/progress/Code.gs`, rewritten): everything is a POST (nothing secret in a URL); loading returns **game data only** (never the real name or class) and is **limited** per number and per minute; only devices with the **school code** can load or save; the teacher password locks after 5 wrong tries.
 - **School code:** the first time school mode is used on a device, it asks for the code (it is on the login cards). The device keeps a school token, so changing the code later does not stop devices that are already set up.
 - **"I am new"** registers a **waiting** student (real name and class go to the sheet only). The student plays at once.
@@ -632,3 +632,4 @@ The shared login and privacy design (from the design session; kept locally, not 
 - Everything was tested here with the real script running against a pretend sheet: a new student (code, "I am new", waiting), the teacher list, adding a class, the login cards, a card login, approve, reject (the device moves the hero offline), delete, joining the school from offline, copying a school hero.
 
 **What you need to do:** set up the school sheet with the steps in `tools/apps-script/SETUP.md` (about 5 minutes; you choose a teacher password and a school code) and send me the URL. I then put it in the game and we check it together on the test site.
+- **The school sheet is set up** (2026-10-12), in `learningtoread.app@gmail.com`: the sheet **SpellQuest Math – progress** and its script, a separate Apps Script project with the same name (Google's editor would not open from the sheet with several accounts signed in, so the script finds the sheet by `SHEET_ID`). You set the teacher password and the school code and allowed the script; I did the rest in your Chrome. The game on the test site now saves school heroes to it.
