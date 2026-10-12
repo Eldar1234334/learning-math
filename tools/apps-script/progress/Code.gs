@@ -21,6 +21,8 @@
    - { action: 'staffRemove', email }                   → { ok }
    - { action: 'approveMany' | 'rejectMany', items: [ { id, real?, cls? } ] } → { ok, done, skipped }   waiting students; the name and class can be fixed
    - { action: 'classAdd' | 'classArchive', cls }       → { ok, classes }   school owner only (the Classes tab: the "I am new" class menu)
+   - { action: 'cardsPrinted', ids: [...] }             → { ok, marked }   login cards printed (the Cards tab); 'list' tells each student's card: true/false,
+                                                          and lastDay / today in the school's time zone (for "Played today")
    A device with the school token: { action: 'classes', token } → { ok, classes: [ ... ] }   class names only
    - { action: 'list', key }                            → { ok, students: [ { id, nick, real, cls, status, joined, tier, wiz, xp, accuracy, answers, minutes, coins, craftAcc, restarts, last } ] }
    - { action: 'student', key, id }                     → { ok, data, real, cls, status }
@@ -37,7 +39,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 4;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 5;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -100,7 +102,7 @@ function doPost(e) {
   if (a === 'stats') return out(stats(b));
   if (a === 'staffCode') return out(staffCode(b));
   if (a === 'staffVerify') return out(staffVerify(b));
-  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive'].includes(a)) return out(admin(a, b));
+  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted'].includes(a)) return out(admin(a, b));
   if (String(b.token || '') !== token()) return out({ ok: false, error: 'school' });   // only devices set up with the school code
   if (a === 'load') return out(load(b));
   if (a === 'classes') return out({ ok: true, classes: classNames() });   // for the "I am new" class menu (class names only)
@@ -149,8 +151,9 @@ function admin(a, b) {
   if (a === 'list') {
     const n = sh.getLastRow(), rows = n < 2 ? [] : sh.getRange(2, 1, n - 1, HEAD.length).getValues();
     const iso = v => v instanceof Date ? v.toISOString() : String(v || '');
-    return { ok: true, me: { email: who.email, role: who.role }, classes: classNames().filter(sees), students: rows.filter(r => r[C.id] !== '' && sees(r[C.cls])).map(r => ({ id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
-      tier: num(r[C.mlvl]), wiz: num(r[C.wiz]), xp: num(r[C.xp]), answers: num(r[C.n]), accuracy: num(r[C.acc]), minutes: num(r[C.min]), coins: num(r[C.coins]), craftAcc: num(r[C.craft]), restarts: num(r[C.restarts]), last: iso(r[C.last]) })) };
+    const printed = cardsPrinted();
+    return { ok: true, me: { email: who.email, role: who.role }, school: props().getProperty('SCHOOL_NAME') || '', tz: Session.getScriptTimeZone(), today: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'), classes: classNames().filter(sees), students: rows.filter(r => r[C.id] !== '' && sees(r[C.cls])).map(r => ({ id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
+      tier: num(r[C.mlvl]), wiz: num(r[C.wiz]), xp: num(r[C.xp]), answers: num(r[C.n]), accuracy: num(r[C.acc]), minutes: num(r[C.min]), coins: num(r[C.coins]), craftAcc: num(r[C.craft]), restarts: num(r[C.restarts]), last: iso(r[C.last]), lastDay: r[C.last] ? Utilities.formatDate(new Date(r[C.last]), Session.getScriptTimeZone(), 'yyyy-MM-dd') : '', card: !!printed[String(r[C.id])] })) };
   }
   if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '' };
   if (a === 'setCode') { const code = normCode(b.code); if (code.length < 4 || code.length > 20) return { ok: false, error: 'code' }; const reg = toRegistry({ action: 'schoolCode', code }); if (reg && !reg.ok) return { ok: false, error: reg.error === 'taken' ? 'taken' : 'registry' }; props().setProperty('SCHOOL_CODE', code); logIt(who.email, 'school code changed', ''); return { ok: true, code }; }
@@ -166,6 +169,12 @@ function admin(a, b) {
     if (a === 'staffRemove') {   // their sessions end at once: every call checks the Staff tab again
       const em = mailOf(b.email), f = staffRows().find(s => s.email === em); if (!f) return { ok: false, error: 'not found' };
       staffSheet().deleteRow(f.row); logIt(who.email, 'staff removed', em); return { ok: true };
+    }
+    if (a === 'cardsPrinted') {   // the login cards of these students were printed ("cards for new students only" leaves them out next time)
+      const ids = (Array.isArray(b.ids) ? b.ids : []).map(cleanId).filter(Boolean).slice(0, 500), have = cardsPrinted(), cs = cardSheet(), now = new Date().toISOString();
+      const add = ids.filter(x => !have[x] && rowOf(sh, x) && sees(sh.getRange(rowOf(sh, x), C.cls + 1).getValue())).map(x => [x, now, who.email]);
+      if (add.length) cs.getRange(cs.getLastRow() + 1, 1, add.length, 3).setValues(add);
+      return { ok: true, marked: add.length };
     }
     if (a === 'classAdd') { const cls = txt(b.cls, 20); if (!cls) return { ok: false, error: 'bad' }; ensureClass(cls); logIt(who.email, 'class created', cls); return { ok: true, classes: classNames() }; }
     if (a === 'classArchive') {   // the class leaves the "I am new" menu; its students stay
@@ -316,3 +325,5 @@ function ensureClass(cls) {   // adds the class (or brings an archived one back)
   if (n > 1) { const v = cs.getRange(2, 1, n - 1, 3).getValues(), i = v.findIndex(r => clsKey(r[0]) === k); if (i >= 0) { if (v[i][2]) cs.getRange(i + 2, 3).setValue(''); return; } }
   cs.appendRow([cls, new Date().toISOString(), '']);
 }
+const cardSheet = () => sheet('Cards', ['id', 'card printed', 'by']);
+function cardsPrinted() { const cs = cardSheet(), n = cs.getLastRow(), o = {}; if (n > 1) cs.getRange(2, 1, n - 1, 1).getValues().forEach(r => { o[String(r[0])] = 1; }); return o; }

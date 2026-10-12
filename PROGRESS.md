@@ -667,3 +667,10 @@ The owner's spec (kept locally, not in this repo) turns the one-school sheet int
 - **The class list** is made from class lists added in the teacher area, and the first time from the classes the students already have. The school owner adds a class with no students yet, or takes one off the menu (its students stay).
 - **⏳ Waiting for approval** (red count): tick boxes, a class filter ("All my classes" or one class), Select all, **✅ Approve selected**, **✅ Approve all** (in the filter, with one short question: "Approve 14 students in class 3A?"), **❌ Reject selected**. The name and class can be fixed in the row before approving. A teacher approves or rejects only in their own classes and cannot move a student to another class; the script checks every student.
 - School script version 4. Mock tests: 19 class checks, and the 50 checks of parts 1 and 2; the game screens tried ("I am new" with the menu, fixing a name, approve selected, approve all in 4B).
+
+### Part 4: the students list, login cards and "Played today" (test site)
+- **Students list:** a class filter ("All my classes" or one class) next to the search; a **Class** column (sortable); tick boxes with a select-all box in the header.
+- **🟢 Played today: N of M** for what is shown (the whole school, or one class), by the school script's own time zone (the student's last save today).
+- **🖨 Print login cards** (moved from the classes card): for the ticked students, or else everyone shown; "only students who never got a card" leaves out students already printed (the new *Cards* tab; a 🪪 next to their number). The card now also shows the school's name and three short "how to log in" lines in English and Hebrew.
+- Not built (yet): minutes played today, and a QR code on the cards.
+- School script version 5 (still works with the live game). Mock tests: all 70 checks; the screens tried (class filter, played today, ticking, cards for ticked, cards for new only).
