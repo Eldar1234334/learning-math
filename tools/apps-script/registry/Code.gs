@@ -188,39 +188,26 @@ function homeStats() {   // the 🏠 home players (the counting service shared w
   catch (x) { return { ok: false, error: 'count' }; }
 }
 
-/* ----- the school kit: a Google Sheet with the school script inside. The template is made once by makeTemplate() and refreshed by
-   updateTemplate() (both through the Apps Script API: the user setting "Google Apps Script API" must be on). For each new school with a
-   code, newSchool copies the template, writes the school's values into its Setup tab and shares it "anyone with the link can view";
-   the school owner opens the …/copy link, which makes the school's own copy in the school's Google account. ----- */
-const RAW = () => 'https://raw.githubusercontent.com/Eldar1234334/learning-math/' + (props().getProperty('CODE_BRANCH') || 'main') + '/tools/apps-script/progress/';   // script property CODE_BRANCH: try a test branch first
-function scriptApi(method, path, body) {
-  const r = UrlFetchApp.fetch('https://script.googleapis.com/v1' + path, { method, contentType: 'application/json', headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, payload: body ? JSON.stringify(body) : undefined, muteHttpExceptions: true });
-  const j = JSON.parse(r.getContentText() || '{}'); if (r.getResponseCode() !== 200) throw new Error('Apps Script API: ' + ((j.error && j.error.message) || r.getResponseCode()));
-  return j;
-}
+/* ----- the school kit: a Google Sheet with the school script inside (its own copy: the template, made once by makeTemplate(); the school
+   script is pasted into it by hand, again whenever it changes). For each new school with a code, newSchool copies the template, writes the
+   school's values into its Setup tab and shares it "anyone with the link can view"; the school owner opens the …/copy link, which makes the
+   school's own copy in the school's Google account, and its 🧙 SpellQuest menu does the rest. ----- */
 function kitTab(ss) {   // the Setup tab the school owner sees first
   const sh = ss.getSheets()[0]; sh.setName('Setup'); sh.clear();
   sh.getRange(1, 1, 9, 2).setValues([
     ['🧙 SpellQuest: Math Adventure: your school kit', ''],
     ['1. Make sure you are signed in with the school\'s Google account (top right corner).', ''],
     ['2. File → Make a copy (if you opened the kit link, you already did).', ''],
-    ['3. In your copy: the 🧙 SpellQuest menu (top, next to Help) → Set up my school → Allow.', ''],
+    ['3. In your copy: the 🧙 SpellQuest menu (top, next to Help) → Set up my school → Allow. It then explains one short Google step (Deploy).', ''],
     ['Your school\'s data stays in this sheet, in your Google account. The game\'s owner sees only counts.', ''],
     ['SCHOOL_NAME', ''], ['SCHOOL_CODE', ''], ['REGISTRY_URL', ''], ['SETUP_TOKEN', '']]);
   sh.getRange(1, 1).setFontSize(14).setFontWeight('bold'); sh.setColumnWidth(1, 560); sh.setColumnWidth(2, 420); sh.getRange('A6:A9').setFontColor('#777777');
 }
-function makeTemplate() {   // run once from the editor: the template sheet and its school script
+function makeTemplate() {   // run once from the editor: the template sheet. Then open it → Extensions → Apps Script, and paste the school script (Code.gs and appsscript.json) into it.
   const p = props(); let id = p.getProperty('TEMPLATE_ID');
-  if (!id) { const ss = SpreadsheetApp.create('SpellQuest Math – school kit (template)'); kitTab(ss); id = ss.getId(); p.setProperty('TEMPLATE_ID', id); }
-  if (!p.getProperty('TEMPLATE_SCRIPT')) p.setProperty('TEMPLATE_SCRIPT', scriptApi('post', '/projects', { title: 'SpellQuest Math – school', parentId: id }).scriptId);
-  updateTemplate();
-  Logger.log('The kit template: ' + SpreadsheetApp.openById(id).getUrl());
-}
-function updateTemplate() {   // the newest school script (GitHub, main) into the template: new kits get it
-  const sid = props().getProperty('TEMPLATE_SCRIPT'); if (!sid) throw new Error('Run makeTemplate first.');
-  const code = UrlFetchApp.fetch(RAW() + 'Code.gs').getContentText(), manifest = UrlFetchApp.fetch(RAW() + 'appsscript.json').getContentText();
-  scriptApi('put', '/projects/' + sid + '/content', { files: [{ name: 'appsscript', type: 'JSON', source: manifest }, { name: 'Code', type: 'SERVER_JS', source: code }] });
-  Logger.log('Template updated: school script v' + ((code.match(/const VERSION = (\d+)/) || [])[1] || '?'));
+  if (!id) { const ss = SpreadsheetApp.create('SpellQuest Math – school kit (template)'); id = ss.getId(); p.setProperty('TEMPLATE_ID', id); }
+  const ss = SpreadsheetApp.openById(id); if (!ss.getSheetByName('Setup') || ss.getSheetByName('Setup').getRange(6, 1).getValue() !== 'SCHOOL_NAME') kitTab(ss);
+  Logger.log('The kit template: ' + ss.getUrl() + '\nOpen it → Extensions → Apps Script → paste the school script (Code.gs, and appsscript.json after Project Settings → Show "appsscript.json") → Save. Do it again whenever the school script changes.');
 }
 function makeKit(id, name, code, setup) {   // → { link } or { error }
   const t = props().getProperty('TEMPLATE_ID'); if (!t) return { error: 'no template (run makeTemplate)' };

@@ -444,30 +444,18 @@ function setupKit() {
   const ss = SpreadsheetApp.getActiveSpreadsheet(); ss.rename('SpellQuest Math – ' + (p.getProperty('SCHOOL_NAME') || 'school') + ' (students)');
   setupSchool();   // the sheet's tabs and the permissions
   let url = p.getProperty('WEB_APP_URL') || '';
-  if (!url) {
-    const d = deployWebApp();
-    if (d.error) {
-      ui.alert('SpellQuest: one more step', d.error === 'api'
-        ? 'Google needs one switch first:\n\n1. Open script.google.com/home/usersettings (in this same Google account).\n2. Turn on "Google Apps Script API".\n3. Come back here: 🧙 SpellQuest → Set up my school.\n\n(' + d.msg + ')'
-        : 'The web app could not be made automatically (' + d.msg + ').\n\nExtensions → Apps Script → Deploy → New deployment → ⚙️ Web app: Execute as Me, Who has access Anyone → Deploy. Then come back here: 🧙 SpellQuest → Set up my school.', ui.ButtonSet.OK);
-      return;
-    }
-    url = d.url; p.setProperty('WEB_APP_URL', url);
+  if (!url) { try { const u = ScriptApp.getService().getUrl() || ''; if (/\/exec$/.test(u)) url = u; } catch (x) {} }   // the web app, once the school owner deployed it
+  if (!url) {   // Google lets only the account owner deploy a web app: one short step, then this menu again
+    const r = ui.prompt('SpellQuest: one more step (1 minute)',
+      'Your school sheet is ready. Now the link the game uses:\n\n1. Extensions → Apps Script (a new tab opens).\n2. Blue button Deploy → New deployment.\n3. Click ⚙️ next to "Select type" → Web app.\n4. Execute as: Me. Who has access: Anyone. → Deploy → Authorize access → Allow.\n5. Copy the Web app URL, come back to this tab, and paste it below.\n\n(Or press Cancel, deploy, and choose 🧙 SpellQuest → Set up my school again.)', ui.ButtonSet.OK_CANCEL);
+    const pasted = r.getSelectedButton() === ui.Button.OK ? r.getResponseText().trim() : '';
+    if (!/^https:\/\/script\.google\.com\/.*\/exec$/.test(pasted)) { if (pasted) ui.alert('SpellQuest', 'That is not the Web app URL (it starts with https://script.google.com and ends with /exec). Choose 🧙 SpellQuest → Set up my school again.', ui.ButtonSet.OK); return; }
+    url = pasted;
   }
+  p.setProperty('WEB_APP_URL', url);
   try { linkRegistry(); } catch (e) { ui.alert('SpellQuest: almost done', e.message + '\n\nFix it, then 🧙 SpellQuest → Set up my school again.', ui.ButtonSet.OK); return; }
   kitSet('SETUP_TOKEN', '(used)');
   kitInfo();
-}
-function deployWebApp() {   // the web app, through the Apps Script API (the user setting "Google Apps Script API" must be on)
-  const base = 'https://script.googleapis.com/v1/projects/' + ScriptApp.getScriptId(), h = { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() };
-  const call = (path, body) => { const r = UrlFetchApp.fetch(base + path, { method: 'post', contentType: 'application/json', headers: h, payload: JSON.stringify(body), muteHttpExceptions: true }); let j = {}; try { j = JSON.parse(r.getContentText() || '{}'); } catch (x) {} return { code: r.getResponseCode(), j }; };
-  const why = r => (r.j.error && r.j.error.message) || ('HTTP ' + r.code);
-  const ver = call('/versions', { description: 'SpellQuest school v' + VERSION });
-  if (ver.code !== 200) return { error: ver.code === 403 ? 'api' : 'deploy', msg: why(ver) };
-  const dep = call('/deployments', { versionNumber: ver.j.versionNumber, manifestFileName: 'appsscript', description: 'SpellQuest school v' + VERSION });
-  if (dep.code !== 200) return { error: dep.code === 403 ? 'api' : 'deploy', msg: why(dep) };
-  const ep = (dep.j.entryPoints || []).find(e => e.entryPointType === 'WEB_APP');
-  return ep && ep.webApp && ep.webApp.url ? { url: ep.webApp.url } : { error: 'deploy', msg: 'no web app in the deployment' };
 }
 function kitInfo() {
   const ui = SpreadsheetApp.getUi(), p = props();
