@@ -203,9 +203,17 @@ body.peace .foeBody{font-size:6rem}
 .itemBar{display:flex;gap:10px;justify-content:center;margin:8px 0;min-height:0}
 .itemBtn{position:relative;font:inherit;color:#fff;background:#0004;border:2px solid #fff3;border-radius:14px;padding:3px 8px 3px 4px;display:flex;align-items:center;gap:2px;cursor:pointer}
 .itemBtn .magicSvg{width:38px;height:38px}.itemBtn .ibTxt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding-inline-end:4px}.itemBtn .ibTxt b{font-size:.9rem}.itemBtn .ibTxt small{font-size:.75rem;opacity:.9}
-.itemBtn.glow{border-color:#4aa8ff;box-shadow:0 0 12px #4aa8ff88;animation:itemGlow 2s ease-in-out infinite}.itemBtn.glow.v2{border-color:#ffd166;box-shadow:0 0 14px #ffd166aa}
+.itemBtn.glow{border-color:#4aa8ff;box-shadow:0 0 12px #4aa8ff88;animation:itemGlow 2s ease-in-out infinite}.itemBtn.glow.v2{border-color:#ffd166;box-shadow:0 0 20px #ffd166cc;animation:legendPulse 3.2s ease-in-out infinite}@keyframes legendPulse{50%{box-shadow:0 0 30px #ffd166ee}}
+.lootRow{display:flex;justify-content:center;margin:4px 0}
+.lootWrap{position:relative;display:inline-block}
+.lootBtn{font:inherit;color:#fff;background:#0004;border:1px solid #fff4;border-radius:999px;padding:4px 12px;cursor:pointer}
+.lootBtn.bounce{animation:lootBounce .6s ease-out}@keyframes lootBounce{30%{transform:translateY(-6px) scale(1.12)}60%{transform:translateY(0) scale(.97)}}
+.lootPanel{display:none;position:absolute;z-index:30;top:calc(100% + 6px);inset-inline-start:0;min-width:220px;max-width:min(320px,86vw);background:#1b1340f2;border:1px solid #fff3;border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px #0008;text-align:start}
+.lootWrap:hover .lootPanel,.lootWrap.open .lootPanel{display:block}
+.lootGrp{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}.lootCoins{margin:8px 0 0;font-weight:700}.lootNone{margin:6px 0 0;opacity:.8}
+@media (prefers-reduced-motion:reduce){.lootBtn.bounce{animation:none}}
 .itemBtn.used{opacity:.45;filter:grayscale(1)}@keyframes itemGlow{50%{box-shadow:0 0 5px #4aa8ff55}}
-@media (prefers-reduced-motion:reduce){.itemBtn.glow{animation:none}}
+@media (prefers-reduced-motion:reduce){.itemBtn.glow,.itemBtn.glow.v2{animation:none}}
 .miInl{display:inline-block;vertical-align:middle;line-height:1}.miInl .magicSvg{width:1.5em;height:1.5em;display:block}
 .craftEm .miInl .magicSvg{width:4.4rem;height:4.4rem}.opt .miInl .magicSvg{width:3rem;height:3rem}
 /* ----- stage backgrounds ----- */
@@ -1009,6 +1017,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="side foe"><div id="foeName" class="small"></div><div class="hpbar"><i id="hpFill"></i></div><div class="hpbar armorBar" id="armorBar"><i></i></div><div class="foeWrap"><div class="aura" id="aura"></div><div class="foeBody" id="foeBody"></div></div></div>
   </div>
   <div class="potBar" id="potBar" style="display:none"></div>
+  <div class="lootRow" id="lootRow" style="display:none"></div>
   <div class="itemBar" id="itemBar" style="display:none"></div>
   <div class="panel card">
     <div class="craftPic" id="craftPic" style="display:none"></div>
@@ -1091,6 +1100,7 @@ const CFG = {
   BOSS_MIN: 3, BOSS_MAX: 5, // a boss / big request pays the normal amount times a random number between these
   EARLY_MULT: 2,            // coins are doubled during the first 10 minutes of play each day
   ODDS_NORMAL: [60, 30, 10], ODDS_BOSS: [60, 30, 10],   // chance (%) of common/uncommon/rare in normal fights; rare/epic/legendary in boss fights
+  VISITOR_SHARE: 0.4,   // spec 06 §6: about 40% of the normal stops are visitors from other elements (the area's own monsters are the rest)
   POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, WORKSHOP_WIZ: 8,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
     // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
@@ -1275,6 +1285,9 @@ const STR = {
   beard_none: ['No facial hair', 'בלי שיער פנים'], beard_mustache: ['Mustache', 'שפם'], beard_short: ['Short beard', 'זקן קצר'], beard_long: ['Long beard', 'זקן ארוך'],
   wd_title: ['🚪 Wardrobe', '🚪 ארון הבגדים'], wd_tip: ['Try things on, then save your look. Locked things are sold in the shop.', 'נסו בגדים ושמרו את המראה. דברים נעולים נמכרים בחנות.'], wd_save: ['Save look ✔', 'שמירת המראה ✔'],
   wd_tab_robe: ['👗 Robe', '👗 גלימה'], wd_tab_face: ['🧑 Skin & hair', '🧑 עור ושיער'], wd_tab_acc: ['🎩 Accessories', '🎩 אביזרים'],
+  lost_keep: ['Your coins and ingredients from this quest are kept.', 'המטבעות והמרכיבים מהמסע הזה נשמרים.'],
+  loot_title: ['What I found on this quest', 'מה מצאתי במסע הזה'], loot_none: ['Nothing yet on this quest.', 'עוד לא מצאתם כלום במסע הזה.'],
+  loot_coins: ['🪙 +{c} coins this quest', '🪙 ‎+{c} מטבעות במסע הזה'], this_quest: ['this quest', 'במסע הזה'], run_summary: ['🎒 This quest: {n} items · 🪙 +{c} coins', '🎒 במסע הזה: {n} פריטים · 🪙 ‎+{c} מטבעות'],
   wd_tab_magic: ['✨ Magic items', '✨ פריטים קסומים'], wd_magic_info: ['Your forged items. 👁️ shows or hides an item on your wizard. Its magic still works in quests.', 'הפריטים הקסומים שלכם. 👁️ מציג או מסתיר פריט על הקוסם. הקסם שלו פועל גם במסעות.'],
   wd_magic_none: ['No magic items yet. Forge them in the workshop.', 'עדיין אין פריטים קסומים. מייצרים אותם בסדנה.'], wd_eye_on: ['On the hero', 'על הקוסם'], wd_eye_off: ['Hidden', 'מוסתר'],
   wd_robecol: ['Robe colour', 'צבע הגלימה'], wd_style: ['Robe style', 'סגנון הגלימה'], plain: ['plain', 'רגיל'], none: ['none', 'בלי'],
@@ -2952,7 +2965,8 @@ function jHud() {
   else if ((qs.enc || 0) >= CFG.HINT_AFTER) { b.textContent = v ? 'The village is getting busier…' : t('j_stronger'); b.className = 'jBanner'; }
   else { b.textContent = ''; b.className = 'jBanner'; }
   $('#jWalk').disabled = J.busy || !next; $('#jWalk').style.opacity = $('#jWalk').disabled ? .5 : 1;
-  $('#jStats').textContent = `🪙 ${Math.floor(P.coins || 0)}   🎒 ${Object.values(P.satchel || {}).reduce((a, n) => a + n, 0)}   🧪 ${carried()}`;
+  const rr = runRec();   // the coins line shows this quest's coins too; the satchel shows this run's items
+  $('#jStats').innerHTML = `🪙 ${Math.floor(P.coins || 0)}${rr ? ` <small>(+${Math.floor(rr.coins)} ${t('this_quest')})</small>` : ''}   ${lootBadge()}   🧪 ${carried()}`;
   $('#jAbandon').style.display = qs.act ? '' : 'none'; $('#jItems').innerHTML = itemBarHtml(J.q, 'map');
 }
 
@@ -2980,7 +2994,7 @@ function jWalk() {
   };
   requestAnimationFrame(step);
 }
-function jCoins(units) { const c = coinUnit(P.mlvl) * units; P.coins = (P.coins || 0) + c; const d = today(); if (P.coinDay.d !== d) P.coinDay = { d, c: 0 }; P.coinDay.c += c; return c; }
+function jCoins(units) { const c = coinUnit(P.mlvl) * units; P.coins = (P.coins || 0) + c; const rr = runRec(); if (rr) rr.coins += c; const d = today(); if (P.coinDay.d !== d) P.coinDay = { d, c: 0 }; P.coinDay.c += c; return c; }
 function jArrive(i) {
   const qs = P.quest[J.q], code = qs.path[i - 1], kind = code[0], v = jVillage();
   if (kind === 'm' || kind === 's' || kind === 'B') { jDraw(); jHud(); enterFight(); return; }   // the normal fight / village screen
@@ -3011,12 +3025,36 @@ const G = { quest: null, mon: null, hearts: 3, helped: 0, q: null, locked: false
 function startQuest(q) {   // a new quest run starts by packing potions; from then on the run is "active" (no going home) until it is won or lost
   const qs = P.quest[q];
   if (qs.act) return beginQuest(q);
-  G.quest = q; openPack(() => { qs.act = true; saveSoon(true); beginQuest(q); });
+  G.quest = q; openPack(() => { qs.act = true; qs.run = { coins: 0, loot: {} }; qs.mons = []; saveSoon(true); beginQuest(q); });   // a new run: its own loot and coins start at 0
 }
 const nextRun = () => P.quest[G.quest].act ? openJourney(G.quest) : startQuest(G.quest);   // after a fight the wizard is back on the map; after a chapter ends or a restart, pack potions again
 function beginQuest(q) {
   G.quest = q; G.sess = 0; G.combo = 0; G.goalShown = (P.sec[today()] || 0) >= CFG.DAILY_SEC;
   openJourney(q);
+}
+// Monster variety (spec 06 §6): a normal stop is an area monster (about 60%) or a visitor from another element (about 40%).
+// Over one quest run every learned attack element should be the good answer at least once; a visitor weak to a missing element is preferred.
+// No more than 2 monsters of the same element in a row. Every choice is winnable with a learned spell (beat). A brand-new student's first
+// quest goes plant → fire → stone → storm first (the owner's suggested order).
+function pickMonster(qs, ar, beat) {
+  const hist = qs.mons || [], MONX = CB.MON_EL, elOf = k => MON_DEF[k].el;
+  if (P.mlvl <= 1 && hist.length < 4) { const want = ['shroom', 'imp', 'golem', 'harpy'][hist.length]; if (beat(want)) return want; }
+  const learnedEls = [...new Set(P.spells.map(id => SB.BY_ID[id]).filter(s => s && s.type === 'attack').map(s => s.el))];
+  const covered = new Set(hist.flatMap(k => MONX[elOf(k)].weak));
+  const missing = learnedEls.filter(el => !covered.has(el));
+  const last = hist.slice(-2).map(elOf), sameTwice = last.length === 2 && last[0] === last[1];
+  const ok = k => !(sameTwice && elOf(k) === last[0]);
+  const all = Object.keys(MON_DEF).filter(k => !MON_DEF[k].boss && beat(k) && ok(k));
+  const areaPool = ar.n.filter(k => beat(k) && ok(k)), visitPool = all.filter(k => !ar.n.includes(k));
+  const helps = visitPool.filter(k => missing.some(el => MONX[elOf(k)].weak.includes(el)));
+  // the normal stops still to come (this one included): when there are no more stops than missing elements, a visitor must cover one
+  const left = (qs.path || []).slice(qs.at || 0).filter(s => s[0] === 'm').length;
+  let pool;
+  if (missing.length && helps.length && missing.length >= left) pool = helps;
+  else if (Math.random() < CFG.VISITOR_SHARE && visitPool.length) pool = missing.length && helps.length ? helps : visitPool;
+  else pool = areaPool;
+  if (!pool.length) pool = areaPool.length ? areaPool : (all.length ? all : ar.n);
+  return rnd(pool);
 }
 function newEncounter() {   // the stop the wizard just walked to: a monster or a villager (or the boss / the festival hall)
   const qs = P.quest[G.quest]; ensurePath(G.quest);
@@ -3026,7 +3064,8 @@ function newEncounter() {   // the stop the wizard just walked to: a monster or 
   if (G.quest === 'battle') {   // a monster the student can beat with a learned spell (spec 03 §3.4); its HP follows the math level (spec 03 §3.1)
     const ar = AREA_MON[(qs.ch - 1) % 6], beat = k => CB.canBeat(MON_DEF[k].el, P.spells, P.mlvl);
     const bosses = Object.keys(MON_DEF).filter(k => MON_DEF[k].boss);
-    const mk = window.__forceMon || (boss ? (beat(ar.b) ? ar.b : rnd(bosses.filter(beat).length ? bosses.filter(beat) : bosses)) : rnd(ar.n.filter(beat).length ? ar.n.filter(beat) : ar.n));
+    const mk = window.__forceMon || (boss ? (beat(ar.b) ? ar.b : rnd(bosses.filter(beat).length ? bosses.filter(beat) : bosses)) : pickMonster(qs, ar, beat));
+    if (!boss && !window.__forceMon) (qs.mons = qs.mons || []).push(mk);   // the monsters met in this run (for the rules of spec 06 §6)
     const def = { ...MON_DEF[mk], key: mk }, isBoss = !!def.boss, g = wizLvl();
     // its abilities (spec 03 §4) by the wizard level, its HP by the math level (§3.1); the demo can force one ability
     const o = { g, boss: isBoss, el: def.el, learned: P.spells, mlvl: P.mlvl }, fa = window.__forceAb;
@@ -3988,7 +4027,7 @@ function openPack(onStart) {   // before a quest run: choose up to POUCH potions
   const render = () => {
     $('#packBody').innerHTML = `<p style="margin:0 0 6px">${t('pack_b', { n: pouchSize() })}</p>
       <p style="margin:0 0 8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>${t('pouch', { a: carried(), b: pouchSize() })}</b>
-        <button class="btn ghost" id="quickPack" style="padding:6px 12px" title="${t('quick_pack_d')}">${t('quick_pack')}</button></p>` +
+        <button class="btn" id="quickPack" style="padding:6px 12px" title="${t('quick_pack_d')}">${t('quick_pack')}</button></p>` +
       POTION_IDS.filter(id => (P.pot[id] || 0) + (P.carry[id] || 0) > 0).map(id => `<div class="packRow"><span class="packName"><span class="packBottle">${potionSVG(id)}<i>${POTIONS[id].em}</i></span> <b>${pBoth(id)}</b><small>${pDesc(id)}</small></span>
         <span class="packCtl"><button class="ib" data-id="${id}" data-d="-1" ${(P.carry[id] || 0) ? '' : 'disabled'}>➖</button><b class="packN">${P.carry[id] || 0}</b><button class="ib" data-id="${id}" data-d="1" ${(P.pot[id] || 0) && carried() < pouchSize() ? '' : 'disabled'}>➕</button>
         <small class="packHome">${t('at_home', { n: P.pot[id] || 0 })}</small></span></div>`).join('');
@@ -4006,6 +4045,7 @@ function openPack(onStart) {   // before a quest run: choose up to POUCH potions
 function renderPotBar() {
   const bar = $('#potBar'); if (!bar || !P) return;
   const ids = POTION_IDS.filter(id => (P.carry[id] || 0) > 0);
+  const lr = $('#lootRow'); if (lr) { lr.style.display = G.quest ? '' : 'none'; lr.innerHTML = G.quest ? lootBadge() : ''; }   // the satchel during a fight
   bar.style.display = ids.length ? '' : 'none';
   bar.innerHTML = ids.map(id => `<button class="potBtn" data-id="${id}" ${G.potUsed ? 'disabled' : ''} title="${pBoth(id)}: ${pDesc(id)}">${potionSVG(id)}<i class="potSym">${POTIONS[id].em}</i><b>×${P.carry[id]}</b></button>`).join('') +
     '';
@@ -4594,7 +4634,11 @@ const FORGE = { 1: { recipe: 'forge1', coins: 150 }, 2: { recipe: 'forge2', coin
 const verName = v => v === 2 ? t('legendary') : v === 1 ? t('epic') : '';
 const itemVer = s => (P.items && P.items[s]) || 0;
 function magicPic(slot, ver) {   // a little drawing of the item (grey when not made yet)
-  const c = ver === 2 ? '#ffd166' : ver === 1 ? '#4aa8ff' : '#8f8aa8', g = ver ? `<circle cx="20" cy="20" r="17" fill="${c}" opacity=".25"/>` : '';
+  const c = ver === 2 ? '#ffd166' : ver === 1 ? '#4aa8ff' : '#8f8aa8';
+  // legendary (spec 06 §5): a bigger, brighter gold halo that pulses slowly, with sparkles; epic keeps its soft blue halo
+  const g = ver === 2 ? `<circle cx="20" cy="20" r="19" fill="#ffd166" opacity=".3"><animate attributeName="r" values="16;20;16" dur="3.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".18;.45;.18" dur="3.2s" repeatCount="indefinite"/></circle>`
+    + [[5, 7], [34, 9], [30, 34]].map(([x, y], i) => `<text x="${x}" y="${y}" font-size="6" text-anchor="middle" fill="#fff6b0">✦<animate attributeName="opacity" values=".15;1;.15" dur="2.4s" begin="${i * .8}s" repeatCount="indefinite"/></text>`).join('')
+    : ver ? `<circle cx="20" cy="20" r="17" fill="${c}" opacity=".25"/>` : '';
   const body = slot === 'amulet' ? `<path d="M8 4 Q20 22 32 4" fill="none" stroke="#e0b84a" stroke-width="2"/><circle cx="20" cy="25" r="9" fill="${c}" stroke="#e0b84a" stroke-width="2.5"/><circle cx="17" cy="22" r="2.4" fill="#fff" opacity=".6"/>`
     : slot === 'staff' ? `<rect x="18" y="12" width="4" height="26" rx="2" fill="#7a4a21"/><circle cx="20" cy="9" r="7" fill="none" stroke="#e0b84a" stroke-width="2.4"/><polygon points="20,3 24,9 20,15 16,9" fill="${c}" stroke="#fff" stroke-width="1"/>`
       : `<rect x="3" y="15" width="34" height="9" rx="2" fill="#7a4f2a"/><rect x="14" y="12" width="12" height="15" rx="2.5" fill="#e0b84a" stroke="#b8860b" stroke-width="1"/><circle cx="20" cy="19.5" r="3.6" fill="${c}" stroke="#fff" stroke-width=".8"/>`;
@@ -5112,10 +5156,27 @@ function dropFor(source, rar) {
   const pool = (DROP[source] || DROP.folk);
   return pickIngredient(rar === 0 ? pool.common : rar === 1 ? pool.uncommon : RARE_POOL[rar]);
 }
+// "What I earned" (spec 06 §2): the quest run's own record, reset when a run starts. The satchel shows this run's items and coins only.
+const runRec = () => { const k = runOf(); if (!k) return null; const q = P.quest[k]; if (!q.run) q.run = { coins: 0, loot: {} }; return q.run; };
+const runItems = rr => rr ? Object.values(rr.loot).reduce((a, b) => a + b, 0) : 0;
+const lootPanelHtml = rr => {
+  if (!rr || !runItems(rr)) return `<p class="lootNone">${t('loot_none')}</p>`;
+  const groups = [4, 3, 2, 1, 0].map(r => { const ids = Object.keys(rr.loot).filter(id => ING[id] && ING[id].r === r); return ids.length ? `<div class="lootGrp"><small class="rarLbl">${rarity(r)}</small> ${ids.map(id => `${ingHtml(id)} ×${rr.loot[id]}`).join(' ')}</div>` : ''; }).join('');
+  return groups + `<p class="lootCoins">${t('loot_coins', { c: rr.coins })}</p>`;
+};
+const lootBadge = () => { const rr = runRec(), bounce = rr && rr.bounce; if (rr) rr.bounce = false;
+  return `<span class="lootWrap" id="lootWrap"><button class="lootBtn${bounce ? ' bounce' : ''}" id="lootBtn" aria-expanded="false" aria-label="${t('loot_title')}">🎒 <b>${runItems(rr)}</b></button><div class="lootPanel" role="dialog" aria-label="${t('loot_title')}"><b>${t('loot_title')}</b>${lootPanelHtml(rr)}</div></span>`; };
+const runSummary = () => { const rr = runRec() || P.quest[G.quest] && P.quest[G.quest].run; return rr ? `<p>${t('run_summary', { n: runItems(rr), c: rr.coins })}</p>` : ''; };
+document.addEventListener('click', e => {   // the satchel panel: a tap (or click) opens it, a tap elsewhere closes it; a mouse can also hover it
+  const b = e.target.closest('#lootBtn'), w = document.getElementById('lootWrap');
+  if (b && w) { w.classList.toggle('open'); b.setAttribute('aria-expanded', w.classList.contains('open')); return; }
+  if (w && !e.target.closest('#lootWrap')) { w.classList.remove('open'); const bb = document.getElementById('lootBtn'); if (bb) bb.setAttribute('aria-expanded', 'false'); }
+});
 function giveLoot(source, boss, mist) {   // call once, when the fight is won: the usual item (its rarity by the result), and herbs for the recipes (spec 04 §3.2, §6)
   const rar = rollRarity(boss, mist), id = dropFor(source, rar), coins = fightCoins(mist, boss, true);
   const herbs = (DROP[source] || DROP.folk).common, herb = herbs[Math.floor(Math.random() * herbs.length)], n = BR.dropUnits(P.mlvl);
   P.satchel[id] = (P.satchel[id] || 0) + 1; P.satchel[herb] = (P.satchel[herb] || 0) + n; P.coins = (P.coins || 0) + coins;
+  const rr = runRec(); if (rr) { rr.loot[id] = (rr.loot[id] || 0) + 1; rr.loot[herb] = (rr.loot[herb] || 0) + n; rr.coins += coins; rr.bounce = true; }
   const d = today(); if (P.coinDay.d !== d) P.coinDay = { d, c: 0 }; P.coinDay.c += coins;
   return { got: [id], herb, n, coins, bonus: coins > 0 && earlyBonus() };
 }const ingHtml = id => `<span class="ingChip r${ING[id].r}${ING[id].r === 4 ? " shine" : ""}" title="${rarity(ING[id].r)}">${ING[id].em} <b>${nameOf(ING[id])}</b></span>`;
@@ -5155,12 +5216,12 @@ function victory() {
   G.phase = 'done'; G.regen = 0; P.xp += bonus + perfect; const loot = giveLoot(G.mon.el, boss, G.mist);
   const done = advanceQuest(); saveSoon(true);
   modal(boss ? t('boss_def') : t('victory'),
-    t('defeated', { m: esc(G.group ? G.st.foes.map(monName).join(' + ') : monName(G.mon)), x: bonus }) + (perfect ? `<p>${t('xp_perfect', { x: perfect })}</p>` : '') + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
+    t('defeated', { m: esc(G.group ? G.st.foes.map(monName).join(' + ') : monName(G.mon)), x: bonus }) + (perfect ? `<p>${t('xp_perfect', { x: perfect })}</p>` : '') + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) + runSummary() : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
     [[done ? t('next_ch') : t('back_path'), nextRun], [t('back_map'), openMenu, true]]);
 }
 function knockout() {
-  G.phase = 'done'; sfx.bad(); restartQuest();
-  modal(t('ko_t'), t('ko_b'), [[t('start_again'), nextRun], [t('back_map'), openMenu, true]]);
+  G.phase = 'done'; sfx.bad(); const sum = runSummary() + `<p>${t('lost_keep')}</p>`; restartQuest();   // spec 06 §2.1: the run's summary; the coins of a lost run are kept
+  modal(t('ko_t'), t('ko_b') + sum, [[t('start_again'), nextRun], [t('back_map'), openMenu, true]]);
 }
 function villageFail() {
   sfx.bad(); restartQuest();
