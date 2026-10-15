@@ -67,7 +67,7 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
 .potBtn{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;background:#0003;color:#fff;border:2px solid #fff3;border-radius:12px;padding:3px 6px 2px;min-width:44px;cursor:pointer;transition:transform .15s}
 .potBtn:not(:disabled):hover{transform:translateY(-3px);border-color:var(--gold)}.potBtn:not(:disabled):active{transform:translateY(1px)}.potBtn:disabled{opacity:.4;cursor:default;filter:grayscale(.6)}
-.potSvg{width:24px;height:32px;filter:drop-shadow(0 2px 2px #0006)}.potSym{font-style:normal;font-size:.8rem;line-height:1}
+.potSvg{width:26px;height:35px;filter:drop-shadow(0 2px 2px #0006)}   /* the same bottle size as the pack screen */.potSym{font-style:normal;font-size:.8rem;line-height:1}
 .potBtn b{position:absolute;top:-4px;right:-4px;background:#000c;border-radius:8px;padding:0 5px;font-size:.7rem}
 .packBottle{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin-right:6px}.packBottle .potSvg{width:26px;height:35px}.packBottle i{font-style:normal;font-size:.9rem;line-height:1}
 .packBottle.sm .potSvg{width:20px;height:27px}.packBottle.sm i{font-size:.75rem}
@@ -204,11 +204,11 @@ body.peace .foeBody{font-size:6rem}
 .itemBtn{position:relative;font:inherit;color:#fff;background:#0004;border:2px solid #fff3;border-radius:14px;padding:3px 8px 3px 4px;display:flex;align-items:center;gap:2px;cursor:pointer}
 .itemBtn .magicSvg{width:38px;height:38px}.itemBtn .ibTxt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding-inline-end:4px}.itemBtn .ibTxt b{font-size:.9rem}.itemBtn .ibTxt small{font-size:.75rem;opacity:.9}
 .itemBtn.glow{border-color:#4aa8ff;box-shadow:0 0 12px #4aa8ff88;animation:itemGlow 2s ease-in-out infinite}.itemBtn.glow.v2{border-color:#ffd166;box-shadow:0 0 20px #ffd166cc;animation:legendPulse 3.2s ease-in-out infinite}@keyframes legendPulse{50%{box-shadow:0 0 30px #ffd166ee}}
-.lootRow{display:flex;justify-content:center;margin:4px 0}
+.lootSlot{margin-inline-start:18px;display:inline-flex}
 .lootWrap{position:relative;display:inline-block}
 .lootBtn{font:inherit;color:#fff;background:#0004;border:1px solid #fff4;border-radius:999px;padding:4px 12px;cursor:pointer}
 .lootBtn.bounce{animation:lootBounce .6s ease-out}@keyframes lootBounce{30%{transform:translateY(-6px) scale(1.12)}60%{transform:translateY(0) scale(.97)}}
-.lootPanel{display:none;position:absolute;z-index:30;top:calc(100% + 6px);inset-inline-start:0;min-width:220px;max-width:min(320px,86vw);background:#1b1340f2;border:1px solid #fff3;border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px #0008;text-align:start}
+.lootPanel{display:none;position:fixed;z-index:60;left:8px;top:8px;min-width:220px;max-width:min(320px,86vw);background:#1b1340f2;border:1px solid #fff3;border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px #0008;text-align:start}
 .lootWrap:hover .lootPanel,.lootWrap.open .lootPanel{display:block}
 .lootGrp{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}.lootCoins{margin:8px 0 0;font-weight:700}.lootNone{margin:6px 0 0;opacity:.8}
 @media (prefers-reduced-motion:reduce){.lootBtn.bounce{animation:none}}
@@ -635,7 +635,9 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 @keyframes bubble{50%{transform:scale(1.04);opacity:.7}}
 @keyframes snare{50%{transform:scaleY(1.15)}}
 @keyframes spinSlow{to{transform:rotate(360deg)}}
-.weakBadge{font-size:.78rem;margin-top:4px;background:#0006;border-radius:999px;padding:3px 10px;display:inline-block}
+.weakBadge{font-size:.78rem;margin-top:4px;background:#0006;border-radius:999px;padding:3px 10px;display:inline-flex;align-items:center;gap:4px}
+.ebIcon{font-size:1.05rem;margin-inline-end:2px}.ebChip{display:inline-flex;align-items:center;justify-content:center;min-width:1.6em;height:1.6em;border-radius:999px;font-size:.9rem;line-height:1}
+.ebChip.weakC{background:#e5484d}.ebChip.healC{background:#2fbf71}
 .heroHp{width:96px;height:9px;background:#0007;border-radius:6px;overflow:hidden;margin:2px auto 1px;border:1px solid #fff4}
 .heroHp i{display:block;height:100%;background:linear-gradient(90deg,#3ddc97,#7dffb0);transition:width .4s}
 .heroHp.low i{background:linear-gradient(90deg,#ff5d73,#ff9a8a)}
@@ -1017,7 +1019,6 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="side foe"><div id="foeName" class="small"></div><div class="hpbar"><i id="hpFill"></i></div><div class="hpbar armorBar" id="armorBar"><i></i></div><div class="foeWrap"><div class="aura" id="aura"></div><div class="foeBody" id="foeBody"></div></div></div>
   </div>
   <div class="potBar" id="potBar" style="display:none"></div>
-  <div class="lootRow" id="lootRow" style="display:none"></div>
   <div class="itemBar" id="itemBar" style="display:none"></div>
   <div class="panel card">
     <div class="craftPic" id="craftPic" style="display:none"></div>
@@ -1600,7 +1601,7 @@ const STR = {
   staff_no: ['🪄 The staff cannot banish a boss. It works on monsters.', '🪄 המטה לא יכול לגרש בוס. הוא עובד על מפלצות.'], staff_t: ['🪄 Use the staff of banishing?', '🪄 להשתמש במטה הגירוש?'],
   staff_b: ['<p>This monster disappears at once, and the path goes on. You get no coins or loot for it.</p><p class="small">You have {u} left in this quest.</p>', '<p>המפלצת הזאת נעלמת מיד, והדרך ממשיכה. לא מקבלים עליה מטבעות או שלל.</p><p class="small">נשארו לכם {u} במסע הזה.</p>'],
   banish: ['Banish it! 🪄', 'לגרש! 🪄'], gone_t: ['🪄 Gone!', '🪄 נעלם!'], gone_b: ['<p>Your staff sent it away. The path goes on.</p>', '<p>המטה שלכם שלח אותו משם. הדרך ממשיכה.</p>'],
-  back_path: ['Back to the path ▶', 'חזרה לדרך ◀'], banished: ['🪄 Banished! The path goes on.', '🪄 גורש! הדרך ממשיכה.'], fog_clear: ['🎗️ The fog clears! You can see the way ahead.', '🎗️ הערפל התפזר! אפשר לראות את הדרך.'],
+  back_path: ['Back to the path ▶', 'חזרה לדרך ◀'], continue_path: ['Continue the path ▶', 'המשך את הדרך ◀'], banished: ['🪄 Banished! The path goes on.', '🪄 גורש! הדרך ממשיכה.'], fog_clear: ['🎗️ The fog clears! You can see the way ahead.', '🎗️ הערפל התפזר! אפשר לראות את הדרך.'],
   amulet_t: ['🔮 Your amulet protects you!', '🔮 הקמע מגן עליכם!'], amulet_b: ['<p>You would have been knocked out, but the amulet keeps you going with 1 HP. Be careful now!</p>', '<p>כמעט הובסתם, אבל הקמע משאיר אתכם עם נקודת חיים אחת. היזהרו עכשיו!</p>'], keep_going: ['Keep going ▶', 'ממשיכים ◀'],
   // the shop
   unlock_caul1: ['the Power and Second chance potions', 'את שיקויי העוצמה וההזדמנות השנייה'], unlock_caul2: ['the Super potion', 'את שיקוי העל'], unlocks: ['Unlocks {x}', 'פותח {x}'],
@@ -2414,7 +2415,7 @@ function tutScreen() {
   $('#stage').className = 'stage el-fire'; setStageBg('f:peak'); setAura('fire'); $('#aura').style.display = '';
   $('#foeBody').className = 'foeBody art'; $('#foeBody').style.filter = 'drop-shadow(0 0 14px var(--aura)) drop-shadow(0 0 28px var(--aura)) drop-shadow(0 6px 8px #0008)';
   $('#foeBody').innerHTML = `<div class="mnWrap"><svg viewBox="0 0 140 140" aria-hidden="true">${MON_ART.MON.imp()}</svg></div>`;
-  const e = EL.fire; $('#mid').innerHTML = `<b>${t('tut_area')}</b><div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>`;
+  $('#mid').innerHTML = `<b>${t('tut_area')}</b>${elBadge('fire')}`;
   tutBars();
 }
 // cards: [expression, spell number]; the student picks one (a card shows only its problem, like in the game)
@@ -2850,7 +2851,7 @@ function buildPath(q) {
   const ord = []; for (let i = 0; i < n; i++) ord.push(village ? 's' + SITES.indexOf(pool[i % pool.length]) : 'm');
   const signs = shuffle([0, 1, 2, 3]), out = []; let specials = 0, si = 0;
   for (let i = 0; i < n; i++) {   // a special stop sits between two ordinary ones: never first, never two in a row
-    if (i >= 1 && i >= done + 1 && specials < 3 && Math.random() < .28) { const r = Math.random(); out.push(r < .4 ? 'r' : r < .7 ? 'c' : 'g' + signs[si++ % 4]); specials++; }
+    if (i >= 1 && i >= done + 1 && specials < 3 && Math.random() < .28) { const r = Math.random(); out.push(r < .5 ? 'r' : 'c'); specials++; }   // no signposts on the path (owner request): a rest or a chest
     out.push(ord[i]);
   }
   if (n >= 6 && specials < 4 && Math.random() < .35) out.push('r');   // sometimes a breather before the boss
@@ -2977,6 +2978,8 @@ function openJourney(q) {
   J.wizLen = null; J.fogF = null; J.revealIdx = qs.at || 0; saveSoon(true);
   show('journey'); jDraw(); jHud(); setTimeout(checkSpells, 400);   // spells opened by the last fight are celebrated back on the path
 }
+// After an encounter (owner request): the wizard walks on by itself to the next circle, and that encounter begins.
+function continuePath() { openJourney(G.quest); requestAnimationFrame(() => jWalk()); }
 function jWalk() {
   const qs = P.quest[J.q], at = qs.at || 0, nodes = jNodes(); if (J.busy || at >= nodes.length - 1) return;
   const i = at + 1, from = J.wizLen, to = J.ps[i * J.K].len, f0 = J.fogF, f1 = jFogTarget(i);
@@ -3204,10 +3207,13 @@ function drawScene() {
   }
   updateBars(); updateReward();
 }
+// The weakness badge (owner request): only signs. The element's own sign, then the elements it is weak to (red) and the ones that strengthen it (green).
+const elBadge = (el, hintsOff) => { const e = EL[el], chip = (ids, cls, what) => ids.map(w => `<span class="ebChip ${cls}" title="${what}" aria-label="${what}">${SB.ELEMENTS[w].em}</span>`).join('');
+  return `<div class="weakBadge" role="img" aria-label="${esc(e.label[0])}"><span class="ebIcon">${e.badge}</span>${hintsOff ? '' : chip(e.weak, 'weakC', 'weak to') + chip(e.heal, 'healC', 'strengthened by')}</div>`; };
 function fightHeader() {   // the monster's name and HP, the area, and the weakness badge (always visible, spec 00 §6)
   const e = EL[G.mon.el];
   $('#foeName').innerHTML = esc((G.mon.boss ? t('boss_pre') : '') + monName(G.mon)) + ` <small class="hpNum">${Math.max(0, G.mon.hp)}/${G.mon.max}</small>`;
-  const badge = P.manual === 'home' ? `<div class="weakBadge">${e.badge} ${tl(e.label)}</div>` : `<div class="weakBadge">${t('weak_badge', { badge: e.badge, label: tl(e.label), weak: e.weak.map(w => SB.ELEMENTS[w].em).join(' ') })}</div>`;   // the manual at home: no weakness hint
+  const badge = elBadge(G.mon.el, P.manual === 'home');   // the manual at home: no weakness hints
   $('#mid').innerHTML = `<b>${areaName(P.quest.battle.ch)}</b>${badge}` + (abTags().length ? `<div class="abTags">${abTags().join('')}</div>` : '');
 }
 // A language switch during a fight, brewing, forging or shopping: the same question and state, new words.
@@ -4027,7 +4033,7 @@ function openPack(onStart) {   // before a quest run: choose up to POUCH potions
   const render = () => {
     $('#packBody').innerHTML = `<p style="margin:0 0 6px">${t('pack_b', { n: pouchSize() })}</p>
       <p style="margin:0 0 8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>${t('pouch', { a: carried(), b: pouchSize() })}</b>
-        <button class="btn" id="quickPack" style="padding:6px 12px" title="${t('quick_pack_d')}">${t('quick_pack')}</button></p>` +
+        <button class="btn" id="quickPack" style="padding:6px 12px;background:#0004;color:#ffd166;border:2px solid #ffd166;box-shadow:none" title="${t('quick_pack_d')}">${t('quick_pack')}</button></p>` +
       POTION_IDS.filter(id => (P.pot[id] || 0) + (P.carry[id] || 0) > 0).map(id => `<div class="packRow"><span class="packName"><span class="packBottle">${potionSVG(id)}<i>${POTIONS[id].em}</i></span> <b>${pBoth(id)}</b><small>${pDesc(id)}</small></span>
         <span class="packCtl"><button class="ib" data-id="${id}" data-d="-1" ${(P.carry[id] || 0) ? '' : 'disabled'}>➖</button><b class="packN">${P.carry[id] || 0}</b><button class="ib" data-id="${id}" data-d="1" ${(P.pot[id] || 0) && carried() < pouchSize() ? '' : 'disabled'}>➕</button>
         <small class="packHome">${t('at_home', { n: P.pot[id] || 0 })}</small></span></div>`).join('');
@@ -4045,10 +4051,9 @@ function openPack(onStart) {   // before a quest run: choose up to POUCH potions
 function renderPotBar() {
   const bar = $('#potBar'); if (!bar || !P) return;
   const ids = POTION_IDS.filter(id => (P.carry[id] || 0) > 0);
-  const lr = $('#lootRow'); if (lr) { lr.style.display = G.quest ? '' : 'none'; lr.innerHTML = G.quest ? lootBadge() : ''; }   // the satchel during a fight
-  bar.style.display = ids.length ? '' : 'none';
+  bar.style.display = (ids.length || G.quest) ? '' : 'none';   // during a quest the satchel sits on this row, a little apart from the potions
   bar.innerHTML = ids.map(id => `<button class="potBtn" data-id="${id}" ${G.potUsed ? 'disabled' : ''} title="${pBoth(id)}: ${pDesc(id)}">${potionSVG(id)}<i class="potSym">${POTIONS[id].em}</i><b>×${P.carry[id]}</b></button>`).join('') +
-    '';
+    (G.quest ? `<span class="lootSlot">${lootBadge()}</span>` : '');
 }
 // A potion bottle drawn in the potion's own colour (with the symbol shown beneath it where it is used)
 const POTION_COL = { heart: '#ff4d6d', sound: '#3aa0ff', power: '#ff9f1c', second: '#b36bff', super: '#ffd54a', any: '#8be9d4' };
@@ -5167,9 +5172,12 @@ const lootPanelHtml = rr => {
 const lootBadge = () => { const rr = runRec(), bounce = rr && rr.bounce; if (rr) rr.bounce = false;
   return `<span class="lootWrap" id="lootWrap"><button class="lootBtn${bounce ? ' bounce' : ''}" id="lootBtn" aria-expanded="false" aria-label="${t('loot_title')}">🎒 <b>${runItems(rr)}</b></button><div class="lootPanel" role="dialog" aria-label="${t('loot_title')}"><b>${t('loot_title')}</b>${lootPanelHtml(rr)}</div></span>`; };
 const runSummary = () => { const rr = runRec() || P.quest[G.quest] && P.quest[G.quest].run; return rr ? `<p>${t('run_summary', { n: runItems(rr), c: rr.coins })}</p>` : ''; };
+// The panel is placed on screen (position: fixed) next to the satchel, so no part of the map can cover it.
+const placeLoot = w => { const b = w.querySelector('.lootBtn'), p = w.querySelector('.lootPanel'); if (!b || !p) return; const r = b.getBoundingClientRect(); p.style.left = Math.max(8, Math.min(r.left, innerWidth - 300)) + 'px'; p.style.top = Math.min(r.bottom + 6, innerHeight - 40) + 'px'; };
+document.addEventListener('mouseover', e => { const w = e.target.closest && e.target.closest('#lootWrap'); if (w) placeLoot(w); });
 document.addEventListener('click', e => {   // the satchel panel: a tap (or click) opens it, a tap elsewhere closes it; a mouse can also hover it
   const b = e.target.closest('#lootBtn'), w = document.getElementById('lootWrap');
-  if (b && w) { w.classList.toggle('open'); b.setAttribute('aria-expanded', w.classList.contains('open')); return; }
+  if (b && w) { placeLoot(w); w.classList.toggle('open'); b.setAttribute('aria-expanded', w.classList.contains('open')); return; }
   if (w && !e.target.closest('#lootWrap')) { w.classList.remove('open'); const bb = document.getElementById('lootBtn'); if (bb) bb.setAttribute('aria-expanded', 'false'); }
 });
 function giveLoot(source, boss, mist) {   // call once, when the fight is won: the usual item (its rarity by the result), and herbs for the recipes (spec 04 §3.2, §6)
@@ -5217,7 +5225,7 @@ function victory() {
   const done = advanceQuest(); saveSoon(true);
   modal(boss ? t('boss_def') : t('victory'),
     t('defeated', { m: esc(G.group ? G.st.foes.map(monName).join(' + ') : monName(G.mon)), x: bonus }) + (perfect ? `<p>${t('xp_perfect', { x: perfect })}</p>` : '') + lootHtml(loot) + (done ? t('chapter_done', { a: areaName(P.quest.battle.ch) }) + runSummary() : G.regen ? t('feel_stronger', { h: G.regen }) : ''),
-    [[done ? t('next_ch') : t('back_path'), nextRun], [t('back_map'), openMenu, true]]);
+    [[done ? t('next_ch') : t('continue_path'), done ? nextRun : continuePath], [t('back_map'), openMenu, true]]);
 }
 function knockout() {
   G.phase = 'done'; sfx.bad(); const sum = runSummary() + `<p>${t('lost_keep')}</p>`; restartQuest();   // spec 06 §2.1: the run's summary; the coins of a lost run are kept
