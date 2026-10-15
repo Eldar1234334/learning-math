@@ -716,3 +716,9 @@ The owner approved going live: `main` has the schools and roles (parts 1–8). D
 
 ## 🚀 The school kit live (2026-10-12)
 The owner approved going live: `main` has the school kit (the Admin screen's school code, one kit link per school), the clearer last step, numbers never reused, and the staff areas in the installed app.
+
+## Phase 13: small changes (the design session's spec 06, agreed with the owner; the spec stays local)
+
+### ⚡ Quick pack and treasure chests (test site)
+- **⚡ Quick pack** on the "Pack your potions" screen (spec 06 §1): the pouch empties to home, then one of each potion type in the potion order (Heart → Hint → Power → Second chance → Super), then more in rounds in the same order until the pouch is full (5, or 6 with the manual at home). The student can still change it with ➖ / ➕.
+- **Treasure chests** (§7): on a monster quest, a treasure stop is a drawn chest (wood with gold bands; closed ahead, open with a gold shine once reached), and the chest window's title shows it too. The village keeps its 🧺 basket.
