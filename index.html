@@ -84,6 +84,7 @@ body.peace .foeBody{font-size:6rem}
 .credit{text-align:center;opacity:.7;font-size:.82rem;line-height:1.4;margin:18px auto 8px;max-width:420px}.credit.small{font-size:.7rem;margin:10px auto 0}
 .wdPrev svg{height:210px;width:auto}.wdTabs{display:flex;gap:6px;justify-content:center;margin:8px 0}.wdTab{font:inherit;color:#fff;background:#fff1;border:2px solid #fff3;border-radius:12px;padding:6px 12px;cursor:pointer}.wdTab.on{border-color:var(--gold);background:#ffd16622}
 .wdLbl{font-weight:600;margin:10px 0 4px}.wdChips{display:flex;flex-wrap:wrap;gap:6px}
+.wdMagicRow{display:flex;align-items:center;gap:10px;border:1px solid #fff3;border-radius:12px;padding:8px 10px;margin-bottom:8px}.wdMagicRow .magicSvg{width:44px;height:44px;flex:none}.wdMagicName{flex:1;min-width:0}
 .wdChip{font:inherit;color:#fff;background:#0003;border:2px solid #fff3;border-radius:12px;padding:4px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-width:54px}.wdChip.on{border-color:var(--gold);background:#ffd16622}.wdChip.lock{opacity:.55}.wdChip small{font-size:.65rem}.wdEm{font-size:1.5rem;line-height:1.1}
 .sw.lockSw{opacity:.55;font-size:.9rem;display:inline-flex;align-items:center;justify-content:center}
 /* ----- Home: the hero's room (2.5D). One perspective room drawn in SVG; props are placed in scene units (1 unit = 1% of the scene width). --u is that unit. ----- */
@@ -813,6 +814,9 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="admcards" id="ownCards"></div>
   <div class="small center" id="ownHome" style="opacity:.85;margin:4px 0 10px"></div>
   <div class="card"><b>Schools</b><div class="tblwrap"><table id="ownTable"></table></div><div class="small" id="ownMsg" style="margin-top:6px"></div></div>
+  <div class="card"><b>🧪 Demo run</b>
+    <div class="small" style="opacity:.8;margin:4px 0 8px">Try the game as a pretend student: pick a level, jump to the workshop, shop or home, start a quest. Nothing is saved and no student is changed.</div>
+    <button class="btn ghost" id="ownDemo" style="padding:8px 14px">▶️ Start a demo run</button></div>
   <div class="card"><b>➕ New school</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">The school's Google account keeps all of the school's data (Google Workspace or Gmail; use the school's own account, not a teacher's personal one). With a school code, you get a school kit: one link for the school owner that sets everything up.</div>
     <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap">
@@ -965,7 +969,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <section id="wardrobe" class="screen" style="max-width:760px">
   <div class="top"><button class="ib" id="wdBack" data-tt="back_home_t">🏡</button><div class="grow"><div class="who" data-t="wd_title"></div><div class="small" data-t="wd_tip"></div></div><button class="btn" id="wdSave" data-t="wd_save"></button></div>
   <div class="card center" style="margin:8px auto"><div class="wdPrev" id="wdPrev"></div>
-    <div class="wdTabs"><button class="wdTab on" data-tab="robe" data-t="wd_tab_robe"></button><button class="wdTab" data-tab="face" data-t="wd_tab_face"></button><button class="wdTab" data-tab="acc" data-t="wd_tab_acc"></button></div>
+    <div class="wdTabs"><button class="wdTab on" data-tab="robe" data-t="wd_tab_robe"></button><button class="wdTab" data-tab="face" data-t="wd_tab_face"></button><button class="wdTab" data-tab="acc" data-t="wd_tab_acc"></button><button class="wdTab" data-tab="magic" data-t="wd_tab_magic"></button></div>
     <div id="wdBody" style="text-align:start"></div></div>
 </section>
 
@@ -1271,6 +1275,8 @@ const STR = {
   beard_none: ['No facial hair', 'בלי שיער פנים'], beard_mustache: ['Mustache', 'שפם'], beard_short: ['Short beard', 'זקן קצר'], beard_long: ['Long beard', 'זקן ארוך'],
   wd_title: ['🚪 Wardrobe', '🚪 ארון הבגדים'], wd_tip: ['Try things on, then save your look. Locked things are sold in the shop.', 'נסו בגדים ושמרו את המראה. דברים נעולים נמכרים בחנות.'], wd_save: ['Save look ✔', 'שמירת המראה ✔'],
   wd_tab_robe: ['👗 Robe', '👗 גלימה'], wd_tab_face: ['🧑 Skin & hair', '🧑 עור ושיער'], wd_tab_acc: ['🎩 Accessories', '🎩 אביזרים'],
+  wd_tab_magic: ['✨ Magic items', '✨ פריטים קסומים'], wd_magic_info: ['Your forged items. 👁️ shows or hides an item on your wizard. Its magic still works in quests.', 'הפריטים הקסומים שלכם. 👁️ מציג או מסתיר פריט על הקוסם. הקסם שלו פועל גם במסעות.'],
+  wd_magic_none: ['No magic items yet. Forge them in the workshop.', 'עדיין אין פריטים קסומים. מייצרים אותם בסדנה.'], wd_eye_on: ['On the hero', 'על הקוסם'], wd_eye_off: ['Hidden', 'מוסתר'],
   wd_robecol: ['Robe colour', 'צבע הגלימה'], wd_style: ['Robe style', 'סגנון הגלימה'], plain: ['plain', 'רגיל'], none: ['none', 'בלי'],
   slot_head: ['Head', 'ראש'], slot_face: ['Face', 'פנים'], slot_neck: ['Neck', 'צוואר'], slot_back: ['Back', 'גב'], slot_staff: ['Wand', 'שרביט'], slot_pet: ['Pet', 'חיית מחמד'], slot_aura: ['Glow', 'זוהר'],
   wd_lockcol: ['🔒 This robe colour is in the shop: 🪙 {p}', '🔒 צבע הגלימה הזה נמכר בחנות: 🪙 {p}'], wd_lock: ['🔒 This is in the shop: 🪙 {p}', '🔒 זה נמכר בחנות: 🪙 {p}'],
@@ -1761,8 +1767,11 @@ function heroSVG(g, color, skinIn, hairIn, look) {
   const MI = look.items || {}, V = s => MI[s] || 0, VC = { 1: '#4aa8ff', 2: '#ffd166' }, pulse = (r0, r1) => `<animate attributeName="r" values="${r0};${r1};${r0}" dur="2s" repeatCount="indefinite"/>`;
   const staffCrystal = V('staff') ? `<circle cx="98.5" cy="30" r="${V('staff') === 2 ? 15 : 12}" fill="${VC[V('staff')]}" opacity=".3">${pulse(V('staff') === 2 ? 13 : 10, V('staff') === 2 ? 17 : 14)}</circle><circle cx="98.5" cy="30" r="9" fill="none" stroke="${V('staff') === 2 ? '#e0b84a' : '#7a4a21'}" stroke-width="3"/><polygon points="98.5,21 104,30 98.5,39 93,30" fill="${VC[V('staff')]}" stroke="#fff" stroke-width="1.2"/>`
     : `<circle cx="98.5" cy="30" r="9" fill="none" stroke="#7a4a21" stroke-width="3"/><polygon points="98.5,22 103,30 98.5,38 94,30" fill="#ff7a7a" stroke="#ffd166" stroke-width="1"/>`;   // staff head: a crystal in a ring
-  const buckle = `<rect x="56" y="110.5" width="8" height="9" rx="1.5" fill="#e0b84a"/>` + (V('belt') ? `<circle cx="60" cy="115" r="6" fill="${VC[V('belt')]}" opacity=".3">${pulse(5, 8)}</circle><circle cx="60" cy="115" r="2.6" fill="${VC[V('belt')]}" stroke="#fff" stroke-width=".6"/>` : '');
-  const amuletSvg = V('amulet') ? `<circle cx="60" cy="102" r="${V('amulet') === 2 ? 14 : 11}" fill="${VC[V('amulet')]}" opacity=".3">${pulse(V('amulet') === 2 ? 12 : 9, V('amulet') === 2 ? 16 : 13)}</circle><circle cx="60" cy="102" r="4.8" fill="${VC[V('amulet')]}" stroke="#ffd166" stroke-width="1.6"/>`
+  // legendary (spec 06 §5): a bigger, brighter gold halo that pulses slowly, with three small sparkles. Epic keeps its calm blue halo.
+  const lg = (id, x, y, r) => V(id) === 2 ? `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffd166" opacity=".22"><animate attributeName="r" values="${r - 3};${r + 3};${r - 3}" dur="3.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".12;.36;.12" dur="3.2s" repeatCount="indefinite"/></circle>`
+    + [[-10, -8], [11, -6], [3, 11]].map(([dx, dy], i) => `<text x="${x + dx}" y="${y + dy}" font-size="6.5" text-anchor="middle" fill="#fff6b0">✦<animate attributeName="opacity" values=".15;1;.15" dur="2.4s" begin="${i * .8}s" repeatCount="indefinite"/></text>`).join('') : '';
+  const buckle = `<rect x="56" y="110.5" width="8" height="9" rx="1.5" fill="#e0b84a"/>` + (V('belt') === 2 ? lg('belt', 60, 115, 16) : '') + (V('belt') ? `<circle cx="60" cy="115" r="6" fill="${VC[V('belt')]}" opacity=".3">${pulse(5, 8)}</circle><circle cx="60" cy="115" r="2.6" fill="${VC[V('belt')]}" stroke="#fff" stroke-width=".6"/>` : '');
+  const amuletSvg = V('amulet') ? `${lg('amulet', 60, 102, 20)}<circle cx="60" cy="102" r="${V('amulet') === 2 ? 14 : 11}" fill="${VC[V('amulet')]}" opacity=".3">${pulse(V('amulet') === 2 ? 12 : 9, V('amulet') === 2 ? 16 : 13)}</circle><circle cx="60" cy="102" r="4.8" fill="${VC[V('amulet')]}" stroke="#ffd166" stroke-width="1.6"/>`
     : `<circle cx="60" cy="102" r="9" fill="#8a5cd6" opacity=".3"/><circle cx="60" cy="102" r="4.8" fill="#8a5cd6" stroke="#ffd166" stroke-width="1.6"/>`;
   const dark = shade(color, -45), mid = shade(color, -22), light = shade(color, 40), skin = skinIn || DEFAULT_SKIN, lum = lumOf(skin);
   const hairCol = hairIn || (f ? '#7a4a21' : '#f2f2f2');
@@ -1780,15 +1789,16 @@ function heroSVG(g, color, skinIn, hairIn, look) {
     + (has('ac_wings') ? `<g opacity=".92"><path d="M46 96 Q2 56 10 116 Q28 110 46 116 Z" fill="#fff" stroke="#cfe3ff" stroke-width="1.5"><animateTransform attributeName="transform" type="rotate" values="0 46 104;-7 46 104;0 46 104" dur="1.6s" repeatCount="indefinite"/></path><path d="M74 96 Q118 56 110 116 Q92 110 74 116 Z" fill="#fff" stroke="#cfe3ff" stroke-width="1.5"><animateTransform attributeName="transform" type="rotate" values="0 74 104;7 74 104;0 74 104" dur="1.6s" repeatCount="indefinite"/></path></g>` : '');
   const aura = has('ac_aura') ? [[14, 30], [104, 50], [10, 110], [108, 130], [28, 152], [90, 14], [60, -8]].map(([x, y], i) => `<text x="${x}" y="${y}" font-size="${9 + (i % 3) * 3}" text-anchor="middle" fill="#fff6b0"><animate attributeName="opacity" values="1;.1;1" dur="${1.2 + i * .3}s" repeatCount="indefinite"/>✦</text>`).join('') : '';
   const neck = (has('ac_scarf') ? `<path d="M44 80 Q60 90 76 80 L77 90 Q60 100 43 90Z" fill="#e74c3c"/><path d="M44 84 Q60 94 76 84" stroke="#fff" stroke-width="2" fill="none" opacity=".6"/><rect x="66" y="88" width="9" height="26" rx="3" fill="#e74c3c"/><rect x="66" y="98" width="9" height="3" fill="#fff" opacity=".6"/>` : '')
-    + (has('ac_necklace') ? `<path d="M47 84 Q60 98 73 84" stroke="#ffd166" stroke-width="2" fill="none"/><circle cx="60" cy="94" r="3.4" fill="#ffd166" stroke="#fff" stroke-width=".8"/>` : '')
+    + (has('ac_necklace') && !V('amulet') ? `<path d="M47 84 Q60 98 73 84" stroke="#ffd166" stroke-width="2" fill="none"/><circle cx="60" cy="94" r="3.4" fill="#ffd166" stroke="#fff" stroke-width=".8"/>` : '')
     + (has('ac_bow') ? `<path d="M60 86 L48 80 L48 92Z M60 86 L72 80 L72 92Z" fill="#ff4d6d"/><circle cx="60" cy="86" r="3" fill="#c2185b"/>` : '');
   const faceAcc = has('ac_glasses') ? `<circle cx="51" cy="50" r="7" fill="#9fe8ff" fill-opacity=".25" stroke="#222" stroke-width="1.4"/><circle cx="69" cy="50" r="7" fill="#9fe8ff" fill-opacity=".25" stroke="#222" stroke-width="1.4"/><path d="M58 50h4" stroke="#222" stroke-width="1.4"/>` : '';
   const head = (has('ac_band') ? `<path d="M30 36 Q60 46 90 36 L90 31 Q60 41 30 31Z" fill="#ff8fb1"/>` : '')
     + (has('ac_flower') ? `<g transform="translate(84 33)"><circle cx="0" cy="-4" r="3.2" fill="#ff8fb1"/><circle cx="4" cy="0" r="3.2" fill="#ff8fb1"/><circle cx="0" cy="4" r="3.2" fill="#ff8fb1"/><circle cx="-4" cy="0" r="3.2" fill="#ff8fb1"/><circle r="2.4" fill="#ffd166"/></g>` : '')
     + (has('ac_crown') ? `<path d="M48 30 L50 18 L55 25 L60 14 L65 25 L70 18 L72 30 Z" fill="#ffd166" stroke="#b8860b" stroke-width="1"/><circle cx="60" cy="24" r="1.8" fill="#e74c3c"/>` : '');
-  const head2 = has('ac_staff')
+  // one item per place (spec 06 §3, §4): a magic staff replaces the star wand; a crown replaces the basic hat; a magic amulet replaces a necklace
+  const head2 = has('ac_staff') && !V('staff')
     ? `<circle cx="98.5" cy="30" r="13" fill="#ffe08a" opacity=".35"><animate attributeName="r" values="11;15;11" dur="1.6s" repeatCount="indefinite"/></circle><path d="M98.5 17 L101.5 26 L110.5 26 L103.5 32 L106.5 41 L98.5 35 L90.5 41 L93.5 32 L86.5 26 L95.5 26Z" fill="#ffd166" stroke="#fff" stroke-width="1.5"/>`
-    : staffCrystal;
+    : lg('staff', 98.5, 30, 20) + staffCrystal;
   const pet = has('ac_parrot') ? `<text x="76" y="98" font-size="18">🦜</text>` : has('ac_dragon') ? `<text x="86" y="162" font-size="22">🐉</text>` : '';
   // facial hair (wizard) / long hair (witch)
   const stache = `<path d="M60 62 C54 58 47 59 44 63 C46 67 52 66 60 64 C68 66 74 67 76 63 C73 59 66 58 60 62Z" fill="${hairCol}"/>`;
@@ -1804,6 +1814,7 @@ function heroSVG(g, color, skinIn, hairIn, look) {
     : `<ellipse cx="60" cy="38" rx="35" ry="8" fill="${dark}"/><path d="M28 38 Q50 28 58 -4 Q62 -12 78 0 Q74 10 80 20 Q86 30 92 38 Z" fill="${color}"/><path d="M30 37 Q60 46 90 37 L90 32 Q60 41 30 32 Z" fill="#e0b84a"/><polygon points="60,16 62.6,22 69,22 64,26 66,32 60,28 54,32 56,26 51,22 57.4,22" fill="#ffd166"/>`;
   const vials = pots.slice(0, 5).map((id, k) => `<rect x="${44.8 + k * 6.4}" y="125" width="4.6" height="8" rx="2.2" fill="${POTION_COL[id] || '#999'}" stroke="#ffffff88" stroke-width=".5"/>`).join('');
   const strings = pots.slice(0, 5).map((id, k) => `M${47.1 + k * 6.4} 118 V125`).join(' ');
+  // a crown takes the place of the basic hat (spec 06 §3: no hat on a hat)
   return `<svg viewBox="0 -16 120 186" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${aura}${back}${hairBack}
    <ellipse cx="60" cy="160" rx="${f ? 36 : 34}" ry="5" fill="#000" opacity=".15"/>
    <rect x="96" y="38" width="5" height="120" rx="2" fill="#7a4a21"/>${head2}
@@ -1817,9 +1828,11 @@ function heroSVG(g, color, skinIn, hairIn, look) {
    <circle cx="60" cy="52" r="24" fill="${skin}"/>
    <ellipse cx="51" cy="50" rx="4.6" ry="5" fill="#fff"/><ellipse cx="69" cy="50" rx="4.6" ry="5" fill="#fff"/><circle cx="52" cy="51" r="2.6" fill="#2a2340"/><circle cx="70" cy="51" r="2.6" fill="#2a2340"/>
    <circle cx="43" cy="60" r="3.4" fill="${cheek}" opacity=".55"/><circle cx="77" cy="60" r="3.4" fill="${cheek}" opacity=".55"/><circle cx="60" cy="57" r="2.6" fill="${nose}"/>
-   <path d="M53 64 Q60 69 67 64" fill="none" stroke="${mouth}" stroke-width="2" stroke-linecap="round"/>${beard}${faceAcc}${brows}${lashes}${fringe}${hat}${head}${pet}</svg>`;
+   <path d="M53 64 Q60 69 67 64" fill="none" stroke="${mouth}" stroke-width="2" stroke-linecap="round"/>${beard}${faceAcc}${brows}${lashes}${fringe}${has('ac_crown') ? '' : hat}${head}${pet}</svg>`;
 }
-const heroOf = p => heroSVG(p.gender, p.color, p.skin, p.hair, { style: p.style, acc: p.acc, beard: p.beard, items: p.items, pots: typeof POTION_IDS === 'undefined' ? [] : POTION_IDS.filter(id => ((p.pot || {})[id] || 0) + ((p.carry || {})[id] || 0) > 0) });
+// spec 06 §4: a magic item can be hidden on the hero (👁️ off). Its effect in quests is not changed: only the drawing reads this.
+const shownItems = p => { const m = p.items || {}, s = p.showItem || {}; return { amulet: s.amulet === false ? 0 : (m.amulet || 0), staff: s.staff === false ? 0 : (m.staff || 0), belt: s.belt === false ? 0 : (m.belt || 0) }; };
+const heroOf = p => heroSVG(p.gender, p.color, p.skin, p.hair, { style: p.style, acc: p.acc, beard: p.beard, items: shownItems(p), pots: typeof POTION_IDS === 'undefined' ? [] : POTION_IDS.filter(id => ((p.pot || {})[id] || 0) + ((p.carry || {})[id] || 0) > 0) });
 // Villagers are people emoji: a skin-tone modifier goes right after the FIRST code point (before any zero-width joiner), e.g. 👩🏽‍🌾. Tones are dealt from a shuffled bag so they are evenly spread.
 const TONE_MODS = ['🏻', '🏼', '🏽', '🏾', '🏿'];
 const tonedEmoji = (e, k) => { const cp = [...e]; return cp[0] + TONE_MODS[k % 5] + cp.slice(1).join(''); };
@@ -2086,10 +2099,10 @@ function askLookOnce() {   // existing heroes: one friendly, skippable question
 let WD = null, wdTab = 'robe';
 const wdChip = (key, id, emo, on, locked, price, extra = '') => `<button class="wdChip ${on ? 'on' : ''} ${locked ? 'lock' : ''}" data-k="${key}" data-id="${id}">${emo}${locked ? `<small>🔒 ${price}</small>` : ''}${extra}</button>`;
 function openWardrobe() {
-  G.quest = null; WD = { color: P.color, style: P.style || null, skin: P.skin || DEFAULT_SKIN, hair: P.hair || null, beard: P.beard || 'short', acc: Object.assign({}, P.acc) }; wdTab = 'robe'; show('wardrobe'); drawWardrobe();
+  G.quest = null; WD = { color: P.color, style: P.style || null, skin: P.skin || DEFAULT_SKIN, hair: P.hair || null, beard: P.beard || 'short', acc: Object.assign({}, P.acc), showItem: Object.assign({ amulet: true, staff: true, belt: true }, P.showItem) }; wdTab = 'robe'; show('wardrobe'); drawWardrobe();
 }
 function drawWardrobe() {
-  $('#wdPrev').innerHTML = heroSVG(P.gender, WD.color, WD.skin, WD.hair, { style: WD.style, acc: WD.acc, beard: WD.beard });
+  $('#wdPrev').innerHTML = heroSVG(P.gender, WD.color, WD.skin, WD.hair, { style: WD.style, acc: WD.acc, beard: WD.beard, items: shownItems({ items: P.items, showItem: WD.showItem }) });
   document.querySelectorAll('.wdTab').forEach(b => b.classList.toggle('on', b.dataset.tab === wdTab));
   const sw = (list, cur, key) => list.map((c, i) => `<button class="sw ${c === cur ? 'sel' : ''}" data-k="${key}" data-i="${i}" style="background:${c}" aria-label="${key}"></button>`).join('');
   const dot = c => `<span class="wdDot" style="background:${c}"></span>`;
@@ -2099,13 +2112,20 @@ function drawWardrobe() {
       + `<div class="wdLbl">${t('wd_style')}</div><div class="wdChips">${wdChip('style', '', '<span class="wdEm">✖️</span>', !WD.style, false, 0, `<small>${t('plain')}</small>`)}${ROBE_STYLES.map(s => { const own = P.wd.includes(s[0]); return wdChip('style', s[0], `<span class="wdEm">${s[4]}</span>`, WD.style === s[1], !own, s[6]); }).join('')}</div>`;
   } else if (wdTab === 'face') {
     h = `<div class="wdLbl">${t('skin')}</div><div class="swatches">${sw(SKINS, WD.skin, 'skin')}</div><div class="wdLbl">${t('hair')}</div><div class="swatches">${sw(HAIRS, WD.hair || (P.gender === 'f' ? '#7a4a21' : '#f2f2f2'), 'hair')}</div>${P.gender === 'm' ? `<div class="wdLbl">${t('facial')}</div>` + beardRow(WD.beard) : ''}`;
+  } else if (wdTab === 'magic') {
+    const MAG = [['amulet', 'Amulet'], ['staff', 'Staff'], ['belt', 'Belt']];   // the owner's magic items (forged in the workshop)
+    h = `<p class="wdWhy" style="margin:0 0 8px">${t('wd_magic_info')}</p>` + (MAG.some(([s]) => itemVer(s)) ? MAG.filter(([s]) => itemVer(s)).map(([s, en]) => {
+      const on = WD.showItem[s] !== false;
+      return `<div class="wdMagicRow">${magicPic(s, itemVer(s))}<span class="wdMagicName"><b>${en}</b> <small>${verName(itemVer(s))}</small></span>
+        <button class="wdChip ${on ? 'sel' : ''}" data-eye="${s}" aria-pressed="${on}">👁️ ${t(on ? 'wd_eye_on' : 'wd_eye_off')}</button></div>`; }).join('') : `<p class="wdWhy">${t('wd_magic_none')}</p>`);
   } else {
-    h = SLOTS.map(slot => `<div class="wdLbl">${t('slot_' + slot)}</div><div class="wdChips">${wdChip('acc-' + slot, '', '<span class="wdEm">✖️</span>', !WD.acc[slot], false, 0, `<small>${t('none')}</small>`)}${ACCS.filter(a => a[1] === slot).map(a => { const own = P.wd.includes(a[0]); return wdChip('acc-' + slot, a[0], `<span class="wdEm">${a[4]}</span>`, WD.acc[slot] === a[0], !own, a[6]); }).join('')}</div>`).join('');
+    h = SLOTS.map(slot => `<div class="wdLbl">${t('slot_' + slot)}</div><div class="wdChips">${wdChip('acc-' + slot, '','<span class="wdEm">✖️</span>', !WD.acc[slot], false, 0, `<small>${t('none')}</small>`)}${ACCS.filter(a => a[1] === slot).map(a => { const own = P.wd.includes(a[0]); return wdChip('acc-' + slot, a[0], `<span class="wdEm">${a[4]}</span>`, WD.acc[slot] === a[0], !own, a[6]); }).join('')}</div>`).join('');
   }
   $('#wdBody').innerHTML = h;
 }
 $('#wardrobe').onclick = e => {
   const tab = e.target.closest('.wdTab'); if (tab) { wdTab = tab.dataset.tab; drawWardrobe(); return; }
+  const eye = e.target.closest('[data-eye]'); if (eye) { const s = eye.dataset.eye; WD.showItem[s] = WD.showItem[s] === false; drawWardrobe(); return; }
   const bbtn = e.target.closest('.beardBtn'); if (bbtn) { WD.beard = bbtn.dataset.beard; drawWardrobe(); return; }
   const sw = e.target.closest('.sw');
   if (sw) {
@@ -2123,7 +2143,7 @@ $('#wardrobe').onclick = e => {
     drawWardrobe(); return;
   }
 };
-$('#wdSave').onclick = () => { P.color = WD.color; P.style = WD.style; P.skin = WD.skin; P.hair = WD.hair; P.beard = WD.beard; P.acc = WD.acc; saveSoon(true); toast(t('wd_saved')); openHome(); };
+$('#wdSave').onclick = () => { P.color = WD.color; P.style = WD.style; P.skin = WD.skin; P.hair = WD.hair; P.beard = WD.beard; P.acc = WD.acc; P.showItem = WD.showItem; saveSoon(true); toast(t('wd_saved')); openHome(); };
 $('#wdBack').onclick = () => openHome();
 /* ----- install as an app (works from Chrome on Android) and keep a saved copy for offline play ----- */
 let installEvt = null;
@@ -5612,6 +5632,7 @@ $('#ownAdd').onclick = async () => {
 };
 $('#ownRefresh').onclick = () => ownOpen(true);
 $('#ownBack').onclick = () => show('login');
+$('#ownDemo').onclick = () => startDemo();   // the same demo as the teacher area's: a pretend student, nothing saved
 $('#admRefresh').onclick = async () => { try { const j = await adminCall('list'); if (j.ok) adminRender(j); } catch (e) { toast('Could not refresh'); } };
 $('#admSearch').oninput = () => { ADM.filter = $('#admSearch').value; adminTable(); };
 $('#admTable').onclick = e => {
