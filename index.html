@@ -1119,7 +1119,7 @@ const CFG = {
   RECENT: 10                // a problem is not repeated within this many turns (spec 01 §5.2)
 };
 const coinUnit = lv => CFG.COIN_BY_MLVL.reduce((u, [from, x]) => lv >= from ? x : u, 1);
-const HOME_GOOGLE_URL = '';   // 🏠 SpellQuest's own home counting service (tools/apps-script/counting): set after it is deployed; empty = no Google option yet
+const HOME_GOOGLE_URL = 'https://script.google.com/macros/s/AKfycbzuVls1MnXR4ZUWqLJCiScLvgt5lVl2UfFwzG9LGhM11DEeqIbMyCIA0kUfdRJ6rsvCzw/exec';   // 🏠 SpellQuest's own home counting service (tools/apps-script/counting): set after it is deployed; empty = no Google option yet
 const VERIFY_URL = 'https://script.google.com/macros/s/AKfycbzIuiBkwzq4w-qRp7npB04m6T61X2sOniQ3fP95A_amw0wuyjst3YHtJKfVGUAUL5As/exec';   // 🏠 play at home: the counting service SHARED with the reading game (owner decision, login spec §7); every call says game: 'math'. It sends and checks the e-mail code and counts people by a one-way fingerprint; the address is not kept.
 // (the installed app may be a school device too: school mode saves online in the app as well, login spec §4)
 
