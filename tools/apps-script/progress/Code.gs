@@ -47,7 +47,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 12;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 13;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -116,6 +116,7 @@ function doPost(e) {
   if (a === 'signin') return out({ ok: true, password: !!props().getProperty('ADMIN_KEY') && props().getProperty('PASSWORD_OFF') !== '1' });   // how staff sign in here (the game hides the password link when it is off)
   if (a === 'staffCode') return out(staffCode(b));
   if (a === 'staffVerify') return out(staffVerify(b));
+  if (a === 'googleSignIn') return out(googleSignIn(b));   // spec 07 G1: Google proves who you are; the staff list decides what you may do
   if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted', 'moveHome', 'undoMove', 'setSelfMove', 'setPassword'].includes(a)) return out(admin(a, b));
   if (String(b.token || '') !== token()) return out({ ok: false, error: 'school' });   // only devices set up with the school code
   if (a === 'load') return out(load(b));
@@ -477,4 +478,22 @@ function kitInfo() {
 const normUrl = u => String(u || '').trim().replace(/^https:\/\/script\.google\.com\/a\/macros\/[^/]+\/s\//, 'https://script.google.com/macros/s/');
 function webAppWorks(u) {   // does the link answer as this school's web app (deployed, for "Anyone")?
   try { const r = UrlFetchApp.fetch(u, { muteHttpExceptions: true, followRedirects: true }); return r.getResponseCode() === 200 && /SpellQuest Math progress/.test(r.getContentText()); } catch (x) { return false; }
+}
+
+/* ----- Sign in with Google (spec 07, G1): an extra option next to the e-mail code. Google proves the e-mail is real (the ID token is checked
+   with Google's token service: our client, the Google issuer, a verified e-mail, not expired). The staff list still decides access, on every
+   request, exactly as for the e-mail code. A Google account that is not on the staff list gets the same answer as a wrong e-mail. ----- */
+const GOOGLE_CLIENT_ID = '640886464751-p6vril25pp5g5ijqprcs9o44039let2u.apps.googleusercontent.com';   // public (it appears in the page); the secret is never used here
+function googleSignIn(b) {
+  if (over('google', [30, 600])) return { ok: false, error: 'busy' };
+  const cred = String(b.credential || ''); if (!cred || cred.length > 4000) return { ok: false, error: 'google' };
+  let info = {};
+  try { info = JSON.parse(UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(cred), { muteHttpExceptions: true }).getContentText() || '{}'); } catch (x) { return { ok: false, error: 'google' }; }
+  const verified = info.email_verified === true || info.email_verified === 'true';
+  if (info.aud !== GOOGLE_CLIENT_ID || !/^(https:\/\/)?accounts\.google\.com$/.test(String(info.iss || '')) || !verified || Number(info.exp) * 1000 < Date.now()) return { ok: false, error: 'google' };
+  const em = mailOf(info.email), s = staffOf(em);
+  if (!s) return { ok: true, staff: false };   // the same answer as a wrong e-mail: nobody learns who is staff
+  const sess = Utilities.getUuid() + Utilities.getUuid(); CacheService.getScriptCache().put('sess:' + sig(sess), em, SESSION);
+  logIt(em, 'signed in with Google', s.role);
+  return { ok: true, staff: true, sess, email: em, role: s.role };
 }

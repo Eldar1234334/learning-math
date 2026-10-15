@@ -10,6 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>SpellQuest: Math Adventure</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+Hebrew:wght@400;700&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
@@ -5340,10 +5341,27 @@ function adminAsk() {
   const field = (id, type, ph, extra) => `<input id="${id}" type="${type}" placeholder="${ph}" autocomplete="off" style="margin:6px 0" ${extra || ''}>`;
   const schoolPart = admKnowsSchool() ? `<p class="small" style="opacity:.85">🏫 ${esc(lsGet('mw_school_name') || 'This device\'s school')}</p>` : field('admSc', 'text', 'School code', 'autocapitalize="characters" maxlength="20"');
   modal(t('teacher_link'), schoolPart + '<p class="small">Your e-mail. If your school added it, a 6-digit code is sent to it.</p>' + field('admEm', 'email', 'teacher@example.com', 'autocomplete="email"') +
-    '<p class="small" style="margin-top:8px"><a href="#" id="admUsePass" class="adminLink" style="opacity:.8">Use the teacher password instead</a></p>',
+    '<p class="small" style="margin-top:8px"><a href="#" id="admUsePass" class="adminLink" style="opacity:.8">Use the teacher password instead</a></p>' + (CFG.GOOGLE_OPTION !== false ? '<p class="small" style="margin:10px 0 2px;text-align:center;opacity:.8">or</p><div id="gSignIn" style="display:flex;justify-content:center;min-height:44px"></div>' : ''),
     [['Send code', admSendCode], [t('cancel'), null, true]]);
+  setTimeout(renderGoogleSignIn, 80);
   setTimeout(() => { const i = $('#admSc') || $('#admEm'); if (i) i.focus(); const p = $('#admUsePass'); if (p) p.onclick = e => { e.preventDefault(); const sc = $('#admSc') ? $('#admSc').value : ''; $('#modal').classList.remove('on'); admAskPass(sc); }; }, 60);
   if (admKnowsSchool()) admPassWorks(schoolUrl()).then(on => { const p = $('#admUsePass'); if (!on && p) p.parentElement.style.display = 'none'; });   // a school that retired the password: no password link
+}
+// Sign in with Google (spec 07, G1): an extra option. Google proves the e-mail; the school's staff list decides access.
+const GOOGLE_CLIENT_ID = '640886464751-p6vril25pp5g5ijqprcs9o44039let2u.apps.googleusercontent.com';   // public
+function renderGoogleSignIn() {
+  const box = $('#gSignIn'); if (!box || !window.google || !google.accounts || !google.accounts.id) return;   // no Google script (offline): the e-mail code still works
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleSignIn, ux_mode: 'popup' });
+  google.accounts.id.renderButton(box, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', width: 260 });
+}
+async function onGoogleSignIn(resp) {   // the Google ID token goes to the school's script in a POST body (never in a URL)
+  try {
+    const url = await admFindSchool($('#admSc') ? $('#admSc').value.trim() : '');
+    const j = await post(url, { action: 'googleSignIn', credential: resp.credential });
+    if (!j.ok) { toast(j.error === 'busy' ? 'Too many tries. Wait a minute.' : 'Google could not confirm this account. Try again.'); return; }
+    if (!j.staff) { toast('This Google account is not on the staff list.'); return; }   // the same answer for everyone who is not staff
+    ADMSESS = j.sess; ADMKEY = null; ADMURL = url; $('#modal').classList.remove('on'); adminOpen();
+  } catch (x) { toast(typeof x === 'string' ? x : 'I could not reach the cloud. Please check the internet connection.'); }
 }
 async function admPassWorks(url) {   // false only when the school says its teacher password is off (older school scripts do not say: true)
   try { const j = await post(url, { action: 'signin' }); return !(j.ok && j.password === false); } catch (e) { return true; }
