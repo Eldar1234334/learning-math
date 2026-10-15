@@ -47,7 +47,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 13;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 14;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -116,8 +116,10 @@ function doPost(e) {
   if (a === 'signin') return out({ ok: true, password: !!props().getProperty('ADMIN_KEY') && props().getProperty('PASSWORD_OFF') !== '1' });   // how staff sign in here (the game hides the password link when it is off)
   if (a === 'staffCode') return out(staffCode(b));
   if (a === 'staffVerify') return out(staffVerify(b));
-  if (a === 'googleSignIn') return out(googleSignIn(b));   // spec 07 G1: Google proves who you are; the staff list decides what you may do
-  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted', 'moveHome', 'undoMove', 'setSelfMove', 'setPassword'].includes(a)) return out(admin(a, b));
+  if (a === 'googleSignIn') return out(googleSignIn(b));
+  if (a === 'signout') return out(signOut(b));
+  if (a === 'sensitiveCode') return out(sensitiveCode(b));   // spec 07 G1: Google proves who you are; the staff list decides what you may do
+  if (['me', 'list', 'student', 'approve', 'reject', 'deleteStudent', 'addClass', 'getCode', 'setCode', 'staffList', 'staffAdd', 'staffRemove', 'auditLog', 'approveMany', 'rejectMany', 'classAdd', 'classArchive', 'cardsPrinted', 'moveHome', 'undoMove', 'setSelfMove', 'setPassword'].includes(a)) return out(admin(a, b));
   if (String(b.token || '') !== token()) return out({ ok: false, error: 'school' });   // only devices set up with the school code
   if (a === 'load') return out(load(b));
   if (a === 'classes') return out({ ok: true, classes: classNames() });   // for the "I am new" class menu (class names only)
@@ -160,7 +162,8 @@ function save(b) {
 function admin(a, b) {
   const who = staffAuth(b); if (who.error) return { ok: false, error: who.error };
   const owner = who.role === 'owner', sees = cls => owner || who.classes === 'ALL' || who.classes.includes(clsKey(cls));   // a teacher sees only the classes they were given
-  if (['staffList', 'staffAdd', 'staffRemove', 'setCode', 'classAdd', 'classArchive', 'undoMove', 'setSelfMove', 'setPassword'].includes(a) && !owner) return { ok: false, error: 'owner' };
+  if (['staffList', 'staffAdd', 'staffRemove', 'setCode', 'classAdd', 'classArchive', 'undoMove', 'setSelfMove', 'setPassword', 'auditLog'].includes(a) && !owner) return { ok: false, error: 'owner' };
+  if (a === 'auditLog') return { ok: true, rows: auditRows(200) };
   if (a === 'me') return { ok: true, email: who.email, role: who.role, classes: who.classes };
   if (a === 'staffList') return { ok: true, staff: staffRows().map(s => ({ email: s.email, role: s.role, classes: s.classes, added: s.added })), owner: ownerEmail() };
   const sh = students(), id = cleanId(b.id);
@@ -175,22 +178,25 @@ function admin(a, b) {
   if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '', selfMove: props().getProperty('SELF_MOVE') === '1', password: !!props().getProperty('ADMIN_KEY') && props().getProperty('PASSWORD_OFF') !== '1' };
   if (a === 'setPassword') {   // retire the old single teacher password (schools spec §11.8): only someone signed in by e-mail can turn it off, so nobody is locked out
     if (!b.on && !b.sess) return { ok: false, error: 'email' };
+    if (!b.on && !sensitiveOK(b, who.email)) return { ok: false, error: 'confirm' };   // spec 07 §3: a sensitive change needs the e-mailed code
     props().setProperty('PASSWORD_OFF', b.on ? '0' : '1'); logIt(who.email, 'teacher password', b.on ? 'on' : 'off'); return { ok: true, password: !!b.on && !!props().getProperty('ADMIN_KEY') };
   }
   if (a === 'setSelfMove') { props().setProperty('SELF_MOVE', b.on ? '1' : '0'); logIt(who.email, 'students may move their wizard home', b.on ? 'on' : 'off'); return { ok: true, selfMove: !!b.on }; }
+  if (a === 'setCode' && !sensitiveOK(b, who.email)) return { ok: false, error: 'confirm' };   // spec 07 §3: the school code needs the e-mailed code
   if (a === 'setCode') { const code = normCode(b.code); if (code.length < 4 || code.length > 20) return { ok: false, error: 'code' }; const reg = toRegistry({ action: 'schoolCode', code }); if (reg && !reg.ok) return { ok: false, error: reg.error === 'taken' ? 'taken' : 'registry' }; props().setProperty('SCHOOL_CODE', code); logIt(who.email, 'school code changed', ''); return { ok: true, code }; }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     if (a === 'staffAdd') {
       const em = mailOf(b.email), role = b.role === 'owner' ? 'owner' : 'teacher', cls = b.classes === 'ALL' ? 'ALL' : String(b.classes || '').split(',').map(clsKey).filter(Boolean).slice(0, 30).join(',');
       if (!EMAIL_RE.test(em) || (!cls && role === 'teacher')) return { ok: false, error: 'bad' };
-      const st = staffSheet(), f = staffRows().find(s => s.email === em), rowVals = [em, role, role === 'owner' ? 'ALL' : cls, new Date().toISOString(), who.email];
-      if (f) st.getRange(f.row, 1, 1, 5).setValues([rowVals]); else st.appendRow(rowVals);
+      if (role === 'owner') return { ok: false, error: 'one-owner' };   // spec 07 §4: exactly one owner per school (the account that runs this script)
+      const st = staffSheet(), f = staffRows(true).find(s => s.email === em), rowVals = [em, role, cls, new Date().toISOString(), who.email, 'yes', f ? f.lastLogin : ''];
+      if (f) st.getRange(f.row, 1, 1, 7).setValues([rowVals]); else st.appendRow(rowVals);
       logIt(who.email, f ? 'staff changed' : 'staff added', em + ' ' + role + ' ' + rowVals[2]); return { ok: true };
     }
     if (a === 'staffRemove') {   // their sessions end at once: every call checks the Staff tab again
-      const em = mailOf(b.email), f = staffRows().find(s => s.email === em); if (!f) return { ok: false, error: 'not found' };
-      staffSheet().deleteRow(f.row); logIt(who.email, 'staff removed', em); return { ok: true };
+      const em = mailOf(b.email), f = staffRows(true).find(s => s.email === em); if (!f || !f.active) return { ok: false, error: 'not found' };
+      staffSheet().getRange(f.row, 6).setValue('no'); logIt(who.email, 'staff removed', em); return { ok: true };   // kept in the sheet (active "no"), so it can be undone and is in the log
     }
     if (a === 'cardsPrinted') {   // the login cards of these students were printed ("cards for new students only" leaves them out next time)
       const ids = (Array.isArray(b.ids) ? b.ids : []).map(cleanId).filter(Boolean).slice(0, 500), have = cardsPrinted(), cs = cardSheet(), now = new Date().toISOString();
@@ -283,11 +289,12 @@ const mailOf = s => String(s || '').trim().toLowerCase().slice(0, 80);
 const clsKey = s => String(s || '').trim().toUpperCase().replace(/\s+/g, '');
 const SESSION = 21600;   // 6 hours (the longest the cache keeps anything)
 function ownerEmail() { try { return mailOf(Session.getEffectiveUser().getEmail()); } catch (x) { return ''; } }   // the Google account that runs this script owns the school
-const staffSheet = () => sheet('Staff', ['email', 'role (owner/teacher)', 'classes (comma list or ALL)', 'added', 'added by']);
-function staffRows() {
+const staffSheet = () => sheet('Staff', ['email', 'role (owner/teacher)', 'classes (comma list or ALL)', 'added', 'added by', 'active (yes/no)', 'last login']);   // spec 07 §4: removing = active "no", never a hard delete
+function staffRows(all) {   // the active staff (all = also the removed ones, for the owner's list)
   const sh = staffSheet(), n = sh.getLastRow(); if (n < 2) return [];
-  return sh.getRange(2, 1, n - 1, 5).getValues().map((r, i) => ({ row: i + 2, email: mailOf(r[0]), role: r[1] === 'owner' ? 'owner' : 'teacher', classes: String(r[2]).trim().toUpperCase() === 'ALL' ? 'ALL' : String(r[2]).split(',').map(clsKey).filter(Boolean), added: String(r[3] || '') })).filter(s => s.email);
+  return sh.getRange(2, 1, n - 1, 7).getValues().map((r, i) => ({ row: i + 2, email: mailOf(r[0]), role: r[1] === 'owner' ? 'owner' : 'teacher', classes: String(r[2]).trim().toUpperCase() === 'ALL' ? 'ALL' : String(r[2]).split(',').map(clsKey).filter(Boolean), added: String(r[3] || ''), active: String(r[5] || 'yes').trim().toLowerCase() !== 'no', lastLogin: String(r[6] || '') })).filter(s => s.email && (all || s.active));
 }
+function touchStaff(em) { try { const s = staffRows(true).find(x => x.email === em); if (s) staffSheet().getRange(s.row, 7).setValue(new Date().toISOString().slice(0, 10)); } catch (x) {} }
 function staffOf(em) {   // { email, role, classes } or null
   em = mailOf(em); if (!em) return null;
   if (em === ownerEmail()) return { email: em, role: 'owner', classes: 'ALL' };
@@ -329,7 +336,30 @@ function staffVerify(b) {
   if (!/^\d{6}$/.test(code) || sig(code + ':' + em) !== parts[0]) { c.put(k, parts[0] + '|' + (tries + 1), 600); return { ok: false, error: 'wrong' }; }
   c.remove(k); const s = staffOf(em); if (!s) return { ok: false, error: 'wrong' };
   const sess = Utilities.getUuid() + Utilities.getUuid(); c.put('sess:' + sig(sess), em, SESSION);
-  logIt(em, 'signed in', s.role); return { ok: true, sess, email: em, role: s.role };
+  logIt(em, 'signed in', s.role); touchStaff(em); return { ok: true, sess, email: em, role: s.role };
+}
+/* ----- sensitive changes (spec 07 §3, decided by the owner): changing the school code or turning the teacher password off asks for a
+   6-digit code, sent by e-mail to the owner's own address (10 minutes, once, 5 tries). ----- */
+function sensitiveCode(b) {
+  const who = staffAuth(b); if (who.error || who.role !== 'owner' || !who.email || who.email === 'teacher password') return { ok: false, error: 'owner' };
+  if (over('sens:' + sig(who.email), [5, 3600])) return { ok: false, error: 'busy' };
+  const code = String(100000 + Math.floor(Math.random() * 900000));
+  CacheService.getScriptCache().put('sens:' + sig(who.email), sig(code + ':s:' + who.email) + '|0', 600);
+  try { MailApp.sendEmail({ to: who.email, name: 'SpellQuest Math', subject: 'SpellQuest: confirm a sensitive change: ' + code, body: 'Your code is ' + code + '. It works for 10 minutes, once.\n\nSomeone asked to change the school code or to turn off the teacher password. If that was not you, ignore this e-mail.' }); }
+  catch (x) { return { ok: false, error: 'mail' }; }
+  logIt(who.email, 'confirmation code sent', 'sensitive change'); return { ok: true };
+}
+function sensitiveOK(b, email) {
+  const c = CacheService.getScriptCache(), k = 'sens:' + sig(email), rec = c.get(k); if (!rec) return false;
+  const parts = rec.split('|'), tries = num(parts[1]); if (tries >= 5) { c.remove(k); return false; }
+  if (sig(String(b.confirm || '').trim() + ':s:' + email) !== parts[0]) { c.put(k, parts[0] + '|' + (tries + 1), 600); return false; }
+  c.remove(k); return true;
+}
+function signOut(b) { if (b.sess) { const em = CacheService.getScriptCache().get('sess:' + sig(b.sess)); CacheService.getScriptCache().remove('sess:' + sig(b.sess)); if (em) logIt(em, 'signed out', ''); } return { ok: true }; }
+function auditRows(limit) {   // the Log tab, newest first: who did what, when (spec 07 §6: owner sees its own school's log)
+  const sh = logSheet(), n = sh.getLastRow(); if (n < 2) return [];
+  const from = Math.max(2, n - limit + 1), v = sh.getRange(from, 1, n - from + 1, 4).getValues();
+  return v.map(r => ({ when: String(r[0]), who: String(r[1]), what: String(r[2]), detail: String(r[3]) })).reverse();
 }
 function authorize() { MailApp.getRemainingDailyQuota(); staffSheet(); logSheet(); }   // run once from the editor after this update: e-mail permission and the new tabs
 
@@ -491,9 +521,9 @@ function googleSignIn(b) {
   try { info = JSON.parse(UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(cred), { muteHttpExceptions: true }).getContentText() || '{}'); } catch (x) { return { ok: false, error: 'google' }; }
   const verified = info.email_verified === true || info.email_verified === 'true';
   if (info.aud !== GOOGLE_CLIENT_ID || !/^(https:\/\/)?accounts\.google\.com$/.test(String(info.iss || '')) || !verified || Number(info.exp) * 1000 < Date.now()) return { ok: false, error: 'google' };
-  const em = mailOf(info.email), s = staffOf(em);
+  const em = mailOf(info.email), s = staffOf(em); if (over('g:' + sig(em), [10, 600])) return { ok: false, error: 'busy' };   // per account: a few tries a minute
   if (!s) return { ok: true, staff: false };   // the same answer as a wrong e-mail: nobody learns who is staff
   const sess = Utilities.getUuid() + Utilities.getUuid(); CacheService.getScriptCache().put('sess:' + sig(sess), em, SESSION);
-  logIt(em, 'signed in with Google', s.role);
+  logIt(em, 'signed in with Google', s.role); touchStaff(em);
   return { ok: true, staff: true, sess, email: em, role: s.role };
 }

@@ -803,7 +803,6 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
       <input id="admStaffEm" type="email" maxlength="80" placeholder="Teacher's e-mail" style="max-width:240px;padding:8px;font-size:1rem">
       <input id="admStaffCls" type="text" maxlength="120" placeholder="Classes, e.g. 3A, 3B" style="max-width:180px;padding:8px;font-size:1rem">
       <label class="small"><input type="checkbox" id="admStaffAll"> All classes</label>
-      <label class="small"><input type="checkbox" id="admStaffOwner"> Also a school owner</label>
       <button class="btn" id="admStaffAdd" style="padding:8px 14px">➕ Add teacher</button></div>
     <div class="small" id="admStaffMsg" style="margin-top:6px"></div></div>
   <div class="card" id="admCodeCard"><b>🔑 School code</b>
@@ -812,6 +811,9 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <label class="small" style="display:block;margin-top:10px"><input type="checkbox" id="admSelfMove"> Students may move their own wizard to play at home (from the hero menu). When a school's access ends, they always can.</label>
     <label class="small" style="display:block;margin-top:8px"><input type="checkbox" id="admPassOn"> The old teacher password still opens this area. Turn it off once everyone signs in by e-mail (only possible when you signed in by e-mail).</label></div>
   </div>
+  <div class="card" id="admLogCard"><b>📜 Log</b> <small style="opacity:.75">who did what, and when</small>
+    <div class="row" style="margin-top:8px"><button class="btn ghost" id="admLogBtn" style="padding:6px 12px">Show the log</button></div>
+    <div id="admLog" class="small" style="margin-top:8px;max-height:320px;overflow:auto"></div></div>
   <div class="card" id="admDemoCard"><b>🧪 Demo run</b><p class="small" style="margin:6px 0;opacity:.85">Try the game as a pretend student: pick any level, jump to the workshop, shop or home, start a quest, give yourself items. Nothing is saved and no student is changed.</p><button class="btn" id="admDemo">▶ Start a demo run</button></div>
 </section>
 
@@ -826,6 +828,9 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   <div class="admcards" id="ownCards"></div>
   <div class="small center" id="ownHome" style="opacity:.85;margin:4px 0 10px"></div>
   <div class="card"><b>Schools</b><div class="tblwrap"><table id="ownTable"></table></div><div class="small" id="ownMsg" style="margin-top:6px"></div></div>
+  <div class="card"><b>📜 Log</b>
+    <div class="row" style="margin:6px 0"><button class="btn ghost" id="ownLogBtn" style="padding:8px 14px">Show the log</button></div>
+    <div id="ownLog" class="small" style="max-height:300px;overflow:auto"></div></div>
   <div class="card"><b>🧪 Demo run</b>
     <div class="small" style="opacity:.8;margin:4px 0 8px">Try the game as a pretend student: pick a level, jump to the workshop, shop or home, start a quest. Nothing is saved and no student is changed.</div>
     <button class="btn ghost" id="ownDemo" style="padding:8px 14px">▶️ Start a demo run</button></div>
@@ -5434,7 +5439,7 @@ $('#admStaff').onclick = e => {
     [['Remove', async () => { try { const r = await adminCall('staffRemove', { email: b.dataset.rm }); if (!r.ok) throw 0; admLoadStaff(); toast('Removed'); } catch (x) { toast('Could not remove. Try again.'); } }], ['Cancel', null, true]]);
 };
 $('#admStaffAdd').onclick = async () => {
-  const email = $('#admStaffEm').value.trim(), all = $('#admStaffAll').checked, classes = all ? 'ALL' : $('#admStaffCls').value.trim(), role = $('#admStaffOwner').checked ? 'owner' : 'teacher', m = $('#admStaffMsg');
+  const email = $('#admStaffEm').value.trim(), all = $('#admStaffAll').checked, classes = all ? 'ALL' : $('#admStaffCls').value.trim(), role = 'teacher', m = $('#admStaffMsg');   // spec 07 §4: one owner per school (the account that runs the school's script); this form adds teachers
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { m.textContent = 'Type the teacher\'s e-mail.'; return; }
   if (role === 'teacher' && !classes) { m.textContent = 'Type their classes (for example 3A, 3B) or tick "All classes".'; return; }
   try { const r = await adminCall('staffAdd', { email, role, classes }); if (!r.ok) throw 0; m.textContent = `✅ ${email} can now sign in to the teacher area with an e-mail code.`; $('#admStaffEm').value = ''; $('#admStaffCls').value = ''; admLoadStaff(); }
@@ -5547,8 +5552,9 @@ async function admLoadCode() { try { const c = await adminCall('getCode'); $('#a
 $('#admPassOn').onchange = async e => {   // schools spec §11.8: retire the old single teacher password
   const on = e.target.checked;
   if (!on && !ADMSESS) { e.target.checked = true; toast('Sign in with your e-mail first, then turn the password off'); return; }
-  const go = async () => { try { const r = await adminCall('setPassword', { on }); if (!r.ok) throw 0; e.target.checked = !!r.password; toast(on ? 'The teacher password works again' : 'The teacher password is off: staff sign in by e-mail'); } catch (x) { e.target.checked = !on; toast('Could not change. Try again.'); } };
-  if (on) go(); else modal('Turn off the teacher password', '<p>After this, the teacher area opens only with an e-mail code, for the school owner and the teachers in 👩‍🏫 Teachers. You can turn it on again here.</p>', [['Turn it off', go], ['Cancel', () => { e.target.checked = true; }, true]]);
+  if (on) { try { const r = await adminCall('setPassword', { on: true }); if (!r.ok) throw 0; e.target.checked = !!r.password; toast('The teacher password works again'); } catch (x) { e.target.checked = false; toast('Could not change. Try again.'); } return; }
+  e.target.checked = true;   // stays ticked until the e-mailed code is confirmed
+  sensitiveAsk('turn off the teacher password (after this, staff sign in only by e-mail)', c => adminCall('setPassword', { on: false, confirm: c }).then(r => { if (r.ok) { e.target.checked = !!r.password; toast('The teacher password is off: staff sign in by e-mail'); } return r; }));
 };
 $('#admSelfMove').onchange = async e => { try { const r = await adminCall('setSelfMove', { on: e.target.checked }); if (!r.ok) throw 0; toast(r.selfMove ? 'Students can now move their wizard home' : 'Only teachers move students home'); } catch (x) { e.target.checked = !e.target.checked; toast('Could not change. Try again.'); } };
 /* ----- move to home (schools spec §6.4): a hand-over file, or the file e-mailed to a parent; the child's device turns the hero into a home hero ----- */
@@ -5583,8 +5589,16 @@ $('#admMoved').onclick = async e => {
 };
 $('#admCodeSet').onclick = async () => {
   const code = $('#admCodeNew').value.trim(); if (code.length < 4) { toast('The code needs at least 4 letters or digits'); return; }
-  try { const r = await adminCall('setCode', { code }); if (!r.ok) throw 0; $('#admCodeNow').textContent = r.code; $('#admCodeNew').value = ''; toast('School code changed'); } catch (x) { toast('Could not change the code'); }
+  sensitiveAsk('change the school code', c => adminCall('setCode', { code, confirm: c }).then(r => { if (r.ok) { $('#admCodeNow').textContent = r.code; $('#admCodeNew').value = ''; toast('School code changed'); } return r; }));
 };
+// spec 07 §3 (decided by the owner): a sensitive change asks for a 6-digit code, e-mailed to the owner's own address.
+function sensitiveAsk(what, perform) {
+  adminCall('sensitiveCode').then(j => {
+    if (!j.ok) { toast(j.error === 'busy' ? 'Too many tries. Wait a while.' : 'Could not send the code. Try again.'); return; }
+    modal('🔐 Confirm', `<p>A 6-digit code was sent to your e-mail. It is needed to ${esc(what)}. It works for 10 minutes, once.</p><input id="senCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="margin:6px 0">`,
+      [['Confirm', async () => { try { const r = await perform($('#senCode').value.trim()); if (!r.ok) throw r.error; } catch (x) { toast(x === 'confirm' ? 'That code is not right, or it has expired. Ask for a new one.' : 'Could not change it. Try again.'); } }], [t('cancel'), null, true]]);
+  }).catch(() => toast('I could not reach the cloud.'));
+}
 const agoText = d => d === 0 ? 'today' : d === 1 ? 'yesterday' : d >= 9999 ? 'never' : d + ' days ago';
 function adminTable() {   // the students list (schools spec §6.1): class filter, search, sort, tick boxes, and "Played today: N of M" for what is shown
   const cols = [['nick', 'Student'], ['cls', 'Class'], ['tier', 'Level'], ['wiz', 'Wizard'], ['accuracy', 'Accuracy'], ['answers', 'Answers'], ['minutes', 'Minutes'], ['coins', 'Coins'], ['craftAcc', 'Crafting'], ['restarts', 'Restarts'], ['last', 'Last played']];
@@ -5643,7 +5657,12 @@ async function adminStudent(id) {
   } catch (e) { box.innerHTML = '<p>Could not load this student. ' + esc(e.message || '') + '</p>'; }
 }
 $('#adminLink').onclick = e => { e.preventDefault(); adminAsk(); };
-$('#admBack').onclick = () => { ADMKEY = ADMSESS = ADMME = null; ADMURL = ''; show('login'); };
+$('#admBack').onclick = () => { if (ADMSESS && ADMURL) post(ADMURL, { action: 'signout', sess: ADMSESS }).catch(() => {}); ADMKEY = ADMSESS = ADMME = null; ADMURL = ''; show('login'); };   // spec 07 §12.5: the session stops working at sign-out
+$('#admLogBtn').onclick = async () => {   // spec 07 §6: the owner sees its own school's log
+  try { const j = await adminCall('auditLog'); if (!j.ok) throw 0;
+    $('#admLog').innerHTML = j.rows.map(r => `<div style="border-top:1px solid #fff2;padding:5px 0"><small style="opacity:.7">${esc(r.when.slice(0, 16).replace('T', ' '))}</small> <b>${esc(r.who)}</b> · ${esc(r.what)}${r.detail ? ' · ' + esc(r.detail) : ''}</div>`).join('') || '<small>Nothing yet.</small>';
+  } catch (x) { toast('Could not load the log. Try again.'); }
+};
 
 /* ====================== 🔑 ADMIN (the game's owner): the Admin's school list (tools/apps-script/registry/Code.gs) ======================
    Separate from the teacher area: an e-mail code (only the Admin's e-mail gets one), then a session token kept in memory only.
@@ -5707,7 +5726,7 @@ $('#ownTable').onclick = e => {
   if (s) { const go = async () => { try { const r = await ownCall('setStatus', { id: s.dataset.id, status: s.dataset.st }); if (!r.ok) throw 0; ownOpen(); } catch (x) { toast('Could not change it. Try again.'); } };
     if (s.dataset.st === 'suspended') modal('⏸ Suspend school', '<p>Its students can no longer play in school mode or save to the school. They can move their wizard to play at home. The school keeps all of its data.</p>', [['Suspend', go], ['Cancel', null, true]]); else go(); }
   if (d) modal('🗑 Remove school', `<p>Remove <b>${esc(d.dataset.name)}</b> from your list? Its code stops working. The school keeps its own sheet and data.</p>`,
-    [['Remove', async () => { try { const r = await ownCall('deleteSchool', { id: d.dataset.del }); if (!r.ok) throw 0; ownOpen(); } catch (x) { toast('Could not remove it. Try again.'); } }], ['Cancel', null, true]]);
+    [['Remove', () => ownSensitive('remove this school', c => ownCall('deleteSchool', { id: d.dataset.del, confirm: c }).then(r => { if (r.ok) ownOpen(); return r; }))], ['Cancel', null, true]]);
 };
 function ownShowNew(name, id, r) {   // the school kit link (or, without a kit, the two values for the script's properties)
   const copyBtn = v => `<button class="btn ghost" data-copyv="${esc(v)}" style="padding:4px 10px">Copy</button>`;
@@ -5732,6 +5751,19 @@ $('#ownAdd').onclick = async () => {
     $('#ownName').value = ''; $('#ownGmail').value = ''; $('#ownCode2').value = ''; ownOpen();
   } catch (x) { box.textContent = 'Could not add the school. Try again.'; }
   $('#ownAdd').disabled = false;
+};
+// spec 07 (G3): deleting a school asks for the 6-digit code, e-mailed to the Admin's own address
+function ownSensitive(what, perform) {
+  ownCall('sensitiveCode').then(j => {
+    if (!j.ok) { toast(j.error === 'busy' ? 'Too many tries. Wait a while.' : 'Could not send the code. Try again.'); return; }
+    modal('🔐 Confirm', `<p>A 6-digit code was sent to your e-mail. It is needed to ${esc(what)}. It works for 10 minutes, once.</p><input id="senCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="margin:6px 0">`,
+      [['Confirm', async () => { try { const r = await perform($('#senCode').value.trim()); if (!r.ok) throw r.error; } catch (x) { toast(x === 'confirm' ? 'That code is not right, or it has expired. Ask for a new one.' : 'Could not change it. Try again.'); } }], [t('cancel'), null, true]]);
+  }).catch(() => toast('I could not reach the cloud.'));
+}
+$('#ownLogBtn').onclick = async () => {   // the Admin's log: what the owner did with schools
+  try { const j = await ownCall('auditLog'); if (!j.ok) throw 0;
+    $('#ownLog').innerHTML = j.rows.map(r => `<div style="border-top:1px solid #fff2;padding:5px 0"><small style="opacity:.7">${esc(r.when.slice(0, 16).replace('T', ' '))}</small> <b>${esc(r.who)}</b> · ${esc(r.what)}${r.detail ? ' · ' + esc(r.detail) : ''}</div>`).join('') || '<small>Nothing yet.</small>';
+  } catch (x) { toast('Could not load the log.'); }
 };
 $('#ownRefresh').onclick = () => ownOpen(true);
 $('#ownBack').onclick = () => show('login');

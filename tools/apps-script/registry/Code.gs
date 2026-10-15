@@ -22,7 +22,7 @@
    home counts on the Admin screen). SHEET_ID and SALT are made by the script itself.
    Run setup() once from the editor: it makes the sheet, asks for the permissions and starts the daily count.
 */
-const VERSION = 4;
+const VERSION = 5;
 const HEAD = ['id', 'name', 'code', 'web app', 'owner gmail', 'status', 'games', 'players', 'active today', 'last active', 'script version', 'created', 'setup token', 'key', 'kit'];
 const C = { id: 0, name: 1, code: 2, url: 3, owner: 4, status: 5, games: 6, players: 7, today: 8, last: 9, ver: 10, created: 11, setup: 12, key: 13, kit: 14 };
 const LIMIT = { resolve: [40, 60], miss: [30, 60], status: [300, 60], register: [10, 600], adminCode: [5, 3600], adminAll: [30, 60] };   // [how many, in how many seconds]
@@ -61,11 +61,12 @@ function doPost(e) {
   if (a === 'status') return out(status(b));
   if (a === 'adminCode') return out(adminCode(b));
   if (a === 'adminVerify') return out(adminVerify(b));
+  if (a === 'sensitiveCode') return out(adminSensitiveCode(b));
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     if (a === 'registerSchool') return out(registerSchool(b));
     if (a === 'schoolCode') return out(schoolCode(b));
-    if (['schools', 'refresh', 'newSchool', 'setStatus', 'deleteSchool', 'homeStats', 'newSetup'].includes(a)) return out(admin(a, b));
+    if (['schools', 'refresh', 'newSchool', 'setStatus', 'deleteSchool', 'homeStats', 'newSetup', 'auditLog'].includes(a)) return out(admin(a, b));
     return out({ ok: false, error: 'action' });
   } finally { lock.releaseLock(); }
 }
@@ -133,8 +134,28 @@ function adminVerify(b) {
   const token = Utilities.getUuid() + Utilities.getUuid(); c.put('adm:' + hash(token), '1', SESSION);
   return { ok: true, token };
 }
+/* ----- spec 07 (G3): a sensitive admin action asks for a 6-digit code, e-mailed to the Admin's own address (10 minutes, once, 5 tries),
+   and every admin action is written to the Log tab (who, what, when). ----- */
+function adminSensitiveCode(b) {
+  if (!String(b.token || '') || cache().get('adm:' + hash(b.token)) !== '1') return { ok: false, error: 'login' };
+  const em = mail(props().getProperty('ADMIN_EMAIL')); if (!em) return { ok: false, error: 'setup' };
+  if (over('asens', [5, 3600])) return { ok: false, error: 'busy' };
+  const code = String(100000 + Math.floor(Math.random() * 900000));
+  cache().put('asens:' + hash(em), hash(code + ':s:' + em) + '|0', 600);
+  try { MailApp.sendEmail({ to: em, name: 'SpellQuest Math', subject: 'SpellQuest Math: confirm a sensitive change: ' + code, body: 'Your code is ' + code + '. It works for 10 minutes, once.\n\nSomeone asked to delete a school. If that was not you, ignore this e-mail.' }); }
+  catch (x) { return { ok: false, error: 'mail' }; }
+  return { ok: true };
+}
+function adminSensOK(b) {
+  const em = mail(props().getProperty('ADMIN_EMAIL')), k = 'asens:' + hash(em), c = cache(), rec = c.get(k); if (!rec) return false;
+  const parts = rec.split('|'), tries = num(parts[1]); if (tries >= 5) { c.remove(k); return false; }
+  if (hash(String(b.confirm || '').trim() + ':s:' + em) !== parts[0]) { c.put(k, parts[0] + '|' + (tries + 1), 600); return false; }
+  c.remove(k); return true;
+}
+function alog(who, what, detail) { try { const ss = book().getParent(); let sh = ss.getSheetByName('Log'); if (!sh) { sh = ss.insertSheet('Log'); sh.appendRow(['when', 'who', 'what', 'detail']); } sh.appendRow([new Date().toISOString(), who, what, String(detail || '').slice(0, 200)]); } catch (x) {} }
 function admin(a, b) {
   if (!String(b.token || '') || cache().get('adm:' + hash(b.token)) !== '1') return { ok: false, error: 'login' };
+  if (a === 'auditLog') { const sh = book().getParent().getSheetByName('Log'), n = sh ? sh.getLastRow() : 0; const v = n > 1 ? sh.getRange(Math.max(2, n - 199), 1, Math.min(200, n - 1), 4).getValues() : []; return { ok: true, rows: v.map(r => ({ when: String(r[0]), who: String(r[1]), what: String(r[2]), detail: String(r[3]) })).reverse() }; }
   if (a === 'refresh') pullCounts();
   if (a === 'schools' || a === 'refresh') return { ok: true, schools: listSchools() };
   if (a === 'homeStats') return homeStats();
@@ -148,7 +169,7 @@ function admin(a, b) {
     const n = Math.max(num(p.getProperty('NEXT_ID')), Math.max(0, ...ids) + 1, 3), id = 'S' + n; p.setProperty('NEXT_ID', String(n + 1));   // (S1 and S2 were used before this counter)
     const setup = Utilities.getUuid().replace(/-/g, '');
     book().appendRow([id, name, code, '', owner, 'waiting setup', games.join(','), 0, 0, '', '', new Date().toISOString(), hash(setup), '', '']);
-    const kit = code ? makeKit(id, name, code, setup) : null;
+    alog('admin', 'school added', name + ' ' + id + ' ' + owner); const kit = code ? makeKit(id, name, code, setup) : null;
     return { ok: true, id, setup, kit: kit && kit.link, kitError: kit && kit.error };
   }
   const f = findRow(r => String(r[C.id]) === String(b.id || '') && r[C.status] !== 'deleted'); if (!f) return { ok: false, error: 'school' };
@@ -158,8 +179,11 @@ function admin(a, b) {
     const kit = f.r[C.code] ? makeKit(String(f.r[C.id]), String(f.r[C.name]), String(f.r[C.code]), setup) : null;
     return { ok: true, setup, kit: kit && kit.link, kitError: kit && kit.error };
   }
-  if (a === 'setStatus') { if (!['active', 'suspended'].includes(b.status) || f.r[C.status] === 'waiting setup') return { ok: false, error: 'bad' }; put(f.row, C.status, b.status); return { ok: true }; }
-  if (a === 'deleteSchool') { dropKit(f.r[C.kit]); book().deleteRow(f.row); return { ok: true }; }
+  if (a === 'setStatus') { if (!['active', 'suspended'].includes(b.status) || f.r[C.status] === 'waiting setup') return { ok: false, error: 'bad' }; put(f.row, C.status, b.status); alog('admin', 'school ' + b.status, f.r[C.name]); return { ok: true }; }
+  if (a === 'deleteSchool') {   // spec 07 §3: deleting a school needs the e-mailed code (the owner's decision: a code instead of the password)
+    if (!adminSensOK(b)) return { ok: false, error: 'confirm' };
+    alog('admin', 'school deleted', f.r[C.name] + ' ' + f.r[C.id]); dropKit(f.r[C.kit]); book().deleteRow(f.row); return { ok: true };
+  }
   return { ok: false, error: 'action' };
 }
 function listSchools() {   // never the key or the setup token
