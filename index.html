@@ -743,6 +743,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
         <div class="small" style="opacity:.8;margin:4px 0 8px" data-t="app_sign_note"></div>
       </div>
       <div id="appStep2" style="display:none">
+        <div id="gSignInHomeWrap" style="display:none"><div id="gSignInHome" style="display:flex;justify-content:center;min-height:44px"></div><p class="small" style="text-align:center;opacity:.8;margin:8px 0">or</p></div>
         <input id="appEmail" type="email" data-tp="app_email_ph" autocomplete="email" autocapitalize="none" maxlength="80">
         <button class="btn" id="appSend" style="margin-top:8px" data-t="app_send"></button>
         <div id="appCodeBox" style="display:none;margin-top:10px"><div class="small" data-t="app_code_lbl"></div><input id="appCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="margin:6px 0"><button class="btn" id="appVerify" data-t="app_verify"></button><div><a href="#" id="appResend" class="adminLink" data-t="app_resend"></a></div></div>
@@ -1118,6 +1119,7 @@ const CFG = {
   RECENT: 10                // a problem is not repeated within this many turns (spec 01 §5.2)
 };
 const coinUnit = lv => CFG.COIN_BY_MLVL.reduce((u, [from, x]) => lv >= from ? x : u, 1);
+const HOME_GOOGLE_URL = '';   // 🏠 SpellQuest's own home counting service (tools/apps-script/counting): set after it is deployed; empty = no Google option yet
 const VERIFY_URL = 'https://script.google.com/macros/s/AKfycbzIuiBkwzq4w-qRp7npB04m6T61X2sOniQ3fP95A_amw0wuyjst3YHtJKfVGUAUL5As/exec';   // 🏠 play at home: the counting service SHARED with the reading game (owner decision, login spec §7); every call says game: 'math'. It sends and checks the e-mail code and counts people by a one-way fingerprint; the address is not kept.
 // (the installed app may be a school device too: school mode saves online in the app as well, login spec §4)
 
@@ -5874,7 +5876,22 @@ function renderHome() {   // 🏠 the e-mail step (the counting service is set u
 async function appPost(body) {
   const r = await fetch(VERIFY_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ game: 'math' }, body)) }); return r.json();
 }
-$('#appSignBtn').onclick = () => { $('#appStep1').style.display = 'none'; $('#appStep2').style.display = ''; $('#appEmail').focus(); };
+function homeSignedIn() {   // the parent is signed in: the hero gets a device id (the e-mail or Google ID is not kept, only a fingerprint on the counting service)
+  $('#appMsg').textContent = ''; pendingMode = 'home'; pendingId = 'home-' + Math.random().toString(36).slice(2, 10); pendingReal = pendingCls = '';
+  if (P && heroMode(P) === 'off') { P.mode = 'home'; P.local = false; saveSoon(true); openMenu(); toast(t('now_home')); } else openCreator();   // an offline hero signs up (spec §5)
+}
+async function onHomeGoogleSignIn(resp) {   // a parent signs in with Google (the home counting service checks Google's token; the e-mail is never sent or kept)
+  const msg = $('#appMsg'); msg.textContent = t('checking');
+  try {
+    const j = await post(HOME_GOOGLE_URL, { action: 'appGoogle', credential: resp.credential });
+    if (!j.ok) { msg.textContent = j.error === 'busy' ? t('app_e_busy') : t('app_e_try'); return; }
+    homeSignedIn();
+  } catch (x) { msg.textContent = t('app_noinet2'); }
+}
+$('#appSignBtn').onclick = () => {
+  $('#appStep1').style.display = 'none'; $('#appStep2').style.display = ''; $('#appEmail').focus();
+  if (HOME_GOOGLE_URL) { $('#gSignInHomeWrap').style.display = ''; renderGoogleSignIn('gSignInHome', onHomeGoogleSignIn); }   // the Google option shows once its counting service is set up
+};
 {
   const sendCode = async () => {
     const em = $('#appEmail').value.trim().toLowerCase(), msg = $('#appMsg');
@@ -5894,10 +5911,8 @@ $('#appSignBtn').onclick = () => { $('#appStep1').style.display = 'none'; $('#ap
     msg.textContent = t('checking'); $('#appVerify').disabled = true;
     try {
       const j = await appPost({ action: 'appVerify', email: em, code });
-      if (j.ok) {   // the e-mail is not kept: the hero gets a device id
-        msg.textContent = ''; pendingMode = 'home'; pendingId = 'home-' + Math.random().toString(36).slice(2, 10); pendingReal = pendingCls = '';
-        if (P && heroMode(P) === 'off') { P.mode = 'home'; P.local = false; saveSoon(true); openMenu(); toast(t('now_home')); } else openCreator();   // an offline hero signs up (spec §5)
-      } else msg.textContent = t({ wrong: 'app_e_wrong', expired: 'app_e_expired', locked: 'app_e_locked' }[j.error] || 'app_e_try');
+      if (j.ok) homeSignedIn();
+      else msg.textContent = t({ wrong: 'app_e_wrong', expired: 'app_e_expired', locked: 'app_e_locked' }[j.error] || 'app_e_try');
     } catch (e) { msg.textContent = t('app_noinet2'); }
     $('#appVerify').disabled = false;
   };
