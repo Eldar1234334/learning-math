@@ -205,11 +205,9 @@ body.peace .foeBody{font-size:6rem}
 .itemBtn .magicSvg{width:38px;height:38px}.itemBtn .ibTxt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding-inline-end:4px}.itemBtn .ibTxt b{font-size:.9rem}.itemBtn .ibTxt small{font-size:.75rem;opacity:.9}
 .itemBtn.glow{border-color:#4aa8ff;box-shadow:0 0 12px #4aa8ff88;animation:itemGlow 2s ease-in-out infinite}.itemBtn.glow.v2{border-color:#ffd166;box-shadow:0 0 20px #ffd166cc;animation:legendPulse 3.2s ease-in-out infinite}@keyframes legendPulse{50%{box-shadow:0 0 30px #ffd166ee}}
 .lootSlot{margin-inline-start:18px;display:inline-flex}
-.lootWrap{position:relative;display:inline-block}
 .lootBtn{font:inherit;color:#fff;background:#0004;border:1px solid #fff4;border-radius:999px;padding:4px 12px;cursor:pointer}
 .lootBtn.bounce{animation:lootBounce .6s ease-out}@keyframes lootBounce{30%{transform:translateY(-6px) scale(1.12)}60%{transform:translateY(0) scale(.97)}}
-.lootPanel{display:none;position:fixed;z-index:60;left:8px;top:8px;min-width:220px;max-width:min(320px,86vw);background:#1b1340f2;border:1px solid #fff3;border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px #0008;text-align:start}
-.lootWrap:hover .lootPanel,.lootWrap.open .lootPanel{display:block}
+.lootPanel.on{display:block}.lootPanel{display:none;position:fixed;z-index:9999;left:8px;top:8px;min-width:220px;max-width:min(320px,86vw);background:#1b1340f2;border:1px solid #fff3;border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px #0008;text-align:start}
 .lootGrp{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}.lootCoins{margin:8px 0 0;font-weight:700}.lootNone{margin:6px 0 0;opacity:.8}
 @media (prefers-reduced-motion:reduce){.lootBtn.bounce{animation:none}}
 .itemBtn.used{opacity:.45;filter:grayscale(1)}@keyframes itemGlow{50%{box-shadow:0 0 5px #4aa8ff55}}
@@ -636,8 +634,9 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 @keyframes snare{50%{transform:scaleY(1.15)}}
 @keyframes spinSlow{to{transform:rotate(360deg)}}
 .weakBadge{font-size:.78rem;margin-top:4px;background:#0006;border-radius:999px;padding:3px 10px;display:inline-flex;align-items:center;gap:4px}
-.ebIcon{font-size:1.05rem;margin-inline-end:2px}.ebChip{display:inline-flex;align-items:center;justify-content:center;min-width:1.6em;height:1.6em;border-radius:999px;font-size:.9rem;line-height:1}
-.ebChip.weakC{background:#e5484d}.ebChip.healC{background:#2fbf71}
+.weakBadge{padding:4px 6px;gap:6px}.ebIcon{font-size:1.15rem;line-height:1}
+.ebPill{display:inline-flex;align-items:center;gap:2px;padding:3px 9px;border-radius:999px;font-size:1rem;line-height:1.1;border:1px solid #fff5}
+.ebPill.healC{background:#1f7a4a;box-shadow:inset 0 0 0 1px #5fd39a66}.ebPill.weakC{background:#a8323a;box-shadow:inset 0 0 0 1px #ff8a8f66}
 .heroHp{width:96px;height:9px;background:#0007;border-radius:6px;overflow:hidden;margin:2px auto 1px;border:1px solid #fff4}
 .heroHp i{display:block;height:100%;background:linear-gradient(90deg,#3ddc97,#7dffb0);transition:width .4s}
 .heroHp.low i{background:linear-gradient(90deg,#ff5d73,#ff9a8a)}
@@ -2967,7 +2966,7 @@ function jHud() {
   else { b.textContent = ''; b.className = 'jBanner'; }
   $('#jWalk').disabled = J.busy || !next; $('#jWalk').style.opacity = $('#jWalk').disabled ? .5 : 1;
   const rr = runRec();   // the coins line shows this quest's coins too; the satchel shows this run's items
-  $('#jStats').innerHTML = `🪙 ${Math.floor(P.coins || 0)}${rr ? ` <small>(+${Math.floor(rr.coins)} ${t('this_quest')})</small>` : ''}   ${lootBadge()}   🧪 ${carried()}`;
+  $('#jStats').innerHTML = `🪙 ${Math.floor(P.coins || 0)}${rr ? ` <small>(+${Math.floor(rr.coins)} ${t('this_quest')})</small>` : ''}   ${lootBadge()}   <span class="potStat" style="display:inline-flex;align-items:center;gap:3px">${potionSVG('any')}${carried()}</span>`;   /* the real potion bottle, not an emoji */
   $('#jAbandon').style.display = qs.act ? '' : 'none'; $('#jItems').innerHTML = itemBarHtml(J.q, 'map');
 }
 
@@ -3208,8 +3207,9 @@ function drawScene() {
   updateBars(); updateReward();
 }
 // The weakness badge (owner request): only signs. The element's own sign, then the elements it is weak to (red) and the ones that strengthen it (green).
-const elBadge = (el, hintsOff) => { const e = EL[el], chip = (ids, cls, what) => ids.map(w => `<span class="ebChip ${cls}" title="${what}" aria-label="${what}">${SB.ELEMENTS[w].em}</span>`).join('');
-  return `<div class="weakBadge" role="img" aria-label="${esc(e.label[0])}"><span class="ebIcon">${e.badge}</span>${hintsOff ? '' : chip(e.weak, 'weakC', 'weak to') + chip(e.heal, 'healC', 'strengthened by')}</div>`; };
+// The monster's type sign, then a green pill with what strengthens it and a red pill with what it is weak to (owner's picture).
+const elBadge = (el, hintsOff) => { const e = EL[el], pill = (ids, cls, what) => ids.length ? `<span class="ebPill ${cls}" title="${what}" aria-label="${what}">${ids.map(w => SB.ELEMENTS[w].em).join('')}</span>` : '';
+  return `<div class="weakBadge" role="img" aria-label="${esc(e.label[0])}"><span class="ebIcon">${e.badge}</span>${hintsOff ? '' : pill(e.heal, 'healC', 'strengthened by') + pill(e.weak, 'weakC', 'weak to')}</div>`; };
 function fightHeader() {   // the monster's name and HP, the area, and the weakness badge (always visible, spec 00 §6)
   const e = EL[G.mon.el];
   $('#foeName').innerHTML = esc((G.mon.boss ? t('boss_pre') : '') + monName(G.mon)) + ` <small class="hpNum">${Math.max(0, G.mon.hp)}/${G.mon.max}</small>`;
@@ -5170,15 +5170,27 @@ const lootPanelHtml = rr => {
   return groups + `<p class="lootCoins">${t('loot_coins', { c: rr.coins })}</p>`;
 };
 const lootBadge = () => { const rr = runRec(), bounce = rr && rr.bounce; if (rr) rr.bounce = false;
-  return `<span class="lootWrap" id="lootWrap"><button class="lootBtn${bounce ? ' bounce' : ''}" id="lootBtn" aria-expanded="false" aria-label="${t('loot_title')}">🎒 <b>${runItems(rr)}</b></button><div class="lootPanel" role="dialog" aria-label="${t('loot_title')}"><b>${t('loot_title')}</b>${lootPanelHtml(rr)}</div></span>`; };
+  return `<button class="lootBtn${bounce ? ' bounce' : ''}" id="lootBtn" aria-expanded="false" aria-label="${t('loot_title')}">🎒 <b>${runItems(rr)}</b></button>`; };
 const runSummary = () => { const rr = runRec() || P.quest[G.quest] && P.quest[G.quest].run; return rr ? `<p>${t('run_summary', { n: runItems(rr), c: rr.coins })}</p>` : ''; };
-// The panel is placed on screen (position: fixed) next to the satchel, so no part of the map can cover it.
-const placeLoot = w => { const b = w.querySelector('.lootBtn'), p = w.querySelector('.lootPanel'); if (!b || !p) return; const r = b.getBoundingClientRect(); p.style.left = Math.max(8, Math.min(r.left, innerWidth - 300)) + 'px'; p.style.top = Math.min(r.bottom + 6, innerHeight - 40) + 'px'; };
-document.addEventListener('mouseover', e => { const w = e.target.closest && e.target.closest('#lootWrap'); if (w) placeLoot(w); });
-document.addEventListener('click', e => {   // the satchel panel: a tap (or click) opens it, a tap elsewhere closes it; a mouse can also hover it
-  const b = e.target.closest('#lootBtn'), w = document.getElementById('lootWrap');
-  if (b && w) { placeLoot(w); w.classList.toggle('open'); b.setAttribute('aria-expanded', w.classList.contains('open')); return; }
-  if (w && !e.target.closest('#lootWrap')) { w.classList.remove('open'); const bb = document.getElementById('lootBtn'); if (bb) bb.setAttribute('aria-expanded', 'false'); }
+// The satchel panel lives at the top of the page (not inside the map), so nothing on the map can cover it. It opens on hover (a mouse)
+// or on a tap, and closes when the mouse leaves (unless it was tapped open) or when you tap elsewhere.
+let lootPinned = false;
+const lootPanelEl = () => { let p = document.getElementById('lootPanel'); if (!p) { p = document.createElement('div'); p.id = 'lootPanel'; p.className = 'lootPanel'; p.setAttribute('role', 'dialog'); document.body.appendChild(p); } return p; };
+function showLoot(btn) {
+  const p = lootPanelEl(), rr = runRec(); p.innerHTML = `<b>${t('loot_title')}</b>${lootPanelHtml(rr)}`;
+  const r = btn.getBoundingClientRect(), w = Math.min(320, innerWidth - 16);
+  p.style.maxWidth = w + 'px'; p.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+  p.classList.add('on'); const h = p.offsetHeight;   // open below the bag if there is room, otherwise above it (never cut off)
+  const below = r.bottom + 6, top = below + h <= innerHeight - 8 ? below : Math.max(8, r.top - h - 6);
+  p.style.top = top + 'px'; p.style.maxHeight = (innerHeight - 16) + 'px'; p.style.overflowY = 'auto';
+}
+function hideLoot() { const p = document.getElementById('lootPanel'); if (p) p.classList.remove('on'); lootPinned = false; const b = document.getElementById('lootBtn'); if (b) b.setAttribute('aria-expanded', 'false'); }
+document.addEventListener('mouseover', e => { const b = e.target.closest && e.target.closest('#lootBtn'); if (b && !lootPinned) showLoot(b); });
+document.addEventListener('mouseout', e => { const b = e.target.closest && e.target.closest('#lootBtn'); if (b && !lootPinned && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#lootPanel'))) hideLoot(); });
+document.addEventListener('click', e => {
+  const b = e.target.closest('#lootBtn');
+  if (b) { lootPinned = !lootPinned; if (lootPinned) { showLoot(b); b.setAttribute('aria-expanded', 'true'); } else hideLoot(); return; }
+  if (!e.target.closest('#lootPanel')) hideLoot();
 });
 function giveLoot(source, boss, mist) {   // call once, when the fight is won: the usual item (its rarity by the result), and herbs for the recipes (spec 04 §3.2, §6)
   const rar = rollRarity(boss, mist), id = dropFor(source, rar), coins = fightCoins(mist, boss, true);
