@@ -708,6 +708,8 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
         <button class="modeBtn" data-mode="home"><span class="mIco">🏠</span><span class="mTxt"><b data-t="m_home"></b><small data-t="m_home_d"></small></span></button>
         <button class="modeBtn" data-mode="off"><span class="mIco">📴</span><span class="mTxt"><b data-t="m_off"></b><small data-t="m_off_d"></small></span></button>
       </div>
+      <!-- 🧪 test build only (spec 07 §14): a demo without logging in. Hidden on the live site. -->
+      <div style="margin-top:10px"><button class="btn ghost" id="startDemoBtn" hidden style="padding:8px 14px">🧪 Demo (test only)</button></div>
       <div class="small" style="margin-top:10px;opacity:.85"><span data-t="have_backup"></span> <a href="#" id="loadHeroBtn" class="adminLink" data-t="load_hero"></a></div><input type="file" id="heroFile" accept=".json,application/json" hidden>
     </div>
     <!-- 🏫 the school code, once per device (shared login spec §3.1) -->
@@ -1101,6 +1103,8 @@ const CFG = {
   EARLY_MULT: 2,            // coins are doubled during the first 10 minutes of play each day
   ODDS_NORMAL: [60, 30, 10], ODDS_BOSS: [60, 30, 10],   // chance (%) of common/uncommon/rare in normal fights; rare/epic/legendary in boss fights
   VISITOR_SHARE: 0.4,   // spec 06 §6: about 40% of the normal stops are visitors from other elements (the area's own monsters are the rest)
+  // the test build only (spec 07 §14): the test site lives under /learning-math/test/, and local preview runs on localhost; the live site never shows the Demo button
+  DEMO_BUTTON: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),
   POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, WORKSHOP_WIZ: 8,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
     // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
@@ -5713,7 +5717,8 @@ $('#ownAdd').onclick = async () => {
 };
 $('#ownRefresh').onclick = () => ownOpen(true);
 $('#ownBack').onclick = () => show('login');
-$('#ownDemo').onclick = () => startDemo();   // the same demo as the teacher area's: a pretend student, nothing saved
+$('#ownDemo').onclick = () => startDemo();
+if (CFG.DEMO_BUTTON) { const b = $('#startDemoBtn'); b.hidden = false; b.onclick = () => startDemo(); }   // the same demo as the teacher area's: a pretend student, nothing saved
 $('#admRefresh').onclick = async () => { try { const j = await adminCall('list'); if (j.ok) adminRender(j); } catch (e) { toast('Could not refresh'); } };
 $('#admSearch').oninput = () => { ADM.filter = $('#admSearch').value; adminTable(); };
 $('#admTable').onclick = e => {
