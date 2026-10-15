@@ -5354,9 +5354,9 @@ function adminAsk() {
 }
 // Sign in with Google (spec 07, G1): an extra option. Google proves the e-mail; the school's staff list decides access.
 const GOOGLE_CLIENT_ID = '640886464751-p6vril25pp5g5ijqprcs9o44039let2u.apps.googleusercontent.com';   // public
-function renderGoogleSignIn() {
-  const box = $('#gSignIn'); if (!box || !window.google || !google.accounts || !google.accounts.id) return;   // no Google script (offline): the e-mail code still works
-  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleSignIn, ux_mode: 'popup' });
+function renderGoogleSignIn(id = 'gSignIn', cb = onGoogleSignIn) {
+  const box = $('#' + id); if (!box || !window.google || !google.accounts || !google.accounts.id) return;   // no Google script (offline): the e-mail code still works
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: cb, ux_mode: 'popup' });
   google.accounts.id.renderButton(box, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', width: 260 });
 }
 async function onGoogleSignIn(resp) {   // the Google ID token goes to the school's script in a POST body (never in a URL)
@@ -5367,6 +5367,14 @@ async function onGoogleSignIn(resp) {   // the Google ID token goes to the schoo
     if (!j.staff) { toast('This Google account is not on the staff list.'); return; }   // the same answer for everyone who is not staff
     ADMSESS = j.sess; ADMKEY = null; ADMURL = url; $('#modal').classList.remove('on'); adminOpen();
   } catch (x) { toast(typeof x === 'string' ? x : 'I could not reach the cloud. Please check the internet connection.'); }
+}
+async function onAdminGoogleSignIn(resp) {   // the Admin's Google account: the list checks the e-mail; any other account gets the same plain answer
+  try {
+    const j = await post(CFG.REGISTRY_URL, { action: 'googleSignIn', credential: resp.credential });
+    if (!j.ok) { toast(j.error === 'busy' ? 'Too many tries. Wait a minute.' : 'Google could not confirm this account. Try again.'); return; }
+    if (!j.admin) { toast('This Google account is not the Admin account.'); return; }
+    OWNTOK = j.token; $('#modal').classList.remove('on'); ownOpen();
+  } catch (x) { toast('Could not reach the school list.'); }
 }
 async function admPassWorks(url) {   // false only when the school says its teacher password is off (older school scripts do not say: true)
   try { const j = await post(url, { action: 'signin' }); return !(j.ok && j.password === false); } catch (e) { return true; }
@@ -5673,13 +5681,14 @@ if (CFG.REGISTRY_URL) $('#ownerWrap').style.display = '';
 $('#ownerLink').onclick = e => {
   e.preventDefault(); if (!CFG.REGISTRY_URL) return;
   if (OWNTOK) { ownOpen(); return; }
-  modal('🔑 Admin', '<p class="small">Your Admin e-mail. A 6-digit code is sent to it (any other e-mail gets nothing).</p><input id="ownEm" type="email" autocomplete="email" style="margin:6px 0">',
+  modal('🔑 Admin', '<p class="small">Your Admin e-mail. A 6-digit code is sent to it (any other e-mail gets nothing).</p><input id="ownEm" type="email" autocomplete="email" style="margin:6px 0">' +
+    '<p class="small" style="margin:10px 0 2px;text-align:center;opacity:.8">or</p><div id="gSignInAdm" style="display:flex;justify-content:center;min-height:44px"></div>',
     [['Send code', async () => {
       OWNEMAIL = $('#ownEm').value.trim(); if (!OWNEMAIL) return;
       try { const j = await post(CFG.REGISTRY_URL, { action: 'adminCode', email: OWNEMAIL }); if (!j.ok) throw j.error; } catch (x) { toast(x === 'busy' ? 'Too many tries. Wait a minute.' : 'Could not reach the school list.'); return; }
       ownAskCode();
     }], ['Cancel', null, true]]);
-  setTimeout(() => { const i = $('#ownEm'); if (i) i.focus(); }, 60);
+  setTimeout(() => { const i = $('#ownEm'); if (i) i.focus(); renderGoogleSignIn('gSignInAdm', onAdminGoogleSignIn); }, 60);
 };
 function ownAskCode() {
   modal('🔑 Admin', `<p class="small">If ${esc(OWNEMAIL)} is the Admin e-mail, a code is on its way (it works for 10 minutes).</p><input id="ownCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="margin:6px 0">`,

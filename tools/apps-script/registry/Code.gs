@@ -22,7 +22,7 @@
    home counts on the Admin screen). SHEET_ID and SALT are made by the script itself.
    Run setup() once from the editor: it makes the sheet, asks for the permissions and starts the daily count.
 */
-const VERSION = 5;
+const VERSION = 6;
 const HEAD = ['id', 'name', 'code', 'web app', 'owner gmail', 'status', 'games', 'players', 'active today', 'last active', 'script version', 'created', 'setup token', 'key', 'kit'];
 const C = { id: 0, name: 1, code: 2, url: 3, owner: 4, status: 5, games: 6, players: 7, today: 8, last: 9, ver: 10, created: 11, setup: 12, key: 13, kit: 14 };
 const LIMIT = { resolve: [40, 60], miss: [30, 60], status: [300, 60], register: [10, 600], adminCode: [5, 3600], adminAll: [30, 60] };   // [how many, in how many seconds]
@@ -61,6 +61,7 @@ function doPost(e) {
   if (a === 'status') return out(status(b));
   if (a === 'adminCode') return out(adminCode(b));
   if (a === 'adminVerify') return out(adminVerify(b));
+  if (a === 'googleSignIn') return out(adminGoogle(b));
   if (a === 'sensitiveCode') return out(adminSensitiveCode(b));
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
@@ -133,6 +134,21 @@ function adminVerify(b) {
   c.remove('acode');
   const token = Utilities.getUuid() + Utilities.getUuid(); c.put('adm:' + hash(token), '1', SESSION);
   return { ok: true, token };
+}
+/* ----- Google sign-in for the Admin (spec 07): Google proves the e-mail (our client ID, Google's issuer, verified, not expired);
+   only the ADMIN_EMAIL gets a session. Any other account gets the same plain answer, so nobody learns who the Admin is. ----- */
+const GOOGLE_CLIENT_ID = '640886464751-p6vril25pp5g5ijqprcs9o44039let2u.apps.googleusercontent.com';   // public (the secret is never used)
+function adminGoogle(b) {
+  if (over('adminAll', LIMIT.adminAll)) return { ok: false, error: 'busy' };
+  const cred = String(b.credential || ''); if (!cred || cred.length > 4000) return { ok: false, error: 'google' };
+  let info = {};
+  try { info = JSON.parse(UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(cred), { muteHttpExceptions: true }).getContentText() || '{}'); } catch (x) { return { ok: false, error: 'google' }; }
+  const verified = info.email_verified === true || info.email_verified === 'true';
+  if (info.aud !== GOOGLE_CLIENT_ID || !/^(https:\/\/)?accounts\.google\.com$/.test(String(info.iss || '')) || !verified || Number(info.exp) * 1000 < Date.now()) return { ok: false, error: 'google' };
+  const em = mail(info.email), want = mail(props().getProperty('ADMIN_EMAIL'));
+  if (!want || em !== want) return { ok: true, admin: false };   // the same answer for every other account
+  const token = Utilities.getUuid() + Utilities.getUuid(); cache().put('adm:' + hash(token), '1', SESSION);
+  return { ok: true, admin: true, token };
 }
 /* ----- spec 07 (G3): a sensitive admin action asks for a 6-digit code, e-mailed to the Admin's own address (10 minutes, once, 5 tries),
    and every admin action is written to the Log tab (who, what, when). ----- */
