@@ -1394,7 +1394,13 @@ const STR = {
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_ians: ['The spell brings how many {item}? Choose the number.', 'הכישוף מזמן כמה {item}? בחרו את המספר.'],
-  ac_t: ['🎓 The Academy: Test of Proficiency', '🎓 האקדמיה: מבחן המיומנות'], ac_examiner: ['Show me what you can conjure!', 'הראו לי מה אתם יודעים לזמן!'],
+  ac_t: ['🎓 The Academy: Test of Proficiency', '🎓 האקדמיה: מבחן המיומנות'],
+  ac_offer_t: ['🎓 The Academy', '🎓 האקדמיה'], ac_offer: ['Your level bar is full! Visit the Academy for the Test of Proficiency.', 'סרגל הרמה שלכם מלא! בקרו באקדמיה למבחן המיומנות.'],
+  ac_go: ['Go to the Academy', 'לאקדמיה'], ac_rules_t: ['📋 Rules of the test', '📋 כללי המבחן'],
+  ac_qcount: ['{q} questions.', '{q} שאלות.'], ac_need: ['You need {n} of {q} right ({p}%).', 'צריך {n} מתוך {q} נכונות ({p}%).'],
+  ac_mistakes: ['Mistakes allowed:', 'טעויות מותרות:'], ac_no_hints: ['No hints, no potions, no hearts.', 'בלי רמזים, בלי שיקויים, בלי לבבות.'],
+  ac_win: ['You win: the rank {title}, and rewards.', 'תזכו בדרגה {title}, ובפרסים.'], ac_nothing_lost: ['A failed test loses nothing. You can try again at once.', 'מבחן שנכשל לא מאבד כלום. אפשר לנסות שוב מיד.'],
+  ac_building: ['The trial is being built. It comes in the next steps.', 'המבחן נבנה עכשיו. הוא יגיע בשלבים הבאים.'], ac_examiner: ['Show me what you can conjure!', 'הראו לי מה אתם יודעים לזמן!'],
   ac_rules: ['{q} questions. You need {n} right. You may make {m} mistakes. Nothing is lost if you do not pass.', '{q} שאלות. צריך {n} נכונות. מותר {m} טעויות. אם לא תעברו, לא תאבדו כלום.'],
   ac_start: ['Start', 'התחלה'], ac_not_yet: ['Not yet', 'לא עכשיו'], ac_fight_soon: ['The fighting trial comes soon.', 'מבחן הקרב יגיע בקרוב.'],
   ac_progress: ['Question {k} of {q}', 'שאלה {k} מתוך {q}'], ac_pick_item: ['Which item does the villager need?', 'איזה פריט התושב צריך?'],
@@ -2164,6 +2170,7 @@ async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: 
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   if (typeof refreshAcademy === 'function') refreshAcademy();   // the Academy icon shows on the map and the menu while a test is ready
+  if ((id === 'menu' || id === 'journey') && typeof academyOfferCheck === 'function') academyOfferCheck();   // §3.2: the offer, once per tier
   document.body.classList.toggle('peace', (id === 'game' || id === 'journey') && G.quest === 'peace');
   window.scrollTo(0, 0);
 }
@@ -4193,10 +4200,36 @@ function refreshAcademy() {   // the Academy icon sits next to the book buttons,
     a.style.display = ready ? '' : 'none';
   });
 }
-function showAcademy() {
-  if (!acadReady()) return;
-  ACQ = { k: acadNext(), phase: 'rules', kind: null, i: 0, right: 0, mist: 0, qs: [], dummies: [], typed: '', msg: '', busy: false }; acadRender();
+// STEP 1 (spec 08 §3): the offer, the Academy window and the rules screen, in the game's own windows
+const ACAD_EXAMINER = k => (k % 2 === 0 ? 'Orin' : 'Odelia');   // §10.6: Orin for tests 1, 3, 5; Odelia for 2, 4
+// §3.2: the offer, once per tier, when the map opens
+function academyOfferCheck() {
+  if (!acadReady() || acadS().offered === acadNext()) return;
+  acadS().offered = acadNext(); saveSoon(true);
+  modal(t('ac_offer_t'), `<p>${t('ac_offer')}</p>`, [[t('ac_go'), academyAsk], [t('later'), null, true]]);
 }
+function showAcademy() { if (!acadReady()) return; academyAsk(); }
+// §3.4: the examiner says how many questions, that two mistakes are allowed and that nothing is lost; the student chooses the trial
+function academyAsk() {
+  const k = acadNext(), T = ACAD_Q[k], miss = T - ACAD_NEED[k];
+  modal(t('ac_t'), `<p><b>${ACAD_EXAMINER(k)}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: T, n: ACAD_NEED[k], m: miss })}</p>`,
+    [[t('ac_fight_btn'), () => academyRules('fight')], [t('ac_conj_btn'), () => academyRules('conj')], [t('ac_not_yet'), null, true]]);
+}
+// §3.5: the rules screen before every start
+function academyRules(kind) {
+  const k = acadNext(), T = ACAD_Q[k], need = ACAD_NEED[k], miss = T - need, pct = Math.round(100 * ACAD_NEED[k] / T);
+  const marks = Array.from({ length: miss }, () => '✖').join(' ');
+  modal(t('ac_rules_t'), `<div class="rulesList">
+    <div><span>❓</span>${t('ac_qcount', { q: T })}</div>
+    <div><span>✅</span>${t('ac_need', { n: need, q: T, p: pct })}</div>
+    <div><span>✖️</span>${t('ac_mistakes')} ${marks}</div>
+    <div><span>🙈</span>${t('ac_no_hints')}</div>
+    <div><span>🏆</span>${t('ac_win', { title: tl(ACAD_RANK[k]) })}</div>
+    </div><p class="small" style="text-align:center">${t('ac_nothing_lost')}</p>`,
+    [[t('ac_start'), () => academyStart(kind)], [t('ac_not_yet'), null, true]]);
+}
+// the trials are built step by step: for now the start only says so
+function academyStart(kind) { toast(t('ac_building')); }
 /* ---- the fighting trial (§4) ---- */
 // the learned spells that hurt this element, whose number is in the key pool at this math level (whole numbers only: the answer is typed)
 function acadWeak(el, lvl) {
