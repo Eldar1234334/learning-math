@@ -4513,7 +4513,7 @@ function acadApplyFacts() {
 // the facts to look at again (up to 8: the missed problems, with their answers)
 function acadFactsHtml() {
   const wrong = (ACQ.facts || []).filter(f => !f.ok).slice(0, 8);
-  return wrong.length ? `<p class="small">${t('ac_facts')}</p>` + wrong.map(f => `<div dir="ltr">${f.review ? exprHtml(f.review.e, f.review.a) + (f.review.e.includes('□') ? '' : ' = ' + ME.fmtHtml(f.review.a)) :f.p.e ? exprHtml(f.p.e) + " = " + ME.fmtHtml(f.p.a) : HELPER.cardText(f.p.expr) + " = " + f.p.amount}</div>`).join('') : '';
+  return wrong.length ? `<p class="small">${t('ac_facts')}</p>` + wrong.map(f => `<div dir="ltr">${f.review ? exprHtml(f.review.e, f.review.a) + (f.review.e.includes('□') ? '' : ' = ' + ME.fmtHtml(f.review.a)) :f.p.e ? exprHtml(f.p.e, f.p.a) + (f.p.e.includes("□") ? "" : " = " + ME.fmtHtml(f.p.a)) : HELPER.cardText(f.p.expr) + " = " + f.p.amount}</div>`).join('') : '';
 }
 // the practice run (§6): 6 questions with the same rules, no marks, no pass or fail
 function acadPracticeEnd() {
