@@ -1348,6 +1348,7 @@ const STR = {
   vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'],
   vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'], vh_found: ['Found: {x}', 'נמצא: {x}'],
   vh_left: ['The villager has had enough and leaves. Come back another day.', 'התושב נמאס לו ועוזב. חזרו יום אחר.'],
+  vh_extra: ['Also, there are {x} {item} in the village.', 'יש גם {x} {item} בכפר.'],
   vh_spell_q: ['Now conjure {n} {item}. Which spell brings them?', 'עכשיו כשפו {n} {item}. איזה כישוף מביא אותם?'], vh_spell_sub: ['Choose the spell.', 'בחרו את הכישוף.'],
   vh_owl_btn: ['🦉 Owl helper', '🦉 עוזר הינשוף'], vh_owl: ['🦉 The owl carries {items} to the villager!', '🦉 הינשוף מביא {items} לתושב!'],
   conj_t: ['📜 Conjuration book', '📜 ספר ההטלה'], conj_info: ['The items you can conjure at math level {m}.', 'הפריטים שאפשר לכשף ברמה {m}.'], conj_lock: ['Unlocks at math level {n}', 'נפתח ברמה {n}'], conj_btn: ['Conjuration book', 'ספר ההטלה'],
@@ -3783,6 +3784,9 @@ function setBookIcon(conj) { const b = document.querySelector('#game [data-book]
 function visitRound() {   // the next item of the projects: its amount (one level lower) and the cards of the card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
   V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
+  // extra information (spec 05 §8, wizard level 15): half the stories also name a number that is not needed
+  const others = HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n);
+  V.extra = wizLvl() >= 15 && others.length && Math.random() < 0.5 ? { n: 2 + Math.floor(Math.random() * 8), item: rnd(others) } : null;
   V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.msg = ''; V.potUsed = false; V.read = false;
 }
 // reads a story aloud: Hebrew with the device's Hebrew voice (silent when there is none), English with the device's English voice
@@ -3823,7 +3827,9 @@ function visitShow() {
     : `<div class="vhCount"><span class="vhHave">${e.repeat(s.have) || '–'}</span> <b>${s.have} / ${s.of}</b></div>`;
   $('#qTitle').textContent = V.project.name;
   $('#qBig').innerHTML = `<div class="vhStory">${story}</div>${shown}`;
-  V.storyText = story;   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
+  const storyAll = V.extra ? story + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(hpItemName(V.extra.item, V.extra.n)) }) : story;
+  $('#qBig').innerHTML = `<div class="vhStory">${storyAll}</div>${shown}`;
+  V.storyText = storyAll;   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(story); }
   $('#qSub').textContent = '';
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';

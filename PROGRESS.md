@@ -770,3 +770,4 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Owl helper (spec 05 §8, wizard level 18+):** once per visit, one action (one mana): the owl carries the rest of the current item.
 - **Two-part request (spec 05 §8, wizard level 9+):** the villager asks one thing at a time: part 1 the amount, part 2 the spell that conjures the items ("Now conjure 1 flour. Which spell brings them?").
 - **Bundles (spec 05 §3 and §8, wizard level 12): dismissed by the owner.** No bundle casting for now.
+- **Extra-information stories (spec 05 §8, wizard level 15):** about half the visits add one number that is not needed ("Also, there are 6 iron in the village."). Steps and cards are unchanged.
