@@ -1346,7 +1346,7 @@ const STR = {
   vh_mana: ['🔷 Mana', '🔷 מאנה'], vh_happy: ['😊 Happy', '😊 שמחה'], vh_book: ['Conjuration book', 'ספר הכישופים'],
   vh_done: ['The villager is happy! "Thank you, wizard. Come back tomorrow."', 'התושב שמח! "תודה, קוסם. חזרו מחר."'],
   vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'],
-  vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'],
+  vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'], vh_found: ['Found: {x}', 'נמצא: {x}'],
   vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
   quest_locked: ['🔒 You are in the middle of a quest! Finish it, or tap 🏳️ Abandon quest to leave it.', '🔒 אתם באמצע מסע! סיימו אותו, או הקישו על 🏳️ עזיבת המסע.'],
@@ -3887,9 +3887,19 @@ function vhRewards(fest, mist) {
   P.xp += xp; const c = jCoins(fest ? 5 : 2);
   return { xp, c };
 }
+// the drops (spec 05 §7): one item from the folk table, its rarity by the mistakes (and higher for the festival), and herbs for the recipes,
+// the same rules as a fight's drop, but the coins are the visit's own (above)
+function vhDrop(fest, mist) {
+  const rar = rollRarity(fest, mist), id = dropFor('folk', rar);
+  const herbs = DROP.folk.common, herb = herbs[Math.floor(Math.random() * herbs.length)], n = BR.dropUnits(P.mlvl);
+  P.satchel[id] = (P.satchel[id] || 0) + 1; P.satchel[herb] = (P.satchel[herb] || 0) + n;
+  const rr = runRec(); if (rr) { rr.loot[id] = (rr.loot[id] || 0) + 1; rr.loot[herb] = (rr.loot[herb] || 0) + n; rr.bounce = true; }
+  return { id, herb, n };
+}
 function jAfterVisit(done, fest = false, mist = 0) {
   if (done) {
     const rw = vhRewards(fest, mist); toast(t('vh_reward', rw));
+    const dr = vhDrop(fest, mist); setTimeout(() => toast(t('vh_found', { x: `${ING[dr.id].em} ${nameOf(ING[dr.id])} + ${ING[dr.herb].em} ${nameOf(ING[dr.herb])} ×${dr.n}` })), 1500);
     const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath();
   }
   restartQuest(); saveSoon(true); toast(t('vh_lost')); openMenu();   // out of mana: the run is lost (the only way to lose)
