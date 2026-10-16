@@ -38,7 +38,7 @@
     { n: 26, lvl: 10, one: ['Saw', 'מסור'], many: ['Saws', 'מסורים'], em: '🪚' },
     { n: 27, lvl: 10, one: ['Bread', 'לחם'], many: ['Bread', 'לחם'], em: '🍞' },
     { n: 28, lvl: 10, one: ['Cheese', 'גבינה'], many: ['Cheese', 'גבינה'], em: '🧀' },
-    { n: 30, lvl: 7, one: ['Thread', 'חוט'], many: ['Thread', 'חוט'], em: '🧵' },
+    { n: 30, lvl: 7, one: ['Thread', 'חוט'], many: ['Thread', 'חוטים'], em: '🧵' },
     { n: 36, lvl: 14, one: ['Lamp', 'מנורה'], many: ['Lamps', 'מנורות'], em: '🏮' },
     { n: 40, lvl: 7, one: ['Needle', 'מחט'], many: ['Needles', 'מחטים'], em: '🪡' },
     { n: 42, lvl: 14, one: ['Chair', 'כיסא'], many: ['Chairs', 'כיסאות'], em: '🪑' },
@@ -50,6 +50,11 @@
     { n: 60, lvl: 7, one: ['Blanket', 'שמיכה'], many: ['Blankets', 'שמיכות'], em: '🧣' },
     { n: 64, lvl: 14, one: ['Flower', 'פרח'], many: ['Flowers', 'פרחים'], em: '🌸' }
   ];
+  // the Hebrew gender of each item (for the verbs of the stories: "נשבר" or "נשברה"); the items are by their number
+  const GENDER = { 1: 'm', 2: 'm', 3: 'm', 4: 'f', 5: 'm', 6: 'm', 7: 'm', 8: 'm', 9: 'm', 10: 'm', 11: 'm', 12: 'm', 13: 'f', 14: 'm', 15: 'm', 16: 'f',
+    17: 'f', 18: 'f', 19: 'm', 20: 'm', 21: 'm', 22: 'm', 23: 'm', 24: 'm', 25: 'f', 26: 'm', 27: 'm', 28: 'f', 30: 'm', 36: 'f', 40: 'f', 42: 'm',
+    45: 'm', 48: 'm', 49: 'm', 50: 'f', 55: 'm', 60: 'f', 64: 'm' };
+  const genderOf = item => GENDER[item.n] || 'm';
   const itemOf = n => BOOK.find(x => x.n === n) || null;
   const itemByHe = he => BOOK.find(x => x.one[1] === he) || null;
   const nameFor = (item, count) => (count === 1 ? item.one : item.many);   // [English, Hebrew]
@@ -161,5 +166,5 @@
   // the impatient villager: from wizard level 6, one visit in three
   const isImpatient = (wlvl, r = Math.random) => wlvl >= 6 && r() < 1 / 3;
 
-  return { BOOK, PATIENCE, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  return { BOOK, PATIENCE, genderOf, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });

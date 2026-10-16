@@ -1333,15 +1333,15 @@ const STR = {
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_result: ['I have {a} {item}. My friend gives me {b} more. How many do I have now?', 'יש לי {a} {item}. החבר נותן לי עוד {b}. כמה יש לי עכשיו?'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. כשפו את השאר.'],
-  vh_separate: ['I had {t} {item}. {b} broke. How many are left?', 'היו לי {t} {item}. {b} נשברו. כמה נשארו?'], vh_broke: ['broke', 'נשברו'],
-  vh_part: ['I need {t} {item}. {a} are for the hall, and the rest are for the kitchen. Conjure the kitchen ones.', 'אני צריך {t} {item}. {a} מיועדים לאולם, והשאר למטבח. כשפו את אלה של המטבח.'],
+  vh_separate: ['I had {t} {item}. {b} {broke}. How many are left?', 'היו לי {t} {item}. {b} {broke}. כמה נשארו?'], vh_broke: ['broke', 'נשברו'],
+  vh_part: ['I need {t} {item}. {a} are for the hall, and the rest are for the kitchen. Conjure the kitchen ones.', 'אני צריך {t} {item}. {a} מהם לאולם, והשאר למטבח. כשפו את אלה של המטבח.'],
   vh_compare: ['The baker has {t} {item}. I have {a}. Conjure enough so I have as many as the baker.', 'לאופה יש {t} {item}. יש לי {a}. כשפו מספיק כדי שיהיו לי כמו לאופה.'],
-  vh_start: ['I used {u} {item}, and {r} are left. How many did I have? Conjure that many.', 'השתמשתי ב-{u} {item}, ונשארו {r}. כמה היו לי? כשפו כמה שהיו.'],
+  vh_start: ['I used {u} {item}, and {r} {left}. How many did I have? Conjure that many.', 'השתמשתי ב-{u} {item}, ו{left} {r}. כמה היו לי? כשפו כמה שהיו.'],
   vh_two: ['I need {t} {item}. I have {a}, and my neighbour gives me {b}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, והשכן נותן לי {b}. כשפו את השאר.'],
   vh_card: ['Choose the card that fits my story.', 'בחרו את הכרטיס שמתאים לסיפור שלי.'], vh_calc: ['Work it out. How many do I need?', 'חשבו. כמה אני צריך?'],
   vh_item: ['Look up the item in the book, then choose its card.', 'מצאו את הפריט בספר, ואז בחרו את הכרטיס שלו.'],
   vh_wrong_card: ['That card does not fit my story!', 'הכרטיס הזה לא מתאים לסיפור שלי!'], vh_wrong_item: ['{em} {got}? I need {want}!', '{em} {got}? אני צריך {want}!'],
-  vh_few: ['Now I have {have}. I still need {more} more!', 'עכשיו יש לי {have}. עוד {more} חסרים!'], vh_many: ['Now I have {have}. That is {extra} too many!', 'עכשיו יש לי {have}. זה {extra} יותר מדי!'],
+  vh_few: ['Now I have {have}. I still need {more} more!', 'עכשיו יש לי {have}. צריך עוד {more}!'], vh_many: ['Now I have {have}. That is {extra} too many!', 'עכשיו יש לי {have}. זה {extra} יותר מדי!'],
   vh_ok: ['Thank you, wizard! Here they are: {items}', 'תודה, קוסם! הנה הם: {items}'],
   vh_mana: ['🔷 Mana', '🔷 מאנה'], vh_happy: ['😊 Happy', '😊 שמחה'], vh_book: ['Conjuration book', 'ספר הכישופים'],
   vh_done: ['The villager is happy! "Thank you, wizard. Come back tomorrow."', 'התושב שמח! "תודה, קוסם. חזרו מחר."'],
@@ -1349,7 +1349,7 @@ const STR = {
   vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'], vh_found: ['Found: {x}', 'נמצא: {x}'],
   vh_left: ['The villager has had enough and leaves. Come back another day.', 'התושב נמאס לו ועוזב. חזרו יום אחר.'],
   vh_extra: ['Also, there are {x} {item} in the village.', 'יש גם {x} {item} בכפר.'],
-  vh_spell_q: ['Now conjure {n} {item}. Which spell brings them?', 'עכשיו כשפו {n} {item}. איזה כישוף מביא אותם?'], vh_spell_sub: ['Choose the spell.', 'בחרו את הכישוף.'],
+  vh_spell_q: ['Now conjure {n} {item}. Which spell brings them?', 'עכשיו כשפו {n} {item}. איזה כישוף יביא?'], vh_spell_sub: ['Choose the spell.', 'בחרו את הכישוף.'],
   vh_owl_btn: ['🦉 Owl helper', '🦉 עוזר הינשוף'], vh_owl: ['🦉 The owl carries {items} to the villager!', '🦉 הינשוף מביא {items} לתושב!'],
   conj_t: ['📜 Conjuration book', '📜 ספר ההטלה'], conj_info: ['The items you can conjure at math level {m}.', 'הפריטים שאפשר לכשף ברמה {m}.'], conj_lock: ['Unlocks at math level {n}', 'נפתח ברמה {n}'], conj_btn: ['Conjuration book', 'ספר ההטלה'],
   vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
@@ -3816,8 +3816,9 @@ function visitShow() {
   visitBars();
   const p = V.p, nm = n => vhLow(hpItemName(V.item, n)), e = V.item.em, s = p.show;
   const story = { result: () => t('vh_result', { a: p.a, b: p.b, item: nm(p.a) }), change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
-    separate: () => t('vh_separate', { t: p.t, b: p.b, item: nm(p.t) }), part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
-    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }), start: () => t('vh_start', { u: p.u, r: p.r, item: nm(p.u) }),
+    separate: () => t('vh_separate', { t: p.t, b: p.b, item: nm(p.t), broke: tl(['broke', p.b === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשברה' : 'נשבר') : 'נשברו']) }),   // the verb agrees with the count and the gender
+    part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
+    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }), start: () => t('vh_start', { u: p.u, r: p.r, item: nm(p.u), left: tl(['are left', p.r === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']) }),
     two: () => t('vh_two', { t: p.t, a: p.a, b: p.b, item: nm(p.t) }) }[p.kind]();
   // the amounts are always on screen (for the early levels): what the villager has, and what they need
   const shown = s.minus !== undefined

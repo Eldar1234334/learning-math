@@ -9,6 +9,13 @@
   const assert = (c, msg) => { if (!c) throw new Error(msg || 'assertion failed'); };
   let seed = 4242; const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
 
+  test('every item has a Hebrew gender (m or f) and a plural form', () => {
+    for (const x of H.BOOK) {
+      assert(H.genderOf(x) === 'm' || H.genderOf(x) === 'f', 'gender of ' + x.n);
+      assert(x.many && x.many[1] && x.one[1], 'forms of ' + x.n);
+    }
+    assert(H.itemOf(30).many[1] === 'חוטים', 'thread plural');
+  });
   test('the book has the 39 approved items, each number once', () => {
     assert(H.BOOK.length === 39, 'items: ' + H.BOOK.length);
     assert(new Set(H.BOOK.map(x => x.n)).size === 39, 'numbers unique');
