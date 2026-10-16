@@ -1447,7 +1447,7 @@ const STR = {
   ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
   ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
   ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
-  ac_conj_go: ['Conjure!', 'זמנו!'],
+  ac_conj_go: ['Conjure!', 'זמנו!'], ac_conj_num: ['Now solve the card and type its answer: the number of the item.', 'עכשיו פתרו את הקלף והקלידו את התשובה: מספר הפריט.'],
   ac_conj_say: ['Examiner {ex} says: conjure it!', 'הבוחן {ex} אומר: זמנו את זה!'],
   ac_conj_pick: ['Pick the card whose answer is the number of the item.', 'בחרו את הקלף שהתשובה שלו היא מספר הפריט.'],
   ac_conj_amount: ['Now work out how many to conjure, and type the amount.', 'עכשיו חשבו כמה לזמן, והקלידו את הכמות.'],
@@ -4497,12 +4497,12 @@ function conjRenderGame() {
   acadTopRender(); $('#acName').textContent = '';
   $('#acDots').innerHTML = q.items.length > 1 ? q.items.map((_, j) => `<i style="background:#ffd166" class="${j < ACQ.j ? 'done' : j === ACQ.j ? 'cur' : ''}"></i>`).join('') : '';   // the items of this request
   $('#qTitle').textContent = t('ac_conj_say', { ex: ACAD_EXAMINER(ACQ.k) });
-  $('#qSub').textContent = t(citem ? 'ac_conj_pick' : 'ac_conj_amount');
-  $('#qBig').innerHTML = `<div class="acBtnRow"><button class="vhNeed" data-ac="bookItem" title="${t('vh_book_item')}">${x.item.em}</button><button class="vhNeed" data-ac="hear" title="🔊">🔊</button></div>`;
+  $('#qSub').textContent = t(citem ? 'ac_conj_pick' : ACQ.phase === 'cnum' ? 'ac_conj_num' : 'ac_conj_amount');
+  $('#qBig').innerHTML = (ACQ.phase === 'cnum' && ACQ.pickCard ? `<div class="acEq" dir="ltr">${HELPER.cardText(ACQ.pickCard)}</div>` : '') + `<div class="acBtnRow"><button class="vhNeed" data-ac="bookItem" title="${t('vh_book_item')}">${x.item.em}</button><button class="vhNeed" data-ac="hear" title="🔊">🔊</button></div>`;
   const o = $('#opts'); o.className = 'opts' + (citem ? ' cards' : ' pad'); o.style.display = ''; o.style.gridTemplateColumns = citem ? '1fr 1fr' : ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
   o.innerHTML = citem
     ? x.icards.map((c, i) => `<button class="opt card" data-ac="icard" data-i="${i}"><span class="cardEx" dir="ltr">${HELPER.cardText(c)}</span></button>`).join('')
-    : `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${t('ac_conj_go')}</button>`;
+    : `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${ACQ.phase === 'cnum' ? '✔' : t('ac_conj_go')}</button>`;
   $('#fb').textContent = ACQ.msg || '';
   const key = ACQ.i + ':' + ACQ.j;   // the story is read aloud (spec 08 §6): automatically for math levels 1–12, and with the 🔊 button
   if (ACQ.spoke !== key && !ACQ.busy) { ACQ.spoke = key; if ((P.mlvl || 1) <= 12) vhSpeak(story); }
@@ -4514,7 +4514,7 @@ function acadClick(e) {
   if (a === 'hear') { const x = ACQ.qs[ACQ.i].items[ACQ.j]; return vhSpeak(visitStory({ p: x.p, item: x.item, extra: null })); }
   if (ACQ.busy) return;
   const i = +b.dataset.i, q = ACQ.qs[ACQ.i];
-  if (a === 'key' && (ACQ.phase === 'fsolve' || ACQ.phase === 'camount')) {   // the number pad: digits, a point, and delete; only the display changes
+  if (a === 'key' && ['fsolve', 'cnum', 'camount'].includes(ACQ.phase)) {   // the number pad: digits, a point, and delete; only the display changes
     const k = b.dataset.k, cur = ACQ.typed || '';
     ACQ.typed = k === '⌫' ? cur.slice(0, -1) : cur.length < 8 && !(k === '.' && cur.includes('.')) ? cur + k : cur;
     const sh = $('#padShow'); if (sh) sh.textContent = ACQ.typed || '…'; return;
@@ -4533,18 +4533,27 @@ function acadClick(e) {
   const x = q.items[ACQ.j];
   if (a === 'icard' && ACQ.phase === 'citem') {   // step 1: the card whose answer is the item's number
     const c = x.icards[i];
-    if (HELPER.itemCardOk(c, x.item)) { ACQ.phase = 'camount'; ACQ.msg = ''; ACQ.typed = ''; sfx.ok(); return acadRender(); }
-    const w = HELPER.wrongItemFor(c);   // the wrong item appears on the pedestal and the villager reacts; the question ends here, with one mistake
-    ACQ.shown = w ? [{ em: w.em, n: 1 }] : []; ACQ.vmood = 'wait'; sfx.bad();
-    ACQ.msg = w ? t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(x.item, 2) }) : t('ac_wrong_item');
-    return acadQDone(false, null);
+    if (HELPER.itemCardOk(c, x.item)) { ACQ.phase = 'cnum'; ACQ.pickCard = c; ACQ.msg = ''; ACQ.typed = ''; sfx.ok(); return acadRender(); }   // the right card: now its answer, the item's number
+    return acadWrongItem(HELPER.wrongItemFor(c), x);
   }
+}
+// a wrong item (a wrong card, or a wrong number for the card): it appears on the pedestal and the examiner reacts; the question ends here, with one mistake
+function acadWrongItem(w, x) {
+  ACQ.shown = w ? [{ em: w.em, n: 1 }] : []; sfx.bad();
+  ACQ.msg = w ? t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(x.item, 2) }) : t('ac_wrong_item');
+  return acadQDone(false, null);
+}
+// step 1b: the answer of the item card, typed: it must be the item's number
+function acadItemNum(k) {
+  const x = ACQ.qs[ACQ.i].items[ACQ.j];
+  if (k === x.item.n) { ACQ.phase = 'camount'; ACQ.msg = ''; ACQ.typed = ''; sfx.ok(); return acadRender(); }
+  return acadWrongItem(HELPER.itemOf(k), x);
 }
 // ✔ on the number pad (or Enter): the fighting answer, or the amount to conjure
 function acadSubmit() {
   if (!ACQ || ACQ.busy) return;
   const v = ME.parse(ACQ.typed || ''); if (!v) return;
-  if (ACQ.kind === 'fight') { if (ACQ.phase === 'fsolve') acadAnswer(v); } else if (ACQ.phase === 'camount') acadAmount(ME.num(v));
+  if (ACQ.kind === 'fight') { if (ACQ.phase === 'fsolve') acadAnswer(v); } else if (ACQ.phase === 'cnum') acadItemNum(ME.num(v)); else if (ACQ.phase === 'camount') acadAmount(ME.num(v));
 }
 // step 2: the amount. Right: the items appear on the pedestal and the villager says thank you (then the next item, or the question is right).
 // Wrong: the items stay on the pedestal and the villager says only "too many" or "not enough"; the right amount is never shown. One mistake, no second try.
@@ -4606,7 +4615,7 @@ async function acadCastFx(s) {
 const acadPipsHtml = (x, st) => Array.from({ length: x.need }, (_, m) => `<i class="${m < st.hits ? 'gold' : m < st.hits + st.miss ? 'red' : ''}"></i>`).join('');
 function acadPips() { document.querySelectorAll('#foeBody .acBigDum').forEach(b => { const x = ACQ.dummies[+b.dataset.j]; b.querySelector('.mk').innerHTML = acadPipsHtml(x, { hits: x.hits, miss: x.miss || 0 }); }); }
 document.addEventListener('keydown', e => {   // typing on a keyboard also works for the trial's number pad
-  if (!ACQ || !ACQ.onGame || !['fsolve', 'camount'].includes(ACQ.phase) || ACQ.busy || !$('#padShow')) return;
+  if (!ACQ || !ACQ.onGame || !['fsolve', 'cnum', 'camount'].includes(ACQ.phase) || ACQ.busy || !$('#padShow')) return;
   const k = e.key === 'Backspace' ? '⌫' : /^[0-9.]$/.test(e.key) ? e.key : null;
   if (e.key === 'Enter') return acadSubmit();
   if (!k) return;
