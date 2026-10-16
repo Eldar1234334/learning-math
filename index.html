@@ -1375,7 +1375,7 @@ const STR = {
   ac_fight_btn: ['⚔️ Fighting trial', '⚔️ מבחן הקרב'], ac_conj_btn: ['🪄 Conjuring trial', '🪄 מבחן הזימון'],
   ac_fight_t: ['Hit this dummy with a spell it is weak to.', 'פגעו בבובה הזאת בכישוף שהיא חלשה נגדו.'],
   ac_fight_multi: ['Hit it {k} of {n}: a different spell each time!', 'פגעו בה {k} מתוך {n}: כישוף אחר בכל פעם!'],
-  ac_hit: ['💥 A hit!', '💥 פגיעה!'], ac_miss: ['That spell does not hurt it!', 'הכישוף הזה לא פוגע בה!'],
+  ac_hit: ['💥 A hit!', '💥 פגיעה!'], ac_aoe_t: ['One spell hits both dummies at once!', 'כישוף אחד פוגע בשתי הבובות יחד!'], ac_aoe_hit: ['💥💥 Two hits!', '💥💥 שתי פגיעות!'], ac_miss: ['That spell does not hurt it!', 'הכישוף הזה לא פוגע בה!'],
   ac_learn_more: ['Learn more spells first. You can come back later.', 'למדו עוד כישופים קודם. אפשר לחזור מאוחר יותר.'],
   ac_gold: ['gold', 'זהב'], ac_silver: ['silver', 'כסף'], ac_bronze: ['bronze', 'ארד'],
   vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'], vh_book_item: ['Find this item in the conjuration book', 'מצאו את הפריט הזה בספר הזימון'],
@@ -4154,24 +4154,56 @@ function acadWeak(el, lvl) {
   }
   return out;
 }
-// the row of dummies: the hits add up to exactly the question count; consecutive dummies differ; each dummy's weaknesses are different spells
+// the AOE spells the student has learned (fx 'area': they hit every monster weak to the element), whole numbers in the key pool at this level
+function acadAoe(lvl) {
+  const seen = new Set(), out = [];
+  for (const id of P.spells || []) {
+    const s = SB.BY_ID[id]; if (!s || !s.v || s.v.d !== 1 || !s.fx || s.fx.k !== 'area' || seen.has(s.v.n)) continue;
+    if (!CB.canMake(s.v, lvl)) continue;
+    seen.add(s.v.n); out.push(s);
+  }
+  return out;
+}
+// the row of dummies and its questions (§4). The hits add up to the question count plus the AOE questions: an AOE question is one
+// problem and one spell that hits two adjacent dummies (both weak to it, both still needing a hit with it). The questions come to exactly Q.
 function acadBuildRow(k, lvl) {
-  const Q = ACAD_Q[k], opts = ACAD_HITS[k], pool = ACAD_EL.map(el => ({ el, sp: acadWeak(el, lvl) }));
+  const Q = ACAD_Q[k], opts = ACAD_HITS[k], pool = ACAD_EL.map(el => ({ el, sp: acadWeak(el, lvl) })), aoeAll = acadAoe(lvl);
+  const shuffle = a => a.sort(() => Math.random() - 0.5);
   for (let tries = 0; tries < 300; tries++) {
-    const dummies = []; let rem = Q, prev = null, ok = true;
+    const A = tries < 200 && aoeAll.length && Math.random() < 0.6 ? 1 : 0;   // the AOE questions of this row; the last tries build a row without one
+    const dummies = []; let rem = Q + A, prev = null, aoeLeft = A, ok = true;
     while (rem > 0 && ok) {
       const hs = opts.filter(h => h <= rem && (rem - h === 0 || rem - h >= Math.min(...opts)));
       if (!hs.length) { ok = false; break; }
-      const h = rnd(hs), cands = pool.filter(p => p.el !== prev && p.sp.length >= h).sort(() => Math.random() - 0.5);
+      const h = rnd(hs), cands = shuffle(pool.filter(p => (!prev || p.el !== prev.el) && p.sp.length >= h));
       if (!cands.length) { ok = false; break; }
-      const c = cands[0];
-      dummies.push({ el: c.el, need: h, hits: 0, spells: c.sp.slice().sort(() => Math.random() - 0.5).slice(0, h) });
-      rem -= h; prev = c.el;
+      let c = cands[0], shared = null;
+      if (aoeLeft > 0 && prev && prev.pairNext == null && prev.need >= (prev.pairPrevN != null ? 2 : 1)) {   // pair with the previous dummy
+        for (const cc of cands) {
+          const s = aoeAll.find(a => CB.relation(a, cc.el) === 'weak' && CB.relation(a, prev.el) === 'weak');
+          if (s) { c = cc; shared = s; break; }
+        }
+      }
+      let spells;
+      if (shared) {
+        spells = [shared, ...shuffle(c.sp.filter(x => x.v.n !== shared.v.n))].slice(0, h);
+        const keep = [shared]; if (prev.pairPrevS) keep.push(prev.pairPrevS);
+        prev.spells = [...keep, ...prev.spells.filter(x => !keep.some(y => y.v.n === x.v.n))].slice(0, prev.need);
+        prev.pairNext = shared.v.n; aoeLeft--;
+      } else spells = shuffle(c.sp.slice()).slice(0, h);
+      const d = { el: c.el, need: h, hits: 0, spells, pairNext: null, pairPrevN: shared ? shared.v.n : null, pairPrevS: shared };
+      dummies.push(d); rem -= h; prev = d;
     }
-    if (!ok) continue;
-    // one question per hit: a math problem whose answer is the weakness spell's number
-    const qs = [];
-    dummies.forEach((d, j) => d.spells.forEach(s => { const p = ME.make(lvl, { target: s.v }); if (p && ME.eq(p.a, s.v)) qs.push({ d: j, s, p }); }));
+    if (!ok || aoeLeft > 0) continue;
+    // one question per hit; an AOE question covers the dummy and the next one (one entry each)
+    const qs = [], done = new Set();
+    dummies.forEach((d, j) => d.spells.forEach(s => {
+      const key = j + ':' + s.v.n; if (done.has(key)) return;
+      const pair = d.pairNext === s.v.n && j + 1 < dummies.length;
+      if (pair) done.add((j + 1) + ':' + s.v.n);
+      const p = ME.make(lvl, { target: s.v });
+      if (p && ME.eq(p.a, s.v)) qs.push({ d: j, d2: pair ? j + 1 : null, s, p });
+    }));
     if (qs.length === Q) return { dummies, qs };
   }
   return null;   // no valid row: the test is not offered (gap 2)
@@ -4233,8 +4265,8 @@ function acadRender() {
     box.innerHTML = `<h3>${t('ac_t')}</h3><p>${ACQ.text}</p><div class="acadBtns">${ACQ.buttons.map(([l, a]) => `<button class="btn" data-ac="${a}">${l}</button>`).join('')}</div>`;
   } else if (ACQ.phase === 'fight') {
     const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], marks = '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist));
-    const row = ACQ.dummies.map((x, j) => `<div class="acadDum${j === q.d ? ' cur' : ''}${x.hits >= x.need ? ' down' : ''}"><span class="acadBadge">${ACAD_BADGE[x.el]}</span><small>${tl(ACAD_ELN[x.el])}</small>${j === ACQ.dummies.length - 1 && x.need >= 2 ? '<b>👑</b>' : ''}<div class="mk">${Array.from({ length: x.need }, (_, m) => `<i class="${m < x.hits ? 'gold' : ''}"></i>`).join('')}</div></div>`).join('');
-    const story = d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : t('ac_fight_t');
+    const row = ACQ.dummies.map((x, j) => `<div class="acadDum${j === q.d || j === q.d2 ? ' cur' : ''}${x.hits >= x.need ? ' down' : ''}"><span class="acadBadge">${ACAD_BADGE[x.el]}</span><small>${tl(ACAD_ELN[x.el])}</small>${j === ACQ.dummies.length - 1 && x.need >= 2 ? '<b>👑</b>' : ''}<div class="mk">${Array.from({ length: x.need }, (_, m) => `<i class="${m < x.hits ? 'gold' : ''}"></i>`).join('')}</div></div>`).join('');
+    const story = q.d2 != null ? t('ac_aoe_t') : d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : t('ac_fight_t');
     box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })} · ${marks}</div><div class="acadDums">${row}</div>
       <p class="acadStory">${story}</p><div class="acadEq" dir="ltr">${exprHtml(q.p.e)}</div>
       <div class="acadPadShow">${ACQ.typed || '…'}</div><p class="small">${t('ac_type')}</p>${acadPadHtml()}<p class="acadFb">${ACQ.msg || ''}</p>`;
@@ -4271,7 +4303,7 @@ function acadClick(e) {
   if (a === 'ok' && ACQ.phase === 'fight') {   // fighting: the typed answer must be the number of the weakness this question asks for
     if (ACQ.typed === '') return;
     const q = ACQ.qs[ACQ.i], dummy = ACQ.dummies[q.d];
-    if (+ACQ.typed === q.s.v.n) { dummy.hits++; ACQ.msg = t('ac_hit'); return acadQDone(true); }
+    if (+ACQ.typed === q.s.v.n) { dummy.hits++; if (q.d2 != null) ACQ.dummies[q.d2].hits++; ACQ.msg = t(q.d2 != null ? 'ac_aoe_hit' : 'ac_hit'); return acadQDone(true); }
     ACQ.msg = t('ac_miss'); return acadQDone(false);
   }
   if (a === 'ok' && ACQ.phase === 'amount') {   // conjuring step 2: the amount; the right amount is never shown
