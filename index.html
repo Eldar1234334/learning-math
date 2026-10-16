@@ -102,7 +102,7 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .acProg i{width:10px;height:10px;border-radius:50%;background:#fff6}.acProg i.ok{background:#8f8}.acProg i.bad{background:#f66}.acProg i.cur{outline:2px solid #ffd166}
 .acPed{position:relative;width:100%;text-align:center}.acPedBase{height:26px;width:90%;margin:0 auto;border-radius:8px 8px 4px 4px;background:linear-gradient(#e8e0cf,#b9ad92)}
 .acPedItems{position:absolute;bottom:26px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:30px;font-size:1.3rem}
-.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+.acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
 .acadDots i.cur{outline:2px solid #ffd166}.acadDots i.done{background:#8f8}
 .acadBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
@@ -1404,6 +1404,12 @@ const STR = {
   ac_fight_multi: ['Hit it {k} of {n}: a different spell each time!', 'פגעו בה {k} מתוך {n}: כישוף אחר בכל פעם!'],
   ac_hit: ['💥 A hit!', '💥 פגיעה!'], ac_aoe_t: ['One spell hits both dummies at once!', 'כישוף אחד פוגע בשתי הבובות יחד!'], ac_aoe_hit: ['💥💥 Two hits!', '💥💥 שתי פגיעות!'], ac_miss: ['That spell does not hurt it!', 'הכישוף הזה לא פוגע בה!'],
   ac_learn_more: ['Learn more spells first. You can come back later.', 'למדו עוד כישופים קודם. אפשר לחזור מאוחר יותר.'],
+  ac_pick_card: ['Pick the card whose answer is a spell this dummy is weak to.', 'בחרו את הקלף שהתשובה שלו היא כישוף שהבובה חלשה נגדו.'],
+  ac_pick_answer: ['Now pick the right answer.', 'עכשיו בחרו את התשובה הנכונה.'],
+  ac_card_miss: ['That card does not give a spell it is weak to.', 'הקלף הזה לא נותן כישוף שהבובה חלשה נגדו.'],
+  ac_pick_item_card: ['Pick the card with the number of the item.', 'בחרו את הקלף עם מספר הפריט.'],
+  ac_pick_amount_card: ['Pick the card with the amount to conjure.', 'בחרו את הקלף עם הכמות לזימון.'],
+  ac_item_of: ['Item {k} of {n}', 'פריט {k} מתוך {n}'],
   ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
   ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
   ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
@@ -4251,22 +4257,56 @@ function acadBuildRow(k, lvl, Qn) {
   return null;   // no valid row: the test is not offered (gap 2)
 }
 /* ---- starting, answering, and the end ---- */
+const ACAD_ITEMS = [1, 1, 2, 2, 3];   // the conjuring trial: items per question (the more advanced tests conjure more items)
+// the trial's questions. Fighting (spec 08 §4, as the fight): step 1 the card whose answer is the spell, step 2 its answer.
+// Conjuring (§5): for each item, step 1 the card whose answer is the item's number, step 2 the card with the amount to conjure.
 function acadStart() {   // the questions are built now, from the student's current math level (never above it)
   const k = ACQ.k, lvl = P.mlvl || 1;
   if (!ACQ.kind) ACQ.kind = 'conj';
-  ACQ.Q = ACQ.practice ? 6 : ACAD_Q[k]; ACQ.need = ACAD_NEED[k]; ACQ.allowed = ACQ.practice ? 99 : ACQ.Q - ACQ.need; ACQ.facts = []; ACQ.results = []; ACQ.placed = null;
-  ACQ.right = 0; ACQ.mist = 0; ACQ.i = 0; ACQ.typed = ''; ACQ.msg = ''; ACQ.busy = false;
+  ACQ.Q = ACQ.practice ? 6 : ACAD_Q[k]; ACQ.need = ACAD_NEED[k]; ACQ.allowed = ACQ.practice ? 99 : ACQ.Q - ACQ.need;
+  ACQ.facts = []; ACQ.results = []; ACQ.placed = null; ACQ.right = 0; ACQ.mist = 0; ACQ.i = 0; ACQ.j = 0; ACQ.msg = ''; ACQ.busy = false;
   if (ACQ.kind === 'fight') {
     const row = acadBuildRow(k, lvl, ACQ.Q);
     if (!row) { ACQ.phase = 'result'; ACQ.text = t('ac_learn_more'); ACQ.buttons = [[t('ac_back'), 'close']]; return acadRender(); }
-    ACQ.dummies = row.dummies; ACQ.qs = row.qs; ACQ.phase = 'fight'; return acadRender();
+    ACQ.dummies = row.dummies;
+    ACQ.qs = row.qs.map(q => {   // step 1 shows four cards: the one whose answer is the spell, and three problems whose answers the dummy is not weak to
+      const bad = new Set(ACQ.dummies[q.d].spells.map(s => s.v.n).concat(q.d2 != null ? ACQ.dummies[q.d2].spells.map(s => s.v.n) : []));
+      const others = [];
+      for (let n = 0; n < 120 && others.length < 3; n++) {
+        const p = ME.make(lvl, {}); if (!p || !p.a || p.a.d !== 1) continue;
+        if (bad.has(p.a.n) || p.a.n === q.s.v.n || others.some(o => ME.eq(o.a, p.a))) continue;
+        others.push(p);
+      }
+      return Object.assign(q, { cards: shuffle([q.p, ...others]), choices: HELPER.itemAnswers(q.s.v.n, Math.random) });
+    });
+    ACQ.phase = 'fpick'; return acadRender();
   }
-  const pool = HELPER.reachable(lvl);
-  ACQ.qs = Array.from({ length: ACQ.Q }, () => {
-    const p = HELPER.makeAmount(lvl), item = rnd(pool), others = pool.filter(x => x.n !== item.n).sort(() => Math.random() - 0.5).slice(0, 3);
-    return { p, item, opts: [item, ...others].sort(() => Math.random() - 0.5) };
-  });
-  ACQ.phase = 'item'; acadRender();
+  const m = ACAD_ITEMS[k], pool = HELPER.reachable(lvl);
+  ACQ.qs = Array.from({ length: ACQ.Q }, () => ({
+    items: shuffle(pool.slice()).slice(0, m).map(item => {
+      const p = HELPER.makeAmount(lvl);
+      return { item, p, icards: HELPER.itemCards(item, lvl, Math.random), acards: HELPER.amountCards(p, Math.random) };
+    })
+  }));
+  ACQ.phase = 'citem'; acadRender();
+}
+function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
+// one question is over: right only when every step of it was right. A wrong step is the one mistake of the question.
+function acadQDone(ok, fact) {
+  ACQ.busy = true; if (ok) ACQ.right++; else ACQ.mist++;
+  if (!ok && fact) ACQ.facts.push({ p: fact, ok: false });   // the amount that was missed, for the weak-spot memory
+  ACQ.results[ACQ.i] = ok;
+  ACQ.placed = ok && ACQ.kind === 'conj' ? ACQ.qs[ACQ.i].items.map(x => ({ em: x.item.em, n: x.p.amount })) : null;   // the items on the pedestal
+  if (ok && ACQ.msg === '') ACQ.msg = t('ac_right');
+  acadRender();
+  const fightOk = ok ? (ACQ.lastDown && ACQ.lastDown.length ? 1100 : 800) : 1500;
+  setTimeout(() => {
+    if (!ACQ) return;
+    ACQ.busy = false; ACQ.i++; ACQ.j = 0; ACQ.msg = ''; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
+    if (ACQ.mist > ACQ.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
+    if (ACQ.i >= ACQ.Q) return acadFinish(false);
+    ACQ.phase = ACQ.kind === 'fight' ? 'fpick' : 'citem'; acadRender();
+  }, ACQ.kind === 'fight' ? fightOk : (ok ? 1500 : 3400));   // the spec's pauses: fights 0.8 s / 1.1 s, a wrong conjuring answer 3.4 s
 }
 const ACAD_COL = { fire: '#ff7a3d', ice: '#8fd8ff', dark: '#4a3f7a', plant: '#5fbf5f', storm: '#9aa7ff', stone: '#9e9e9e' };   // the dummy's colour: its element
 // a training dummy (spec 08 §4): its element on three places of its body (head, the band on the body, the base)
@@ -4312,31 +4352,92 @@ function acadStageHtml(q) {
   const dots = ACQ.dummies.map((x, j) => `<i class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
   return acadScene(heroOf(P), big, right) + `<div class="acadRow">${row}</div><div class="acadDots">${dots}</div>`;
 }
-// the conjuring trial's stage (spec 08 §5): the pedestal on the left (the conjured items appear on it), the villager on the right, nothing else
+// the conjuring trial's stage: the pedestal on the left (the conjured items appear on it), the villager on the right
 function acadConjStageHtml() {
-  const items = ACQ.placed ? Array.from({ length: Math.min(ACQ.placed, 12) }, (_, i) => `<span class="acPedItem" style="animation-delay:${i * 0.12}s">${ACQ.qs[ACQ.i].item.em}</span>`).join('') : '';
+  const items = ACQ.placed ? ACQ.placed.map((pl, gi) => Array.from({ length: Math.min(pl.n, 8) }, (_, i) => `<span class="acPedItem" style="animation-delay:${(gi * 8 + i) * 0.12}s">${pl.em}</span>`).join('')).join('') : '';
   const left = `<div class="acPed"><div class="acPedItems">${items}</div><div class="acPedBase"></div></div>`;
-  const right = STAGE_BG.villagerSVG('bakery', STAGE_BG.SKINS[0], 'wait');
-  return acadScene(left, '', right);
+  return acadScene(left, '', STAGE_BG.villagerSVG('bakery', STAGE_BG.SKINS[0], 'wait'));
+}
+function acadCardBtn(text, act, i) { return `<button class="opt card" data-ac="${act}" data-i="${i}"><span class="cardEx" dir="ltr">${text}</span></button>`; }
+function acadRender() {
+  let ov = $('#academy');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'academy'; ov.className = 'acadOv'; ov.innerHTML = '<div class="acadBox" id="acadBox"></div>'; document.body.appendChild(ov); ov.onclick = acadClick; }
+  ov.style.display = ACQ ? '' : 'none'; if (!ACQ) return;
+  const box = $('#acadBox'), ex = ACQ.k % 2 === 0 ? 'Orin' : 'Odelia';   // the examiners (§10.6): Orin for tests 1, 3, 5; Odelia for 2, 4
+  if (ACQ.phase === 'rules') {
+    box.innerHTML = `<h3>${t('ac_t')}</h3><p><b>${ex}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: ACAD_Q[ACQ.k], n: ACAD_NEED[ACQ.k], m: ACAD_Q[ACQ.k] - ACAD_NEED[ACQ.k] })}</p>
+      <div class="acadBtns"><button class="btn" data-ac="start" data-kind="fight">${t('ac_fight_btn')}</button><button class="btn" data-ac="start" data-kind="conj">${t('ac_conj_btn')}</button><button class="btn ghost" data-ac="close">${t('ac_not_yet')}</button></div>`;
+    return;
+  }
+  if (ACQ.phase === 'result') {
+    box.innerHTML = `<h3>${t('ac_t')}</h3><p>${ACQ.text}</p><div class="acadBtns">${ACQ.buttons.map(([l, a]) => `<button class="btn" data-ac="${a}">${l}</button>`).join('')}</div>`;
+    return;
+  }
+  const q = ACQ.qs[ACQ.i], marks = ACQ.practice ? '' : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist));
+  if (ACQ.kind === 'fight') {
+    const d = ACQ.dummies[q.d], story = q.d2 != null ? t('ac_aoe_t') : d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : t('ac_fight_t');
+    const panel = ACQ.phase === 'fpick'
+      ? `<p class="acadStory">${story}</p><p class="small">${t('ac_pick_card')}</p><div class="acadGrid">${q.cards.map((c, i) => acadCardBtn(exprHtml(c.e), 'card', i)).join('')}</div>`
+      : `<p class="acadStory">${story}</p><p class="small">${t('ac_pick_answer')}</p><div class="acadEq" dir="ltr">${exprHtml(q.p.e)}</div><div class="acadGrid">${q.choices.map(n => `<button class="opt num" data-ac="num" data-n="${n}">${n}</button>`).join('')}</div>`;
+    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })}${marks ? ' · ' + marks : ''}</div>${acadStageHtml(q)}${panel}<p class="acadFb">${ACQ.msg || ''}</p>`;
+    if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; setTimeout(() => acadFly(s), 30); }   // the spell flies once the dummies are drawn
+    return;
+  }
+  // conjuring: the items of the question, one at a time
+  const x = q.items[ACQ.j], itemLine = t('ac_item_of', { k: ACQ.j + 1, n: q.items.length });
+  const panel = ACQ.phase === 'citem'
+    ? `<p class="acadStory"><span class="acadBadge2">${x.item.em}</span> ${visitStory({ p: x.p, item: x.item, extra: null })}</p><p class="small">${t('ac_pick_item_card')}</p><div class="acadGrid">${x.icards.map((c, i) => acadCardBtn(HELPER.cardText(c), 'icard', i)).join('')}</div>`
+    : `<p class="acadStory"><span class="acadBadge2">${x.item.em}</span> ${visitStory({ p: x.p, item: x.item, extra: null })}</p><p class="small">${t('ac_pick_amount_card')}</p><div class="acadGrid">${x.acards.map((c, i) => acadCardBtn(HELPER.cardText(c), 'acard', i)).join('')}</div>`;
+  box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })}${marks ? ' · ' + marks : ''} · ${itemLine}</div>${acadConjStageHtml()}${panel}<p class="acadFb">${ACQ.msg || ''}</p>`;
+}
+function acadClick(e) {
+  const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !ACQ) return;
+  const a = b.dataset.ac;
+  if (a === 'close') { ACQ = null; acadRender(); refreshAcademy(); return; }
+  if (a === 'start') { ACQ.kind = b.dataset.kind || 'conj'; ACQ.practice = false; return acadStart(); }
+  if (a === 'again') { ACQ.practice = false; return acadStart(); }
+  if (a === 'practice') { ACQ.practice = true; return acadStart(); }   // the practice run: 6 questions, the same rules, no marks
+  if (a === 'take') { ACQ.practice = false; return acadStart(); }
+  if (ACQ.busy) return;
+  const i = +b.dataset.i, q = ACQ.qs[ACQ.i];
+  if (ACQ.kind === 'fight') {
+    const d = ACQ.dummies[q.d], targets = q.d2 != null ? [q.d, q.d2] : [q.d];
+    if (a === 'card' && ACQ.phase === 'fpick') {   // step 1: the card whose answer is a spell this dummy is weak to
+      if (q.cards[i] === q.p) { ACQ.phase = 'fsolve'; ACQ.msg = ''; return acadRender(); }
+      d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
+      ACQ.msg = t('ac_card_miss'); return acadQDone(false, null);
+    }
+    if (a === 'num' && ACQ.phase === 'fsolve') {   // step 2: the answer of the card: the spell hits
+      if (+b.dataset.n === q.s.v.n) {
+        targets.forEach(j => ACQ.dummies[j].hits++);
+        ACQ.msg = t(q.d2 != null ? 'ac_aoe_hit' : 'ac_hit'); ACQ.lastHit = targets; ACQ.lastDown = targets.filter(j => ACQ.dummies[j].hits >= ACQ.dummies[j].need);
+        ACQ.shot = { emoji: q.d2 != null ? '🌟' : '✨', targets };
+        return acadQDone(true);
+      }
+      d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
+      ACQ.msg = t('ac_miss'); return acadQDone(false, null);
+    }
+    return;
+  }
+  const x = q.items[ACQ.j];
+  if (a === 'icard' && ACQ.phase === 'citem') {   // step 1: the card whose answer is the item's number
+    if (HELPER.itemCardOk(x.icards[i], x.item)) { ACQ.phase = 'camount'; ACQ.msg = ''; return acadRender(); }
+    ACQ.msg = t('ac_wrong_item'); return acadQDone(false, null);
+  }
+  if (a === 'acard' && ACQ.phase === 'camount') {   // step 2: the card with the amount to conjure; a wrong one says only "too many" or "not enough"
+    const c = x.acards[i];
+    if (c.fits) {
+      if (ACQ.j + 1 < q.items.length) { ACQ.j++; ACQ.phase = 'citem'; ACQ.msg = ''; return acadRender(); }
+      return acadQDone(true);
+    }
+    ACQ.msg = c.value > x.p.amount ? t('ac_many') : t('ac_few');
+    return acadQDone(false, x.p);
+  }
 }
 // the spell flies from the typed answer to the dummy (or both dummies of an AOE question); the shot is set by the answer
 function acadFly(shot) {
   const src = $('#acadBox .acadPadShow'); if (!src) return;
   shot.targets.forEach(j => { const to = $(`#acadBox .acadDum2[data-j="${j}"] .dsvg`); if (to) fly(shot.emoji, src, to, { trail: true, size: 1.2 }); });
-}
-function acadQDone(ok, fact = true) {   // one question is over: right only when its step is right; a wrong answer is the one mistake of the question
-  ACQ.busy = true; if (ok) ACQ.right++; else ACQ.mist++;
-  ACQ.results[ACQ.i] = ok; ACQ.placed = ok && ACQ.kind === 'conj' ? ACQ.qs[ACQ.i].p.amount : null;   // the progress across the top; the items on the pedestal
-  if (fact) ACQ.facts.push({ p: ACQ.qs[ACQ.i].p, ok });   // the amount or the answer, for the weak-spot memory at the end
-  if (ok && ACQ.msg === '') ACQ.msg = t('ac_right');
-  acadRender();
-  setTimeout(() => {
-    if (!ACQ) return;
-    ACQ.busy = false; ACQ.i++; ACQ.typed = ''; ACQ.msg = ''; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
-    if (ACQ.mist > ACQ.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
-    if (ACQ.i >= ACQ.Q) return acadFinish(false);
-    ACQ.phase = ACQ.kind === 'fight' ? 'fight' : 'item'; acadRender();
-  }, ok ? (ACQ.lastDown && ACQ.lastDown.length ? 1100 : 800) : (ACQ.kind === 'conj' ? 3400 : 1500));   // the spec's pauses: a hit 0.8 s, a dummy's last hit 1.1 s, a wrong conjuring answer 3.4 s
 }
 // the weak-spot memory (§6): the wrong answers of a real test are kept for practice in normal play; the right ones are not; a closed test records nothing
 function acadApplyFacts() {
@@ -4377,76 +4478,6 @@ function acadFinish(early) {
     ACQ.buttons = [[t('ac_again'), 'again'], [t('ac_practice'), 'practice'], [t('ac_back'), 'close']];
   }
   acadRender(); refreshAcademy();
-}
-function acadRender() {
-  let ov = $('#academy');
-  if (!ov) { ov = document.createElement('div'); ov.id = 'academy'; ov.className = 'acadOv'; ov.innerHTML = '<div class="acadBox" id="acadBox"></div>'; document.body.appendChild(ov); ov.onclick = acadClick; }
-  ov.style.display = ACQ ? '' : 'none'; if (!ACQ) return;
-  const box = $('#acadBox'), ex = ACQ.k % 2 === 0 ? 'Orin' : 'Odelia';   // the examiners (§10.6): Orin for tests 1, 3, 5; Odelia for 2, 4
-  if (ACQ.phase === 'rules') {
-    box.innerHTML = `<h3>${t('ac_t')}</h3><p><b>${ex}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: ACAD_Q[ACQ.k], n: ACAD_NEED[ACQ.k], m: ACAD_Q[ACQ.k] - ACAD_NEED[ACQ.k] })}</p>
-      <div class="acadBtns"><button class="btn" data-ac="start" data-kind="fight">${t('ac_fight_btn')}</button><button class="btn" data-ac="start" data-kind="conj">${t('ac_conj_btn')}</button><button class="btn ghost" data-ac="close">${t('ac_not_yet')}</button></div>`;
-  } else if (ACQ.phase === 'result') {
-    box.innerHTML = `<h3>${t('ac_t')}</h3><p>${ACQ.text}</p><div class="acadBtns">${ACQ.buttons.map(([l, a]) => `<button class="btn" data-ac="${a}">${l}</button>`).join('')}</div>`;
-  } else if (ACQ.phase === 'fight') {
-    const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], marks = (ACQ.practice ? '' : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist)));
-    const story = q.d2 != null ? t('ac_aoe_t') : d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : t('ac_fight_t');
-    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })}${marks ? ' · ' + marks : ''}</div>${acadStageHtml(q)}
-      <p class="acadStory">${story}</p><div class="acadEq" dir="ltr">${exprHtml(q.p.e)}</div>
-      <div class="acadPadShow">${ACQ.typed || '…'}</div><p class="small">${t('ac_type')}</p>${acadPadHtml()}<p class="acadFb">${ACQ.msg || ''}</p>`;
-    if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; setTimeout(() => acadFly(s), 30); }   // the spell flies once the dummies are drawn
-  } else {
-    const q = ACQ.qs[ACQ.i], marks = (ACQ.practice ? '' : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist)));   // the mistakes allowed, crossed when used
-    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })}${marks ? ' · ' + marks : ''}</div>
-      ${acadConjStageHtml()}<p class="acadStory">${visitStory({ p: q.p, item: q.item, extra: null })}</p>
-      ${ACQ.phase === 'item'
-        ? `<p class="small">${t('ac_pick_item')}</p><div class="acadGrid">${q.opts.map((o, j) => `<button class="opt card" data-ac="item" data-i="${j}"><span class="cardEx">${o.em}</span><small>${tl(HELPER.nameFor(o, 1))}</small></button>`).join('')}</div>`
-        : `<div class="acadPadShow">${ACQ.typed || '…'}</div><p class="small">${t('ac_type')}</p>${acadPadHtml()}`}
-      <p class="acadFb">${ACQ.msg || ''}</p>`;
-  }
-}
-function acadPadHtml() {
-  return `<div class="acadPad">${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => `<button class="opt num" data-ac="key" data-d="${d}">${d}</button>`).join('')}<button class="opt num" data-ac="key" data-d="del">⌫</button><button class="opt num" data-ac="key" data-d="0">0</button><button class="btn" data-ac="ok">✔</button></div>`;
-}
-function acadClick(e) {
-  const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !ACQ) return;
-  const a = b.dataset.ac;
-  if (a === 'close') { ACQ = null; acadRender(); refreshAcademy(); return; }
-  if (a === 'start') { ACQ.kind = b.dataset.kind || 'conj'; ACQ.practice = false; return acadStart(); }
-  if (a === 'again') { ACQ.practice = false; return acadStart(); }
-  if (a === 'practice') { ACQ.practice = true; return acadStart(); }   // the practice run: 6 questions, the same rules, no marks
-  if (a === 'take') { ACQ.practice = false; return acadStart(); }
-  if (ACQ.busy) return;
-  if (a === 'item' && ACQ.phase === 'item') {   // conjuring step 1: the item; a wrong item ends the question
-    const q = ACQ.qs[ACQ.i], o = q.opts[+b.dataset.i];
-    if (o.n === q.item.n) { ACQ.phase = 'amount'; ACQ.msg = ''; return acadRender(); }
-    ACQ.msg = t('ac_wrong_item'); return acadQDone(false, false);
-  }
-  if (a === 'key' && (ACQ.phase === 'amount' || ACQ.phase === 'fight')) {
-    const d = b.dataset.d;
-    if (d === 'del') ACQ.typed = ACQ.typed.slice(0, -1); else if (ACQ.typed.length < 2) ACQ.typed += d;
-    return acadRender();
-  }
-  if (a === 'ok' && ACQ.phase === 'fight') {   // fighting: the typed answer must be the number of the weakness this question asks for
-    if (ACQ.typed === '') return;
-    const q = ACQ.qs[ACQ.i], dummy = ACQ.dummies[q.d];
-    const targets = q.d2 != null ? [q.d, q.d2] : [q.d];
-    if (+ACQ.typed === q.s.v.n) {   // a hit: the spell flies to the dummy (both, for an AOE question), which shakes; a finished dummy collapses
-      targets.forEach(j => ACQ.dummies[j].hits++);
-      ACQ.msg = t(q.d2 != null ? 'ac_aoe_hit' : 'ac_hit'); ACQ.lastHit = targets; ACQ.lastDown = targets.filter(j => ACQ.dummies[j].hits >= ACQ.dummies[j].need);
-      ACQ.shot = { emoji: q.d2 != null ? '🌟' : '✨', targets };
-      return acadQDone(true);
-    }
-    dummy.miss = Math.min((dummy.miss || 0) + 1, dummy.need - dummy.hits);   // a miss: a red marker under the dummy
-    ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] }; ACQ.msg = t('ac_miss');
-    return acadQDone(false);
-  }
-  if (a === 'ok' && ACQ.phase === 'amount') {   // conjuring step 2: the amount; the right amount is never shown
-    if (ACQ.typed === '') return;
-    const q = ACQ.qs[ACQ.i], r = HELPER.checkAmount(+ACQ.typed, q.p.amount);
-    if (r.ok) return acadQDone(true);
-    ACQ.msg = r.kind === 'few' ? t('ac_few') : t('ac_many'); return acadQDone(false);
-  }
 }
 /* ====================== THE FIGHT (spec 00 §3, combat.js) ====================== */
 // A turn: pick one of the problem cards (answers hidden) → from math level 5, say the answer (the incantation) → the answer is cast as the spell
