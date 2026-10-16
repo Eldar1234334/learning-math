@@ -3799,6 +3799,8 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div>`;
   $('#hpFill').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
   const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar; the stylesheet shows it with class "on")
+  ab.style.setProperty('--seg', HELPER.PATIENCE);   // five segments: one per point of patience
+  ab.firstElementChild.style.background = 'linear-gradient(90deg,#ff6b3d,#ffb347)';   // warm colour: impatience, not armor
   if (V.imp) ab.firstElementChild.style.width = Math.round(100 * V.st.patience / HELPER.PATIENCE) + '%';
   $('#foeName').textContent = G.site.name + ' · ' + V.project.name + ' · ' + (V.round + 1) + '/' + V.rounds.length;
   G.vmood = V.phase === 'done' ? 'happy' : (V.st.happy > 0 ? 'happy' : 'wait');
