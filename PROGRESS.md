@@ -737,9 +737,3 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Deviations to report to the owner:** session length is 6 hours (CacheService caps at 6 hours; the spec asked for 8). The audit log keeps the last 200 rows; the one-school-year retention is not built yet (spec 07 §15, owner decision).
 - **Tests:** staff-test 39 checks, reg-test 38, newschool 11, gsi-test 11, kit 14, move 22, class 20 (all pass); tests/index.html 111 pass.
 - **Next:** G4 (home players by hashed Google ID; the counting script change is for the owner to deploy), G5 (the security checks of spec §12). Going live waits for the owner's check on the test site.
-
-## Phase 15: Village Helper, slice 1 (the notice board; spec 05, on test-phase14)
-- **Done on the test site:** the notice board opens the Village Helper. A villager asks for items in a story; the wizard finds the item in the conjuration book (9 items), picks the card that gives its number (step 1), then says how many to conjure (step 2). Stories: "result unknown" from math level 1, "change unknown" from level 4. Wrong card: the villager laughs, one smiley less. Too few / too many: the villager counts how far off it was; one smiley less. Three villagers per visit; no smileys left = the visit ends kindly.
-- **Logic:** `helper.js` (pure, with `tests/helper.test.js`, 10 checks; tests/index.html 121 pass).
-- **Not in slice 1 (later slices):** the rest of the story types, read-aloud, Hebrew plurals and gender, rewards (XP and coins), the score by type column, bundles, wizard-level abilities (spec 05 §8).
-- **Left out on purpose:** the level limit (the board is open at every level in this slice, and only the two join types are used).
