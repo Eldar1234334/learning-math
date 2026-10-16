@@ -3289,7 +3289,7 @@ function relabelGame() {
   updateBars(); renderPotBar(); renderItemBar();
 }
 function updateBars() {
-  if (VS) return visitBars();   // a village visit shows the wizard's mana, not the smileys of the old village
+  if (VS && VS.project) return visitBars();   // a village visit shows the wizard's mana, not the smileys of the old village
   const b = G.quest === 'battle';
   if (b && G.st) {   // the wizard's HP bar (it replaces the hearts) and the monster's
     const h = G.st.hero, hp = G.heroShown != null ? G.heroShown : h.hp, pc = Math.max(0, hp) / h.max * 100;   // during the monsters' turn the bar follows the hits one by one
@@ -3812,7 +3812,7 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
   VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, picCost: 0, snap: null, noCount: false, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
   $('#itemBar').style.display = 'none'; setBookIcon(true);
-  drawScene(); visitRound(); visitShow();
+  visitRound(); drawScene(); visitShow();
 }
 // the book button of the game screen: 📜 in a village visit (the conjuration book), 📖 in a fight (the spell book)
 function setBookIcon(conj) { const b = document.querySelector('#game [data-book]'); if (b) b.textContent = conj ? '📜' : '📖'; }
