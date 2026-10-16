@@ -3770,7 +3770,17 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
 function visitRound() {   // the next item of the projects: its amount (one level lower) and the cards of the card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
   V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
-  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.msg = ''; V.potUsed = false;
+  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.msg = ''; V.potUsed = false; V.read = false;
+}
+// reads a story aloud: Hebrew with the device's Hebrew voice (silent when there is none), English with the device's English voice
+function vhSpeak(text) {
+  try {
+    if (muted || !window.speechSynthesis || !text) return;
+    const v = LANG === 'he' ? (heVoice || findHeVoice()) : null;
+    if (LANG === 'he' && !v) return;
+    const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ' ')); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+    u.rate = .85; u.volume = vol; speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) {}
 }
 function visitBars() {   // the wizard's mana (blue) sits where the fight shows hearts; the villager's happy meter where the monster's HP is
   const V = VS;
@@ -3796,6 +3806,8 @@ function visitShow() {
     : `<div class="vhCount"><span class="vhHave">${e.repeat(s.have) || '–'}</span> <b>${s.have} / ${s.of}</b></div>`;
   $('#qTitle').textContent = V.project.name;
   $('#qBig').innerHTML = `<div class="vhStory">${story}</div>${shown}`;
+  V.storyText = story;   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
+  if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(story); }
   $('#qSub').textContent = '';
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.className = 'opts';
   const done = V.phase === 'done' || V.phase === 'lost';
@@ -3815,7 +3827,7 @@ function visitShow() {
   $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : 'vh_lost') : V.msg;
   // the Mana potion and leaving for now
   const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
-  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave'); nb.onclick = () => { const d = VS && VS.phase === 'done'; VS = null; jAfterVisit(d); };
 }
 function visitAfter() {   // after each action: the visit may be over
@@ -3832,6 +3844,7 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
   if (act === 'quit') { VS = null; return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
   if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
     if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
     P.carry.heart--; V.potUsed = true; V.st.mana = Math.min(V.pl.mana, V.st.mana + Math.ceil(V.pl.mana * CB.CFG.HEART_POT_HEAL));
