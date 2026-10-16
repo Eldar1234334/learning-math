@@ -4223,7 +4223,7 @@ function acadBuildRow(k, lvl, Qn) {
     while (rem > 0 && ok) {
       const hs = opts.filter(h => h <= rem && (rem - h === 0 || rem - h >= Math.min(...opts)));
       if (!hs.length) { ok = false; break; }
-      const h = rnd(hs), cands = shuffle(pool.filter(p => (!prev || p.el !== prev.el) && p.sp.length >= h));
+      const h = rnd(hs), cands = acadShuffle(pool.filter(p => (!prev || p.el !== prev.el) && p.sp.length >= h));
       if (!cands.length) { ok = false; break; }
       let c = cands[0], shared = null;
       if (aoeLeft > 0 && prev && prev.pairNext == null && prev.need >= (prev.pairPrevN != null ? 2 : 1)) {   // pair with the previous dummy
@@ -4234,11 +4234,11 @@ function acadBuildRow(k, lvl, Qn) {
       }
       let spells;
       if (shared) {
-        spells = [shared, ...shuffle(c.sp.filter(x => x.v.n !== shared.v.n))].slice(0, h);
+        spells = [shared, ...acadShuffle(c.sp.filter(x => x.v.n !== shared.v.n))].slice(0, h);
         const keep = [shared]; if (prev.pairPrevS) keep.push(prev.pairPrevS);
         prev.spells = [...keep, ...prev.spells.filter(x => !keep.some(y => y.v.n === x.v.n))].slice(0, prev.need);
         prev.pairNext = shared.v.n; aoeLeft--;
-      } else spells = shuffle(c.sp.slice()).slice(0, h);
+      } else spells = acadShuffle(c.sp.slice()).slice(0, h);
       const d = { el: c.el, need: h, hits: 0, spells, pairNext: null, pairPrevN: shared ? shared.v.n : null, pairPrevS: shared };
       dummies.push(d); rem -= h; prev = d;
     }
@@ -4277,20 +4277,20 @@ function acadStart() {   // the questions are built now, from the student's curr
         if (bad.has(p.a.n) || p.a.n === q.s.v.n || others.some(o => ME.eq(o.a, p.a))) continue;
         others.push(p);
       }
-      return Object.assign(q, { cards: shuffle([q.p, ...others]), choices: HELPER.itemAnswers(q.s.v.n, Math.random) });
+      return Object.assign(q, { cards: acadShuffle([q.p, ...others]), choices: HELPER.itemAnswers(q.s.v.n, Math.random) });
     });
     ACQ.phase = 'fpick'; return acadRender();
   }
   const m = ACAD_ITEMS[k], pool = HELPER.reachable(lvl);
   ACQ.qs = Array.from({ length: ACQ.Q }, () => ({
-    items: shuffle(pool.slice()).slice(0, m).map(item => {
+    items: acadShuffle(pool.slice()).slice(0, m).map(item => {
       const p = HELPER.makeAmount(lvl);
       return { item, p, icards: HELPER.itemCards(item, lvl, Math.random), acards: HELPER.amountCards(p, Math.random) };
     })
   }));
   ACQ.phase = 'citem'; acadRender();
 }
-function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
+function acadShuffle(a) { return a.sort(() => Math.random() - 0.5); }
 // one question is over: right only when every step of it was right. A wrong step is the one mistake of the question.
 function acadQDone(ok, fact) {
   ACQ.busy = true; if (ok) ACQ.right++; else ACQ.mist++;
