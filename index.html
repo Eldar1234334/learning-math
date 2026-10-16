@@ -1035,6 +1035,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <button class="place" data-p="home" style="left:20%;top:74%"><span class="pIcon">🏡</span><span class="sign"><b data-t="pl_home"></b><small data-t="pl_home_d"></small></span></button>
     <button class="place" data-p="work" id="placeWork" style="left:50%;top:21%"><span class="pIcon">⚒️</span><span class="sign"></span></button>
     <button class="place" data-p="shop" style="left:80%;top:74%"><span class="pIcon">🏪</span><span class="sign"><b data-t="pl_shop"></b><small data-t="pl_shop_d"></small></span></button>
+    <button class="place" data-p="academy" id="placeAcad" style="left:50%;top:90%;display:none"><span class="pIcon">🎓</span><span class="sign"><b data-t="pl_acad"></b><small data-t="pl_acad_d"></small></span></button>
     <div id="mapHero" data-ta="your_hero"></div>
     <button class="owlBtn" id="owlBtn" title="Show me how to play" aria-label="Show me how to play"></button>
   </div>
@@ -1395,6 +1396,9 @@ const STR = {
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_ians: ['The spell brings how many {item}? Choose the number.', 'הכישוף מזמן כמה {item}? בחרו את המספר.'],
   ac_t: ['🎓 The Academy: Test of Proficiency', '🎓 האקדמיה: מבחן המיומנות'],
+  pl_acad: ['The Academy', 'האקדמיה'], pl_acad_d: ['Test of Proficiency', 'מבחן המיומנות'],
+  ac_low_t: ['🎓 Practise your spells first', '🎓 תרגלו את הכישופים קודם'], ac_low_b: ['The examiner needs math level {m} before the test.', 'הבוחן צריך רמת חשבון {m} לפני המבחן.'],
+  ac_all_done: ['You have passed every Academy test.', 'עברתם את כל מבחני האקדמיה.'],
   ac_offer_t: ['🎓 The Academy', '🎓 האקדמיה'], ac_offer: ['Your level bar is full! Visit the Academy for the Test of Proficiency.', 'סרגל הרמה שלכם מלא! בקרו באקדמיה למבחן המיומנות.'],
   ac_go: ['Go to the Academy', 'לאקדמיה'], ac_rules_t: ['📋 Rules of the test', '📋 כללי המבחן'],
   ac_qcount: ['{q} questions.', '{q} שאלות.'], ac_need: ['You need {n} of {q} right ({p}%).', 'צריך {n} מתוך {q} נכונות ({p}%).'],
@@ -2366,7 +2370,7 @@ function openMenu() {
 }
 /* ----- the map: drag the hero onto a place, or tap the place; both end in the same walk-and-enter handler ----- */
 const START = { x: 50, y: 58 };
-const PLACES = { gate: { say: 'שער', door: [76, 52] }, board: { say: 'לוח', door: [24, 52] }, work: { say: 'סדנה', door: [50, 38] }, home: { say: 'בית', door: [20, 92] }, shop: { say: 'חנות', door: [80, 92] } };
+const PLACES = { gate: { say: 'שער', door: [76, 52] }, board: { say: 'לוח', door: [24, 52] }, work: { say: 'סדנה', door: [50, 38] }, home: { say: 'בית', door: [20, 92] }, shop: { say: 'חנות', door: [80, 92] }, academy: { say: 'אקדמיה', door: [50, 80] } };
 let walking = false;
 function tinker() { try { [0, .13, .3, .42, .6].forEach((d, i) => tone(i % 2 ? 520 : 380, .07, 'triangle', .05, d)); } catch (e) {} }   // a gentle tinkering from inside the shuttered workshop
 function workshopState() {   // the fifth place: shuttered until level 8, then it lights up (with a short celebration the first time)
@@ -2378,6 +2382,7 @@ function workshopState() {   // the fifth place: shuttered until level 8, then i
 function placeHero(x, y) { const h = $('#mapHero'); h.style.left = x + '%'; h.style.top = y + '%'; }
 function enterPlace(id) {
   if (TUT.on) { tutResolve(id); return; }   // the tutorial just notes where the hero arrived
+  if (id === 'academy') return academyEnter();   // the Academy building (spec 08 §3.3)
   if (id === 'gate') startQuest('battle');
   else if (id === 'board') { placeHero(START.x, START.y); startQuest('peace'); }   // the notice board starts the village run (spec 05), as the gate starts the fight run
 
@@ -4194,6 +4199,9 @@ const acadReady = () => CFG.ACADEMY && acadNext() !== null && wizLvl() >= ACAD_T
 let ACQ = null;   // the trial in progress
 function refreshAcademy() {   // the Academy icon sits next to the book buttons, and shows only while a test is ready
   const ready = acadReady();
+  // the building on the map appears at the bottom once the wizard level of the next test is reached (the math level is checked when it is tapped)
+  const pa = $('#placeAcad'), next = acadNext();
+  if (pa) pa.style.display = CFG.ACADEMY && next !== null && wizLvl() >= ACAD_TOP(next) ? '' : 'none';
   document.querySelectorAll('.bookBtn').forEach(b => {
     let a = b.parentElement.querySelector('.acadBtn');
     if (!a) { a = document.createElement('button'); a.className = 'ib acadBtn'; a.textContent = '🎓'; a.title = 'Academy'; a.onclick = showAcademy; b.after(a); }
@@ -4209,6 +4217,14 @@ function academyOfferCheck() {
   modal(t('ac_offer_t'), `<p>${t('ac_offer')}</p>`, [[t('ac_go'), academyAsk], [t('later'), null, true]]);
 }
 function showAcademy() { if (!acadReady()) return; academyAsk(); }
+// the building: the Academy window if the math level is enough; otherwise the examiner says what is needed
+function academyEnter() {
+  const k = acadNext();
+  if (k === null) return toast(t('ac_all_done'));
+  if ((P.mlvl || 1) < ACAD_MATH[k]) return modal(t('ac_low_t'), `<p>${t('ac_low_b', { m: ACAD_MATH[k] })}</p>`, [[t('ok'), null]]);
+  if (!acadReady()) return;
+  academyAsk();
+}
 // §3.4: the examiner says how many questions, that two mistakes are allowed and that nothing is lost; the student chooses the trial
 function academyAsk() {
   const k = acadNext(), T = ACAD_Q[k], miss = T - ACAD_NEED[k];
