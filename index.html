@@ -3058,7 +3058,7 @@ function jArrive(i) {
   modal(title, body, [[t('continue'), () => { jDraw(); jHud(); }]]);
 }
 function enterFight() {
-  show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted); newEncounter();
+  setBookIcon(false); show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted); newEncounter();
 }
 $('#jWalk').onclick = jWalk;
 $('#jBack').onclick = () => { saveSoon(true); openMenu(); };
@@ -3771,9 +3771,11 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
   G.site = o.site; G.vkey = o.site.bg; G.fname = o.site.name; G.big = o.festival; G.projs = null; G.mon = null; G.foes = null; G.group = false;
   VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax }, msg: '' };
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
-  $('#itemBar').style.display = 'none';
+  $('#itemBar').style.display = 'none'; setBookIcon(true);
   drawScene(); visitRound(); visitShow();
 }
+// the book button of the game screen: 📜 in a village visit (the conjuration book), 📖 in a fight (the spell book)
+function setBookIcon(conj) { const b = document.querySelector('#game [data-book]'); if (b) b.textContent = conj ? '📜' : '📖'; }
 function visitRound() {   // the next item of the projects: its amount (one level lower) and the cards of the card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
   V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
@@ -3836,7 +3838,7 @@ function visitShow() {
   const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
   $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
-  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0; VS = null; jAfterVisit(d, f, m); };
+  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0; VS = null; setBookIcon(false); jAfterVisit(d, f, m); };
 }
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
@@ -3851,7 +3853,7 @@ function visitRoundDone() {   // the item is handed over; the next item of the p
 function visitClick(e) {   // the answers, cards and buttons of the visit (the fight's buttons)
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
-  if (act === 'quit') { VS = null; return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'quit') { VS = null; setBookIcon(false); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
   if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
     if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
