@@ -4149,7 +4149,7 @@ function acadWeak(el, lvl) {
   const seen = new Set(), out = [];
   for (const id of P.spells || []) {
     const s = SB.BY_ID[id]; if (!s || !s.v || s.v.d !== 1 || seen.has(s.v.n)) continue;
-    if (CB.relation(s, el) !== 'weak' || !CB.canMake(s.v, lvl)) continue;
+    if (CB.relation(s, el) !== 'weak' || CB.levelFor(s.v, lvl, Math.random) == null) continue;
     seen.add(s.v.n); out.push(s);
   }
   return out;
@@ -4159,7 +4159,7 @@ function acadAoe(lvl) {
   const seen = new Set(), out = [];
   for (const id of P.spells || []) {
     const s = SB.BY_ID[id]; if (!s || !s.v || s.v.d !== 1 || !s.fx || s.fx.k !== 'area' || seen.has(s.v.n)) continue;
-    if (!CB.canMake(s.v, lvl)) continue;
+    if (CB.levelFor(s.v, lvl, Math.random) == null) continue;
     seen.add(s.v.n); out.push(s);
   }
   return out;
@@ -4201,7 +4201,7 @@ function acadBuildRow(k, lvl) {
       const key = j + ':' + s.v.n; if (done.has(key)) return;
       const pair = d.pairNext === s.v.n && j + 1 < dummies.length;
       if (pair) done.add((j + 1) + ':' + s.v.n);
-      const p = ME.make(lvl, { target: s.v });
+      const ql = CB.levelFor(s.v, lvl, Math.random), p = ql ? ME.make(ql, { target: s.v }) : null;   // the question is made at the current level, or at the nearest earlier level that can make the number (as the fights review)
       if (p && ME.eq(p.a, s.v)) qs.push({ d: j, d2: pair ? j + 1 : null, s, p });
     }));
     if (qs.length === Q) return { dummies, qs };
