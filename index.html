@@ -3857,7 +3857,7 @@ function visitShow() {
   const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
   const pics = !done && P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll;
-  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}${pics ? `<button class="btn ghost" data-vh="pics">${t('vh_pics')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `${have > 0 ? `<button class="btn${can ? '' : ' ghost'}" data-vh="pot" ${can ? '' : 'disabled'}>${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}${pics ? `<button class="btn ghost" data-vh="pics">${t('vh_pics')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
   nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left', pc = (VS && VS.picCost) || 0; visitEnd(); jAfterVisit(d, f, m, im, lf, pc); };
 }
