@@ -3798,7 +3798,7 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   const V = VS;
   $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div>`;
   $('#hpFill').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
-  const ab = $('#armorBar'); ab.style.display = V.imp ? '' : 'none';   // the impatient villager's patience (the armor bar)
+  const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar; the stylesheet shows it with class "on")
   if (V.imp) ab.firstElementChild.style.width = Math.round(100 * V.st.patience / HELPER.PATIENCE) + '%';
   $('#foeName').textContent = G.site.name + ' · ' + V.project.name + ' · ' + (V.round + 1) + '/' + V.rounds.length;
   G.vmood = V.phase === 'done' ? 'happy' : (V.st.happy > 0 ? 'happy' : 'wait');
@@ -3844,7 +3844,7 @@ function visitShow() {
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
   $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
-  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left'; VS = null; setBookIcon(false); $('#armorBar').style.display = 'none'; jAfterVisit(d, f, m, im, lf); };
+  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left'; VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); jAfterVisit(d, f, m, im, lf); };
 }
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
@@ -3859,7 +3859,7 @@ function visitRoundDone() {   // the item is handed over; the next item of the p
 function visitClick(e) {   // the answers, cards and buttons of the visit (the fight's buttons)
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
-  if (act === 'quit') { VS = null; setBookIcon(false); $('#armorBar').style.display = 'none'; return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'quit') { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
   if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
     if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
