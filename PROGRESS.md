@@ -755,6 +755,6 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Projects:** two items each (the first two needs). A project unlocks at the math level of its items.
 - **Items:** the conjuration book has 39 items with fixed numbers (the approved list, chair 42 at level 14). The item cards only use numbers the student has reached; times tables from level 13.
 - **Steps per item:** beginner (math 1, wizard 1): the answer only. Math level 1: the answer and the item. From math level 2: the card that fits the story (one level lower), the answer, the item.
-- **Mana:** 8 + 2 × (wizard level − 1) + 2 × math level. A mistake costs one mana; right answers are free. The happy meter fills on right answers. Full = done; no mana = the run is lost.
+- **Mana:** 8 + 2 × (wizard level − 1) + 2 × math level. Every action costs one mana, right or wrong (the villagers do not attack). The happy meter fills on right answers. Full = done; no mana = the run is lost.
 - **Not in this slice:** the endurance potion, rewards for villagers, read-aloud, Hebrew plurals and gender, score by type, wizard-level abilities. The old village encounter (smileys) is no longer used on this path.
 - **Tests:** helper.test.js (14 checks); tests/index.html passes.

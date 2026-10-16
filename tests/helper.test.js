@@ -82,10 +82,16 @@
     const many = H.checkAmount(9, 7);
     assert(!many.ok && many.kind === 'many' && many.have === 9 && many.extra === 2, 'too many');
   });
-  test('a mistake costs one mana; a right answer costs nothing and fills the happy meter', () => {
+  test('every action costs one mana, right or wrong; a right answer also fills the happy meter', () => {
     let s = { mana: 3, happy: 0, happyMax: 4 };
-    s = H.spend(s, true); assert(s.mana === 3 && s.happy === 1, 'right');
-    s = H.spend(s, false); assert(s.mana === 2 && s.happy === 1, 'mistake');
+    s = H.spend(s, true); assert(s.mana === 2 && s.happy === 1, 'right costs mana too');
+    s = H.spend(s, false); assert(s.mana === 1 && s.happy === 1, 'mistake costs mana');
+  });
+  test('the mana of a full project covers its actions: beginner 2 actions, math 1 with 4, from level 2 with 6', () => {
+    assert(H.plan(1, 1, 2).mana >= 2, 'beginner');
+    assert(H.plan(1, 3, 2).mana >= 4, 'math 1');
+    assert(H.plan(2, 1, 2).mana >= 6, 'math 2');
+    assert(H.plan(14, 1, 6).mana >= 18, 'festival at math 14');
   });
   test('the visit: done when the happy meter is full, lost when the mana is gone first', () => {
     assert(H.visitOver({ mana: 1, happy: 4, happyMax: 4 }) === 'done', 'happy full');

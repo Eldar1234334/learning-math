@@ -3,7 +3,8 @@
      beginner (math level 1, wizard level 1): the answer only (no book, the item is told by the villager)
      math level 1: the answer, then the item from the conjuration book (no card that fits the story)
      math level 2 and up: the card that fits the story (one level lower), the answer, then the item
-   Mistakes cost one mana (as the fight mode's mistakes cost HP). Right answers cost nothing and fill the happy meter.
+   Every action costs one mana, right or wrong (the villagers do not attack; in the fight mode the wizard's HP takes the hits).
+   A right answer also fills the happy meter.
    The mana of a visit: 8 + 2 × (wizard level − 1) + 2 × math level.
    Tests: tests/helper.test.js. The screen is in index.html. */
 (function (root, f) { if (typeof module === 'object' && module.exports) module.exports = f(); else root.HELPER = f(); })(typeof self !== 'undefined' ? self : this, function () {
@@ -120,8 +121,9 @@
     return { ok: false, kind: 'many', have: k, extra: k - amount };
   }
 
-  // a mistake costs one mana; a right answer fills the happy meter and costs nothing
-  const spend = (state, right) => (right ? { ...state, happy: Math.min(state.happyMax, state.happy + 1) } : { ...state, mana: Math.max(0, state.mana - 1) });
+  // every action costs one mana, right or wrong (the villagers do not attack, so nothing else takes the mana away);
+  // a right answer also fills the happy meter
+  const spend = (state, right) => ({ ...state, mana: Math.max(0, state.mana - 1), happy: Math.min(state.happyMax, state.happy + (right ? 1 : 0)) });
   // the visit is done when the happy meter is full; lost when the mana is gone first
   const visitOver = s => (s.happy >= s.happyMax ? 'done' : s.mana <= 0 ? 'lost' : null);
 
