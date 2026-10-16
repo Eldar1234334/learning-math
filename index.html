@@ -4555,7 +4555,7 @@ function acGameEnter() {
   if (!$('#acExam')) $('#stage').insertAdjacentHTML('beforeend', `<div id="acExam">${acadExaminerSvg()}<small>${ACQ.k % 2 === 0 ? 'Orin' : 'Odelia'}</small></div>`);
   if (!$('#acDots')) $('#stage').insertAdjacentHTML('afterend', '<div id="acDots"></div>');
   $('#foeName').textContent = t('ac_dummy');
-  $('#foeBody').className = 'foeBody';
+  $('#foeBody').className = 'foeBody acCentre';
 }
 // the arena of picture 15 (arches, flags, pale floor), the hourglass and the question progress across the top; the dummy in the centre
 function acadSetStage() {
