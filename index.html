@@ -67,6 +67,7 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
 .vhIco{width:44px;min-width:44px;height:52px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.vhRow{display:grid;grid-template-columns:repeat(6,44px);justify-content:center;gap:6px}   /* both rows share the same columns: the potions, the satchel; the icons under them */
 .vhPics{text-align:center;font-size:1.6rem;min-height:1.2em;margin:4px auto 0;line-height:1.2}
 .cjFx{position:absolute;left:50%;top:38%;font-size:2.6rem;line-height:1;pointer-events:none;z-index:6;white-space:nowrap;transform:translate(-50%,-50%);opacity:0}
 .cj1{animation:cj1 1s ease-out forwards}.cj2{animation:cj2 1s ease-out forwards;text-shadow:0 0 14px #ffd166}
@@ -1051,7 +1052,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="side foe"><div id="foeName" class="small"></div><div class="hpbar"><i id="hpFill"></i></div><div class="hpbar armorBar" id="armorBar"><i></i></div><div class="foeWrap"><div class="aura" id="aura"></div><div class="foeBody" id="foeBody"></div></div></div>
   </div>
   <div class="potBar" id="potBar" style="display:none"></div>
-  <div class="potBar" id="vhBar" style="display:none"></div>
+  <div class="potBar vhRow" id="vhBar" style="display:none"></div>
   <div class="vhPics" id="vhPics" style="display:none"></div>
   <div class="itemBar" id="itemBar" style="display:none"></div>
   <div class="panel card">
@@ -3878,7 +3879,7 @@ function visitShow() {
   else { $('#qSub').textContent = ''; }
   $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : V.phase === 'left' ? 'vh_left' : 'vh_lost') : V.msg;
   // the potion row: the same potions as in a fight (with the village names), and the picture button in it; the owl, the sound and leaving for now below
-  const pb = $('#potBar'); pb.style.display = done ? 'none' : ''; pb.innerHTML = done ? '' : visitPotsHtml();
+  const pb = $('#potBar'); pb.style.display = done ? 'none' : ''; pb.innerHTML = done ? '' : visitPotsHtml(); pb.classList.toggle('vhRow', !done);
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
   // the second row: reading (🔊), the flag (leave for now), the pictures (above the free level), and the owl; the same size as the potion row
   const pics = !done && P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll;
@@ -3916,7 +3917,7 @@ function usePotionVisit(id) {
   }
   toast(t('hint_soon'));   // Whisper: coming soon, as in a fight (it is not used up)
 }
-function visitEnd() { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); $('#vhBar').style.display = 'none'; renderPotBar(); }   // leaving: the map's potion row comes back
+function visitEnd() { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); $('#vhBar').style.display = 'none'; $('#potBar').classList.remove('vhRow'); renderPotBar(); }   // leaving: the map's potion row comes back
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
   if (o) { V.phase = o; visitShow(); return true; }
