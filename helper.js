@@ -209,7 +209,10 @@
     { k: 'party', em: '🎉', en: 'Festival & music', he: 'חג ומוזיקה', items: [15, 45, 48, 49, 55] }
   ];
   const themeOf = item => THEMES.find(t => t.items.includes(item.n)) || THEMES[THEMES.length - 1];
-  // the blanket cannot break: no story where some of them break (the "broke" story)
-  const noBreak = item => item.n === 60;
-  return { BOOK, THEMES, themeOf, noBreak, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  // the word for the "some are gone" story: a blanket is torn (נקרעה), the others are broken (נשבר, נשברה, נשברו)
+  const breakWord = (item, n) => {
+    if (item.n === 60) return n === 1 ? ['torn', 'נקרעה'] : ['torn', 'נקרעו'];
+    return n === 1 ? ['broke', genderOf(item) === 'f' ? 'נשברה' : 'נשבר'] : ['broke', 'נשברו'];
+  };
+  return { BOOK, THEMES, themeOf, breakWord, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });

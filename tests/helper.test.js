@@ -138,11 +138,16 @@
     assert(H.visitOver({ mana: 3, happy: 2, happyMax: 4 }) === null, 'still going');
   });
 
-  test('the conjuration book themes: every item in exactly one theme; the blanket cannot break', () => {
+  test('the conjuration book themes: every item in exactly one theme', () => {
     const all = H.THEMES.flatMap(t => t.items);
     assert(all.length === 39 && new Set(all).size === 39, 'each of the 39 items in one theme: ' + all.length);
     for (const x of H.BOOK) assert(H.themeOf(x).items.includes(x.n), 'theme of ' + x.n);
-    assert(H.noBreak(H.itemOf(60)) && !H.noBreak(H.itemOf(5)), 'only the blanket is unbreakable');
+  });
+  test('the "some are gone" word: a blanket is torn, the others are broken, agreeing with the count and gender', () => {
+    assert(H.breakWord(H.itemOf(60), 1)[0] === 'torn' && H.breakWord(H.itemOf(60), 1)[1] === 'נקרעה', 'one blanket torn');
+    assert(H.breakWord(H.itemOf(60), 3)[1] === 'נקרעו', 'blankets torn');
+    assert(H.breakWord(H.itemOf(5), 1)[0] === 'broke' && H.breakWord(H.itemOf(5), 2)[1] === 'נשברו', 'broken');
+    assert(H.breakWord(H.itemOf(25), 1)[1] === 'נשברה', 'feminine');
   });
 
   const failed = results.filter(r => !r.ok);

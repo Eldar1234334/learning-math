@@ -66,6 +66,14 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #mapHero svg{width:100%;height:100%}#mapHero.drag{transition:none;cursor:grabbing;z-index:6}#mapHero.walk svg{animation:hop .3s infinite alternate}
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
+.cjFx{position:absolute;left:50%;top:38%;font-size:2.6rem;line-height:1;pointer-events:none;z-index:6;white-space:nowrap;transform:translate(-50%,-50%);opacity:0}
+.cj1{animation:cj1 1s ease-out forwards}.cj2{animation:cj2 1s ease-out forwards;text-shadow:0 0 14px #ffd166}
+.cj3{animation:cj3 1s ease-out forwards;filter:drop-shadow(0 0 10px #8be9d4) drop-shadow(0 0 18px #ffd166)}
+.cj4{animation:cj4 1s ease-out forwards;font-size:3.4rem;filter:drop-shadow(0 0 14px #ffd166) drop-shadow(0 0 26px #b36bff)}
+@keyframes cj1{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
+@keyframes cj2{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-200deg)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.25) rotate(0)}100%{opacity:0;transform:translate(-50%,-90%) scale(1) rotate(10deg)}}
+@keyframes cj3{0%{opacity:0;transform:translate(-50%,40%) scale(.4)}35%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}100%{opacity:0;transform:translate(-50%,-110%) scale(1)}}
+@keyframes cj4{0%{opacity:0;transform:translate(-50%,-50%) scale(0) rotate(-360deg)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.5) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-120%) scale(1.1)}}
 .potBtn{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;background:#0003;color:#fff;border:2px solid #fff3;border-radius:12px;padding:3px 6px 2px;min-width:44px;cursor:pointer;transition:transform .15s}
 .potBtn:not(:disabled):hover{transform:translateY(-3px);border-color:var(--gold)}.potBtn:not(:disabled):active{transform:translateY(1px)}.potBtn:disabled{opacity:.4;cursor:default;filter:grayscale(.6)}
 .potSvg{width:26px;height:35px;filter:drop-shadow(0 2px 2px #0006)}   /* the same bottle size as the pack screen */.potSym{font-style:normal;font-size:.8rem;line-height:1}
@@ -1355,7 +1363,12 @@ const STR = {
   vh_spell_q: ['Now conjure {n} {item}. Which spell brings them?', 'עכשיו כשפו {n} {item}. איזה כישוף יביא?'], vh_spell_sub: ['Choose the spell.', 'בחרו את הכישוף.'],
   vh_owl_btn: ['🦉 Owl helper', '🦉 עוזר הינשוף'], vh_owl: ['🦉 The owl carries {items} to the villager!', '🦉 הינשוף מביא {items} לתושב!'],
   conj_t: ['📜 Conjuration book', '📜 ספר ההטלה'], conj_info: ['The items you can conjure at math level {m}.', 'הפריטים שאפשר לכשף ברמה {m}.'], conj_lock: ['Unlocks at math level {n}', 'נפתח ברמה {n}'], conj_btn: ['Conjuration book', 'ספר ההטלה'],
-  vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
+  vpot_heart: ['🔷 Mana potion', '🔷 שיקוי מנה'], vpot_heart_d: ['Restores some of your mana', 'מחזיר קצת מהמנה שלכם'],
+  vpot_sound: ['Whisper', 'לחישה'], vpot_sound_d: ['A whisper of the answer (coming soon)', 'לחישה של התשובה (בקרוב)'],
+  vpot_power: ['Helping hands', 'ידיים עוזרות'], vpot_power_d: ['The villager gets this item without the answers', 'התושב מקבל את הפריט הזה בלי התשובות'],
+  vpot_second: ['Lucky chance', 'סיכוי שני'], vpot_second_d: ['Undo a mistake and answer again', 'מבטל טעות ועונים שוב'],
+  vpot_super: ['Miracle', 'נס'], vpot_super_d: ['Finishes the request at once (once per chapter)', 'מסיים את הבקשה מיד (פעם בפרק)'], vpot_full: ['Your mana is already full!', 'המנה שלכם כבר מלאה!'],
+  vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'],vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
   quest_locked: ['🔒 You are in the middle of a quest! Finish it, or tap 🏳️ Abandon quest to leave it.', '🔒 אתם באמצע מסע! סיימו אותו, או הקישו על 🏳️ עזיבת המסע.'],
   sound_off: ['🔇 The sound is off. Tap the speaker at the top.', '🔇 הצליל כבוי. הקישו על הרמקול למעלה.'],
@@ -3226,7 +3239,7 @@ function loseHeart() { G.hearts--; P.quest[G.quest].hearts = G.hearts; saveSoon(
 const VNAMES = { bakery: 'Baker Ori', smith: 'Smith Omer', well: 'Dana at the well', farm: 'Farmer Moshe', library: 'Grandma Rina', garden: 'Little Tom', dock: 'Fisher Ezra', henhouse: 'Little Maya', hats: 'Hatter Alex', cottage: 'Grandpa Dov', lamps: 'Lamp keeper Lia', orchard: 'Picker Noam', carpenter: 'Carpenter Gil' };   // one name for each villager
 function renderVillager() {   // the villager of the site: waiting (worried, with a thought bubble of what they need), happy (a little jump) or sad
   if (G.quest !== 'peace' || !G.vkey) return;
-  const em = G.vmood === 'wait' && G.q && G.q.reveal ? G.q.reveal : '';
+  const em = VS ? visitPics() : (G.vmood === 'wait' && G.q && G.q.reveal ? G.q.reveal : '');   // a visit: the pictures of what they have, in the bubble
   $('#foeBody').innerHTML = `<div class="vill${G.vmood === 'happy' ? ' vkjump' : ''}">${STAGE_BG.villagerSVG(G.vkey, G.vskin, G.vmood)}${em ? `<div class="vThought" aria-hidden="true">${em}</div>` : ''}</div>`;
 }
 function setMood(m) {   // called with the old face emojis from the village answer handling
@@ -3276,6 +3289,7 @@ function relabelGame() {
   updateBars(); renderPotBar(); renderItemBar();
 }
 function updateBars() {
+  if (VS) return visitBars();   // a village visit shows the wizard's mana, not the smileys of the old village
   const b = G.quest === 'battle';
   if (b && G.st) {   // the wizard's HP bar (it replaces the hearts) and the monster's
     const h = G.st.hero, hp = G.heroShown != null ? G.heroShown : h.hp, pc = Math.max(0, hp) / h.max * 100;   // during the monsters' turn the bar follows the hits one by one
@@ -3765,7 +3779,22 @@ function pickVisitProject(bg, ml) {   // a project of this site that the student
 function storyTally(kind, right) {
   P.storyTypes = P.storyTypes || {}; const s = P.storyTypes[kind] || [0, 0]; s[right ? 0 : 1]++; P.storyTypes[kind] = s; saveSoon();
 }
-const vhMiss = () => { VS.mist = (VS.mist || 0) + 1; return HELPER.spend(VS.st, false); };   // a mistake: counted (no mistakes = a bonus), and it costs mana
+// a mistake: counted (no mistakes = a bonus), it costs mana, it is logged for the math level, and a Lucky chance potion can undo it
+const vhMiss = card => {
+  const V = VS; V.snap = { st: { ...V.st }, phase: V.phase, mist: V.mist || 0, card: card || null };
+  V.mist = (V.mist || 0) + 1; vhLog(false); return HELPER.spend(V.st, false);
+};
+// the math level: each answer in a village visit counts like an answer in a fight; a right answer with pictures counts as half
+function vhLog(right) {
+  const V = VS; if (!V || V.noCount) return;   // a question touched by a potion is not logged (as in a fight)
+  if (right && V.picRev) P.mhist.push({ ok: false, u: 1, d: 0.5 }, { ok: true, u: 0.5, d: 1 });
+  else P.mhist.push({ ok: !!right, u: 1, d: 1 });
+  if (P.mhist.length > 40) P.mhist.splice(0, P.mhist.length - 40);
+  const move = ME.judge(P.mhist, 0);
+  if (move === 'up' && P.mlvl < CFG.MAX_LEVEL) { P.mlvl++; P.mhist = []; toast(levelLbl(P.mlvl)); }
+  else if (move === 'down' && P.mlvl > 1) { P.mlvl--; P.mhist = []; toast(levelLbl(P.mlvl)); }
+  saveSoon();
+}
 function openVisit(i) {   // a village stop on the quest map: the place is the project's own place (a cottage project is never at the bakery)
   G.quest = J.q; const site = SITES[+P.quest[J.q].path[i - 1].slice(1)] || SITES[0];
   const p = pickVisitProject(site.bg, P.mlvl || 1);
@@ -3779,20 +3808,18 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
   const rounds = o.projects.flatMap(p => vhItems(p).map(item => ({ item, project: p })));
   const pl = HELPER.plan(P.mlvl || 1, wizLvl(), rounds.length);
   G.site = o.site; G.vkey = o.site.bg; G.fname = o.site.name; G.big = o.festival; G.projs = null; G.mon = null; G.foes = null; G.group = false;
-  const imp = !o.festival && (window.__forceImp != null ? window.__forceImp : HELPER.isImpatient(wizLvl()));   // the demo can force it   // an impatient villager (spec 05 §8): a patience bar, the armor bar
-  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, made: [], picCost: 0, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
+  const imp = !o.festival && (window.__forceImp != null ? window.__forceImp : HELPER.isImpatient(wizLvl()));   // the demo can force it; an impatient villager (spec 05 §8): a patience bar, the armor bar
+  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, picCost: 0, snap: null, noCount: false, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
-  $('#itemBar').style.display = 'none'; $('#potBar').style.display = 'none'; setBookIcon(true);
+  $('#itemBar').style.display = 'none'; setBookIcon(true);
   drawScene(); visitRound(); visitShow();
 }
 // the book button of the game screen: 📜 in a village visit (the conjuration book), 📖 in a fight (the spell book)
 function setBookIcon(conj) { const b = document.querySelector('#game [data-book]'); if (b) b.textContent = conj ? '📜' : '📖'; }
 function visitRound() {   // the next item of the projects: its amount, and the cards of the amount's card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
-  V.item = R.item; V.project = R.project;
-  do { V.p = HELPER.makeAmount(pl.lowLevel); } while (HELPER.noBreak(V.item) && V.p.kind === 'separate');   // the blanket cannot break
-  V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
-  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.read = false; V.picRev = false;
+  V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
+  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.noCount = false; V.snap = null; V.read = false; V.picRev = false;
   // extra information (spec 05 §8, wizard level 15): half the stories also name a number that is not needed
   const others = HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n);
   V.extra = wizLvl() >= 15 && others.length && Math.random() < 0.5 ? { n: 2 + Math.floor(Math.random() * 8), item: rnd(others) } : null;
@@ -3801,7 +3828,7 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   const V = VS;
   $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div>`;
   $('#hpFill').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
-  const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar)
+  const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar; the stylesheet shows it with class "on")
   ab.style.setProperty('--seg', HELPER.PATIENCE);   // five segments: one per point of patience
   ab.firstElementChild.style.background = 'linear-gradient(90deg,#ff6b3d,#ffb347)';   // warm colour: impatience, not armor
   if (V.imp) ab.firstElementChild.style.width = Math.round(100 * V.st.patience / HELPER.PATIENCE) + '%';
@@ -3815,7 +3842,7 @@ function visitStory() {
   const txt = {
     change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
     result: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
-    separate: () => t('vh_separate', { t: p.t, a: p.a, b: p.b, item: nm(p.t), broke: tl(['broke', p.b === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשברה' : 'נשבר') : 'נשברו']) }),
+    separate: () => t('vh_separate', { t: p.t, a: p.a, b: p.b, item: nm(p.t), broke: tl(HELPER.breakWord(V.item, p.b)) }),
     part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
     compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }),
     start: () => t('vh_start', { u: p.amount, r: p.a, item: nm(p.amount), left: tl([p.a === 1 ? 'is left' : 'are left', p.a === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']) }),
@@ -3823,24 +3850,17 @@ function visitStory() {
   }[s]();
   return V.extra ? txt + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(tl(HELPER.storyName(V.extra.item, V.extra.n))) }) : txt;
 }
-// the count: pictures of the items at the low levels (and above them when the student asks, for XP); numbers always
-function visitCount() {   // pictures only (no numbers under the story): what the villager has
-  const V = VS, s = V.p.show, e = V.item.em, pics = P.mlvl <= PICS_MAX || V.picRev || !!window.__picsAll;
-  if (!pics) return '';
-  const pic = n => (n <= 12 ? e.repeat(n) : '');
-  if (s.plus !== undefined) return `<div class="vhCount">${pic(s.have)} + ${pic(s.plus)}</div>`;
-  return `<div class="vhCount">${pic(s.have)}</div>`;
-}
-// the items the villager has got so far in this visit: each one shows as its pictures, or as a count above 6
-function visitMade() {
-  const V = VS; if (!V.made.length) return '';
-  return `<div class="vhCount vhMade">${V.made.map(m => `<span>${m.n > 6 ? m.em + ' ×' + m.n : m.em.repeat(m.n)}</span>`).join(' ')}</div>`;
+// the pictures of what the villager has, shown in the thought bubble above them (no numbers): the low levels at once, the higher ones when asked
+function visitPics() {
+  const V = VS; if (!V || !(P.mlvl <= PICS_MAX || V.picRev || window.__picsAll)) return '';
+  const s = V.p.show, e = V.item.em, pic = n => (n <= 12 ? e.repeat(n) : '');
+  return s.plus !== undefined ? pic(s.have) + '+' + pic(s.plus) : pic(s.have);
 }
 function visitShow() {
-  const V = VS, w = $('#vhWrap'); if (!V || !$('#game').classList.contains('on')) return;
+  const V = VS; if (!V || !$('#game').classList.contains('on')) return;
   visitBars();
   $('#qTitle').textContent = V.project.name;
-  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${visitCount()}${visitMade()}${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
+  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
   V.storyText = visitStory();   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(V.storyText); }
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
@@ -3853,26 +3873,59 @@ function visitShow() {
   else if (V.phase === 'ians') { if (!V.iAns) V.iAns = HELPER.itemAnswers(V.item.n); $('#qSub').textContent = t('vh_ians', { item: vhLow(tl(HELPER.nameFor(V.item, 1))) }); numBtns(V.iAns, 'iamt', 'n'); }
   else { $('#qSub').textContent = ''; }
   $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : V.phase === 'left' ? 'vh_left' : 'vh_lost') : V.msg;
-  // the Mana potion, the owl helper (wizard level 18, once per visit), the pictures (above the free level), the sound, and leaving for now
-  const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
+  // the potion row: the same potions as in a fight (with the village names), and the picture button in it; the owl, the sound and leaving for now below
+  const pb = $('#potBar'); pb.style.display = done ? 'none' : ''; pb.innerHTML = done ? '' : visitPotsHtml();
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
-  const pics = !done && P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll;
-  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `${have > 0 ? `<button class="btn${can ? '' : ' ghost'}" data-vh="pot" ${can ? '' : 'disabled'}>${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}${pics ? `<button class="btn ghost" data-vh="pics">${t('vh_pics')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
   nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left', pc = (VS && VS.picCost) || 0; visitEnd(); jAfterVisit(d, f, m, im, lf, pc); };
 }
+// the potion row, drawn as the fight's (same bottles, same counts); a potion can be used once per item
+function visitPotsHtml() {
+  const V = VS, ids = POTION_IDS.filter(id => (P.carry[id] || 0) > 0);
+  const pots = ids.map(id => `<button class="potBtn" data-vpot="${id}" ${V.potUsed ? 'disabled' : ''} title="${t('vpot_' + id)}: ${t('vpot_' + id + '_d')}">${potionSVG(id)}<i class="potSym">${POTIONS[id].em}</i><b>×${P.carry[id]}</b></button>`).join('');
+  const pics = P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll ? `<button class="potBtn picBtn" data-vh="pics">${t('vh_pics')}</button>` : '';
+  return pots + pics;
+}
+// a potion in a village visit: the same potions as in a fight, each with its village effect
+function usePotionVisit(id) {
+  const V = VS;
+  if (!V || V.potUsed || !((P.carry || {})[id] > 0) || ['done', 'lost', 'left'].includes(V.phase)) return;
+  const spend = () => { P.carry[id]--; V.potUsed = true; V.noCount = true; saveSoon(true); };
+  if (id === 'heart') {   // Mana potion: restores part of the wizard's mana (as the Heart potion heals part of the HP in a fight)
+    if (V.st.mana >= V.pl.mana) { toast(t('vpot_full')); return; }
+    spend(); V.st.mana = Math.min(V.pl.mana, V.st.mana + Math.ceil(V.pl.mana * CB.CFG.HEART_POT_HEAL)); sfx.up(); V.msg = t('vh_pot_used'); return visitShow();
+  }
+  if (id === 'power') {   // Helping hands: the villager gets this item without the answers for it
+    spend(); sfx.up(); V.st.happy = Math.min(V.st.happyMax, V.st.happy + V.pl.perItem); return visitRoundDone();
+  }
+  if (id === 'second') {   // Lucky chance: the last mistake is undone and the student answers again
+    if (!V.snap) { toast(t('second_after')); return; }
+    spend(); const s = V.snap; V.st = s.st; V.phase = s.phase; V.mist = s.mist; if (s.card) s.card.gone = false; V.snap = null; V.msg = t('second_done'); return visitShow();
+  }
+  if (id === 'super') {   // Miracle: the villager is happy at once (once per chapter, as in a fight)
+    const qs = P.quest[G.quest]; if (qs.ch === P.superCh) { toast(t('super_used', { p: t('vpot_super') })); return; }
+    P.superCh = qs.ch; spend(); sfx.win(); V.st.happy = V.st.happyMax; return visitAfter();
+  }
+  toast(t('hint_soon'));   // Whisper: coming soon, as in a fight (it is not used up)
+}
+function visitEnd() { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); $('#vhBar').style.display = 'none'; renderPotBar(); }   // leaving: the map's potion row comes back
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
   if (o) { V.phase = o; visitShow(); return true; }
   return false;
 }
-// the item is crafted: the items appear; a big number floats above them
-// leaving the visit: its bars go, and the potion row of the map comes back
-function visitEnd() { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); $('#vhBar').style.display = 'none'; renderPotBar(); }
-function visitCraft() {
+// the conjured item appears in front of the villager for one second; its look grows with the wizard tier
+function conjureFx(em, n) {
+  const w = wizLvl(), tier = w >= 19 ? 4 : w >= 13 ? 3 : w >= 7 ? 2 : 1;
+  const host = $('#foeBody') && $('#foeBody').parentElement; if (!host) return;
+  const e = document.createElement('div'); e.className = 'cjFx cj' + tier; e.textContent = n > 6 ? em : em.repeat(n);
+  host.appendChild(e); setTimeout(() => e.remove(), 1000);
+}
+function visitCraft() {   // the item is crafted: it appears in front of the villager; a big amount floats as a number
   const V = VS, n = V.p.amount, em = V.item.em, thanks = t('vh_ok', { items: n <= 6 ? em.repeat(n) : em + ' ×' + n });
-  V.made.push({ em, n });
-  floatText(n > 6 ? '+' + n : em.repeat(n), n > 6 ? '#ffd166' : '#fff', document.querySelector('#foeBody'));   // a big amount floats as a number; a small one as the items
+  conjureFx(em, n);
+  if (n > 6) floatText('+' + n, '#ffd166', document.querySelector('#foeBody'));
   return thanks;
 }
 function visitNext(thanks) {   // the item is handed over: on to the next item of the projects, or the stop is done
@@ -3886,17 +3939,13 @@ function visitRoundDone() {   // the item is crafted (see visitCraft)
   visitNext(thanks);
 }
 function visitClick(e) {   // the answers, cards and buttons of the visit (the fight's buttons)
+  const pb = e.target.closest && e.target.closest('[data-vpot]'); if (pb && VS) return usePotionVisit(pb.dataset.vpot);
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
   if (act === 'quit') { visitEnd(); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
-  if (act === 'pics') {   // the pictures above the free level: the student asks, and it costs XP
-    if (V.picRev || P.mlvl <= PICS_MAX) return; V.picRev = true; V.picCost = PIC_XP; return visitShow();   // the cost comes off the stop's reward, and the student is not told
-  }
-  if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
-    if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
-    P.carry.heart--; V.potUsed = true; V.st.mana = Math.min(V.pl.mana, V.st.mana + Math.ceil(V.pl.mana * CB.CFG.HEART_POT_HEAL));
-    saveSoon(true); sfx.up(); V.msg = t('vh_pot_used'); return visitShow();
+  if (act === 'pics') {   // the pictures above the free level: the student asks; the answers of this item count half for the math level
+    if (V.picRev || P.mlvl <= PICS_MAX) return; V.picRev = true; V.picCost = PIC_XP; return visitShow();
   }
   if (act === 'owl') {   // the owl helper (wizard level 18, once per visit): it carries the rest of this item; the action costs one mana
     if (V.owlUsed || wizLvl() < 18 || !(V.st.mana > 0) || ['done', 'lost', 'left'].includes(V.phase)) return;
@@ -3907,15 +3956,15 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   }
   if (act === 'card' && V.phase === 'card') {   // problem 1: the card that solves the story
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
-    if (c.fits) { V.st = HELPER.spend(V.st, true); V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
-    c.gone = true; V.st = vhMiss(); sfx.bad(); V.msg = t('vh_wrong_card');
+    if (c.fits) { V.st = HELPER.spend(V.st, true); vhLog(true); V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
+    c.gone = true; V.st = vhMiss(c); sfx.bad(); V.msg = t('vh_wrong_card');
     if (visitAfter()) return; return visitShow();
   }
   if (act === 'amt' && V.phase === 'calc') {   // problem 1: the answer (the amount)
     const k = +b.dataset.n, r = HELPER.checkAmount(k, V.p.amount);
     storyTally(V.p.kind, r.ok);   // spec 05 §7: the accuracy of the story problems, by type (the answer, not the card)
     if (r.ok) {
-      V.st = HELPER.spend(V.st, true); sfx.ok(); V.msg = '';
+      V.st = HELPER.spend(V.st, true); vhLog(true); sfx.ok(); V.msg = '';
       if (V.pl.itemStep) { V.phase = 'icard'; if (visitAfter()) return; return visitShow(); }
       return visitRoundDone();
     }
@@ -3925,19 +3974,20 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   }
   if (act === 'icard' && V.phase === 'icard') {   // problem 2: the card whose answer is the item's number
     const c = V.itemCards[+b.dataset.i]; if (!c || c.gone) return;
-    if (HELPER.itemCardOk(c, V.item)) { V.st = HELPER.spend(V.st, true); V.pick = c; V.phase = 'ians'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
-    c.gone = true; V.st = vhMiss(); sfx.bad();
+    if (HELPER.itemCardOk(c, V.item)) { V.st = HELPER.spend(V.st, true); vhLog(true); V.pick = c; V.phase = 'ians'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
+    c.gone = true; V.st = vhMiss(c); sfx.bad();
     const w = HELPER.wrongItemFor(c); V.msg = t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(V.item, 2) });
     if (visitAfter()) return; return visitShow();
   }
   if (act === 'iamt' && V.phase === 'ians') {   // problem 2: the answer of the card, the item is crafted
     const k = +b.dataset.n;
-    if (k === V.item.n) { V.st = HELPER.spend(V.st, true); sfx.win(); return visitRoundDone(); }
+    if (k === V.item.n) { V.st = HELPER.spend(V.st, true); vhLog(true); sfx.win(); return visitRoundDone(); }
     V.st = vhMiss(); sfx.bad(); V.msg = t('vh_wrong_num');
     if (visitAfter()) return; return visitShow();
   }
 }
 $('#opts').addEventListener('click', visitClick);
+$('#potBar').addEventListener('click', visitClick);
 $('#vhBar').addEventListener('click', visitClick);
 // the rewards (spec 05 §7): XP 10 (+5 with no mistakes) per villager, 40 (+20) for the festival; coins by math level (2 units a villager, 5 the festival)
 function vhRewards(fest, mist, imp, pc = 0) {   // an impatient villager, finished, pays double (spec 05 §8); the pictures taken (pc) come off the stop's XP
