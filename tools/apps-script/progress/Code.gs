@@ -47,7 +47,7 @@
    SCHOOL_TOKEN is made by the script itself. REGISTRY_ID and REGISTRY_KEY are written by linkRegistry().
    WEB_APP_URL (optional): this script's web app link, if linkRegistry() cannot find it by itself.
 */
-const VERSION = 14;   // shown to the Admin, so outdated schools can be seen
+const VERSION = 15;   // shown to the Admin, so outdated schools can be seen
 const SHEET = 'Students', REMOVED = 'Removed';
 const HEAD = ['id', 'nickname', 'real name', 'class', 'status', 'joined', 'math level', 'wizard level', 'XP', 'answers', 'accuracy %', 'minutes', 'coins', 'crafting %', 'restarts', 'last saved'];
 const C = { id: 0, nick: 1, real: 2, cls: 3, status: 4, joined: 5, mlvl: 6, wiz: 7, xp: 8, n: 9, acc: 10, min: 11, coins: 12, craft: 13, restarts: 14, last: 15 };
@@ -92,6 +92,11 @@ function removedWhy(id) {   // 'deleted', 'rejected' or ''
 function newRow(sh) { const row = sh.getLastRow() + 1; if (row > sh.getMaxRows()) sh.insertRowsAfter(sh.getMaxRows(), 100); sh.getRange(row, 1).setNumberFormat('@'); return row; }
 const gameOnly = json => { try { const p = JSON.parse(json); delete p.real; delete p.cls; return JSON.stringify(p); } catch (x) { return ''; } };   // never a real name or class in the game data
 const readData = (sh, row) => sh.getRange(row, DATA_COL, 1, MAX_CHUNKS).getValues()[0].map(String).join('');
+// the story types (spec 05 §7): right and wrong answers of the story problems, by type, from the student's saved game data (no names)
+function storyOf(sh, row) {
+  try { const p = JSON.parse(gameOnly(readData(sh, row)) || '{}'), s = p.storyTypes || {}; return Object.keys(s).map(k => ({ type: k, right: num(s[k][0]), wrong: num(s[k][1]) })); }
+  catch (x) { return []; }
+}
 function writeData(sh, row, json) {
   if (json.length > CHUNK * MAX_CHUNKS) throw new Error('profile too big');
   const parts = []; for (let i = 0; i < MAX_CHUNKS; i++) parts.push(json.slice(i * CHUNK, (i + 1) * CHUNK));
@@ -172,7 +177,7 @@ function admin(a, b) {
     const n = sh.getLastRow(), rows = n < 2 ? [] : sh.getRange(2, 1, n - 1, HEAD.length).getValues();
     const iso = v => v instanceof Date ? v.toISOString() : String(v || '');
     const printed = cardsPrinted();
-    return { ok: true, me: { email: who.email, role: who.role }, school: props().getProperty('SCHOOL_NAME') || '', tz: Session.getScriptTimeZone(), today: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'), classes: classNames().filter(sees), students: rows.filter(r => r[C.id] !== '' && sees(r[C.cls])).map(r => ({ id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
+    return { ok: true, me: { email: who.email, role: who.role }, school: props().getProperty('SCHOOL_NAME') || '', tz: Session.getScriptTimeZone(), today: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'), classes: classNames().filter(sees), students: rows.map((r, i) => [r, i + 2]).filter(([r]) => r[C.id] !== '' && sees(r[C.cls])).map(([r, rowNo]) => ({ story: storyOf(sh, rowNo), id: String(r[C.id]), nick: String(r[C.nick]), real: String(r[C.real]), cls: String(r[C.cls]), status: String(r[C.status]), joined: iso(r[C.joined]),
       tier: num(r[C.mlvl]), wiz: num(r[C.wiz]), xp: num(r[C.xp]), answers: num(r[C.n]), accuracy: num(r[C.acc]), minutes: num(r[C.min]), coins: num(r[C.coins]), craftAcc: num(r[C.craft]), restarts: num(r[C.restarts]), last: iso(r[C.last]), lastDay: r[C.last] ? Utilities.formatDate(new Date(r[C.last]), Session.getScriptTimeZone(), 'yyyy-MM-dd') : '', card: !!printed[String(r[C.id])] })) };
   }
   if (a === 'getCode') return { ok: true, code: props().getProperty('SCHOOL_CODE') || '', selfMove: props().getProperty('SELF_MOVE') === '1', password: !!props().getProperty('ADMIN_KEY') && props().getProperty('PASSWORD_OFF') !== '1' };

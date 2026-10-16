@@ -5861,17 +5861,21 @@ function sensitiveAsk(what, perform) {
   }).catch(() => toast('I could not reach the cloud.'));
 }
 const agoText = d => d === 0 ? 'today' : d === 1 ? 'yesterday' : d >= 9999 ? 'never' : d + ' days ago';
+// the story types (spec 05 §7): the accuracy of the story problems over all their types, from the school's list
+const storyTot = s => (s.story || []).reduce((a, x) => ({ r: a.r + x.right, w: a.w + x.wrong }), { r: 0, w: 0 });
+const storyPct = s => { const t = storyTot(s), n = t.r + t.w; return n ? Math.round(100 * t.r / n) : -1; };
+const storyCell = s => { const n = storyTot(s), c = n.r + n.w; return c ? `${storyPct(s)}% <small style="opacity:.7">(${c})</small>` : '–'; };
 function adminTable() {   // the students list (schools spec §6.1): class filter, search, sort, tick boxes, and "Played today: N of M" for what is shown
-  const cols = [['nick', 'Student'], ['cls', 'Class'], ['tier', 'Level'], ['wiz', 'Wizard'], ['accuracy', 'Accuracy'], ['answers', 'Answers'], ['minutes', 'Minutes'], ['coins', 'Coins'], ['craftAcc', 'Crafting'], ['restarts', 'Restarts'], ['last', 'Last played']];
-  const key = (s, k) => k === 'last' ? (s.last || '') : k === 'nick' ? s.nick.toLowerCase() : k === 'cls' ? (s.cls || '') : s[k];
+  const cols = [['nick', 'Student'], ['cls', 'Class'], ['tier', 'Level'], ['wiz', 'Wizard'], ['accuracy', 'Accuracy'], ['answers', 'Answers'], ['minutes', 'Minutes'], ['coins', 'Coins'], ['craftAcc', 'Crafting'], ['restarts', 'Restarts'], ['last', 'Last played'], ['story', 'Story types']];
+  const key = (s, k) => k === 'story' ? storyPct(s) : k === 'last' ? (s.last || '') : k === 'nick' ? s.nick.toLowerCase() : k === 'cls' ? (s.cls || '') : s[k];
   const shown = admShown(), rows = shown.slice().sort((a, b) => { const va = key(a, ADM.sortKey), vb = key(b, ADM.sortKey); return (va > vb ? 1 : va < vb ? -1 : 0) * ADM.sortDir; });
   const played = shown.filter(s => s.days === 0).length, c = $('#admStuCls').value;
   $('#admPlayed').innerHTML = `🟢 Played today: <b>${played}</b> of ${shown.length}${c ? ' · class ' + esc(c) : ''}`;
   const allT = rows.length > 0 && rows.every(s => ADM.ticked.has(s.id));
   $('#admTable').innerHTML = `<thead><tr><th class="tk"><input type="checkbox" id="admTickAll"${allT ? ' checked' : ''}></th>` + cols.map(([k, l]) => `<th data-k="${k}">${l}${ADM.sortKey === k ? (ADM.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '</tr></thead><tbody>' +
     (rows.length ? rows.map(s => `<tr data-id="${esc(s.id)}"><td class="tk"><input type="checkbox" class="sTick"${ADM.ticked.has(s.id) ? ' checked' : ''}></td><td><span class="dot ${s.days === 0 ? 'on' : s.days >= 7 ? 'old' : ''}"></span><b>${esc(s.nick || '–')}</b> <small style="opacity:.7">#${esc(s.id)}</small>${s.card ? ' <small title="Login card printed">🪪</small>' : ''} <button class="mvBtn" data-mv="${esc(s.id)}" title="Move to home">🏠 Move to home</button>${s.real ? `<br><small style="opacity:.85">${esc(s.real)}</small>` : ""}</td>
-      <td>${esc(s.cls || '')}</td><td>${s.tier}: ${esc(tierName(s.tier))}</td><td>${s.wiz || '–'}</td><td><span class="pbar2"><i style="width:${s.accuracy}%"></i></span>${s.answers ? s.accuracy + '%' : '–'}</td><td>${s.answers}</td><td>${s.minutes}</td><td>${s.coins || 0}</td><td>${s.craftAcc ? s.craftAcc + "%" : "–"}</td><td>${s.restarts || 0}</td><td>${agoText(s.days)}</td></tr>`).join('')
-      : '<tr><td colspan="12" style="opacity:.7">No students found.</td></tr>') + '</tbody>';
+      <td>${esc(s.cls || '')}</td><td>${s.tier}: ${esc(tierName(s.tier))}</td><td>${s.wiz || '–'}</td><td><span class="pbar2"><i style="width:${s.accuracy}%"></i></span>${s.answers ? s.accuracy + '%' : '–'}</td><td>${s.answers}</td><td>${s.minutes}</td><td>${s.coins || 0}</td><td>${s.craftAcc ? s.craftAcc + "%" : "–"}</td><td>${s.restarts || 0}</td><td>${agoText(s.days)}</td><td>${storyCell(s)}</td></tr>`).join('')
+      : '<tr><td colspan="13" style="opacity:.7">No students found.</td></tr>') + '</tbody>';
   admPrintLabel();
 }
 const keyLabel = k => k.slice(2);   // 'M:7 × 8' → '7 × 8'
