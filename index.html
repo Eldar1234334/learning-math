@@ -1447,6 +1447,7 @@ const STR = {
   ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
   ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
   ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
+  ac_conj_go: ['Conjure!', 'זמנו!'],
   ac_conj_say: ['Examiner {ex} says: conjure it!', 'הבוחן {ex} אומר: זמנו את זה!'],
   ac_conj_pick: ['Pick the card whose answer is the number of the item.', 'בחרו את הקלף שהתשובה שלו היא מספר הפריט.'],
   ac_conj_amount: ['Now work out how many to conjure, and type the amount.', 'עכשיו חשבו כמה לזמן, והקלידו את הכמות.'],
@@ -4503,7 +4504,7 @@ function conjRenderGame() {
   const o = $('#opts'); o.className = 'opts' + (citem ? ' cards' : ' pad'); o.style.display = ''; o.style.gridTemplateColumns = citem ? '1fr 1fr' : ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
   o.innerHTML = citem
     ? x.icards.map((c, i) => `<button class="opt card" data-ac="icard" data-i="${i}"><span class="cardEx" dir="ltr">${HELPER.cardText(c)}</span></button>`).join('')
-    : `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${t('ac_say_go')}</button>`;
+    : `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${t('ac_conj_go')}</button>`;
   $('#fb').textContent = ACQ.msg || '';
   const key = ACQ.i + ':' + ACQ.j;   // the story is read aloud (spec 08 §6): automatically for math levels 1–12, and with the 🔊 button
   if (ACQ.spoke !== key && !ACQ.busy) { ACQ.spoke = key; if ((P.mlvl || 1) <= 12) vhSpeak(story); }
@@ -4635,7 +4636,7 @@ function acadApplyFacts() {
 // the facts to look at again (up to 8: the missed problems, with their answers)
 function acadFactsHtml() {
   const wrong = (ACQ.facts || []).filter(f => !f.ok).slice(0, 8);
-  return wrong.length ? `<p class="small">${t('ac_facts')}</p>` + wrong.map(f => `<div dir="ltr">${f.review ? exprHtml(f.review.e, f.review.a) + (f.review.e.includes('□') ? '' : ' = ' + ME.fmtHtml(f.review.a)) :f.p.e ? exprHtml(f.p.e, f.p.a) + (f.p.e.includes("□") ? "" : " = " + ME.fmtHtml(f.p.a)) : HELPER.cardText(f.p.expr) + " = " + f.p.amount}</div>`).join('') : '';
+  return wrong.length ? `<p class="small">${t('ac_facts')}</p>` + wrong.map(f => `<div dir="ltr">${f.review ? exprHtml(f.review.e, f.review.a) : f.p.e ? exprHtml(f.p.e, f.p.a) : HELPER.cardText(f.p.expr) + ' = ' + f.p.amount}</div>`).join('') : '';
 }
 // the practice run (§6): 6 questions with the same rules, no marks, no pass or fail
 function acadPracticeEnd() {
@@ -4692,15 +4693,15 @@ function acadSetStage() {
   $('#stage').appendChild(foe); foe.classList.remove('acCentre', 'acVill'); foe.classList.add(conj ? 'acVill' : 'acCentre');
 }
 // leaving the trial: the game's own screens and controls come back
-function acGameExit() {
-  const foe = $('#foeBody'); foe.classList.remove('acCentre', 'acVill'); foe.innerHTML = ''; setBookIcon(false); if (ACQ && ACQ.foeParent) ACQ.foeParent.insertBefore(foe, ACQ.foeNext && ACQ.foeNext.parentNode === ACQ.foeParent ? ACQ.foeNext : null);   // the dummy goes back to its place on the fight screen
+function acGameExit(was) {   // `was`: the trial that has just been left (acadExit clears ACQ first)
+  const A = was || ACQ, foe = $('#foeBody'); foe.classList.remove('acCentre', 'acVill'); foe.innerHTML = ''; setBookIcon(false); if (A && A.foeParent) A.foeParent.insertBefore(foe, A.foeNext && A.foeNext.parentNode === A.foeParent ? A.foeNext : null);   // the dummy goes back to its place on the fight screen
   ACQ = null; refreshAcademy();
   document.body.classList.remove('acadOn'); ['#acExam', '#acDots', '#acTop', '#acName', '#acPed', '#acBubble'].forEach(s => { const e = $(s); if (e) e.remove(); }); $('#foeBody').classList.remove('acCentre', 'acVill'); $('#stageBg').dataset.key = '';
   ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = ''; });
   $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none';
   openMenu();
 }
-function acadExit() { const wasGame = ACQ && ACQ.onGame; ACQ = null; const ov = $('#academy'); if (ov) ov.style.display = 'none'; refreshAcademy(); if (wasGame) return acGameExit(); }
+function acadExit() { const was = ACQ, wasGame = ACQ && ACQ.onGame; ACQ = null; const ov = $('#academy'); if (ov) ov.style.display = 'none'; refreshAcademy(); if (wasGame) return acGameExit(was); }
 // the buttons of a result or a rules screen
 function acadDo(a) {
   if (a === 'close') return acadExit();
