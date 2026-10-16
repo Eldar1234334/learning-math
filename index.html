@@ -416,6 +416,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .vhHead{display:flex;gap:8px;align-items:center;font-size:1.1rem;margin-bottom:6px}.vhVil{font-size:2rem}
 .vhBar{display:flex;gap:8px;align-items:center;font-size:.9rem;margin:4px 0}.vhBar>span{min-width:86px}
 .vhTrack{flex:1;height:14px;border-radius:8px;background:#fff3;overflow:hidden}
+.vhCount{font-size:1.4rem;text-align:center;margin:6px 0}.vhCount b{font-size:1.1rem;display:block;margin-top:2px}
 .vhFill{height:100%;width:0;transition:width .4s}.vhFill.mana{background:linear-gradient(90deg,#3aa0ff,#7fd1ff)}.vhFill.happy{background:linear-gradient(90deg,#ffb347,#ffd166)}
 #admTable .tk{width:28px;text-align:center;cursor:default}
 .admPlayed{margin:8px 0;padding:8px 12px;border-radius:12px;background:#2ecc7122;font-size:1rem}.admPlayed b{font-size:1.2rem}
@@ -1330,7 +1331,7 @@ const STR = {
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_result: ['I have {a} {item}. My friend gives me {b} more. How many do I have now?', 'יש לי {a} {item}. החבר נותן לי עוד {b}. כמה יש לי עכשיו?'],
-  vh_change: ['I need {t} {item}. I have {a}. How many more do I need?', 'אני צריך {t} {item}. יש לי {a}. כמה עוד אני צריך?'],
+  vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. כשפו את השאר.'],
   vh_card: ['Choose the card that fits my story.', 'בחרו את הכרטיס שמתאים לסיפור שלי.'], vh_calc: ['Work it out. How many do I need?', 'חשבו. כמה אני צריך?'],
   vh_item: ['Look up the item in the book, then choose its card.', 'מצאו את הפריט בספר, ואז בחרו את הכרטיס שלו.'],
   vh_wrong_card: ['That card does not fit my story!', 'הכרטיס הזה לא מתאים לסיפור שלי!'], vh_wrong_item: ['{em} {got}? I need {want}!', '{em} {got}? אני צריך {want}!'],
@@ -3756,7 +3757,11 @@ function visitShow() {
   $('#vhMana').style.width = Math.round(100 * st.mana / V.pl.mana) + '%';
   $('#vhHappy').style.width = Math.round(100 * st.happy / st.happyMax) + '%';
   const p = V.p, story = p.kind === 'result' ? t('vh_result', { a: p.a, b: p.b, item: vhLow(hpItemName(V.item, p.a)) }) : t('vh_change', { t: p.t, a: p.a, item: vhLow(hpItemName(V.item, p.t)) });
-  $('#vhStory').innerHTML = `<p><b>${story}</b></p>`;
+  // the amounts are always on screen (for the early levels): what the villager has, and what they need
+  const shown = p.kind === 'change'
+    ? `<div class="vhCount"><span class="vhHave">${V.item.em.repeat(p.a) || '–'}</span> <b>${p.a} / ${p.t}</b></div>`
+    : `<div class="vhCount"><span class="vhHave">${V.item.em.repeat(p.a)}</span> + <span class="vhHave">${V.item.em.repeat(p.b)}</span> <b>${p.a} + ${p.b}</b></div>`;
+  $('#vhStory').innerHTML = `<p><b>${story}</b></p>${shown}`;
   const body = [];
   if (V.phase === 'card') {
     body.push(`<p class="small">${t('vh_card')}</p><div class="hpCards">${V.cards.map((c, i) => c.gone ? '' : `<button class="btn hpCard" data-vh="card" data-i="${i}">${HELPER.cardText(c)}</button>`).join('')}</div>`);
