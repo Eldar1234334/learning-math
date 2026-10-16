@@ -758,3 +758,4 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Mana:** 8 + 2 × (wizard level − 1) + 2 × math level. Every action costs one mana, right or wrong (the villagers do not attack). The happy meter fills on right answers. Full = done; no mana = the run is lost.
 - **Not in this slice:** the endurance potion, rewards for villagers, read-aloud, Hebrew plurals and gender, score by type, wizard-level abilities. The old village encounter (smileys) is no longer used on this path.
 - **Tests:** helper.test.js (14 checks); tests/index.html passes.
+- **Mana potion (village visits):** the Heart potion restores 30% of the visit's mana (as it heals 30% of HP in a fight); once per item. Fights keep the Heart potion.

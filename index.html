@@ -1339,7 +1339,8 @@ const STR = {
   vh_ok: ['Thank you, wizard! Here they are: {items}', 'תודה, קוסם! הנה הם: {items}'],
   vh_mana: ['🔷 Mana', '🔷 מאנה'], vh_happy: ['😊 Happy', '😊 שמחה'], vh_book: ['Conjuration book', 'ספר הכישופים'],
   vh_done: ['The villager is happy! "Thank you, wizard. Come back tomorrow."', 'התושב שמח! "תודה, קוסם. חזרו מחר."'],
-  vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
+  vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'],
+  vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
   quest_locked: ['🔒 You are in the middle of a quest! Finish it, or tap 🏳️ Abandon quest to leave it.', '🔒 אתם באמצע מסע! סיימו אותו, או הקישו על 🏳️ עזיבת המסע.'],
   sound_off: ['🔇 The sound is off. Tap the speaker at the top.', '🔇 הצליל כבוי. הקישו על הרמקול למעלה.'],
@@ -3769,7 +3770,7 @@ function startVisit(o) {
 function visitRound() {   // the next item of the projects: its amount (one level lower) and the cards of the card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
   V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
-  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.msg = '';
+  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.msg = ''; V.potUsed = false;
 }
 function visitShow() {
   const V = VS, w = $('#vhWrap'); if (!w || !V) return;
@@ -3796,7 +3797,10 @@ function visitShow() {
     body.push(`<div class="hpMsg">${t(V.phase === 'done' ? 'vh_done' : 'vh_lost')}</div>`);
     $('#vhFoot').innerHTML = `<div class="hpNums"><button class="btn" data-vh="leave">${t('vh_leave')}</button></div>`;
   }
-  if (V.phase !== 'done' && V.phase !== 'lost') $('#vhFoot').innerHTML = `<div class="hpNums"><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button></div>`;
+  if (V.phase !== 'done' && V.phase !== 'lost') {   // the Mana potion: the Heart potion in a village visit (once per item, as in a fight)
+    const have = (P.carry || {}).heart || 0, can = have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
+    $('#vhFoot').innerHTML = `<div class="hpNums">${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="quit">${t('vh_quit')}</button></div>`;
+  }
   $('#vhBody').innerHTML = body.join(''); $('#vhMsg').textContent = V.msg;
 }
 function visitAfter() {   // after each action: the visit may be over
@@ -3813,6 +3817,11 @@ function visitClick(e) {
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
   if (act === 'quit') { VS = null; $('#vhWrap').remove(); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
+    if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
+    P.carry.heart--; V.potUsed = true; V.st.mana = Math.min(V.pl.mana, V.st.mana + Math.ceil(V.pl.mana * CB.CFG.HEART_POT_HEAL));
+    saveSoon(true); sfx.up(); V.msg = t('vh_pot_used'); return visitShow();
+  }
   if (act === 'leave') { const done = V.phase === 'done'; VS = null; $('#vhWrap').remove(); return jAfterVisit(done); }
   if (act === 'card' && V.phase === 'card') {
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
