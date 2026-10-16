@@ -1346,6 +1346,7 @@ const STR = {
   vh_mana: ['🔷 Mana', '🔷 מאנה'], vh_happy: ['😊 Happy', '😊 שמחה'], vh_book: ['Conjuration book', 'ספר הכישופים'],
   vh_done: ['The villager is happy! "Thank you, wizard. Come back tomorrow."', 'התושב שמח! "תודה, קוסם. חזרו מחר."'],
   vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'],
+  vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'],
   vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
   quest_locked: ['🔒 You are in the middle of a quest! Finish it, or tap 🏳️ Abandon quest to leave it.', '🔒 אתם באמצע מסע! סיימו אותו, או הקישו על 🏳️ עזיבת המסע.'],
@@ -3743,6 +3744,7 @@ function after(tier) {
    Every action costs one mana. A right answer fills the villager's happy meter. Logic in helper.js. ----- */
 let VS = null;   // the visit: { festival, idx, pl, rounds, round, st: { mana, happy, happyMax }, item, project, p, cards, itemCards, phase, msg, potUsed }
 const vhLow = s => s.toLowerCase();
+const vhMiss = () => { VS.mist = (VS.mist || 0) + 1; return HELPER.spend(VS.st, false); };   // a mistake: counted (no mistakes = a bonus), and it costs mana
 const vhNeeds = p => p.needs.slice(0, 2);   // two items per project
 const vhItems = p => vhNeeds(p).map(n => HELPER.itemByHe(n[0]));
 const vhUnlocked = (p, ml) => vhItems(p).every(x => x && x.lvl <= ml);
@@ -3828,7 +3830,8 @@ function visitShow() {
   // the Mana potion and leaving for now
   const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
   $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
-  const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave'); nb.onclick = () => { const d = VS && VS.phase === 'done'; VS = null; jAfterVisit(d); };
+  const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
+  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0; VS = null; jAfterVisit(d, f, m); };
 }
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
@@ -3853,7 +3856,7 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   if (act === 'card' && V.phase === 'card') {
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
     if (c.fits) { V.st = HELPER.spend(V.st, true); V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
-    c.gone = true; V.st = HELPER.spend(V.st, false); sfx.bad(); V.msg = t('vh_wrong_card');
+    c.gone = true; V.st = vhMiss(); sfx.bad(); V.msg = t('vh_wrong_card');
     if (visitAfter()) return; return visitShow();
   }
   if (act === 'amt' && V.phase === 'calc') {
@@ -3863,14 +3866,14 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
       if (V.pl.itemStep) { V.phase = 'item'; if (visitAfter()) return; return visitShow(); }
       return visitRoundDone();
     }
-    V.st = HELPER.spend(V.st, false); sfx.bad();
+    V.st = vhMiss(); sfx.bad();
     V.msg = r.kind === 'few' ? t('vh_few', { have: r.have, more: r.more }) : t('vh_many', { have: r.have, extra: r.extra });
     if (visitAfter()) return; return visitShow();
   }
   if (act === 'item' && V.phase === 'item') {
     const c = V.itemCards[+b.dataset.i]; if (!c || c.gone) return;
     if (HELPER.itemCardOk(c, V.item)) { V.st = HELPER.spend(V.st, true); sfx.win(); return visitRoundDone(); }
-    c.gone = true; V.st = HELPER.spend(V.st, false); sfx.bad();
+    c.gone = true; V.st = vhMiss(); sfx.bad();
     const w = HELPER.wrongItemFor(c); V.msg = t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(V.item, 2) });
     if (visitAfter()) return; return visitShow();
   }
@@ -3878,8 +3881,17 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
 $('#opts').addEventListener('click', visitClick);
 $('#potBar').addEventListener('click', visitClick);
 // the stop is finished (the villager is happy) or the run is lost (no mana): on to the next stop, or to the menu
-function jAfterVisit(done) {
-  if (done) { const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath(); }
+// the rewards (spec 05 §7): XP 10 (+5 with no mistakes) per villager, 40 (+20) for the festival; coins by math level (2 units a villager, 5 the festival)
+function vhRewards(fest, mist) {
+  const xp = fest ? 40 + (mist === 0 ? 20 : 0) : 10 + (mist === 0 ? 5 : 0);
+  P.xp += xp; const c = jCoins(fest ? 5 : 2);
+  return { xp, c };
+}
+function jAfterVisit(done, fest = false, mist = 0) {
+  if (done) {
+    const rw = vhRewards(fest, mist); toast(t('vh_reward', rw));
+    const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath();
+  }
   restartQuest(); saveSoon(true); toast(t('vh_lost')); openMenu();   // out of mana: the run is lost (the only way to lose)
 }
 const hpItemName = (item, n) => tl(HELPER.nameFor(item, n));
