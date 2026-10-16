@@ -93,7 +93,8 @@
     const beginner = isBeginner(mlvl, wlvl);
     // per item: problem 1 = the amount (card that solves it, then the answer); problem 2 = the item (card whose answer is the item's number, then that answer)
     const cardStep = !beginner && mlvl >= 2, itemStep = !beginner;
-    const perItem = (cardStep ? 1 : 0) + 1 + (itemStep ? 2 : 0);
+    // an action is an answer: choosing the right card is free, the answer that follows it is the one action (the card and its answer are one step)
+    const perItem = 1 + (itemStep ? 1 : 0);
     return { beginner, cardStep, itemStep, items, perItem, happyMax: items * perItem, mana: 8 + 2 * (wlvl - 1) + 2 * mlvl, lowLevel: amountLevel(mlvl) };
   }
 

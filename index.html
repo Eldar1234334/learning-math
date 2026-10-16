@@ -66,6 +66,8 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #mapHero svg{width:100%;height:100%}#mapHero.drag{transition:none;cursor:grabbing;z-index:6}#mapHero.walk svg{animation:hop .3s infinite alternate}
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
+.vhIco{width:44px;min-width:44px;height:52px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.vhPics{text-align:center;font-size:1.6rem;min-height:1.2em;margin:4px auto 0;line-height:1.2}
 .cjFx{position:absolute;left:50%;top:38%;font-size:2.6rem;line-height:1;pointer-events:none;z-index:6;white-space:nowrap;transform:translate(-50%,-50%);opacity:0}
 .cj1{animation:cj1 1s ease-out forwards}.cj2{animation:cj2 1s ease-out forwards;text-shadow:0 0 14px #ffd166}
 .cj3{animation:cj3 1s ease-out forwards;filter:drop-shadow(0 0 10px #8be9d4) drop-shadow(0 0 18px #ffd166)}
@@ -1050,6 +1052,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   </div>
   <div class="potBar" id="potBar" style="display:none"></div>
   <div class="potBar" id="vhBar" style="display:none"></div>
+  <div class="vhPics" id="vhPics" style="display:none"></div>
   <div class="itemBar" id="itemBar" style="display:none"></div>
   <div class="panel card">
     <div class="craftPic" id="craftPic" style="display:none"></div>
@@ -3022,7 +3025,8 @@ function jDraw() {
 }
 function jHud() {
   const qs = P.quest[J.q], v = jVillage(), hs = Math.max(0, qs.hearts), mx = Math.max(CFG.MAX_HEARTS, hs), th = jTheme(), nodes = jNodes(), next = nodes[(qs.at || 0) + 1];
-  $('#jHearts').textContent = v ? '😊'.repeat(hs) + '😐'.repeat(mx - hs) : `❤️ ${qs.hp}/${CB.wizMaxHP(wizLvl())}`;
+  // a village run shows the wizard's mana (the full mana of the next visit), not smileys
+  $('#jHearts').innerHTML = v ? `<span class="hpbar manaBar" style="display:inline-block;width:90px;vertical-align:middle"><i style="width:100%"></i></span> <small class="hpNum">🔷 ${HELPER.plan(P.mlvl || 1, wizLvl(), 1).mana}</small>` : `❤️ ${qs.hp}/${CB.wizMaxHP(wizLvl())}`;
   $('#jArea').textContent = v ? VILLAGES[(qs.ch - 1) % 6] : areaName(qs.ch); $('#jStory').textContent = Array.isArray(th.story) ? tl(th.story) : th.story;
   const b = $('#jBanner');
   if (next && next[0] === 'B') { b.textContent = v ? '🎉 The festival hall is just ahead!' : t('j_boss_near'); b.className = 'jBanner warn'; }
@@ -3239,7 +3243,7 @@ function loseHeart() { G.hearts--; P.quest[G.quest].hearts = G.hearts; saveSoon(
 const VNAMES = { bakery: 'Baker Ori', smith: 'Smith Omer', well: 'Dana at the well', farm: 'Farmer Moshe', library: 'Grandma Rina', garden: 'Little Tom', dock: 'Fisher Ezra', henhouse: 'Little Maya', hats: 'Hatter Alex', cottage: 'Grandpa Dov', lamps: 'Lamp keeper Lia', orchard: 'Picker Noam', carpenter: 'Carpenter Gil' };   // one name for each villager
 function renderVillager() {   // the villager of the site: waiting (worried, with a thought bubble of what they need), happy (a little jump) or sad
   if (G.quest !== 'peace' || !G.vkey) return;
-  const em = VS ? visitPics() : (G.vmood === 'wait' && G.q && G.q.reveal ? G.q.reveal : '');   // a visit: the pictures of what they have, in the bubble
+  const em = G.vmood === 'wait' && G.q && G.q.reveal ? G.q.reveal : '';
   $('#foeBody').innerHTML = `<div class="vill${G.vmood === 'happy' ? ' vkjump' : ''}">${STAGE_BG.villagerSVG(G.vkey, G.vskin, G.vmood)}${em ? `<div class="vThought" aria-hidden="true">${em}</div>` : ''}</div>`;
 }
 function setMood(m) {   // called with the old face emojis from the village answer handling
@@ -3826,7 +3830,7 @@ function visitRound() {   // the next item of the projects: its amount, and the 
 }
 function visitBars() {   // the wizard's mana (blue) sits where the fight shows hearts; the villager's happy meter where the monster's HP is
   const V = VS;
-  $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div>`;
+  $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div><small class="hpNum">🔷 ${V.st.mana}/${V.pl.mana}</small>`;   // the mana the wizard has
   $('#hpFill').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
   const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar; the stylesheet shows it with class "on")
   ab.style.setProperty('--seg', HELPER.PATIENCE);   // five segments: one per point of patience
@@ -3860,7 +3864,7 @@ function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
   visitBars();
   $('#qTitle').textContent = V.project.name;
-  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
+  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${visitTray()}${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
   V.storyText = visitStory();   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(V.storyText); }
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
@@ -3876,9 +3880,11 @@ function visitShow() {
   // the potion row: the same potions as in a fight (with the village names), and the picture button in it; the owl, the sound and leaving for now below
   const pb = $('#potBar'); pb.style.display = done ? 'none' : ''; pb.innerHTML = done ? '' : visitPotsHtml();
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
-  // the second row: reading (🔊), the flag (leave for now), the pictures (above the free level), and the owl
+  // the second row: reading (🔊), the flag (leave for now), the pictures (above the free level), and the owl; the same size as the potion row
   const pics = !done && P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll;
-  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `<button class="btn ghost" data-vh="hear" title="🔊">🔊</button><button class="btn ghost" data-vh="quit" title="${t('vh_quit')}">🏳️</button>${pics ? `<button class="btn ghost" data-vh="pics" title="${t('vh_pics')}">🖼</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}`;
+  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `<button class="potBtn vhIco" data-vh="hear" title="🔊">🔊</button><button class="potBtn vhIco" data-vh="quit" title="${t('vh_quit')}">🏳️</button>${pics ? `<button class="potBtn vhIco" data-vh="pics" title="${t('vh_pics')}">🖼</button>` : ''}${owl ? `<button class="potBtn vhIco" data-vh="owl" title="${t('vh_owl_btn')}">🦉</button>` : ''}`;
+  // the pictures of what the villager has: under the second row, when they are shown
+  $('#vhPics').innerHTML = done ? '' : visitPics(); $('#vhPics').style.display = done ? 'none' : '';
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
   nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left', pc = (VS && VS.picCost) || 0; visitEnd(); jAfterVisit(d, f, m, im, lf, pc); };
 }
@@ -3929,10 +3935,19 @@ function visitCraft() {   // the item is crafted: it appears in front of the vil
   if (n > 6) floatText('+' + n, '#ffd166', document.querySelector('#foeBody'));
   return thanks;
 }
+// the villager's tray: the project's items as they arrive (❔ until then), and the result they make with them
+function visitTray() {
+  const V = VS, pr = V.rounds.filter(r => r.project === V.project), got = V.rounds.slice(0, V.round).filter(r => r.project === V.project).length;
+  const slots = pr.map((r, i) => `<span class="traySlot ${i < got ? 'full' : ''}">${i < got ? r.item.em : '❔'}</span>`).join('');
+  const made = got >= pr.length ? `<div class="trayResult">✨ ${V.project.result} ✨</div>` : '';
+  return `<div class="projTray vhTray"><div class="trayName">${V.project.name}</div><div class="traySlots">${slots}</div>${made}</div>`;
+}
+// a project is finished: the villager makes the result with sparkles
+function visitMade(p) { sfx.win(); confetti(['✨', '💛', '🎉']); toast('✨ ' + p.name + ' ✨'); }
 function visitNext(thanks) {   // the item is handed over: on to the next item of the projects, or the stop is done
-  const V = VS; V.round++;
-  if (V.round >= V.rounds.length) { V.phase = 'done'; V.msg = thanks; return visitShow(); }
-  visitRound(); V.msg = thanks; visitShow();
+  const V = VS, old = V.project; V.round++;
+  if (V.round >= V.rounds.length) { V.phase = 'done'; V.msg = thanks; visitMade(old); return visitShow(); }
+  visitRound(); if (V.project !== old) visitMade(old); V.msg = thanks; visitShow();
 }
 function visitRoundDone() {   // the item is crafted (see visitCraft)
   const thanks = visitCraft();
@@ -3957,7 +3972,7 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   }
   if (act === 'card' && V.phase === 'card') {   // problem 1: the card that solves the story
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
-    if (c.fits) { V.st = HELPER.spend(V.st, true); vhLog(true); V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
+    if (c.fits) { V.phase = 'calc';   // the right card is free: the answer after it is the action V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
     c.gone = true; V.st = vhMiss(c); sfx.bad(); V.msg = t('vh_wrong_card');
     if (visitAfter()) return; return visitShow();
   }
@@ -3975,7 +3990,7 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   }
   if (act === 'icard' && V.phase === 'icard') {   // problem 2: the card whose answer is the item's number
     const c = V.itemCards[+b.dataset.i]; if (!c || c.gone) return;
-    if (HELPER.itemCardOk(c, V.item)) { V.st = HELPER.spend(V.st, true); vhLog(true); V.pick = c; V.phase = 'ians'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
+    if (HELPER.itemCardOk(c, V.item)) { V.pick = c; V.phase = 'ians'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
     c.gone = true; V.st = vhMiss(c); sfx.bad();
     const w = HELPER.wrongItemFor(c); V.msg = t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(V.item, 2) });
     if (visitAfter()) return; return visitShow();

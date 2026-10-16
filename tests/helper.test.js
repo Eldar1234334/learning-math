@@ -47,11 +47,11 @@
   test('the steps per item: beginner answer only; math level 1 answer and item; from level 2 card, answer and item', () => {
     const b = H.plan(1, 1), m1 = H.plan(1, 3), m2 = H.plan(2, 3);
     assert(b.beginner && !b.cardStep && !b.itemStep && b.perItem === 1, 'beginner steps');
-    assert(!m1.cardStep && m1.itemStep && m1.perItem === 3, 'level 1 steps: answer, item card, item answer');
-    assert(m2.cardStep && m2.itemStep && m2.perItem === 4, 'level 2 steps: all four');
+    assert(!m1.cardStep && m1.itemStep && m1.perItem === 2, 'level 1: amount answer and item answer are the actions');
+    assert(m2.cardStep && m2.itemStep && m2.perItem === 2, 'level 2: the cards are free, still two actions per item');
   });
   test('a project has two items: the happy meter is perItem × 2', () => {
-    assert(H.plan(5, 5).happyMax === 8 && H.plan(1, 1).happyMax === 2 && H.plan(1, 3).happyMax === 6, 'happy max');
+    assert(H.plan(5, 5).happyMax === 4 && H.plan(1, 1).happyMax === 2 && H.plan(1, 3).happyMax === 4, 'happy max');
   });
   test('the item answer choices: the item number among three numbers near it', () => {
     for (let i = 0; i < 30; i++) { const c = H.itemAnswers(24, rnd); assert(c.length === 4 && c.includes(24) && new Set(c).size === 4, 'four different, with 24'); }
