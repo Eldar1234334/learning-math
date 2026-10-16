@@ -1347,6 +1347,8 @@ const STR = {
   vh_done: ['The villager is happy! "Thank you, wizard. Come back tomorrow."', 'התושב שמח! "תודה, קוסם. חזרו מחר."'],
   vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'],
   vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'], vh_found: ['Found: {x}', 'נמצא: {x}'],
+  vh_left: ['The villager has had enough and leaves. Come back another day.', 'התושב נמאס לו ועוזב. חזרו יום אחר.'],
+  vh_owl_btn: ['🦉 Owl helper', '🦉 עוזר הינשוף'], vh_owl: ['🦉 The owl carries {items} to the villager!', '🦉 הינשוף מביא {items} לתושב!'],
   conj_t: ['📜 Conjuration book', '📜 ספר ההטלה'], conj_info: ['The items you can conjure at math level {m}.', 'הפריטים שאפשר לכשף ברמה {m}.'], conj_lock: ['Unlocks at math level {n}', 'נפתח ברמה {n}'], conj_btn: ['Conjuration book', 'ספר ההטלה'],
   vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
@@ -3769,7 +3771,8 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
   const rounds = o.projects.flatMap(p => vhItems(p).map(item => ({ item, project: p })));
   const pl = HELPER.plan(P.mlvl || 1, wizLvl(), rounds.length);
   G.site = o.site; G.vkey = o.site.bg; G.fname = o.site.name; G.big = o.festival; G.projs = null; G.mon = null; G.foes = null; G.group = false;
-  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax }, msg: '' };
+  const imp = !o.festival && HELPER.isImpatient(wizLvl());   // an impatient villager (spec 05 §8): a patience bar, the armor bar
+  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
   $('#itemBar').style.display = 'none'; setBookIcon(true);
   drawScene(); visitRound(); visitShow();
@@ -3795,6 +3798,8 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   const V = VS;
   $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div>`;
   $('#hpFill').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
+  const ab = $('#armorBar'); ab.style.display = V.imp ? '' : 'none';   // the impatient villager's patience (the armor bar)
+  if (V.imp) ab.firstElementChild.style.width = Math.round(100 * V.st.patience / HELPER.PATIENCE) + '%';
   $('#foeName').textContent = G.site.name + ' · ' + V.project.name + ' · ' + (V.round + 1) + '/' + V.rounds.length;
   G.vmood = V.phase === 'done' ? 'happy' : (V.st.happy > 0 ? 'happy' : 'wait');
   renderVillager();
@@ -3819,7 +3824,7 @@ function visitShow() {
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(story); }
   $('#qSub').textContent = '';
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
-  const done = V.phase === 'done' || V.phase === 'lost';
+  const done = V.phase === 'done' || V.phase === 'lost' || V.phase === 'left';
   if (V.phase === 'card') {
     $('#qSub').textContent = t('vh_card'); o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.cards.length}, 1fr)`;
     V.cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'card'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
@@ -3833,12 +3838,13 @@ function visitShow() {
     V.itemCards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'item'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
   }
   if (V.phase === 'item') $('#qSub').insertAdjacentHTML('afterend', `<div class="hpBook">${HELPER.BOOK.filter(x => x.lvl <= (P.mlvl || 1)).map(x => `<span class="hpItem ${x.n === V.item.n ? 'on' : ''}"><b>${x.n}</b> ${x.em} ${hpItemName(x, 1)}</span>`).join('')}</div>`);
-  $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : 'vh_lost') : V.msg;
-  // the Mana potion and leaving for now
+  $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : V.phase === 'left' ? 'vh_left' : 'vh_lost') : V.msg;
+  // the Mana potion, the owl helper (wizard level 18, once per visit) and leaving for now
   const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
-  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
+  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
-  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0; VS = null; setBookIcon(false); jAfterVisit(d, f, m); };
+  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left'; VS = null; setBookIcon(false); $('#armorBar').style.display = 'none'; jAfterVisit(d, f, m, im, lf); };
 }
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
@@ -3853,12 +3859,19 @@ function visitRoundDone() {   // the item is handed over; the next item of the p
 function visitClick(e) {   // the answers, cards and buttons of the visit (the fight's buttons)
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
-  if (act === 'quit') { VS = null; setBookIcon(false); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'quit') { VS = null; setBookIcon(false); $('#armorBar').style.display = 'none'; return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
   if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
     if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
     P.carry.heart--; V.potUsed = true; V.st.mana = Math.min(V.pl.mana, V.st.mana + Math.ceil(V.pl.mana * CB.CFG.HEART_POT_HEAL));
     saveSoon(true); sfx.up(); V.msg = t('vh_pot_used'); return visitShow();
+  }
+  if (act === 'owl') {   // the owl helper (wizard level 18, once per visit): it carries the rest of this item; the action costs one mana
+    if (V.owlUsed || wizLvl() < 18 || !(V.st.mana > 0) || V.phase === 'done' || V.phase === 'lost' || V.phase === 'left') return;
+    V.owlUsed = true; V.st = HELPER.spend(V.st, true); V.st.happy = Math.min(V.st.happyMax, V.st.happy + V.pl.perItem - 1);
+    sfx.win(); const thanks = t('vh_owl', { items: V.item.em.repeat(V.p.amount) });
+    if (visitAfter()) return;
+    V.round++; if (V.round < V.rounds.length) visitRound(); V.msg = thanks; visitShow(); return;
   }
   if (act === 'card' && V.phase === 'card') {
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
@@ -3890,9 +3903,9 @@ $('#opts').addEventListener('click', visitClick);
 $('#potBar').addEventListener('click', visitClick);
 // the stop is finished (the villager is happy) or the run is lost (no mana): on to the next stop, or to the menu
 // the rewards (spec 05 §7): XP 10 (+5 with no mistakes) per villager, 40 (+20) for the festival; coins by math level (2 units a villager, 5 the festival)
-function vhRewards(fest, mist) {
-  const xp = fest ? 40 + (mist === 0 ? 20 : 0) : 10 + (mist === 0 ? 5 : 0);
-  P.xp += xp; const c = jCoins(fest ? 5 : 2);
+function vhRewards(fest, mist, imp) {   // an impatient villager, finished, pays double (spec 05 §8)
+  const x = imp ? 2 : 1, xp = x * (fest ? 40 + (mist === 0 ? 20 : 0) : 10 + (mist === 0 ? 5 : 0));
+  P.xp += xp; const c = jCoins((fest ? 5 : 2) * x);
   return { xp, c };
 }
 // the drops (spec 05 §7): one item from the folk table, its rarity by the mistakes (and higher for the festival), and herbs for the recipes,
@@ -3904,9 +3917,10 @@ function vhDrop(fest, mist) {
   const rr = runRec(); if (rr) { rr.loot[id] = (rr.loot[id] || 0) + 1; rr.loot[herb] = (rr.loot[herb] || 0) + n; rr.bounce = true; }
   return { id, herb, n };
 }
-function jAfterVisit(done, fest = false, mist = 0) {
+function jAfterVisit(done, fest = false, mist = 0, imp = false, left = false) {
+  if (left) { const chapter = advanceQuest(); saveSoon(true); toast(t('vh_left')); return chapter ? openMenu() : continuePath(); }   // the villager leaves: the stop is done, no reward, the run goes on
   if (done) {
-    const rw = vhRewards(fest, mist); toast(t('vh_reward', rw));
+    const rw = vhRewards(fest, mist, imp); toast(t('vh_reward', rw));
     const dr = vhDrop(fest, mist); setTimeout(() => toast(t('vh_found', { x: `${ING[dr.id].em} ${nameOf(ING[dr.id])} + ${ING[dr.herb].em} ${nameOf(ING[dr.herb])} ×${dr.n}` })), 1500);
     const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath();
   }

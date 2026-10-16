@@ -98,6 +98,17 @@
     assert(H.plan(2, 1, 2).mana >= 6, 'math 2');
     assert(H.plan(14, 1, 6).mana >= 18, 'festival at math 14');
   });
+  test('an impatient villager: the patience bar goes down by one on every action; empty = the villager leaves', () => {
+    let s = { mana: 9, happy: 0, happyMax: 6, patience: 2 };
+    s = H.spend(s, true); assert(s.patience === 1 && s.happy === 1, 'right action');
+    s = H.spend(s, false); assert(s.patience === 0 && s.mana === 7, 'mistake action too');
+    assert(H.visitOver(s) === 'left', 'left when patience is empty');
+    assert(H.visitOver({ mana: 4, happy: 6, happyMax: 6, patience: 0 }) === 'done', 'finished first is done');
+  });
+  test('impatient villagers only from wizard level 6, about one visit in three', () => {
+    assert(!H.isImpatient(5, () => 0), 'not before level 6');
+    assert(H.isImpatient(6, () => 0.2) && !H.isImpatient(6, () => 0.5), 'one in three');
+  });
   test('the visit: done when the happy meter is full, lost when the mana is gone first', () => {
     assert(H.visitOver({ mana: 1, happy: 4, happyMax: 4 }) === 'done', 'happy full');
     assert(H.visitOver({ mana: 0, happy: 2, happyMax: 4 }) === 'lost', 'out of mana');
