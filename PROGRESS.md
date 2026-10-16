@@ -763,3 +763,6 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Reading support (spec 05 §6, part):** the story is read aloud automatically at math levels 1–12, and the 🔊 button reads it again. Hebrew uses the device's Hebrew voice (silent without one); English uses the device's English voice.
 - **Rewards (spec 05 §7, part):** a finished villager gives 10 XP (+5 with no mistakes); the festival 40 XP (+20). Coins by math level: 2 units per villager, 5 for the festival (proposal; the spec gives only "by math level"). Drops from the folk table: one item by rarity (higher with no mistakes at the festival) and herbs for the recipes, as a fight drops. The score by story type for the teacher is not built yet.
 - **Score by story type (spec 05 §7, game part):** each answer of a story problem (the amount, not the card) counts right or wrong by story type, kept in the profile (`P.storyTypes`). The teacher's column is not built yet: it needs a change to the school script and a deploy by the school owner.
+
+## To do next (village, from the owner, 2026-10-16)
+- **The conjuration book (village) looks and works like the spell book (fight):** the same look and idea. The map screen shows both books. In a fight or a village visit the student opens only the relevant one (the spell book in a fight, the conjuration book in a village visit).
