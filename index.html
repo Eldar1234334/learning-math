@@ -3744,6 +3744,10 @@ function after(tier) {
    Every action costs one mana. A right answer fills the villager's happy meter. Logic in helper.js. ----- */
 let VS = null;   // the visit: { festival, idx, pl, rounds, round, st: { mana, happy, happyMax }, item, project, p, cards, itemCards, phase, msg, potUsed }
 const vhLow = s => s.toLowerCase();
+// the answers of the story problems, by story type: [right, wrong] per type, kept in the profile (the teacher's view comes later)
+function storyTally(kind, right) {
+  P.storyTypes = P.storyTypes || {}; const s = P.storyTypes[kind] || [0, 0]; s[right ? 0 : 1]++; P.storyTypes[kind] = s; saveSoon();
+}
 const vhMiss = () => { VS.mist = (VS.mist || 0) + 1; return HELPER.spend(VS.st, false); };   // a mistake: counted (no mistakes = a bonus), and it costs mana
 const vhNeeds = p => p.needs.slice(0, 2);   // two items per project
 const vhItems = p => vhNeeds(p).map(n => HELPER.itemByHe(n[0]));
@@ -3861,6 +3865,7 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   }
   if (act === 'amt' && V.phase === 'calc') {
     const k = +b.dataset.n, r = HELPER.checkAmount(k, V.p.amount);
+    storyTally(V.p.kind, r.ok);   // spec 05 §7: the accuracy of the story problems, by type (the answer, not the card)
     if (r.ok) {
       V.st = HELPER.spend(V.st, true); sfx.ok(); V.msg = '';
       if (V.pl.itemStep) { V.phase = 'item'; if (visitAfter()) return; return visitShow(); }
