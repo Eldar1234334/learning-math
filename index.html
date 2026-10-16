@@ -95,6 +95,7 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .acRight{right:4%;width:86px;text-align:center}.acRight .exsvg,.acRight svg{width:100%;height:auto}.acRight small{display:block;font-size:.8rem;color:#fff}
 .acMid{left:50%;transform:translateX(-50%);width:130px;text-align:center}
 #foeBody .acBigDum .dsvg{width:84px;height:150px;}
+.acPair{display:flex;gap:4px;align-items:flex-end}.acPair .acBigDum .dsvg{width:66px;height:118px}.acPair .acBigDum.cur .dsvg{filter:drop-shadow(0 0 6px #ffd166)}
 .acBigDum .dsvg{width:110px;height:190px;transition:transform .7s,opacity .7s}
 .acBigDum.hit .dsvg{animation:acadShake .6s}.acBigDum.miss .dsvg{animation:acadFlash .6s}.acBigDum.down .dsvg{transform:rotate(80deg) translateY(10px);opacity:.4}
 .acBigDum .mk{display:flex;gap:4px;justify-content:center}.acBigDum .mk i{width:11px;height:11px;border-radius:50%;background:#fff5}
@@ -4523,7 +4524,9 @@ function fightRenderGame() {
   const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], fpick = ACQ.phase === 'fpick';
   const cls = [ACQ.lastHit && ACQ.lastHit.includes(q.d) ? 'hit' : '', ACQ.lastMiss === q.d ? 'miss' : '', d.hits >= d.need ? 'down' : ''].join(' ');
   const pips = Array.from({ length: d.need }, (_, m) => `<i class="${m < d.hits ? 'gold' : m < d.hits + (d.miss || 0) ? 'red' : ''}"></i>`).join('');
-  $('#foeBody').innerHTML = `<div class="acBigDum ${cls}">${acadDummySvg(d.el)}<div class="mk">${pips}</div></div>`;
+  // one dummy, or for an AOE question the two adjacent dummies side by side (both are hit by the one spell)
+  const one = j => { const x = ACQ.dummies[j], pp = Array.from({ length: x.need }, (_, m) => `<i class="${m < x.hits ? 'gold' : m < x.hits + (x.miss || 0) ? 'red' : ''}"></i>`).join(''), c = [ACQ.lastHit && ACQ.lastHit.includes(j) ? 'hit' : '', ACQ.lastMiss === j ? 'miss' : '', x.hits >= x.need ? 'down' : ''].join(' '); return `<div class="acBigDum ${c}${j === q.d || j === q.d2 ? ' cur' : ''}">${acadDummySvg(x.el)}<div class="mk">${pp}</div></div>`; };
+  $('#foeBody').innerHTML = q.d2 != null ? `<div class="acPair">${one(q.d)}${one(q.d2)}</div>` : one(q.d);
   $('#hearts').innerHTML = `<span class="exMarks">${ACQ.practice ? '📚 ' + t('ac_practice_tag') : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist))}</span>`;
   $('#hpFill').style.width = (100 * ACQ.i / ACQ.Q) + '%';
   $('#acDots').innerHTML = ACQ.dummies.map((x, j) => `<i style="background:${ACAD_COL[x.el]}" class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
