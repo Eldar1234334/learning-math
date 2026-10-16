@@ -4278,7 +4278,7 @@ function acadBuildRow(k, lvl, Qn) {
   const Q = Qn || ACAD_Q[k], opts = ACAD_HITS[k], pool = ACAD_EL.map(el => ({ el, sp: acadWeak(el, lvl) })), aoeAll = acadAoe(lvl);
   const shuffle = a => a.sort(() => Math.random() - 0.5);
   for (let tries = 0; tries < 300; tries++) {
-    const A = tries < 200 && aoeAll.length && Math.random() < 0.6 ? 1 : 0;   // the AOE questions of this row; the last tries build a row without one
+    const A = tries < 200 && aoeAll.length && Math.random() < 0.6 ? (Math.random() < 0.5 ? 1 : 2) : 0;   // the AOE questions of this row (one or two: the hits must fit the dummies' counts); the last tries build a row without one
     const dummies = []; let rem = Q + A, prev = null, aoeLeft = A, ok = true;
     while (rem > 0 && ok) {
       const hs = opts.filter(h => h <= rem && (rem - h === 0 || rem - h >= Math.min(...opts)));
