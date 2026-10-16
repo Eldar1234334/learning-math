@@ -47,11 +47,20 @@
   test('the steps per item: beginner answer only; math level 1 answer and item; from level 2 card, answer and item', () => {
     const b = H.plan(1, 1), m1 = H.plan(1, 3), m2 = H.plan(2, 3);
     assert(b.beginner && !b.cardStep && !b.itemStep && b.perItem === 1, 'beginner steps');
-    assert(!m1.cardStep && m1.itemStep && m1.perItem === 2, 'level 1 steps');
-    assert(m2.cardStep && m2.itemStep && m2.perItem === 3, 'level 2 steps');
+    assert(!m1.cardStep && m1.itemStep && m1.perItem === 3, 'level 1 steps: answer, item card, item answer');
+    assert(m2.cardStep && m2.itemStep && m2.perItem === 4, 'level 2 steps: all four');
   });
   test('a project has two items: the happy meter is perItem × 2', () => {
-    assert(H.plan(5, 5).happyMax === 6 && H.plan(1, 1).happyMax === 2 && H.plan(1, 3).happyMax === 4, 'happy max');
+    assert(H.plan(5, 5).happyMax === 8 && H.plan(1, 1).happyMax === 2 && H.plan(1, 3).happyMax === 6, 'happy max');
+  });
+  test('the item answer choices: the item number among three numbers near it', () => {
+    for (let i = 0; i < 30; i++) { const c = H.itemAnswers(24, rnd); assert(c.length === 4 && c.includes(24) && new Set(c).size === 4, 'four different, with 24'); }
+  });
+  test('every story: the rest is the amount, and the need minus the have (or minus the two parts)', () => {
+    for (let i = 0; i < 200; i++) {
+      const p = H.makeAmount(9, rnd);
+      assert(H.cardValue(p.expr) === p.amount, 'card value is the rest for ' + p.kind);
+    }
   });
   test('story types by level: only result at level 2; separate from 3; change and part from 4; compare 5; start 6; two steps 9', () => {
     assert(H.storyTypes(2).join() === 'result', 'level 2: ' + H.storyTypes(2).join());

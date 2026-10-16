@@ -1331,12 +1331,14 @@ const STR = {
   pl_shut: ['Shuttered', 'סגור'], abandon_map: ['🏳️ Abandon quest', '🏳️ עזיבת המסע'], logout: ['🚪 Switch hero', '🚪 החלפת גיבור'],
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
-  vh_result: ['I have {a} {item}. My friend gives me {b} more. How many do I have now?', 'יש לי {a} {item}. החבר נותן לי עוד {b}. כמה יש לי עכשיו?'],
+  vh_ians: ['The spell brings how many {item}? Choose the number.', 'הכישוף מביא כמה {item}? בחרו את המספר.'],
+  vh_pics: ['🖼 Show pictures (−{xp} XP)', '🖼 הראו תמונות (−{xp} ניסיון)'], vh_pics_used: ['Pictures shown: −{xp} XP', 'תמונות: −{xp} ניסיון'],
+  vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. כשפו את השאר.'],
-  vh_separate: ['I had {t} {item}. {b} {broke}. How many are left?', 'היו לי {t} {item}. {b} {broke}. כמה נשארו?'], vh_broke: ['broke', 'נשברו'],
+  vh_separate: ['I need {t} {item}. I have {a}, because {b} {broke}. Please conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, כי {b} {broke}. כשפו את השאר.'], vh_broke: ['broke', 'נשברו'],
   vh_part: ['I need {t} {item}. {a} are for the hall, and the rest are for the kitchen. Conjure the kitchen ones.', 'אני צריך {t} {item}. {a} מהם לאולם, והשאר למטבח. כשפו את אלה של המטבח.'],
   vh_compare: ['The baker has {t} {item}. I have {a}. Conjure enough so I have as many as the baker.', 'לאופה יש {t} {item}. יש לי {a}. כשפו מספיק כדי שיהיו לי כמו לאופה.'],
-  vh_start: ['I used {u} {item}, and {r} {left}. How many did I have? Conjure that many.', 'השתמשתי ב-{u} {item}, ו{left} {r}. כמה היו לי? זמנו כמה שהיו.'],
+  vh_start: ['I used {u} {item}, and {r} {left}. Please conjure the {u} I used.', 'השתמשתי ב-{u} {item}, ו{left} {r}. כשפו את ה-{u} שהשתמשתי בהם.'],
   vh_two: ['I need {t} {item}. I have {a}, and my neighbour gives me {b}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, והשכן נותן לי {b}. כשפו את השאר.'],
   vh_card: ['Choose the card that fits my story.', 'בחרו את הכרטיס שמתאים לסיפור שלי.'], vh_calc: ['Work it out. How many do I need?', 'חשבו. כמה אני צריך?'],
   vh_item: ['Look up the item in the book, then choose its card.', 'מצאו את הפריט בספר, ואז בחרו את הכרטיס שלו.'],
@@ -3742,18 +3744,15 @@ function after(tier) {
   if (tier === 'down') toast(t('level_down', { n: P.mlvl, name: tierName(P.mlvl) }));
   updateBars(); saveSoon();
 }
-/* ----- The village run (spec 05): the notice board starts a village run on the journey map, like the gate starts a fight.
-   Each village stop is a VISIT, on the same screen as a fight: the villager stands where the monster stands, the wizard is on the left.
-   A villager asks for the two items of a project. The festival (the last stop) is a visit with the festival projects.
-   Each item is a round: the card that fits the story (from math level 2), the answer, then the item from the conjuration book (not for beginners).
-   Every action costs one mana. A right answer fills the villager's happy meter. Logic in helper.js. ----- */
-let VS = null;   // the visit: { festival, idx, pl, rounds, round, st: { mana, happy, happyMax }, item, project, p, cards, itemCards, phase, msg, potUsed }
+/* ----- The village run (spec 05). The notice board starts a village run on the journey map, like the gate starts a fight.
+   Each village stop is a VISIT on the fight screen. The villager asks for a number of items, one request at a time:
+   problem 1, the amount: the card that solves the story (from math level 2), then the answer;
+   problem 2, the item: the card whose answer is the item's number (from the conjuration book), then that answer.
+   Lower levels skip steps (see HELPER.plan). Every action costs one mana. A right answer fills the villager's happy meter. Logic in helper.js. ----- */
+let VS = null;   // the visit: { festival, idx, pl, rounds, round, imp, st, item, project, p, extra, cards, itemCards, pick, iAns, phase, msg, potUsed, owlUsed, picRev, read, storyText, mist }
+const PICS_MAX = 4;   // pictures of the items are free up to this math level; above it, a picture costs XP (spec 05, owner)
+const PIC_XP = 2;     // the XP taken for showing the pictures above that level
 const vhLow = s => s.toLowerCase();
-// the answers of the story problems, by story type: [right, wrong] per type, kept in the profile (the teacher's view comes later)
-function storyTally(kind, right) {
-  P.storyTypes = P.storyTypes || {}; const s = P.storyTypes[kind] || [0, 0]; s[right ? 0 : 1]++; P.storyTypes[kind] = s; saveSoon();
-}
-const vhMiss = () => { VS.mist = (VS.mist || 0) + 1; return HELPER.spend(VS.st, false); };   // a mistake: counted (no mistakes = a bonus), and it costs mana
 const vhNeeds = p => p.needs.slice(0, 2);   // two items per project
 const vhItems = p => vhNeeds(p).map(n => HELPER.itemByHe(n[0]));
 const vhUnlocked = (p, ml) => vhItems(p).every(x => x && x.lvl <= ml);
@@ -3761,6 +3760,11 @@ function pickVisitProject(bg, ml) {   // a project of this site that the student
   const ok = PROJECTS.filter(p => vhUnlocked(p, ml)), here = ok.filter(p => p.site === bg), pool = here.length ? here : ok;
   return pool.length ? rnd(pool) : PROJECTS[0];
 }
+// the answers of the story problems, by story type: [right, wrong] per type, kept in the profile (the teacher's column reads them)
+function storyTally(kind, right) {
+  P.storyTypes = P.storyTypes || {}; const s = P.storyTypes[kind] || [0, 0]; s[right ? 0 : 1]++; P.storyTypes[kind] = s; saveSoon();
+}
+const vhMiss = () => { VS.mist = (VS.mist || 0) + 1; return HELPER.spend(VS.st, false); };   // a mistake: counted (no mistakes = a bonus), and it costs mana
 function openVisit(i) {   // a village stop on the quest map
   G.quest = J.q; const site = SITES[+P.quest[J.q].path[i - 1].slice(1)] || SITES[0];
   startVisit({ festival: false, idx: i, site, projects: [pickVisitProject(site.bg, P.mlvl || 1)] });
@@ -3773,7 +3777,7 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
   const rounds = o.projects.flatMap(p => vhItems(p).map(item => ({ item, project: p })));
   const pl = HELPER.plan(P.mlvl || 1, wizLvl(), rounds.length);
   G.site = o.site; G.vkey = o.site.bg; G.fname = o.site.name; G.big = o.festival; G.projs = null; G.mon = null; G.foes = null; G.group = false;
-  const imp = !o.festival && HELPER.isImpatient(wizLvl());   // an impatient villager (spec 05 §8): a patience bar, the armor bar
+  const imp = !o.festival && (window.__forceImp != null ? window.__forceImp : HELPER.isImpatient(wizLvl()));   // the demo can force it   // an impatient villager (spec 05 §8): a patience bar, the armor bar
   VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
   $('#itemBar').style.display = 'none'; setBookIcon(true);
@@ -3781,29 +3785,19 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
 }
 // the book button of the game screen: 📜 in a village visit (the conjuration book), 📖 in a fight (the spell book)
 function setBookIcon(conj) { const b = document.querySelector('#game [data-book]'); if (b) b.textContent = conj ? '📜' : '📖'; }
-function visitRound() {   // the next item of the projects: its amount (one level lower) and the cards of the card step
+function visitRound() {   // the next item of the projects: its amount, and the cards of the amount's card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
   V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
+  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.read = false; V.picRev = false;
   // extra information (spec 05 §8, wizard level 15): half the stories also name a number that is not needed
   const others = HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n);
   V.extra = wizLvl() >= 15 && others.length && Math.random() < 0.5 ? { n: 2 + Math.floor(Math.random() * 8), item: rnd(others) } : null;
-  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.msg = ''; V.potUsed = false; V.read = false;
-}
-// reads a story aloud: Hebrew with the device's Hebrew voice (silent when there is none), English with the device's English voice
-function vhSpeak(text) {
-  try {
-    if (muted || !window.speechSynthesis || !text) return;
-    const v = LANG === 'he' ? (heVoice || findHeVoice()) : null;
-    if (LANG === 'he' && !v) return;
-    const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ' ')); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
-    u.rate = .85; u.volume = vol; speechSynthesis.cancel(); speechSynthesis.speak(u);
-  } catch (e) {}
 }
 function visitBars() {   // the wizard's mana (blue) sits where the fight shows hearts; the villager's happy meter where the monster's HP is
   const V = VS;
   $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div>`;
   $('#hpFill').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
-  const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar; the stylesheet shows it with class "on")
+  const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar)
   ab.style.setProperty('--seg', HELPER.PATIENCE);   // five segments: one per point of patience
   ab.firstElementChild.style.background = 'linear-gradient(90deg,#ff6b3d,#ffb347)';   // warm colour: impatience, not armor
   if (V.imp) ab.firstElementChild.style.width = Math.round(100 * V.st.patience / HELPER.PATIENCE) + '%';
@@ -3811,52 +3805,49 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   G.vmood = V.phase === 'done' ? 'happy' : (V.st.happy > 0 ? 'happy' : 'wait');
   renderVillager();
 }
-function visitShow() {
-  const V = VS; if (!V || !$('#game').classList.contains('on')) return;
-  visitBars();
-  const p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), e = V.item.em, s = p.show;   // the item as the story says it (units for the mass items)
-  const story = { result: () => t('vh_result', { a: p.a, b: p.b, item: nm(p.a) }), change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
-    separate: () => t('vh_separate', { t: p.t, b: p.b, item: nm(p.t), broke: tl(['broke', p.b === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשברה' : 'נשבר') : 'נשברו']) }),   // the verb agrees with the count and the gender
+// the story: always a request ("I need N, I have A, please conjure the rest"), never a question
+function visitStory() {
+  const V = VS, p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), s = p.kind;
+  const txt = {
+    change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
+    result: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
+    separate: () => t('vh_separate', { t: p.t, a: p.a, b: p.b, item: nm(p.t), broke: tl(['broke', p.b === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשברה' : 'נשבר') : 'נשברו']) }),
     part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
-    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }), start: () => t('vh_start', { u: p.u, r: p.r, item: nm(p.u), left: tl([p.r === 1 ? 'is left' : 'are left', p.r === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']) }),
-    two: () => t('vh_two', { t: p.t, a: p.a, b: p.b, item: nm(p.t) }) }[p.kind]();
-  // the amounts are always on screen (for the early levels): what the villager has, and what they need
-  const shown = s.minus !== undefined
-    ? `<div class="vhCount"><span class="vhHave">${e.repeat(s.have)}</span> <b>${s.minus} ${t('vh_broke')}</b></div>`
-    : s.plus !== undefined
-    ? `<div class="vhCount"><span class="vhHave">${e.repeat(s.have)}</span> + <span class="vhHave">${e.repeat(s.plus)}</span> <b>${s.have} + ${s.plus}${p.kind === 'two' ? ' → ' + s.of : ''}</b></div>`
-    : `<div class="vhCount"><span class="vhHave">${e.repeat(s.have) || '–'}</span> <b>${s.have} / ${s.of}</b></div>`;
+    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }),
+    start: () => t('vh_start', { u: p.amount, r: p.a, item: nm(p.amount), left: tl([p.a === 1 ? 'is left' : 'are left', p.a === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']) }),
+    two: () => t('vh_two', { t: p.t, a: p.a, b: p.b, item: nm(p.t) })
+  }[s]();
+  return V.extra ? txt + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(tl(HELPER.storyName(V.extra.item, V.extra.n))) }) : txt;
+}
+// the count: pictures of the items at the low levels (and above them when the student asks, for XP); numbers always
+function visitCount() {
+  const V = VS, s = V.p.show, e = V.item.em, pics = P.mlvl <= PICS_MAX || V.picRev || !!window.__picsAll;
+  const pic = n => (pics && n <= 12 ? e.repeat(n) : '');
+  if (s.plus !== undefined) return `<div class="vhCount">${pic(s.have)} + ${pic(s.plus)} <b>${s.have} + ${s.plus}${V.p.kind === 'two' ? ' → ' + s.of : ''}</b></div>`;
+  return `<div class="vhCount">${pic(s.have) || ''} <b>${s.have} / ${s.of}</b></div>`;
+}
+function visitShow() {
+  const V = VS, w = $('#vhWrap'); if (!V || !$('#game').classList.contains('on')) return;
+  visitBars();
   $('#qTitle').textContent = V.project.name;
-  $('#qBig').innerHTML = `<div class="vhStory">${story}</div>${shown}`;
-  const storyAll = V.extra ? story + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(tl(HELPER.storyName(V.extra.item, V.extra.n))) }) : story;
-  $('#qBig').innerHTML = `<div class="vhStory">${storyAll}</div>${shown}`;
-  V.storyText = storyAll;   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
-  if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(story); }
-  $('#qSub').textContent = '';
+  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${visitCount()}${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
+  V.storyText = visitStory();   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
+  if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(V.storyText); }
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
   const done = V.phase === 'done' || V.phase === 'lost' || V.phase === 'left';
-  if (V.phase === 'card') {
-    $('#qSub').textContent = t('vh_card'); o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.cards.length}, 1fr)`;
-    V.cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'card'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
-  } else if (V.phase === 'calc') {
-    $('#qSub').textContent = t('vh_calc'); o.style.display = 'flex'; o.style.flexWrap = 'wrap'; o.style.justifyContent = 'center'; o.style.gap = '6px';   // 0–10 as a wrapping row: the whole pad is on screen
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(k => { const b = document.createElement('button'); b.className = 'opt num'; b.style.flex = '0 0 52px'; b.dataset.vh = 'amt'; b.dataset.n = k; b.textContent = k; o.appendChild(b); });
-  } else if (V.phase === 'item') {
-    if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1);
-    $('#qSub').textContent = t('vh_item');
-    if (wizLvl() >= 9) {   // the two-part request (spec 05 §8): one question at a time: the amount, then the spell
-      $('#qBig').innerHTML = `<div class="vhStory">${t('vh_spell_q', { n: V.p.amount, item: vhLow(tl(HELPER.storyName(V.item, V.p.amount))) })}</div>`;
-      $('#qSub').textContent = t('vh_spell_sub');
-    }
-    o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.itemCards.length}, 1fr)`;
-    V.itemCards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'item'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
-  }
-  if (V.phase === 'item') $('#qSub').insertAdjacentHTML('afterend', `<div class="hpBook">${HELPER.BOOK.filter(x => x.lvl <= (P.mlvl || 1)).map(x => `<span class="hpItem ${x.n === V.item.n ? 'on' : ''}"><b>${x.n}</b> ${x.em} ${hpItemName(x, 1)}</span>`).join('')}</div>`);
+  const cardBtns = (cards, act) => { o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${cards.length}, 1fr)`; cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = act; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); }); };
+  const numBtns = (nums, act, attr) => { o.style.display = 'flex'; o.style.flexWrap = 'wrap'; o.style.justifyContent = 'center'; o.style.gap = '6px'; nums.forEach(k => { const b = document.createElement('button'); b.className = 'opt num'; b.style.flex = '0 0 52px'; b.dataset.vh = act; b.dataset[attr] = k; b.textContent = k; o.appendChild(b); }); };
+  if (V.phase === 'card') { $('#qSub').textContent = t('vh_card'); cardBtns(V.cards, 'card'); }
+  else if (V.phase === 'calc') { $('#qSub').textContent = t('vh_calc'); numBtns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'amt', 'n'); }
+  else if (V.phase === 'icard') { if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1); $('#qSub').textContent = t('vh_item'); cardBtns(V.itemCards, 'icard'); }
+  else if (V.phase === 'ians') { if (!V.iAns) V.iAns = HELPER.itemAnswers(V.item.n); $('#qSub').textContent = t('vh_ians', { item: vhLow(tl(HELPER.nameFor(V.item, 1))) }); numBtns(V.iAns, 'iamt', 'n'); }
+  else { $('#qSub').textContent = ''; }
   $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : V.phase === 'left' ? 'vh_left' : 'vh_lost') : V.msg;
-  // the Mana potion, the owl helper (wizard level 18, once per visit) and leaving for now
+  // the Mana potion, the owl helper (wizard level 18, once per visit), the pictures (above the free level), the sound, and leaving for now
   const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
-  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  const pics = !done && P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll;
+  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}${pics ? `<button class="btn ghost" data-vh="pics">${t('vh_pics', { xp: PIC_XP })}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
   nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left'; VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); jAfterVisit(d, f, m, im, lf); };
 }
@@ -3865,57 +3856,76 @@ function visitAfter() {   // after each action: the visit may be over
   if (o) { V.phase = o; visitShow(); return true; }
   return false;
 }
-function visitRoundDone() {   // the item is handed over; the next item of the projects, if any
-  const V = VS, thanks = t('vh_ok', { items: V.item.em.repeat(V.p.amount) });
+// the item is crafted: the items appear; a big number floats above them
+function visitCraft() {
+  const V = VS, n = V.p.amount, em = V.item.em, thanks = t('vh_ok', { items: n <= 6 ? em.repeat(n) : em + ' ×' + n });
+  if (n > 6) floatText('+' + n, '#ffd166', document.querySelector('#foeBody'));
+  return thanks;
+}
+function visitNext(thanks) {   // the item is handed over: on to the next item of the projects, or the stop is done
+  const V = VS; V.round++;
+  if (V.round >= V.rounds.length) { V.phase = 'done'; V.msg = thanks; return visitShow(); }
+  visitRound(); V.msg = thanks; visitShow();
+}
+function visitRoundDone() {   // the item is crafted (see visitCraft)
+  const thanks = visitCraft();
   if (visitAfter()) return;
-  V.round++; visitRound(); V.msg = thanks; visitShow();
+  visitNext(thanks);
 }
 function visitClick(e) {   // the answers, cards and buttons of the visit (the fight's buttons)
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
   if (act === 'quit') { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
+  if (act === 'pics') {   // the pictures above the free level: the student asks, and it costs XP
+    if (V.picRev || P.mlvl <= PICS_MAX) return; V.picRev = true; P.xp = Math.max(0, P.xp - PIC_XP); saveSoon(true); toast(t('vh_pics_used', { xp: PIC_XP })); return visitShow();
+  }
   if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
     if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
     P.carry.heart--; V.potUsed = true; V.st.mana = Math.min(V.pl.mana, V.st.mana + Math.ceil(V.pl.mana * CB.CFG.HEART_POT_HEAL));
     saveSoon(true); sfx.up(); V.msg = t('vh_pot_used'); return visitShow();
   }
   if (act === 'owl') {   // the owl helper (wizard level 18, once per visit): it carries the rest of this item; the action costs one mana
-    if (V.owlUsed || wizLvl() < 18 || !(V.st.mana > 0) || V.phase === 'done' || V.phase === 'lost' || V.phase === 'left') return;
+    if (V.owlUsed || wizLvl() < 18 || !(V.st.mana > 0) || ['done', 'lost', 'left'].includes(V.phase)) return;
     V.owlUsed = true; V.st = HELPER.spend(V.st, true); V.st.happy = Math.min(V.st.happyMax, V.st.happy + V.pl.perItem - 1);
-    sfx.win(); const thanks = t('vh_owl', { items: V.item.em.repeat(V.p.amount) });
+    sfx.win(); const thanks = visitCraft();
     if (visitAfter()) return;
-    V.round++; if (V.round < V.rounds.length) visitRound(); V.msg = thanks; visitShow(); return;
+    return visitNext(thanks);
   }
-  if (act === 'card' && V.phase === 'card') {
+  if (act === 'card' && V.phase === 'card') {   // problem 1: the card that solves the story
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
     if (c.fits) { V.st = HELPER.spend(V.st, true); V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
     c.gone = true; V.st = vhMiss(); sfx.bad(); V.msg = t('vh_wrong_card');
     if (visitAfter()) return; return visitShow();
   }
-  if (act === 'amt' && V.phase === 'calc') {
+  if (act === 'amt' && V.phase === 'calc') {   // problem 1: the answer (the amount)
     const k = +b.dataset.n, r = HELPER.checkAmount(k, V.p.amount);
     storyTally(V.p.kind, r.ok);   // spec 05 §7: the accuracy of the story problems, by type (the answer, not the card)
     if (r.ok) {
       V.st = HELPER.spend(V.st, true); sfx.ok(); V.msg = '';
-      if (V.pl.itemStep) { V.phase = 'item'; if (visitAfter()) return; return visitShow(); }
+      if (V.pl.itemStep) { V.phase = 'icard'; if (visitAfter()) return; return visitShow(); }
       return visitRoundDone();
     }
     V.st = vhMiss(); sfx.bad();
     V.msg = r.kind === 'few' ? t('vh_few', { have: r.have, more: r.more }) : t('vh_many', { have: r.have, extra: r.extra });
     if (visitAfter()) return; return visitShow();
   }
-  if (act === 'item' && V.phase === 'item') {
+  if (act === 'icard' && V.phase === 'icard') {   // problem 2: the card whose answer is the item's number
     const c = V.itemCards[+b.dataset.i]; if (!c || c.gone) return;
-    if (HELPER.itemCardOk(c, V.item)) { V.st = HELPER.spend(V.st, true); sfx.win(); return visitRoundDone(); }
+    if (HELPER.itemCardOk(c, V.item)) { V.st = HELPER.spend(V.st, true); V.pick = c; V.phase = 'ians'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
     c.gone = true; V.st = vhMiss(); sfx.bad();
     const w = HELPER.wrongItemFor(c); V.msg = t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(V.item, 2) });
+    if (visitAfter()) return; return visitShow();
+  }
+  if (act === 'iamt' && V.phase === 'ians') {   // problem 2: the answer of the card, the item is crafted
+    const k = +b.dataset.n;
+    if (k === V.item.n) { V.st = HELPER.spend(V.st, true); sfx.win(); return visitRoundDone(); }
+    V.st = vhMiss(); sfx.bad(); V.msg = t('vh_wrong_num');
     if (visitAfter()) return; return visitShow();
   }
 }
 $('#opts').addEventListener('click', visitClick);
 $('#potBar').addEventListener('click', visitClick);
-// the stop is finished (the villager is happy) or the run is lost (no mana): on to the next stop, or to the menu
 // the rewards (spec 05 §7): XP 10 (+5 with no mistakes) per villager, 40 (+20) for the festival; coins by math level (2 units a villager, 5 the festival)
 function vhRewards(fest, mist, imp) {   // an impatient villager, finished, pays double (spec 05 §8)
   const x = imp ? 2 : 1, xp = x * (fest ? 40 + (mist === 0 ? 20 : 0) : 10 + (mist === 0 ? 5 : 0));
@@ -3939,6 +3949,16 @@ function jAfterVisit(done, fest = false, mist = 0, imp = false, left = false) {
     const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath();
   }
   restartQuest(); saveSoon(true); toast(t('vh_lost')); openMenu();   // out of mana: the run is lost (the only way to lose)
+}
+// reads a story aloud: Hebrew with the device's Hebrew voice (silent when there is none), English with the device's English voice
+function vhSpeak(text) {
+  try {
+    if (muted || !window.speechSynthesis || !text) return;
+    const v = LANG === 'he' ? (heVoice || findHeVoice()) : null;
+    if (LANG === 'he' && !v) return;
+    const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ' ')); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+    u.rate = .85; u.volume = vol; speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) {}
 }
 const hpItemName = (item, n) => tl(HELPER.nameFor(item, n));
 function toast(msg) {
@@ -5570,7 +5590,11 @@ function startDemo() {
     ko() { if (!$('#game').classList.contains('on') || !(G.quest === 'battle' || G.quest === 'peace')) { toast('Open a fight first'); return; } if (G.st) { G.st.hero.hp = 0; P.quest.battle.hp = 0; updateBars(); } G.hearts = 0; P.quest[G.quest].hearts = 0; endOrSecond(G.quest === 'battle' ? knockout : villageFail); },
     win() { if (!$('#game').classList.contains('on') || !G.mon && G.quest === 'battle') { toast('Open a fight first'); return; } if (G.quest === 'battle') { (G.st ? G.st.foes : [G.mon]).forEach(f => { f.hp = 0; }); victory(); } else { G.helped = G.need; villageDone(); } },
     exit() { location.reload(); },
-    fresh() { P.ws = { on: false, hi: false }; P.xp = SB.xpFor(7); saveSoon(); goMenu(); toast('Wizard level 7: the workshop is shuttered. Pick wizard level 8 to see it light up.'); }
+    fresh() { P.ws = { on: false, hi: false }; P.xp = SB.xpFor(7); saveSoon(); goMenu(); toast('Wizard level 7: the workshop is shuttered. Pick wizard level 8 to see it light up.'); },
+    village() { window.__forceMon = null; act('peace', ['s0', 's1', 'B']); toast('🏘️ Village run: 2 stops, then the festival'); },
+    visit() { window.__forceMon = null; act('peace', ['s0', 'B']); toast('🏘️ Village run: 1 stop, then the festival'); },
+    imp(v) { window.__forceImp = v; toast(v ? '⏳ The next villagers are impatient' : '🙂 Villagers are normal again'); },
+    pics(v) { window.__picsAll = !!v; toast(v ? '🖼 Pictures at every level, free' : '🖼 Pictures only at the low levels'); }
   };
   window.demo = D;
   const css = document.createElement('style');
@@ -5583,6 +5607,9 @@ function startDemo() {
     '<h4>Wizard level (opens spell types)</h4>' + [1, 3, 5, 8, 10, 12, 15, 18, 22, 30].map(n => B(n, `wiz(${n})`)).join('') + B('📖 Open the spell book', 'book()') +
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
+    '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
+    B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(null)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +
+    '<div class="small" style="opacity:.8;margin-top:4px">Extra information: wizard level 15. Owl helper: wizard level 18.</div>' +
     '<h4>Fight areas (backgrounds)</h4>' + [1, 2, 3, 4, 5, 6].map(n => B(areaName(n), `area(${n})`)).join('') + '<h4>Monsters</h4>' + Object.keys(MON_DEF).map(k => B(monName(MON_DEF[k]) + (MON_DEF[k].boss ? ' 👑' : ''), `mon("${k}")`)).join('') +
     '<h4>Monster abilities (next fights)</h4>' + CB.CFG.ABILITIES.map(([k, w]) => B(abName(k) + ' (' + w + ')', `ab('${k}')`)).join('') + B('🎲 Random again', 'ab(null)') +
     '<h4>In a fight</h4>' + B('💥 Lose all HP (test amulet)', 'ko()') + B('🏆 Win this fight', 'win()') + B('🧪 5 of each potion', 'pots()') +

@@ -91,8 +91,9 @@
   // the visit's plan: the mana (as the fight's HP grows with the wizard level), the steps of each item, the happy meter
   function plan(mlvl, wlvl, items = 2) {
     const beginner = isBeginner(mlvl, wlvl);
+    // per item: problem 1 = the amount (card that solves it, then the answer); problem 2 = the item (card whose answer is the item's number, then that answer)
     const cardStep = !beginner && mlvl >= 2, itemStep = !beginner;
-    const perItem = (cardStep ? 1 : 0) + 1 + (itemStep ? 1 : 0);
+    const perItem = (cardStep ? 1 : 0) + 1 + (itemStep ? 2 : 0);
     return { beginner, cardStep, itemStep, items, perItem, happyMax: items * perItem, mana: 8 + 2 * (wlvl - 1) + 2 * mlvl, lowLevel: amountLevel(mlvl) };
   }
 
@@ -110,26 +111,28 @@
   ];
   const storyTypes = level => TYPES.filter(x => level >= x.from).map(x => x.id);
   // one amount problem at a level (the story's numbers stay small at the first levels)
+  // every story says what the wizard needs (t) and what he has (a); the amount to conjure is always the rest.
+  // the story types differ in the words only: separate ("3 broke"), start ("I already have r"), two steps (a neighbour gives b)
   function makeAmount(level, r = Math.random) {
     const type = pick(storyTypes(level), r);
-    if (type === 'result') {
-      const hi = level <= 1 ? 3 : 5, a = int(1, hi, r), b = int(1, hi, r);
-      return { kind: type, nums: [a, b], a, b, amount: a + b, expr: { a, op: '+', b, value: a + b }, show: { have: a, of: a + b, plus: b } };
+    if (type === 'result') {   // "I need a+b, I have a" (the rest is b)
+      const a = int(1, level <= 1 ? 3 : 5, r), b = int(1, level <= 1 ? 3 : 5, r), tt = a + b;
+      return { kind: type, nums: [tt, a], t: tt, a, amount: b, expr: { a: tt, op: '−', b: a, value: b }, show: { have: a, of: tt } };
     }
-    if (type === 'separate') {
-      const tt = int(3, 10, r), b = int(1, tt - 1, r);
-      return { kind: type, nums: [tt, b], t: tt, b, amount: tt - b, expr: { a: tt, op: '−', b, value: tt - b }, show: { have: tt, of: tt, minus: b } };
+    if (type === 'separate') {   // "I need t; b broke, so I have t−b" (the rest is b)
+      const tt = int(3, 10, r), b = int(1, tt - 1, r), a = tt - b;
+      return { kind: type, nums: [tt, b], t: tt, a, b, amount: b, expr: { a: tt, op: '−', b: a, value: b }, show: { have: a, of: tt } };
     }
-    if (type === 'start') {
-      const u = int(1, 9, r), rr = int(1, 10 - u, r);
-      return { kind: type, nums: [u, rr], u, r: rr, amount: u + rr, expr: { a: u, op: '+', b: rr, value: u + rr }, show: { have: u, of: u + rr, plus: rr } };
+    if (type === 'start') {   // "I need u+r; I already have r" (the rest is u)
+      const u = int(1, 9, r), rr = int(1, 10 - u, r), tt = u + rr;
+      return { kind: type, nums: [tt, rr], t: tt, a: rr, amount: u, expr: { a: tt, op: '−', b: rr, value: u }, show: { have: rr, of: tt } };
     }
-    if (type === 'two') {
+    if (type === 'two') {   // "I need t; I have a, and my neighbour gives me b" (the rest is t−a−b)
       const tt = int(10, 20, r), a = int(1, 9, r), b = int(1, 9, r);
       if (tt - a - b < 1) return makeAmount(level, r);
       return { kind: type, nums: [tt, a, b], t: tt, a, b, amount: tt - a - b, expr: { a: tt, op: '−', b: a + b, value: tt - a - b }, show: { have: a, of: tt, plus: b } };
     }
-    // change, part and compare share the numbers: a target t and what the student has, a
+    // change, part and compare: a target t and what the student has, a (the rest is t−a)
     const tt = int(5, 10, r), a = int(1, tt - 1, r);
     return { kind: type, nums: [tt, a], t: tt, a, amount: tt - a, expr: { a: tt, op: '−', b: a, value: tt - a }, show: { have: a, of: tt } };
   }
@@ -168,6 +171,12 @@
   const cardText = c => `${c.a} ${c.op} ${c.b}`;
   const cardValue = c => (c.op === '+' ? c.a + c.b : c.op === '−' ? c.a - c.b : c.a * c.b);
   const itemCardOk = (card, item) => card.value === item.n;
+  // the answer of the item card's problem: the item's number among three numbers near it (shuffled)
+  function itemAnswers(n, r = Math.random) {
+    const out = [n]; for (const v of [n - 1, n + 1, n + 2, n - 2]) { if (out.length === 4) break; if (v >= 0 && !out.includes(v)) out.push(v); }
+    for (let i = out.length - 1; i > 0; i--) { const j = int(0, i, r); [out[i], out[j]] = [out[j], out[i]]; }
+    return out;
+  }
   const wrongItemFor = card => itemOf(card.value);
 
   // the amount the student enters: too few and too many say how far off it is
@@ -188,5 +197,5 @@
   // the impatient villager: from wizard level 6, one visit in three
   const isImpatient = (wlvl, r = Math.random) => wlvl >= 6 && r() < 1 / 3;
 
-  return { BOOK, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  return { BOOK, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });
