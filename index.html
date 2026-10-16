@@ -94,22 +94,26 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .acLeft{left:4%;width:86px}.acLeft svg{width:100%;height:auto}
 .acRight{right:4%;width:86px;text-align:center}.acRight .exsvg,.acRight svg{width:100%;height:auto}.acRight small{display:block;font-size:.8rem;color:#fff}
 .acMid{left:50%;transform:translateX(-50%);width:130px;text-align:center}
-#foeBody .acBigDum .dsvg{width:84px;height:150px;}
+#foeBody .acBigDum .dsvg{width:100px;height:130px;}
 .acCrown{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:1.4rem}.acBigDum{position:relative}
-.acPair{display:flex;gap:4px;align-items:flex-end}.acPair .acBigDum .dsvg{width:66px;height:118px}.acPair .acBigDum.cur .dsvg{filter:drop-shadow(0 0 6px #ffd166)}
+.acPair{display:flex;gap:0;align-items:flex-end}#foeBody .acPair .acBigDum .dsvg{width:76px;height:99px}
 .acBigDum .dsvg{width:110px;height:190px;transition:transform .7s,opacity .7s}
 .acBigDum.hit .dsvg{animation:acadShake .6s}.acBigDum.miss .dsvg{animation:acadFlash .6s}.acBigDum.down .dsvg{transform:rotate(80deg) translateY(10px);opacity:.4}
-.acBigDum .mk{display:flex;gap:4px;justify-content:center}.acBigDum .mk i{width:11px;height:11px;border-radius:50%;background:#fff5}
-.acBigDum .mk i.gold{background:#ffd166}.acBigDum .mk i.red{background:#ff5a5a}
+.acBigDum .mk{display:flex;gap:5px;justify-content:center;margin-top:2px}.acBigDum .mk i{width:14px;height:14px;border-radius:50%;border:2px solid #fffd;background:#0002;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-style:normal;line-height:1;color:#fff}
+.acBigDum .mk i.gold{background:#ffd166;border-color:#ffd166}.acBigDum .mk i.red{background:#ff5a5a66;border-color:#ff5a5a}.acBigDum .mk i.red::after{content:'✖'}
 .acProg{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#fff7;border-radius:12px;padding:4px 8px}
 .acProg i{width:10px;height:10px;border-radius:50%;background:#fff6}.acProg i.ok{background:#8f8}.acProg i.bad{background:#f66}.acProg i.cur{outline:2px solid #ffd166}
 .acPed{position:relative;width:100%;text-align:center}.acPedBase{height:26px;width:90%;margin:0 auto;border-radius:8px 8px 4px 4px;background:linear-gradient(#e8e0cf,#b9ad92)}
 .acPedItems{position:absolute;bottom:26px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:30px;font-size:1.3rem}
-#acExam{position:absolute;right:1%;bottom:0;width:74px;text-align:center;z-index:3}#acExam svg{width:100%;height:auto}#acExam small{display:block;color:#fff;font-size:.8rem}
-#acTop{position:absolute;top:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#fff8;border-radius:12px;padding:4px 8px;z-index:4}#acTop i{width:10px;height:10px;border-radius:50%;background:#fff6}#acTop i.ok{background:#8f8}#acTop i.bad{background:#f66}#acTop i.cur{outline:2px solid #ffd166}
-#acHour{position:absolute;top:6px;right:8px;font-size:1.8rem;z-index:4}
-#foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:12%;z-index:2;width:auto}
-#acDots{display:flex;gap:4px;justify-content:center;margin:4px 0}#acDots i{width:11px;height:11px;border-radius:50%;display:inline-block;opacity:.45}#acDots i.cur{opacity:1;outline:2px solid #ffd166}#acDots i.done{opacity:1;filter:grayscale(.3)}
+#acExam{position:absolute;right:3%;bottom:7%;width:64px;text-align:center;z-index:3}#acExam svg{width:100%;height:auto;display:block}#acExam small{display:block;color:#fff;font-size:.7rem;opacity:.85;text-shadow:0 1px 2px #0008}
+#acTop{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;z-index:4;direction:ltr}
+.acPill{display:flex;gap:4px;align-items:center;background:#f7ebc3;border:2px solid #c9b270;border-radius:14px;padding:4px 10px;box-shadow:0 2px 0 #0003}.acPill i{width:9px;height:9px;border-radius:50%;background:#ddc98a;flex:none}.acPill i.ok{background:#5fbf5f}.acPill i.bad{background:#e85a5a}.acPill i.cur{background:#f7ebc3;box-shadow:0 0 0 2px #8a6a2a;width:11px;height:11px}
+#acTop .acHour{flex:none}
+#acName{position:absolute;top:15%;left:50%;transform:translateX(-50%);color:#fff;font-weight:600;font-size:.95rem;text-shadow:0 1px 3px #0009;z-index:2;white-space:nowrap}
+#foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:15%;z-index:2;width:auto}
+#acDots{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;gap:6px;justify-content:center;z-index:3}#acDots i{width:12px;height:12px;border-radius:50%;display:inline-block;opacity:.55}#acDots i.cur{opacity:1;outline:2px solid #fff;outline-offset:1px}#acDots i.done{opacity:.3}
+.exBoxes{display:flex;gap:6px;justify-content:center;margin-top:6px}.exBoxes i{width:26px;height:26px;border:2px solid #fffc;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:.9rem;color:#ff6a6a;background:#0002}.exBoxes i.used{border-color:#ff6a6a;background:#ff5a5a33}
+body.acadOn .side.foe{display:none}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
 .acadDots i.cur{outline:2px solid #ffd166}.acadDots i.done{background:#8f8}
@@ -4396,37 +4400,51 @@ function acadQDone(ok, fact) {
   ACQ.results[ACQ.i] = ok;
   ACQ.placed = ok && ACQ.kind === 'conj' ? ACQ.qs[ACQ.i].items.map(x => ({ em: x.item.em, n: x.p.amount })) : null;   // the items on the pedestal
   if (ok && ACQ.msg === '') ACQ.msg = t('ac_right');
-  acadRender();
-  const fightOk = ok ? (ACQ.lastDown && ACQ.lastDown.length ? 1100 : 800) : 1500;
-  setTimeout(() => {
+  ACQ.fxP = null; acadRender();
+  const fightOk = ok ? (ACQ.lastDown && ACQ.lastDown.length ? 1100 : 800) : 1000;   // the spec's pauses start when the spell's effect is over
+  const wait = ms => ACQ.kind === 'fight' ? Promise.resolve(ACQ.fxP).then(() => sleep(ms)) : new Promise(r => setTimeout(r, ms));
+  wait(ACQ.kind === 'fight' ? fightOk : (ok ? 1500 : 3400)).then(() => {
     if (!ACQ) return;
     ACQ.busy = false; ACQ.i++; ACQ.j = 0; ACQ.msg = ''; ACQ.typed = ''; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
     if (ACQ.mist > ACQ.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
     if (ACQ.i >= ACQ.Q) return acadFinish(false);
     ACQ.phase = ACQ.kind === 'fight' ? 'fpick' : 'citem'; acadRender();
-  }, ACQ.kind === 'fight' ? fightOk : (ok ? 1500 : 3400));   // the spec's pauses: fights 0.8 s / 1.1 s, a wrong conjuring answer 3.4 s
+  });   // the spec's pauses: fights 0.8 s / 1.1 s, conjuring 1.5 s / a wrong answer 3.4 s
 }
 const ACAD_COL = { fire: '#ff7a3d', ice: '#8fd8ff', dark: '#4a3f7a', plant: '#5fbf5f', storm: '#9aa7ff', stone: '#9e9e9e' };   // the dummy's colour: its element
-// a training dummy (spec 08 §4): its element on three places of its body (head, the band on the body, the base)
+// a training dummy (spec 08 §4, drawn as the Hebrew game's): a round head with crossed eyes and a smile, arms out on a post, and its element in three places
+// (both hands and the belly), with a glow of the element's colour behind it
 function acadDummySvg(el) {
   const c = ACAD_COL[el];
-  return `<svg class="dsvg" viewBox="0 0 60 110" aria-hidden="true"><rect x="27" y="62" width="6" height="40" fill="#6b4a2b"/><rect x="8" y="98" width="44" height="8" rx="3" fill="#6b4a2b"/>
-    <rect x="18" y="40" width="24" height="34" rx="6" fill="#c9a06a"/><rect x="18" y="52" width="24" height="9" fill="${c}"/>
-    <circle cx="30" cy="24" r="15" fill="${c}"/>${acadGlyphAt(el, 30, 24, 0.8)}
-    ${acadGlyphAt(el, 30, 56.5, 0.34)}${acadGlyphAt(el, 30, 88, 0.36)}</svg>`;
+  return `<svg class="dsvg" viewBox="0 0 100 130" aria-hidden="true"><defs><radialGradient id="acAu${el}"><stop offset="0" stop-color="${c}" stop-opacity=".75"/><stop offset=".6" stop-color="${c}" stop-opacity=".35"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="50" cy="64" rx="48" ry="60" fill="url(#acAu${el})"/>
+    <rect x="46" y="86" width="8" height="30" fill="#6b4a2b"/><ellipse cx="50" cy="118" rx="24" ry="6" fill="#4a3320"/>
+    <rect x="12" y="42" width="76" height="13" rx="6.5" fill="#c9a06a" stroke="#a07a45" stroke-width="1.5"/>
+    <path d="M30 46Q50 40 70 46L66 92Q50 98 34 92Z" fill="#d8b97f" stroke="#a07a45" stroke-width="1.5"/>
+    <circle cx="50" cy="26" r="16" fill="#ecd196" stroke="#a07a45" stroke-width="1.5"/><path d="M35 21Q50 6 65 21Q50 14 35 21Z" fill="#8b6a3a"/>
+    <path d="M42 22l5 5m0-5l-5 5M53 22l5 5m0-5l-5 5" stroke="#5a3b1d" stroke-width="1.8" stroke-linecap="round"/><path d="M42 32Q50 38 58 32" fill="none" stroke="#5a3b1d" stroke-width="1.8" stroke-linecap="round"/>
+    ${acadGlyphAt(el, 16, 42, 1)}${acadGlyphAt(el, 84, 42, 1)}${acadGlyphAt(el, 50, 70, 1.25)}</svg>`;
 }
-// the examiner, in a red robe, standing to the right of the dummies
-function acadExaminerSvg() {   // the examiner, full body, in a red robe, beside the dummies (spec 08 §4)
-  return `<svg class="exsvg" viewBox="0 0 50 110" aria-hidden="true"><path d="M14 13 L25 -2 L36 13 Z" fill="#b3261e"/><ellipse cx="25" cy="14" rx="13" ry="3" fill="#7a1612"/><circle cx="25" cy="20" r="10" fill="#f2d2b0"/><path d="M16 22 Q25 40 34 22 L33 30 Q25 36 17 30 Z" fill="#ffffff"/><path d="M11 33 Q25 28 39 33 L43 96 Q25 104 7 96 Z" fill="#b3261e"/><rect x="11" y="44" width="28" height="5" fill="#ffd166"/><path d="M11 33 L25 60 L39 33" fill="none" stroke="#7a1612" stroke-width="2"/><rect x="18" y="95" width="6" height="14" fill="#3a2a1a"/><rect x="27" y="95" width="6" height="14" fill="#3a2a1a"/><rect x="5" y="64" width="6" height="26" rx="3" fill="#b3261e"/><circle cx="8" cy="93" r="3" fill="#f2d2b0"/></svg>`;
+// the examiner (as the Hebrew game's): a wizard in a maroon star hat, round glasses, a long white beard and a red robe, holding a scroll
+function acadExaminerSvg() {
+  return `<svg class="exsvg" viewBox="0 0 60 120" aria-hidden="true"><ellipse cx="32" cy="116" rx="22" ry="4" fill="#0003"/>
+    <path d="M14 58Q30 48 46 58L52 110Q30 118 8 110Z" fill="#a8372f"/><path d="M9 104Q30 113 51 104" stroke="#e8b83a" stroke-width="4" fill="none"/>
+    <rect x="19" y="108" width="9" height="7" rx="3" fill="#3a2a1a"/><rect x="32" y="108" width="9" height="7" rx="3" fill="#3a2a1a"/>
+    <path d="M18 36Q30 84 42 36Q30 46 18 36Z" fill="#fff" stroke="#e6e0d6" stroke-width="1"/>
+    <circle cx="30" cy="30" r="11" fill="#f5d6b8"/><circle cx="24" cy="34" r="2.2" fill="#f0a89a" opacity=".6"/><circle cx="36" cy="34" r="2.2" fill="#f0a89a" opacity=".6"/>
+    <circle cx="25.5" cy="29" r="4" fill="none" stroke="#d9a82b" stroke-width="1.3"/><circle cx="34.5" cy="29" r="4" fill="none" stroke="#d9a82b" stroke-width="1.3"/><path d="M29.5 29h1" stroke="#d9a82b" stroke-width="1.3"/>
+    <circle cx="25.5" cy="29" r="1.1" fill="#3a2a1a"/><circle cx="34.5" cy="29" r="1.1" fill="#3a2a1a"/>
+    <path d="M16 24L30 -4L44 24Z" fill="#6e2a3e"/><ellipse cx="30" cy="24" rx="17" ry="4.5" fill="#54202f"/><path d="M30 5l1.5 3.5 3.8.4-2.9 2.5.9 3.7L30 13l-3.3 2.1.9-3.7-2.9-2.5 3.8-.4z" fill="#ffd166"/>
+    <rect x="6" y="62" width="11" height="24" rx="5.5" fill="#a8372f"/><g transform="rotate(-22 12 84)"><rect x="1" y="76" width="22" height="14" rx="2" fill="#f4e4b0" stroke="#b8975a"/><path d="M5 80h14M5 83.5h14M5 87h9" stroke="#b8975a" stroke-width="1"/></g><circle cx="12" cy="88" r="3.8" fill="#f5d6b8"/></svg>`;
 }
-// the backdrop of the test (as the Hebrew game's test): the sky, the wall with arches, the floor, and two flag poles
+// the backdrop of the test (as the Hebrew game's): the sky, the wall with arches, the pale floor, and two flag poles
 function acadBgSvg() {
-  const arches = [0, 1, 2, 3, 4, 5].map(i => `<path d="M${i * 70 + 12} 160 V104 Q${i * 70 + 40} 62 ${i * 70 + 68} 104 V160 Z" fill="#6b5e4c"/>`).join('');
+  const arches = [0, 1, 2, 3, 4].map(i => { const x = -22 + i * 88; return `<path d="M${x} 130V92Q${x} 56 ${x + 37} 56Q${x + 74} 56 ${x + 74} 92V130Z" fill="#6e6451"/>`; }).join('');
   return `<svg class="acBgSvg" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">
-    <rect width="400" height="200" fill="#8fc3e8"/><rect y="70" width="400" height="92" fill="#b5a68c"/>${arches}
-    <rect y="158" width="400" height="42" fill="#d8bd86"/><rect y="170" width="400" height="3" fill="#b89a62"/>
-    <rect x="34" y="12" width="4" height="150" fill="#8a5a2b"/><path d="M38 14 H78 L68 26 L78 38 H38 Z" fill="#c63a2e"/>
-    <rect x="362" y="12" width="4" height="150" fill="#8a5a2b"/><path d="M366 14 H326 L336 26 L326 38 H366 Z" fill="#c63a2e"/></svg>`;
+    <rect width="400" height="200" fill="#8fbde8"/><rect y="38" width="400" height="92" fill="#a89d86"/>${arches}
+    <rect y="128" width="400" height="72" fill="#dcc99f"/><rect y="126" width="400" height="4" fill="#b3a68a"/><rect y="176" width="400" height="3" fill="#b89a62"/>
+    <rect x="58" y="10" width="4" height="78" fill="#8a5a2b"/><path d="M62 12H100L90 24L100 36H62Z" fill="#c63a2e"/>
+    <rect x="338" y="10" width="4" height="78" fill="#8a5a2b"/><path d="M342 12H380L370 24L380 36H342Z" fill="#c63a2e"/></svg>`;
 }
 // one scene: the left, the middle and the right are placed on the backdrop; the progress shows across the top
 function acadScene(left, mid, right) {
@@ -4501,7 +4519,7 @@ function acadClick(e) {
     const d = ACQ.dummies[q.d];
     if (a === 'card' && ACQ.phase === 'fpick') {   // step 1: the card whose answer is a spell this dummy is weak to
       if (q.cards[i] === q.p) { ACQ.phase = 'fsolve'; ACQ.msg = ''; ACQ.typed = ''; return acadRender(); }
-      d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
+      acadSnap([q.d]); d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { hit: false, cast: null, targets: [q.d] };
       ACQ.msg = t('ac_card_miss'); return acadQDone(false, q.p);
     }
     if (ACQ.phase !== 'fsolve') return;
@@ -4530,17 +4548,46 @@ function acadClick(e) {
   }
 }
 // step 2: the answer of the card is cast as the spell; right, it hits (an AOE question hits both dummies); wrong, it is the question's one mistake
+// what the dummies showed before this question, so the markers and the fall wait for the spell to arrive
+function acadSnap(targets) { ACQ.snap = {}; targets.forEach(j => { const x = ACQ.dummies[j]; ACQ.snap[j] = { hits: x.hits, miss: x.miss || 0 }; }); }
 function acadAnswer(v) {
   const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], targets = q.d2 != null ? [q.d, q.d2] : [q.d];
+  acadSnap(targets);
   if (ME.eq(v, q.s.v)) {
     targets.forEach(j => ACQ.dummies[j].hits++);
     ACQ.msg = t(q.d2 != null ? 'ac_aoe_hit' : 'ac_hit'); ACQ.lastHit = targets; ACQ.lastDown = targets.filter(j => ACQ.dummies[j].hits >= ACQ.dummies[j].need);
-    ACQ.shot = { emoji: q.d2 != null ? '🌟' : '✨', targets };
+    ACQ.shot = { hit: true, spell: q.s, targets };
     return acadQDone(true);
   }
-  d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
+  d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d;
+  const other = SB.cast(v, P.spells || []);   // the wrong number is cast as the spell it is (it bounces off), or fizzles when it is no spell
+  ACQ.shot = { hit: false, cast: other && CB.relation(other, d.el) !== 'weak' ? other : null, targets: [q.d] };
   ACQ.msg = t('ac_miss'); acadQDone(false, q.p);
 }
+// the spell effects of the fight (arrows, area scenes, a bounce, a fizzle), played on the trial's stage
+async function acadCastFx(s) {
+  await sleep(40);
+  const hero = $('#heroSvg'), bigs = [...document.querySelectorAll('#foeBody .acBigDum')], hit = bigs.filter(b => s.targets.includes(+b.dataset.j));
+  const nodes = hit.map(b => b.querySelector('.dsvg') || b), done = () => { if (!ACQ) return; ACQ.snap = null; acadPips(); };
+  const heroFizzle = async () => { burst('💨', 6, '#heroSvg'); $('#heroBox').classList.add('fizzle'); setTimeout(() => $('#heroBox').classList.remove('fizzle'), 450); await sleep(500); };
+  try {
+    if (!nodes.length) return done();
+    if (s.hit) {
+      const sp = s.spell, em = SB.ELEMENTS[sp.el].em, glow = EL_GLOW[sp.el], size = tierSize(sp.power);
+      if (sp.fx && sp.fx.k === 'area') { const fx = AREA_FX[sp.fam] || AREA_FX[sp.id]; await (fx ? fx(nodes, { size, glow, spell: sp }) : rainOn(em, nodes, { size, glow })); }
+      else await fly(em, hero, nodes[0], { size, glow, trail: true, arrow: [2, 3, 5].includes(sp.fam) ? sp.el : null });
+      sfx.hit(); done();
+      nodes.forEach((n, i) => { burst(em, 9, n); burst('💥', 3, n); floatText('💥', '#ffd166', n); const b = hit[i]; b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 650); });
+      hit.forEach(b => { const x = ACQ.dummies[+b.dataset.j]; if (x.hits >= x.need) setTimeout(() => b.classList.add('down'), 450); });   // the dummy collapses
+    } else {
+      if (s.cast) { const sp = s.cast; await fly(SB.ELEMENTS[sp.el].em, hero, nodes[0], { size: tierSize(sp.power), glow: EL_GLOW[sp.el], trail: true, bounce: true }); } else await heroFizzle();
+      done(); hit.forEach(b => { b.classList.add('miss'); setTimeout(() => b.classList.remove('miss'), 650); });
+    }
+  } catch (e) { done(); }
+}
+// the markers under a dummy: gold for a hit, red with a cross for a mistake, empty for a hit still to come
+const acadPipsHtml = (x, st) => Array.from({ length: x.need }, (_, m) => `<i class="${m < st.hits ? 'gold' : m < st.hits + st.miss ? 'red' : ''}"></i>`).join('');
+function acadPips() { document.querySelectorAll('#foeBody .acBigDum').forEach(b => { const x = ACQ.dummies[+b.dataset.j]; b.querySelector('.mk').innerHTML = acadPipsHtml(x, { hits: x.hits, miss: x.miss || 0 }); }); }
 document.addEventListener('keydown', e => {   // typing on a keyboard also works for the trial's number pad
   if (!ACQ || !ACQ.onGame || ACQ.phase !== 'fsolve' || ACQ.busy || !$('#padShow')) return;
   const k = e.key === 'Backspace' ? '⌫' : /^[0-9.]$/.test(e.key) ? e.key : null;
@@ -4607,7 +4654,7 @@ function acGameEnter() {
   $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none'; $('#nextBtn').classList.add('hidden');
   if (document.querySelector('#vhTray')) document.querySelector('#vhTray').remove();
   if (!$('#acExam')) $('#stage').insertAdjacentHTML('beforeend', `<div id="acExam">${acadExaminerSvg()}<small>${ACQ.k % 2 === 0 ? 'Orin' : 'Odelia'}</small></div>`);
-  if (!$('#acDots')) $('#stage').insertAdjacentHTML('afterend', '<div id="acDots"></div>');
+  if (!$('#acDots')) $('#stage').insertAdjacentHTML('beforeend', '<div id="acDots"></div>');
   $('#foeName').textContent = t('ac_dummy');
   $('#foeBody').className = 'foeBody acCentre';
 }
@@ -4615,7 +4662,9 @@ function acGameEnter() {
 function acadSetStage() {
   const sb = $('#stageBg'); sb.dataset.key = "acad"; sb.style.cssText = "position:absolute;inset:0"; sb.innerHTML = acadBgSvg();
   const vig = $('#stageVig'); if (vig) vig.style.display = "none";
-  if (!$('#acTop')) $('#stage').insertAdjacentHTML('beforeend', '<div id="acTop"></div><div id="acHour">⌛</div>');
+  document.body.classList.add('acadOn');
+  const hour = '<svg class="acHour" viewBox="0 0 24 34" width="24" height="34" aria-hidden="true"><path d="M3 2h18M3 32h18" stroke="#c9961a" stroke-width="3" stroke-linecap="round"/><path d="M5 3c0 9 6 10 7 14-1 4-7 5-7 14M19 3c0 9-6 10-7 14 1 4 7 5 7 14" fill="#ffe9a8" stroke="#c9961a" stroke-width="1.6"/><path d="M8 26c2-2 6-2 8 0v5H8z" fill="#f2b632"/></svg>';
+  if (!$('#acTop')) $('#stage').insertAdjacentHTML('beforeend', `<div id="acTop"><div class="acPill"></div>${hour}</div><div id="acName"></div>`);
   const foe = $('#foeBody'); if (!ACQ.foeParent) { ACQ.foeParent = foe.parentElement; ACQ.foeNext = foe.nextSibling; }   // the dummy moves into the stage, so it can stand in the centre
   $('#stage').appendChild(foe); foe.classList.add('acCentre');
 }
@@ -4623,7 +4672,7 @@ function acadSetStage() {
 function acGameExit() {
   const foe = $('#foeBody'); foe.classList.remove('acCentre'); if (ACQ && ACQ.foeParent) ACQ.foeParent.insertBefore(foe, ACQ.foeNext && ACQ.foeNext.parentNode === ACQ.foeParent ? ACQ.foeNext : null);   // the dummy goes back to its place on the fight screen
   ACQ = null; refreshAcademy();
-  ['#acExam', '#acDots', '#acTop', '#acHour'].forEach(s => { const e = $(s); if (e) e.remove(); }); $('#foeBody').classList.remove('acCentre'); $('#stageBg').dataset.key = '';
+  document.body.classList.remove('acadOn'); ['#acExam', '#acDots', '#acTop', '#acName'].forEach(s => { const e = $(s); if (e) e.remove(); }); $('#foeBody').classList.remove('acCentre'); $('#stageBg').dataset.key = '';
   ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = ''; });
   $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none';
   openMenu();
@@ -4639,14 +4688,17 @@ function acadDo(a) {
 // the fight screen of the trial: the dummy with its element in three places, the hit markers, the progress, and the question panel
 function fightRenderGame() {
   const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], fpick = ACQ.phase === 'fpick';
-  const cls = [ACQ.lastHit && ACQ.lastHit.includes(q.d) ? 'hit' : '', ACQ.lastMiss === q.d ? 'miss' : '', d.hits >= d.need ? 'down' : ''].join(' ');
-  const pips = Array.from({ length: d.need }, (_, m) => `<i class="${m < d.hits ? 'gold' : m < d.hits + (d.miss || 0) ? 'red' : ''}"></i>`).join('');
-  // one dummy, or for an AOE question the two adjacent dummies side by side (both are hit by the one spell)
-  const one = j => { const x = ACQ.dummies[j], crown = j === ACQ.dummies.length - 1 && x.need >= 2 ? `<b class="acCrown">👑</b>` : "", pp = Array.from({ length: x.need }, (_, m) => `<i class="${m < x.hits ? 'gold' : m < x.hits + (x.miss || 0) ? 'red' : ''}"></i>`).join(''), c = [ACQ.lastHit && ACQ.lastHit.includes(j) ? 'hit' : '', ACQ.lastMiss === j ? 'miss' : '', x.hits >= x.need ? 'down' : ''].join(' '); return `<div class="acBigDum ${c}${j === q.d || j === q.d2 ? ' cur' : ''}">${crown}${acadDummySvg(x.el)}<div class="mk">${pp}</div></div>`; };
+  // one dummy, or for an AOE question the two adjacent dummies side by side (both are hit by the one spell). While a spell is on its way the dummy
+  // still shows what it showed before (acadSnap); its marker, its shake and its fall come when the spell arrives (acadCastFx).
+  const one = j => {
+    const x = ACQ.dummies[j], st = ACQ.snap && ACQ.snap[j] ? ACQ.snap[j] : { hits: x.hits, miss: x.miss || 0 }, crown = j === ACQ.dummies.length - 1 && x.need >= 2 ? `<b class="acCrown">👑</b>` : '';
+    return `<div class="acBigDum ${st.hits >= x.need ? 'down' : ''}${j === q.d || j === q.d2 ? ' cur' : ''}" data-j="${j}">${crown}${acadDummySvg(x.el)}<div class="mk">${acadPipsHtml(x, st)}</div></div>`;
+  };
   $('#foeBody').innerHTML = q.d2 != null ? `<div class="acPair">${one(q.d)}${one(q.d2)}</div>` : one(q.d);
-  $('#hearts').innerHTML = `<span class="exMarks">${ACQ.practice ? '📚 ' + t('ac_practice_tag') : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist))}</span>`;
-  $('#hpFill').style.width = (100 * ACQ.i / ACQ.Q) + '%';
-  $('#acTop').innerHTML = ACQ.qs.map((x, i) => `<i class="${ACQ.results[i] === true ? 'ok' : ACQ.results[i] === false ? 'bad' : i === ACQ.i ? 'cur' : ''}"></i>`).join('');
+  // the mistakes allowed: empty boxes under the wizard, a cross in each one used (the practice run has none)
+  $('#hearts').innerHTML = ACQ.practice ? `<span class="exMarks">📚 ${t('ac_practice_tag')}</span>` : `<span class="exBoxes">${Array.from({ length: ACQ.allowed }, (_, m) => `<i class="${m < ACQ.mist ? 'used' : ''}">${m < ACQ.mist ? '✖' : ''}</i>`).join('')}</span>`;
+  $('#acTop .acPill').innerHTML = ACQ.qs.map((x, i) => `<i class="${ACQ.results[i] === true ? 'ok' : ACQ.results[i] === false ? 'bad' : i === ACQ.i ? 'cur' : ''}"></i>`).join('');
+  $('#acName').textContent = t('ac_dummy');
   $('#acDots').innerHTML = ACQ.dummies.map((x, j) => `<i style="background:${ACAD_COL[x.el]}" class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
   const pad = !fpick && !q.choices;   // step 2 is typed on the number pad (spec 08 §2); a fraction answer is picked
   $('#qTitle').innerHTML = fpick ? acadDummyTitle(d.el) : t(pad ? 'ac_say_ans' : 'ac_say_pick');
@@ -4659,7 +4711,7 @@ function fightRenderGame() {
       ? `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${t('ac_say_go')}</button>`
       : q.choices.map((v, i) => `<button class="opt num" data-ac="num" data-i="${i}">${ME.fmtHtml(v)}</button>`).join('');
   $('#fb').textContent = ACQ.msg || '';
-  if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; setTimeout(() => fly(s.emoji, $('#heroSvg'), $('#foeBody'), { trail: true, size: 1.2 }), 30); }   // the spell flies from the wizard to the dummy
+  if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; ACQ.fxP = acadCastFx(s); }   // the spell's effect, as in the fight
 }
 // the result of the fighting trial: the game's own box
 function acadResultModal() {
