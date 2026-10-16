@@ -3896,8 +3896,16 @@ function visitPics() {
   const s = V.p.show, e = V.item.em, pic = n => (n <= 12 ? e.repeat(n) : '');
   return s.plus !== undefined ? pic(s.have) + '+' + pic(s.plus) : pic(s.have);
 }
+// the number pad of a visit's number answers: the answer can be above 10 (a number of items, or the item's number), so it is typed
+function visitPad(act) {
+  const V = VS, o = $('#opts'), key = d => `<button class="opt num" data-vh="key" data-d="${d}">${d}</button>`;
+  o.className = 'opts pad'; o.style.display = 'block'; o.style.gridTemplateColumns = '';
+  o.innerHTML = `<div class="acadPadShow">${V.typed || '…'}</div>
+    <div class="acadPad vhPad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(key).join('')}<button class="opt num" data-vh="key" data-d="del">⌫</button>${key(0)}<button class="btn" data-vh="${act}" data-n="${V.typed}" ${V.typed === '' ? 'disabled' : ''}>✔</button></div>`;
+}
 function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
+  if (V.padPhase !== V.phase) { V.typed = ''; V.padPhase = V.phase; }   // a new question starts with an empty pad
   visitBars();
   $('#qTitle').textContent = V.project.name;
   // the project's tray sits on the stage, beneath the roof of the place (not in the question panel)
@@ -3910,9 +3918,9 @@ function visitShow() {
   const cardBtns = (cards, act) => { o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${cards.length}, 1fr)`; cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = act; b.dataset.i = i; b.innerHTML = `<span class="cardEx" dir="ltr">${HELPER.cardText(c)}</span>`; o.appendChild(b); }); };
   const numBtns = (nums, act, attr) => { o.style.display = 'flex'; o.style.flexWrap = 'wrap'; o.style.justifyContent = 'center'; o.style.gap = '6px'; nums.forEach(k => { const b = document.createElement('button'); b.className = 'opt num'; b.style.flex = '0 0 52px'; b.dataset.vh = act; b.dataset[attr] = k; b.textContent = k; o.appendChild(b); }); };
   if (V.phase === 'card') { $('#qSub').textContent = t('vh_card'); cardBtns(V.cards, 'card'); }
-  else if (V.phase === 'calc') { $('#qSub').textContent = t('vh_calc'); numBtns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'amt', 'n'); }
+  else if (V.phase === 'calc') { $('#qSub').textContent = t('vh_calc'); visitPad('amt'); }
   else if (V.phase === 'icard') { if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1); $('#qSub').textContent = t('vh_item'); cardBtns(V.itemCards, 'icard'); }
-  else if (V.phase === 'ians') { if (!V.iAns) V.iAns = HELPER.itemAnswers(V.item.n); $('#qSub').textContent = t('vh_ians', { item: vhLow(tl(HELPER.nameFor(V.item, 1))) }); numBtns(V.iAns, 'iamt', 'n'); }
+  else if (V.phase === 'ians') { $('#qSub').textContent = t('vh_ians', { item: vhLow(tl(HELPER.nameFor(V.item, 1))) }); visitPad('iamt'); }
   else { $('#qSub').textContent = ''; }
   $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : V.phase === 'left' ? 'vh_left' : 'vh_lost') : V.msg;
   // the potion row: the same potions as in a fight (with the village names), and the picture button in it; the owl, the sound and leaving for now below
@@ -4016,6 +4024,10 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   const V = VS, act = b.dataset.vh;
   if (act === 'quit') { visitEnd(); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
+  if (act === 'key') {   // the number pad: digits (up to two), ⌫ deletes; ✔ answers (below)
+    if (b.dataset.d === 'del') V.typed = (V.typed || '').slice(0, -1); else if ((V.typed || '').length < 2) V.typed = (V.typed || '') + b.dataset.d;
+    return visitShow();
+  }
   if (act === 'bookItem') {   // the item's icon: the conjuration book opens on the item's theme, with the item marked
     conjTab = HELPER.themeOf(V.item).k; openConjBook();
     const el = document.querySelector(`#bookPages [data-item="${V.item.n}"]`); if (el) { el.classList.add('hlItem'); el.scrollIntoView({ block: 'center' }); }
