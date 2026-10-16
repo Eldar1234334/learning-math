@@ -5608,7 +5608,7 @@ function startDemo() {
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
-    B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(null)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +
+    B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +
     '<div class="small" style="opacity:.8;margin-top:4px">Extra information: wizard level 15. Owl helper: wizard level 18.</div>' +
     '<h4>Fight areas (backgrounds)</h4>' + [1, 2, 3, 4, 5, 6].map(n => B(areaName(n), `area(${n})`)).join('') + '<h4>Monsters</h4>' + Object.keys(MON_DEF).map(k => B(monName(MON_DEF[k]) + (MON_DEF[k].boss ? ' 👑' : ''), `mon("${k}")`)).join('') +
     '<h4>Monster abilities (next fights)</h4>' + CB.CFG.ABILITIES.map(([k, w]) => B(abName(k) + ' (' + w + ')', `ab('${k}')`)).join('') + B('🎲 Random again', 'ab(null)') +
