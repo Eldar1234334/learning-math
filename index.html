@@ -88,6 +88,21 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 @keyframes acadFlash{0%,100%{filter:none}50%{filter:brightness(1.8) hue-rotate(-40deg)}}
 .acadDum2 .mk{display:flex;gap:3px;justify-content:center;margin-top:2px}.acadDum2 .mk i{width:9px;height:9px;border-radius:50%;background:#fff5}
 .acadDum2 .mk i.gold{background:#ffd166}.acadDum2 .mk i.red{background:#ff5a5a}
+.acScene{position:relative;height:210px;border-radius:14px;overflow:hidden;margin-bottom:4px;background:#8fc3e8}
+.acBgSvg{position:absolute;inset:0;width:100%;height:100%}
+.acLeft,.acMid,.acRight{position:absolute;bottom:4px}
+.acLeft{left:4%;width:86px}.acLeft svg{width:100%;height:auto}
+.acRight{right:4%;width:86px;text-align:center}.acRight .exsvg,.acRight svg{width:100%;height:auto}.acRight small{display:block;font-size:.8rem;color:#fff}
+.acMid{left:50%;transform:translateX(-50%);width:130px;text-align:center}
+.acBigDum .dsvg{width:110px;height:190px;transition:transform .7s,opacity .7s}
+.acBigDum.hit .dsvg{animation:acadShake .6s}.acBigDum.miss .dsvg{animation:acadFlash .6s}.acBigDum.down .dsvg{transform:rotate(80deg) translateY(10px);opacity:.4}
+.acBigDum .mk{display:flex;gap:4px;justify-content:center}.acBigDum .mk i{width:11px;height:11px;border-radius:50%;background:#fff5}
+.acBigDum .mk i.gold{background:#ffd166}.acBigDum .mk i.red{background:#ff5a5a}
+.acProg{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#fff7;border-radius:12px;padding:4px 8px}
+.acProg i{width:10px;height:10px;border-radius:50%;background:#fff6}.acProg i.ok{background:#8f8}.acProg i.bad{background:#f66}.acProg i.cur{outline:2px solid #ffd166}
+.acPed{position:relative;width:100%;text-align:center}.acPedBase{height:26px;width:90%;margin:0 auto;border-radius:8px 8px 4px 4px;background:linear-gradient(#e8e0cf,#b9ad92)}
+.acPedItems{position:absolute;bottom:26px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:30px;font-size:1.3rem}
+.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
 .acadDots i.cur{outline:2px solid #ffd166}.acadDots i.done{background:#8f8}
 .acadBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
@@ -4239,7 +4254,7 @@ function acadBuildRow(k, lvl, Qn) {
 function acadStart() {   // the questions are built now, from the student's current math level (never above it)
   const k = ACQ.k, lvl = P.mlvl || 1;
   if (!ACQ.kind) ACQ.kind = 'conj';
-  ACQ.Q = ACQ.practice ? 6 : ACAD_Q[k]; ACQ.need = ACAD_NEED[k]; ACQ.allowed = ACQ.practice ? 99 : ACQ.Q - ACQ.need; ACQ.facts = [];
+  ACQ.Q = ACQ.practice ? 6 : ACAD_Q[k]; ACQ.need = ACAD_NEED[k]; ACQ.allowed = ACQ.practice ? 99 : ACQ.Q - ACQ.need; ACQ.facts = []; ACQ.results = []; ACQ.placed = null;
   ACQ.right = 0; ACQ.mist = 0; ACQ.i = 0; ACQ.typed = ''; ACQ.msg = ''; ACQ.busy = false;
   if (ACQ.kind === 'fight') {
     const row = acadBuildRow(k, lvl, ACQ.Q);
@@ -4268,16 +4283,41 @@ function acadExaminerSvg() {
     <rect x="12" y="32" width="26" height="60" rx="8" fill="#b3261e"/><rect x="8" y="46" width="34" height="7" fill="#7a1612"/>
     <rect x="18" y="92" width="6" height="16" fill="#3a2a1a"/><rect x="28" y="92" width="6" height="16" fill="#3a2a1a"/></svg>`;
 }
-// the stage of the fighting trial: the row of dummies, the examiner beside them, the hit markers under each dummy, and the dots at the bottom
+// the backdrop of the test (as the Hebrew game's test): the sky, the wall with arches, the floor, and two flag poles
+function acadBgSvg() {
+  const arches = [0, 1, 2, 3, 4, 5].map(i => `<path d="M${i * 70 + 12} 160 V104 Q${i * 70 + 40} 62 ${i * 70 + 68} 104 V160 Z" fill="#6b5e4c"/>`).join('');
+  return `<svg class="acBgSvg" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">
+    <rect width="400" height="200" fill="#8fc3e8"/><rect y="70" width="400" height="92" fill="#b5a68c"/>${arches}
+    <rect y="158" width="400" height="42" fill="#d8bd86"/><rect y="170" width="400" height="3" fill="#b89a62"/>
+    <rect x="34" y="12" width="4" height="150" fill="#8a5a2b"/><path d="M38 14 H78 L68 26 L78 38 H38 Z" fill="#c63a2e"/>
+    <rect x="362" y="12" width="4" height="150" fill="#8a5a2b"/><path d="M366 14 H326 L336 26 L326 38 H366 Z" fill="#c63a2e"/></svg>`;
+}
+// one scene: the left, the middle and the right are placed on the backdrop; the progress shows across the top
+function acadScene(left, mid, right) {
+  const prog = Array.from({ length: ACQ.Q }, (_, i) => {
+    const r = ACQ.results[i];
+    return `<i class="${r === true ? 'ok' : r === false ? 'bad' : i === ACQ.i ? 'cur' : ''}"></i>`;
+  }).join('');
+  return `<div class="acScene">${acadBgSvg()}<div class="acProg">${prog}</div><div class="acLeft">${left}</div><div class="acMid">${mid}</div><div class="acRight">${right}</div></div>`;
+}
+// the fighting trial's stage (spec 08 §4): the wizard on the left, the current dummy in the middle, the examiner on the right, the row of dummies below
 function acadStageHtml(q) {
-  const ex = ACQ.k % 2 === 0 ? 'Orin' : 'Odelia';
+  const ex = ACQ.k % 2 === 0 ? 'Orin' : 'Odelia', cur = ACQ.dummies[q.d];
+  const big = `<div class="acBigDum ${cur.hits >= cur.need ? 'down' : ''} ${ACQ.lastHit && ACQ.lastHit.includes(q.d) ? 'hit' : ''} ${ACQ.lastMiss === q.d ? 'miss' : ''}">${acadDummySvg(cur.el)}<div class="mk">${Array.from({ length: cur.need }, (_, m) => `<i class="${m < cur.hits ? 'gold' : m < cur.hits + (cur.miss || 0) ? 'red' : ''}"></i>`).join('')}</div></div>`;
+  const right = `${acadExaminerSvg()}<small>${ex}</small>`;
   const row = ACQ.dummies.map((x, j) => {
     const cls = [j === q.d || j === q.d2 ? 'cur' : '', x.hits >= x.need ? 'down' : '', ACQ.lastHit && ACQ.lastHit.includes(j) ? 'hit' : '', ACQ.lastMiss === j ? 'miss' : ''].join(' ');
-    const marks = Array.from({ length: x.need }, (_, m) => `<i class="${m < x.hits ? 'gold' : m < x.hits + (x.miss || 0) ? 'red' : ''}"></i>`).join('');
-    return `<div class="acadDum2 ${cls}" data-j="${j}">${acadDummySvg(x.el)}<div class="mk">${marks}</div></div>`;
+    return `<div class="acadDum2 ${cls}" data-j="${j}">${acadDummySvg(x.el)}</div>`;
   }).join('');
   const dots = ACQ.dummies.map((x, j) => `<i class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
-  return `<div class="acadStageBox"><div class="acadRow">${row}</div><div class="acadEx">${acadExaminerSvg()}<small>${ex}</small></div></div><div class="acadDots">${dots}</div>`;
+  return acadScene(heroOf(P), big, right) + `<div class="acadRow">${row}</div><div class="acadDots">${dots}</div>`;
+}
+// the conjuring trial's stage (spec 08 §5): the pedestal on the left (the conjured items appear on it), the villager on the right, nothing else
+function acadConjStageHtml() {
+  const items = ACQ.placed ? Array.from({ length: Math.min(ACQ.placed, 12) }, (_, i) => `<span class="acPedItem" style="animation-delay:${i * 0.12}s">${ACQ.qs[ACQ.i].item.em}</span>`).join('') : '';
+  const left = `<div class="acPed"><div class="acPedItems">${items}</div><div class="acPedBase"></div></div>`;
+  const right = STAGE_BG.villagerSVG('bakery', STAGE_BG.SKINS[0], 'wait');
+  return acadScene(left, '', right);
 }
 // the spell flies from the typed answer to the dummy (or both dummies of an AOE question); the shot is set by the answer
 function acadFly(shot) {
@@ -4286,6 +4326,7 @@ function acadFly(shot) {
 }
 function acadQDone(ok, fact = true) {   // one question is over: right only when its step is right; a wrong answer is the one mistake of the question
   ACQ.busy = true; if (ok) ACQ.right++; else ACQ.mist++;
+  ACQ.results[ACQ.i] = ok; ACQ.placed = ok && ACQ.kind === 'conj' ? ACQ.qs[ACQ.i].p.amount : null;   // the progress across the top; the items on the pedestal
   if (fact) ACQ.facts.push({ p: ACQ.qs[ACQ.i].p, ok });   // the amount or the answer, for the weak-spot memory at the end
   if (ok && ACQ.msg === '') ACQ.msg = t('ac_right');
   acadRender();
@@ -4357,7 +4398,7 @@ function acadRender() {
   } else {
     const q = ACQ.qs[ACQ.i], marks = (ACQ.practice ? '' : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist)));   // the mistakes allowed, crossed when used
     box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })}${marks ? ' · ' + marks : ''}</div>
-      <p class="acadStory">${visitStory({ p: q.p, item: q.item, extra: null })}</p>
+      ${acadConjStageHtml()}<p class="acadStory">${visitStory({ p: q.p, item: q.item, extra: null })}</p>
       ${ACQ.phase === 'item'
         ? `<p class="small">${t('ac_pick_item')}</p><div class="acadGrid">${q.opts.map((o, j) => `<button class="opt card" data-ac="item" data-i="${j}"><span class="cardEx">${o.em}</span><small>${tl(HELPER.nameFor(o, 1))}</small></button>`).join('')}</div>`
         : `<div class="acadPadShow">${ACQ.typed || '…'}</div><p class="small">${t('ac_type')}</p>${acadPadHtml()}`}
