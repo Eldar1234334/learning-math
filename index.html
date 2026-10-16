@@ -3818,7 +3818,7 @@ function visitShow() {
   const story = { result: () => t('vh_result', { a: p.a, b: p.b, item: nm(p.a) }), change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
     separate: () => t('vh_separate', { t: p.t, b: p.b, item: nm(p.t), broke: tl(['broke', p.b === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשברה' : 'נשבר') : 'נשברו']) }),   // the verb agrees with the count and the gender
     part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
-    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }), start: () => t('vh_start', { u: p.u, r: p.r, item: nm(p.u), left: tl(['are left', p.r === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']) }),
+    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }), start: () => t('vh_start', { u: p.u, r: p.r, item: nm(p.u), left: tl([p.r === 1 ? 'is left' : 'are left', p.r === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']) }),
     two: () => t('vh_two', { t: p.t, a: p.a, b: p.b, item: nm(p.t) }) }[p.kind]();
   // the amounts are always on screen (for the early levels): what the villager has, and what they need
   const shown = s.minus !== undefined
