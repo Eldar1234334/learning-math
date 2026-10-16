@@ -116,6 +116,20 @@
     assert(H.oneName(H.itemOf(4))[1] === 'ביצה אחת', 'feminine');
     assert(H.oneName(H.itemOf(5))[0] === 'one sack of flour', 'mass item');
   });
+  test('the second part of a two-part request: more, fewer or for each; the answer is not in the story; the story card computes it; four different cards', () => {
+    for (let lvl = 1; lvl <= 35; lvl++) for (let a = 1; a <= 600; a += 7) {
+      const s = H.makeSecond(a, lvl, rnd);
+      assert(s.amount > 0 && s.amount !== a && !s.nums.includes(s.amount), 'amount of ' + s.rel + ' for a=' + a + ' k=' + s.k + ': ' + s.amount);
+      assert(H.cardValue(s.expr) === s.amount, 'story card value for ' + s.rel);
+      assert(s.rel !== 'each' || lvl >= 11, '"for each" only from level 11');
+      assert(s.rel !== 'less' || a >= 3, '"fewer" needs a first amount of 3 or more');
+      assert(s.amount <= 1000 || a >= 900, 'within 1000: ' + s.amount);
+      const cards = H.amountCards(s, rnd);
+      assert(cards.length === 4 && cards.filter(c => c.fits).length === 1 && new Set(cards.map(c => H.cardValue(c))).size === 4, 'four different cards for ' + s.rel + ' a=' + a + ' level ' + lvl);
+    }
+    const kinds = new Set(); for (let i = 0; i < 300; i++) kinds.add(H.makeSecond(40, 20, rnd).rel);
+    assert(kinds.has('more') && kinds.has('less') && kinds.has('each'), 'all three relations appear: ' + [...kinds]);
+  });
   test('the card step: four cards, the story card fits, values all different', () => {
     for (let i = 0; i < 200; i++) {
       const p = H.makeAmount(i % 2 ? 4 : 2, rnd), cards = H.amountCards(p, rnd);

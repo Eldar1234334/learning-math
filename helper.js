@@ -250,6 +250,21 @@
   }
   // the amount is typed on a pad when it has more than one digit to find in the buttons (above 10) or a decimal point
   const needsPad = p => !Number.isInteger(p.amount) || p.amount > 10;
+  // the second part of a two-part request (spec 05 §8, wizard level 9): one story names a second item and how its amount follows from the first:
+  // "After that, conjure the ropes: 3 more than the first amount." The first amount a is known (the student has worked it out);
+  // the second amount is a + k, a − k, or k for each one of a (from level 11). The answer is never a number of the story.
+  function makeSecond(a, level, r = Math.random) {
+    for (let tries = 0; tries < 60; tries++) {
+      const opts = ['more']; if (a >= 3) opts.push('less'); if (level >= 11 && a >= 2) opts.push('each');
+      const rel = pick(opts, r), small = level <= 10;
+      let k, amount, op;
+      if (rel === 'more') { k = small ? int(1, Math.max(2, Math.min(a, 10)), r) : int(2, 100, r); amount = a + k; op = '+'; }
+      else if (rel === 'less') { k = int(1, Math.min(a - 1, small ? 10 : 100), r); amount = a - k; op = '−'; }
+      else { k = int(2, 9, r); amount = a * k; op = '×'; }
+      if (amount > 0 && amount <= 1000 && amount !== a && amount !== k) return { kind: 'rel_' + rel, rel, k, nums: [a, k], amount, expr: { a, op, b: k }, level, v: { k } };
+    }
+    return { kind: 'rel_more', rel: 'more', k: 1, nums: [a, 1], amount: a + 1, expr: { a, op: '+', b: 1 }, level, v: { k: 1 } };
+  }
   // a card for a number, with numbers the student has reached: a sum or difference, or a times table from level 13
   function exprFor(v, mlvl, r = Math.random) {
     const pairs = []; for (let a = 2; a <= 11; a++) if (v % a === 0 && v / a >= 2 && v / a <= 11) pairs.push([a, v / a]);
@@ -316,5 +331,5 @@
     if (item.n === 60) return n === 1 ? ['torn', 'נקרעה'] : ['torn', 'נקרעו'];
     return n === 1 ? ['broke', genderOf(item) === 'f' ? 'נשברה' : 'נשבר'] : ['broke', 'נשברו'];
   };
-  return { BOOK, THEMES, themeOf, breakWord, PATIENCE, patienceFor, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, needsPad, oneName, measureOf, fmtN, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  return { BOOK, THEMES, themeOf, breakWord, PATIENCE, patienceFor, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, makeSecond, needsPad, oneName, measureOf, fmtN, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });

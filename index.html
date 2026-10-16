@@ -1367,6 +1367,10 @@ const STR = {
   vh_percent: ['{p}% of my {t} {item} are spoiled. Conjure the same number to replace them.', '{p}%‎ מ-{t} {item} התקלקלו. זמנו אותו מספר במקומם.'],
   vh_ratio: ['For every {ok}, I need {im}. I have {ot}. Conjure what I need.', 'על כל {ok} אני צריך {im}. יש לי {ot}. זמנו מה שאני צריך.'],
   vh_mix: ['I need {fr} of the {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {fr} מתוך {t} {item}. יש לי {a}. זמנו את השאר.'],
+  vh_rel_more: ['After that, conjure {B}: {k} more than the first amount.', 'אחר כך זמנו {B}: {k} יותר מהכמות הראשונה.'],
+  vh_rel_less: ['After that, conjure {B}: {k} fewer than the first amount.', 'אחר כך זמנו {B}: {k} פחות מהכמות הראשונה.'],
+  vh_rel_each: ['After that, conjure {B}: {k} for each one in the first amount.', 'אחר כך זמנו {B}: {k} לכל יחידה בכמות הראשונה.'],
+  vh_rel_recap: ['You conjured {a} {item}.', 'זימנתם {a} {item}.'],
   vh_part: ['I need {t} {item}. {a} are for the hall, and the rest are for the kitchen. Conjure the kitchen ones.', 'אני צריך {t} {item}. {a} מהם לאולם, והשאר למטבח. זמנו את אלה של המטבח.'],
   vh_compare: ['The baker has {t} {item}. I have {a}. Conjure enough so I have as many as the baker.', 'לאופה יש {t} {item}. יש לי {a}. זמנו כמה שצריך, שיהיו לי כמו לאופה.'],
   vh_start: ['I had some {item}. I used {u}, and {r} {left}. Conjure as many as I had at the start.', 'היו לי כמה {item}. השתמשתי ב-{u}, ו{left} {r}. זמנו כמה שהיו לי בהתחלה.'],
@@ -3843,7 +3847,16 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
 function setBookIcon(conj) { const b = document.querySelector('#game [data-book]'); if (b) b.textContent = conj ? '📜' : '📖'; }
 function visitRound() {   // the next item of the projects: its amount, and the cards of the amount's card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
-  V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel, Math.random, { item: V.item, others: HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n) }); V.typed = ''; V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
+  V.item = R.item; V.project = R.project; V.typed = '';
+  const first = V.rounds.slice(0, V.round).filter(r => r.project === R.project).length % 2 === 0, nxt = V.rounds[V.round + 1];
+  if (V.pending) { V.part = 2; V.pair = V.pending; V.pending = null; V.p = V.pair.rel; }   // the second part of a two-part request: its amount follows from the first one
+  else {
+    V.part = 0; V.pair = null; V.p = HELPER.makeAmount(pl.lowLevel, Math.random, { item: V.item, others: HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n) });
+    // a two-part request (spec 05 §8, wizard level 9): about half of the projects; one story names the second item too, and how its amount follows from the first
+    const two = window.__forceTwo != null ? !!window.__forceTwo : Math.random() < 0.5;
+    if (wizLvl() >= 9 && first && nxt && nxt.project === R.project && two) { V.part = 1; V.pair = V.pending = { rel: HELPER.makeSecond(V.p.amount, pl.lowLevel), itemA: R.item, itemB: nxt.item }; }
+  }
+  V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
   V.phase = pl.itemStep ? 'icard' : pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.noCount = false; V.snap = null; V.read = false; V.picRev = false;
   // extra information (spec 05 §8, wizard level 15): half the stories also name a number that is not needed
   const others = HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n);
@@ -3869,7 +3882,11 @@ function visitStory() {
   if (p.kind === 'start') vars.left = tl([p.v.r === 1 ? 'is left' : 'are left', p.v.r === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']);
   if (p.measure) { vars.unit = tl(p.measure); vars.item = vhLow(tl(HELPER.nameFor(V.item, 1))); }   // measures: "4.5 metres of rope"
   if (p.kind === 'ratio') { const o = p.other, no = n => vhLow(tl(HELPER.storyName(o, n))); vars.ok = p.v.k + ' ' + no(p.v.k); vars.ot = p.v.t + ' ' + no(p.v.t); vars.im = p.v.m + ' ' + nm(p.v.m); }
-  const txt = t('vh_' + p.kind, vars);
+  let txt = V.part === 2 ? '' : t('vh_' + p.kind, vars);
+  if (V.part) {   // a two-part request: the first story ends with how the second amount follows; the second part recalls the first amount
+    const pr = V.pair, B = V.part === 1 ? pr.itemB : V.item, rel = t('vh_rel_' + pr.rel.rel, { B: vhLow(tl(HELPER.storyName(B, 2))), k: pr.rel.k }), a1 = pr.rel.nums[0];
+    txt = V.part === 1 ? txt + ' ' + rel : t('vh_rel_recap', { a: a1, item: vhLow(tl(HELPER.storyName(pr.itemA, a1))) }) + ' ' + rel;
+  }
   return V.extra ? txt + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(tl(HELPER.storyName(V.extra.item, V.extra.n))) }) : txt;
 }
 // the pictures of what the villager has, shown in the thought bubble above them (no numbers): the low levels at once, the higher ones when asked
