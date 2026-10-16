@@ -3771,8 +3771,8 @@ function after(tier) {
 }
 /* ----- The village run (spec 05). The notice board starts a village run on the journey map, like the gate starts a fight.
    Each village stop is a VISIT on the fight screen. The villager asks for a number of items, one request at a time:
-   problem 1, the amount: the card that solves the story (from math level 2), then the answer;
-   problem 2, the item: the card whose answer is the item's number (from the conjuration book), then that answer.
+   step 1, the item: the card whose answer is the item's number (from the conjuration book), then that answer;
+   step 2, the amount: the card that solves the story (from math level 2), then the answer (spec 05 section 4: the item first, then how many).
    Lower levels skip steps (see HELPER.plan). Every action costs one mana. A right answer fills the villager's happy meter. Logic in helper.js. ----- */
 let VS = null;   // the visit: { festival, idx, pl, rounds, round, imp, st, item, project, p, extra, cards, itemCards, pick, iAns, phase, msg, potUsed, owlUsed, picRev, read, storyText, mist }
 const PICS_MAX = 4;   // pictures of the items are free up to this math level; above it, a picture costs XP (spec 05, owner)
@@ -3830,7 +3830,7 @@ function setBookIcon(conj) { const b = document.querySelector('#game [data-book]
 function visitRound() {   // the next item of the projects: its amount, and the cards of the amount's card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
   V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
-  V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.noCount = false; V.snap = null; V.read = false; V.picRev = false;
+  V.phase = pl.itemStep ? 'icard' : pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.noCount = false; V.snap = null; V.read = false; V.picRev = false;
   // extra information (spec 05 §8, wizard level 15): half the stories also name a number that is not needed
   const others = HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n);
   V.extra = wizLvl() >= 15 && others.length && Math.random() < 0.5 ? { n: 2 + Math.floor(Math.random() * 8), item: rnd(others) } : null;
@@ -4002,35 +4002,34 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
     if (visitAfter()) return;
     return visitNext(thanks);
   }
-  if (act === 'card' && V.phase === 'card') {   // problem 1: the card that solves the story
+  if (act === 'card' && V.phase === 'card') {   // step 2: the card that solves the story
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
     // the right card is free: the answer after it is the action
     if (c.fits) { V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
     c.gone = true; V.st = vhMiss(c); sfx.bad(); V.msg = t('vh_wrong_card');
     if (visitAfter()) return; return visitShow();
   }
-  if (act === 'amt' && V.phase === 'calc') {   // problem 1: the answer (the amount)
+  if (act === 'amt' && V.phase === 'calc') {   // step 2: the answer (the amount); the item is crafted
     const k = +b.dataset.n, r = HELPER.checkAmount(k, V.p.amount);
     storyTally(V.p.kind, r.ok);   // spec 05 §7: the accuracy of the story problems, by type (the answer, not the card)
     if (r.ok) {
       V.st = HELPER.spend(V.st, true); vhLog(true); sfx.ok(); V.msg = '';
-      if (V.pl.itemStep) { V.phase = 'icard'; if (visitAfter()) return; return visitShow(); }
       return visitRoundDone();
     }
     V.st = vhMiss(); sfx.bad();
     V.msg = r.kind === 'few' ? t('vh_few', { have: r.have, more: r.more }) : t('vh_many', { have: r.have, extra: r.extra });
     if (visitAfter()) return; return visitShow();
   }
-  if (act === 'icard' && V.phase === 'icard') {   // problem 2: the card whose answer is the item's number
+  if (act === 'icard' && V.phase === 'icard') {   // step 1: the card whose answer is the item's number
     const c = V.itemCards[+b.dataset.i]; if (!c || c.gone) return;
     if (HELPER.itemCardOk(c, V.item)) { V.pick = c; V.phase = 'ians'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
     c.gone = true; V.st = vhMiss(c); sfx.bad();
     const w = HELPER.wrongItemFor(c); V.msg = t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(V.item, 2) });
     if (visitAfter()) return; return visitShow();
   }
-  if (act === 'iamt' && V.phase === 'ians') {   // problem 2: the answer of the card, the item is crafted
+  if (act === 'iamt' && V.phase === 'ians') {   // step 1: the answer of the card (the item is chosen); the amount comes next
     const k = +b.dataset.n;
-    if (k === V.item.n) { V.st = HELPER.spend(V.st, true); vhLog(true); sfx.win(); return visitRoundDone(); }
+    if (k === V.item.n) { V.st = HELPER.spend(V.st, true); vhLog(true); sfx.ok(); V.msg = ''; V.phase = V.pl.cardStep ? 'card' : 'calc'; if (visitAfter()) return; return visitShow(); }   // the item is known: now the amount
     V.st = vhMiss(); sfx.bad(); V.msg = t('vh_wrong_num');
     if (visitAfter()) return; return visitShow();
   }

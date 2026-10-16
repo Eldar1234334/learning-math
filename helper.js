@@ -91,7 +91,7 @@
   // the visit's plan: the mana (as the fight's HP grows with the wizard level), the steps of each item, the happy meter
   function plan(mlvl, wlvl, items = 2) {
     const beginner = isBeginner(mlvl, wlvl);
-    // per item: problem 1 = the amount (card that solves it, then the answer); problem 2 = the item (card whose answer is the item's number, then that answer)
+    // per item: step 1 = the item (card whose answer is the item's number, then that answer); step 2 = the amount (card that solves the story, then the answer)
     const cardStep = !beginner && mlvl >= 2, itemStep = !beginner;
     // an action is an answer: choosing the right card is free, the answer that follows it is the one action (the card and its answer are one step)
     const perItem = 1 + (itemStep ? 1 : 0);
