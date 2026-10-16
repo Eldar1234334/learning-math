@@ -108,7 +108,7 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #acExam{position:absolute;right:1%;bottom:0;width:74px;text-align:center;z-index:3}#acExam svg{width:100%;height:auto}#acExam small{display:block;color:#fff;font-size:.8rem}
 #acTop{position:absolute;top:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#fff8;border-radius:12px;padding:4px 8px;z-index:4}#acTop i{width:10px;height:10px;border-radius:50%;background:#fff6}#acTop i.ok{background:#8f8}#acTop i.bad{background:#f66}#acTop i.cur{outline:2px solid #ffd166}
 #acHour{position:absolute;top:6px;right:8px;font-size:1.8rem;z-index:4}
-#foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:12%;z-index:2}
+#foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:12%;z-index:2;width:auto}
 #acDots{display:flex;gap:4px;justify-content:center;margin:4px 0}#acDots i{width:11px;height:11px;border-radius:50%;display:inline-block;opacity:.45}#acDots i.cur{opacity:1;outline:2px solid #ffd166}#acDots i.done{opacity:1;filter:grayscale(.3)}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
@@ -4562,10 +4562,12 @@ function acadSetStage() {
   const sb = $('#stageBg'); sb.dataset.key = "acad"; sb.style.cssText = "position:absolute;inset:0"; sb.innerHTML = acadBgSvg();
   const vig = $('#stageVig'); if (vig) vig.style.display = "none";
   if (!$('#acTop')) $('#stage').insertAdjacentHTML('beforeend', '<div id="acTop"></div><div id="acHour">⌛</div>');
-  $('#foeBody').classList.add('acCentre');
+  const foe = $('#foeBody'); if (!ACQ.foeParent) { ACQ.foeParent = foe.parentElement; ACQ.foeNext = foe.nextSibling; }   // the dummy moves into the stage, so it can stand in the centre
+  $('#stage').appendChild(foe); foe.classList.add('acCentre');
 }
 // leaving the trial: the game's own screens and controls come back
 function acGameExit() {
+  const foe = $('#foeBody'); foe.classList.remove('acCentre'); if (ACQ && ACQ.foeParent) ACQ.foeParent.insertBefore(foe, ACQ.foeNext && ACQ.foeNext.parentNode === ACQ.foeParent ? ACQ.foeNext : null);   // the dummy goes back to its place on the fight screen
   ACQ = null; refreshAcademy();
   ['#acExam', '#acDots', '#acTop', '#acHour'].forEach(s => { const e = $(s); if (e) e.remove(); }); $('#foeBody').classList.remove('acCentre'); $('#stageBg').dataset.key = '';
   ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = ''; });
