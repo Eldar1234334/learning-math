@@ -66,6 +66,13 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #mapHero svg{width:100%;height:100%}#mapHero.drag{transition:none;cursor:grabbing;z-index:6}#mapHero.walk svg{animation:hop .3s infinite alternate}
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
+.acadOv{position:fixed;inset:0;background:#0009;z-index:90;display:flex;align-items:center;justify-content:center;padding:12px}
+.acadBox{background:#2a1b5c;border:2px solid #ffd166;border-radius:18px;padding:16px;max-width:460px;width:100%;color:#fff;max-height:92vh;overflow:auto;text-align:center}
+.acadBox h3{margin:4px 0 8px}.acadTop{font-size:.9rem;opacity:.9;margin-bottom:6px}.acadStory{font-size:1.15rem;font-weight:600;margin:6px 0 10px}
+.acadGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.acadGrid .opt{font-size:1.4rem}
+.acadPad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:240px;margin:6px auto}.acadPad .btn{grid-column:span 3}
+.acadPadShow{font-size:2rem;font-weight:700;direction:ltr;min-height:1.4em}.acadFb{min-height:1.4em;font-weight:600;color:#ffd166}
+.acadBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .vhNeed{display:flex;align-items:center;justify-content:center;margin:0 auto 4px;width:46px;height:46px;border-radius:50%;border:2px solid #ffd166;background:#ffffff26;font-size:1.6rem;cursor:pointer;padding:0}
 .spellCard.hlItem{outline:3px solid #ffd166;box-shadow:0 0 18px #ffd166}
 .vhIco{width:58px;min-width:58px;height:72px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
@@ -1144,6 +1151,7 @@ const CFG = {
   VISITOR_SHARE: 0.4,   // spec 06 §6: about 40% of the normal stops are visitors from other elements (the area's own monsters are the rest)
   // the test build only (spec 07 §14): the test site lives under /learning-math/test/, and local preview runs on localhost; the live site never shows the Demo button
   DEMO_BUTTON: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),
+  ACADEMY: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),   // spec 08: the Academy is off on the live site until the owner approves it
   POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, WORKSHOP_WIZ: 8,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
     // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
@@ -1349,6 +1357,16 @@ const STR = {
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_ians: ['The spell brings how many {item}? Choose the number.', 'הכישוף מזמן כמה {item}? בחרו את המספר.'],
+  ac_t: ['🎓 The Academy: Test of Proficiency', '🎓 האקדמיה: מבחן המיומנות'], ac_examiner: ['Show me what you can conjure!', 'הראו לי מה אתם יודעים לזמן!'],
+  ac_rules: ['{q} questions. You need {n} right. You may make {m} mistakes. Nothing is lost if you do not pass.', '{q} שאלות. צריך {n} נכונות. מותר {m} טעויות. אם לא תעברו, לא תאבדו כלום.'],
+  ac_start: ['Start', 'התחלה'], ac_not_yet: ['Not yet', 'לא עכשיו'], ac_fight_soon: ['The fighting trial comes soon.', 'מבחן הקרב יגיע בקרוב.'],
+  ac_progress: ['Question {k} of {q}', 'שאלה {k} מתוך {q}'], ac_pick_item: ['Which item does the villager need?', 'איזה פריט התושב צריך?'],
+  ac_type: ['Type the amount, then ✔', 'הקלידו את הכמות, ואז ✔'], ac_wrong_item: ['That is not what I need!', 'זה לא מה שאני צריך!'],
+  ac_right: ['Thank you, wizard!', 'תודה, קוסם!'], ac_few: ['That is not enough!', 'זה לא מספיק!'], ac_many: ['That is too many!', 'זה יותר מדי!'],
+  ac_pass: ['You passed! {r} of {q} right. Medal: {medal}. You are now a {title}!', 'עברתם! {r} מתוך {q} נכונות. מדליה: {medal}. עכשיו אתם {title}!'],
+  ac_fail: ['Not this time: {r} of {q} right. You need {n}. Everything you have stays yours.', 'לא הפעם: {r} מתוך {q} נכונות. צריך {n}. כל מה שיש לכם נשאר אצלכם.'],
+  ac_enough: ['That is enough for today.', 'זה מספיק להיום.'], ac_again: ['Try again', 'לנסות שוב'], ac_back: ['Back to the map', 'חזרה למפה'], ac_cont: ['Continue ▶', 'המשך ◀'],
+  ac_gold: ['gold', 'זהב'], ac_silver: ['silver', 'כסף'], ac_bronze: ['bronze', 'ארד'],
   vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'], vh_book_item: ['Find this item in the conjuration book', 'מצאו את הפריט הזה בספר הזימון'],
   vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. זמנו את השאר.'],
@@ -2092,6 +2110,7 @@ async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: 
 /* ====================== SCREENS / MODAL ====================== */
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  if (typeof refreshAcademy === 'function') refreshAcademy();   // the Academy icon shows on the map and the menu while a test is ready
   document.body.classList.toggle('peace', (id === 'game' || id === 'journey') && G.quest === 'peace');
   window.scrollTo(0, 0);
 }
@@ -3847,8 +3866,8 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   renderVillager();
 }
 // the story: always a request ("I need N, I have A, please conjure the rest"), never a question
-function visitStory() {
-  const V = VS, p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), s = p.kind;
+function visitStory(V = VS) {   // the story of a question: the village's own wording (the Academy's conjuring trial uses it too)
+  const p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), s = p.kind;
   const txt = {
     change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
     result: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
@@ -4087,6 +4106,109 @@ function toast(msg) {
   e.textContent = msg; document.body.appendChild(e); setTimeout(() => e.remove(), 2800);
 }
 
+/* ----- The Academy (spec 08, v0.2): the Test of Proficiency. This step builds the conjuring trial (§5, the rules of §10.18: one mistake per question,
+   no second try, no mana, no patience). The fighting trial comes next. Off on the live site (CFG.ACADEMY). ----- */
+const ACAD_TOP = k => 9 + 10 * k;                                      // the wizard level at which test k + 1 is taken (test 1 at level 9)
+const ACAD_MATH = [5, 7, 17, 21, 25];                                  // the math level each test needs (§2, §10.13)
+const ACAD_Q = [8, 10, 12, 14, 16], ACAD_NEED = [6, 8, 10, 12, 14];    // questions, and the right answers needed (75–85%, rounded up)
+const ACAD_RANK = [['Runeweaver', 'אורג הרונות'], ['Stormcaller', 'קורא הסערה'], ['Starwarden', 'שומר הכוכבים'], ['Eclipse Mage', 'מכשף הליקוי'], ['High Sorcerer', 'הקוסם העליון']];
+const acadS = () => (P.academy = P.academy || { passed: 0, certs: [] });
+const acadNext = () => (acadS().passed < 5 ? acadS().passed : null);  // the next test to take (0 = test 1); tests are taken in order
+const acadReady = () => CFG.ACADEMY && acadNext() !== null && wizLvl() >= ACAD_TOP(acadNext()) && (P.mlvl || 1) >= ACAD_MATH[acadNext()];
+let AC = null;   // the trial in progress
+function refreshAcademy() {   // the Academy icon sits next to the book buttons, and shows only while a test is ready
+  const ready = acadReady();
+  document.querySelectorAll('.bookBtn').forEach(b => {
+    let a = b.parentElement.querySelector('.acadBtn');
+    if (!a) { a = document.createElement('button'); a.className = 'ib acadBtn'; a.textContent = '🎓'; a.title = 'Academy'; a.onclick = showAcademy; b.after(a); }
+    a.style.display = ready ? '' : 'none';
+  });
+}
+function showAcademy() {
+  if (!acadReady()) return;
+  AC = { k: acadNext(), phase: 'rules', i: 0, right: 0, mist: 0, qs: [], typed: '', msg: '', busy: false }; acadRender();
+}
+function acadStart() {   // the questions are built now, from the student's current math level (never above it)
+  const k = AC.k, lvl = P.mlvl || 1, pool = HELPER.reachable(lvl);
+  AC.Q = ACAD_Q[k]; AC.need = ACAD_NEED[k]; AC.allowed = AC.Q - AC.need;
+  AC.qs = Array.from({ length: AC.Q }, () => {
+    const p = HELPER.makeAmount(lvl), item = rnd(pool), others = pool.filter(x => x.n !== item.n).sort(() => Math.random() - 0.5).slice(0, 3);
+    return { p, item, opts: [item, ...others].sort(() => Math.random() - 0.5) };
+  });
+  AC.phase = 'item'; AC.i = 0; AC.right = 0; AC.mist = 0; AC.typed = ''; AC.msg = ''; AC.busy = false; acadRender();
+}
+function acadQDone(ok) {   // one question is over: right only when both steps were right; a wrong step is the one mistake of the question
+  AC.busy = true; if (ok) AC.right++; else AC.mist++;
+  if (ok) AC.msg = t('ac_right');
+  acadRender();
+  setTimeout(() => {
+    if (!AC) return;
+    AC.busy = false; AC.i++; AC.typed = ''; AC.msg = '';
+    if (AC.mist > AC.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
+    if (AC.i >= AC.Q) return acadFinish(false);
+    AC.phase = 'item'; acadRender();
+  }, ok ? 1000 : 1500);
+}
+function acadFinish(early) {
+  const k = AC.k, pass = AC.right >= AC.need, pct = AC.right / AC.Q;
+  const medal = pct >= 0.93 ? t('ac_gold') : pct >= 0.87 ? t('ac_silver') : t('ac_bronze');
+  AC.phase = 'result';
+  if (pass) {   // a pass: the next test opens, the banked XP turns into the level of the tier's top + 1, and the rank rises by one
+    const S = acadS(); S.passed = k + 1; S.certs.push({ test: k + 1, right: AC.right, q: AC.Q, medal: pct >= 0.93 ? 'gold' : pct >= 0.87 ? 'silver' : 'bronze', date: today() });
+    P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k) + 1)); saveSoon(true); sfx.win(); confetti(['🎓', '✨', '⭐']);
+    AC.text = t('ac_pass', { r: AC.right, q: AC.Q, medal, title: tl(ACAD_RANK[k]) });
+    AC.buttons = [[t('ac_cont'), 'close']];
+  } else {
+    AC.text = (early ? t('ac_enough') + ' ' : '') + t('ac_fail', { r: AC.right, q: AC.Q, n: AC.need });
+    AC.buttons = [[t('ac_again'), 'again'], [t('ac_back'), 'close']];
+  }
+  acadRender(); refreshAcademy();
+}
+function acadRender() {
+  let ov = $('#academy');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'academy'; ov.className = 'acadOv'; ov.innerHTML = '<div class="acadBox" id="acadBox"></div>'; document.body.appendChild(ov); ov.onclick = acadClick; }
+  ov.style.display = AC ? '' : 'none'; if (!AC) return;
+  const box = $('#acadBox'), ex = AC.k % 2 === 0 ? 'Orin' : 'Odelia';   // the examiners (§10.6): Orin for tests 1, 3, 5; Odelia for 2, 4
+  if (AC.phase === 'rules') {
+    box.innerHTML = `<h3>${t('ac_t')}</h3><p><b>${ex}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: ACAD_Q[AC.k], n: ACAD_NEED[AC.k], m: ACAD_Q[AC.k] - ACAD_NEED[AC.k] })}</p>
+      <div class="acadBtns"><button class="btn" data-ac="start">${t('ac_start')}</button><button class="btn ghost" data-ac="close">${t('ac_not_yet')}</button></div><p class="small">${t('ac_fight_soon')}</p>`;
+  } else if (AC.phase === 'result') {
+    box.innerHTML = `<h3>${t('ac_t')}</h3><p>${AC.text}</p><div class="acadBtns">${AC.buttons.map(([l, a]) => `<button class="btn" data-ac="${a}">${l}</button>`).join('')}</div>`;
+  } else {
+    const q = AC.qs[AC.i], marks = '✖'.repeat(AC.mist) + '·'.repeat(Math.max(0, AC.allowed - AC.mist));   // the mistakes allowed, crossed when used
+    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: AC.i + 1, q: AC.Q })} · ${marks}</div>
+      <p class="acadStory">${visitStory({ p: q.p, item: q.item, extra: null })}</p>
+      ${AC.phase === 'item'
+        ? `<p class="small">${t('ac_pick_item')}</p><div class="acadGrid">${q.opts.map((o, j) => `<button class="opt card" data-ac="item" data-i="${j}"><span class="cardEx">${o.em}</span><small>${tl(HELPER.nameFor(o, 1))}</small></button>`).join('')}</div>`
+        : `<div class="acadPadShow">${AC.typed || '…'}</div><p class="small">${t('ac_type')}</p>
+           <div class="acadPad">${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => `<button class="opt num" data-ac="key" data-d="${d}">${d}</button>`).join('')}<button class="opt num" data-ac="key" data-d="del">⌫</button><button class="opt num" data-ac="key" data-d="0">0</button><button class="btn" data-ac="ok">✔</button></div>`}
+      <p class="acadFb">${AC.msg || ''}</p>`;
+  }
+}
+function acadClick(e) {
+  const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !AC) return;
+  const a = b.dataset.ac;
+  if (a === 'close') { AC = null; acadRender(); refreshAcademy(); return; }
+  if (a === 'start') return acadStart();
+  if (a === 'again') return acadStart();
+  if (AC.busy) return;
+  if (a === 'item' && AC.phase === 'item') {   // step 1: the item; a wrong item ends the question
+    const q = AC.qs[AC.i], o = q.opts[+b.dataset.i];
+    if (o.n === q.item.n) { AC.phase = 'amount'; AC.msg = ''; return acadRender(); }
+    AC.msg = t('ac_wrong_item'); return acadQDone(false);
+  }
+  if (a === 'key' && AC.phase === 'amount') {
+    const d = b.dataset.d;
+    if (d === 'del') AC.typed = AC.typed.slice(0, -1); else if (AC.typed.length < 2) AC.typed += d;
+    return acadRender();
+  }
+  if (a === 'ok' && AC.phase === 'amount') {   // step 2: the amount; the right amount is never shown
+    if (AC.typed === '') return;
+    const q = AC.qs[AC.i], r = HELPER.checkAmount(+AC.typed, q.p.amount);
+    if (r.ok) return acadQDone(true);
+    AC.msg = r.kind === 'few' ? t('ac_few') : t('ac_many'); return acadQDone(false);
+  }
+}
 /* ====================== THE FIGHT (spec 00 §3, combat.js) ====================== */
 // A turn: pick one of the problem cards (answers hidden) → from math level 5, say the answer (the incantation) → the answer is cast as the spell
 // with that number (weakness: damage · own element: the monster heals · other element: no effect · no spell: fizzle) → the monster's turn.
@@ -5721,7 +5843,11 @@ function startDemo() {
     village() { window.__forceMon = null; act('peace', ['s0', 's1', 'B']); toast('🏘️ Village run: 2 stops, then the festival'); },
     visit() { window.__forceMon = null; act('peace', ['s0', 'B']); toast('🏘️ Village run: 1 stop, then the festival'); },
     imp(v) { window.__forceImp = v; toast(v ? '⏳ The next villagers are impatient' : '🙂 Villagers are normal again'); },
-    pics(v) { window.__picsAll = !!v; toast(v ? '🖼 Pictures at every level, free' : '🖼 Pictures only at the low levels'); }
+    pics(v) { window.__picsAll = !!v; toast(v ? '🖼 Pictures at every level, free' : '🖼 Pictures only at the low levels'); },
+    acad(k) {   // the Academy test k (1–5): the wizard is at its level bar, the math level is enough, and the earlier tests are passed
+      P.academy = { passed: k - 1, certs: (P.academy && P.academy.certs) || [] }; P.mlvl = Math.max(P.mlvl || 1, ACAD_MATH[k - 1]);
+      P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1))); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
+    }
   };
   window.demo = D;
   const css = document.createElement('style');
@@ -5733,6 +5859,7 @@ function startDemo() {
     '<h4>Math level</h4>' + Array.from({ length: CFG.MAX_LEVEL }, (_, i) => B(i + 1, `level(${i + 1})`)).join('') + B('Show locked workshop', 'fresh()') +
     '<h4>Wizard level (opens spell types)</h4>' + [1, 3, 5, 8, 10, 12, 15, 18, 22, 30].map(n => B(n, `wiz(${n})`)).join('') + B('📖 Open the spell book', 'book()') +
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
+    '<h4>Academy (spec 08): conjuring trial</h4>' + [1, 2, 3, 4, 5].map(k => B('🎓 Test ' + k, `acad(${k})`)).join('') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
     B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +
