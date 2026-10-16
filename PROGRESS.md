@@ -748,3 +748,13 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Logic:** `helper.js`, with `tests/helper.test.js` (13 checks; tests/index.html 124 pass).
 - **Not in slice 1:** the other villagers and story types, read-aloud, Hebrew plurals and gender, the endurance potion (it will restore mana), rewards, the score-by-type column, the wizard-level abilities.
 - **Open points to confirm:** with mistakes, the wizard crafts more than two items to fill the happy meter; the simple numbers here are not yet the math ladder.
+
+## Phase 17: the village run (spec 05, on test-phase14)
+- **Start:** the notice board starts a village run on the journey map (like the gate starts a fight run).
+- **Stops:** a village stop is a visit: the villager asks for the two items of a project. The festival (the last stop) is a visit with the festival projects (feast, decorations, music, as far as the student has reached).
+- **Projects:** two items each (the first two needs). A project unlocks at the math level of its items.
+- **Items:** the conjuration book has 39 items with fixed numbers (the approved list, chair 42 at level 14). The item cards only use numbers the student has reached; times tables from level 13.
+- **Steps per item:** beginner (math 1, wizard 1): the answer only. Math level 1: the answer and the item. From math level 2: the card that fits the story (one level lower), the answer, the item.
+- **Mana:** 8 + 2 × (wizard level − 1) + 2 × math level. A mistake costs one mana; right answers are free. The happy meter fills on right answers. Full = done; no mana = the run is lost.
+- **Not in this slice:** the endurance potion, rewards for villagers, read-aloud, Hebrew plurals and gender, score by type, wizard-level abilities. The old village encounter (smileys) is no longer used on this path.
+- **Tests:** helper.test.js (14 checks); tests/index.html passes.
