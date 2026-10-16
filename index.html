@@ -405,6 +405,12 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 /* teacher area */
 .adminLink{color:#fff;opacity:.5;font-size:.85rem;text-decoration:none;border-bottom:1px dotted #fff6}
 .adminLink:hover{opacity:.9}
+.hpBook,.hpCards,.hpNums{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.hpItem{background:#fff2;border-radius:10px;padding:4px 8px;font-size:.9rem}
+.hpItem.on{background:#ffd166;color:#3a2300}
+.hpCard,.hpNum{min-width:64px}
+.hpShown{font-size:1.6rem;text-align:center;min-height:1.8em}
+.hpMsg{font-weight:600;min-height:1.4em;margin:6px 0}
 #admTable .tk{width:28px;text-align:center;cursor:default}
 .admPlayed{margin:8px 0;padding:8px 12px;border-radius:12px;background:#2ecc7122;font-size:1rem}.admPlayed b{font-size:1.2rem}
 .mvBtn{margin-left:6px;padding:2px 8px;border-radius:10px;border:1px solid #fff5;background:#fff1;color:#fff;font:inherit;font-size:.75rem;cursor:pointer}.mvBtn:hover{background:#fff3}
@@ -1087,6 +1093,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <script src="combat.js"></script>
 <script src="brew.js"></script>
 <script src="shop.js"></script>
+<script src="helper.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -1316,6 +1323,13 @@ const STR = {
   pl_shut: ['Shuttered', 'סגור'], abandon_map: ['🏳️ Abandon quest', '🏳️ עזיבת המסע'], logout: ['🚪 Switch hero', '🚪 החלפת גיבור'],
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
+  hp_title: ['📜 Village Helper', '📜 עוזר הכפר'], hp_book: ['Conjuration book', 'ספר הכישופים'], hp_pick: ['Look up the villager\'s item in the book. Which card gives its number?', 'מצאו את הפריט של תושב הכפר בספר. איזה כרטיס נותן את המספר שלו?'],
+  hp_ask: ['How many should I conjure?', 'כמה לכשף?'], hp_wrong: ['{em} {got}? I need {want}!', '{em} {got}? אני צריך {want}!'],
+  hp_few: ['Now I have {have}. I still need {more} more!', 'עכשיו יש לי {have}. עוד {more} חסרים!'], hp_many: ['Now I have {have}. That is {extra} too many!', 'עכשיו יש לי {have}. זה {extra} יותר מדי!'],
+  hp_ok: ['Thank you, wizard!', 'תודה, קוסם!'], hp_next: ['Next villager ▶', 'התושב הבא ◀'], hp_done: ['The villagers thank you for your help today! 🎉', 'תושבי הכפר מודים לכם על העזרה היום! 🎉'],
+  hp_out: ['No more smileys today. Come back and help again!', 'נגמרו החיוכים להיום. חזרו ועזרו שוב!'], hp_smiles: ['Smileys: {n}', 'חיוכים: {n}'],
+  hp_ask_result: ['I have {a} {item}. My friend gives me {b} more. Conjure how many I have now.', 'יש לי {a} {item}. החבר נותן לי עוד {b}. כשפו כמה יש לי עכשיו.'],
+  hp_ask_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. כשפו את השאר.'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
   quest_locked: ['🔒 You are in the middle of a quest! Finish it, or tap 🏳️ Abandon quest to leave it.', '🔒 אתם באמצע מסע! סיימו אותו, או הקישו על 🏳️ עזיבת המסע.'],
   sound_off: ['🔇 The sound is off. Tap the speaker at the top.', '🔇 הצליל כבוי. הקישו על הרמקול למעלה.'],
@@ -2239,7 +2253,7 @@ function placeHero(x, y) { const h = $('#mapHero'); h.style.left = x + '%'; h.st
 function enterPlace(id) {
   if (TUT.on) { tutResolve(id); return; }   // the tutorial just notes where the hero arrived
   if (id === 'gate') startQuest('battle');
-  else if (id === 'board') { placeHero(START.x, START.y); toast(t('board_soon')); }   // Village Helper is not part of v1
+  else if (id === 'board') { placeHero(START.x, START.y); openHelper(); }   // the Village Helper (spec 05, slice 1)
 
   else if (id === 'work') openWorkshop();
   else if (id === 'home') openHome();
@@ -3703,6 +3717,69 @@ function after(tier) {
   if (tier === 'down') toast(t('level_down', { n: P.mlvl, name: tierName(P.mlvl) }));
   updateBars(); saveSoon();
 }
+/* ----- Village Helper (spec 05, slice 1): the notice board. The villager's story needs a number of items: the wizard looks the item up
+   in the conjuration book, picks the card with its number (step 1), then says how many to conjure (step 2). Logic in helper.js. ----- */
+let HP = null;   // the visit: { idx, smileys, q, cards, step, shown, msg }
+const HP_VILLAGERS = 3;
+const hpItemName = (item, n) => tl(HELPER.nameFor(item, n));
+function openHelper() {
+  if (!P) return;
+  HP = { idx: 0, smileys: 3, q: null, cards: [], step: 1, shown: 0, msg: '' };
+  modal(t('hp_title'), '', [[t('close'), () => { HP = null; }, true]]);
+  helperNext();
+}
+function helperNext() {   // the next villager, or the end of the visit
+  if (HP.idx >= HP_VILLAGERS) return helperEnd(true);
+  HP.q = HELPER.makeRequest(P.mlvl || 1); HP.cards = HELPER.cardsFor(HP.q.item); HP.step = 1; HP.shown = 0; HP.msg = '';
+  helperShow();
+}
+function helperEnd(done) {   // the visit is over (all villagers helped, or no smileys left)
+  HP.step = 0; HP.msg = (HP.msg ? HP.msg + '<br>' : '') + t(done ? 'hp_done' : 'hp_out'); helperShow();
+}
+function helperShow() {
+  const q = HP.q, out = [], smiles = '😊'.repeat(Math.max(0, HP.smileys));
+  if (HP.step === 0) { $('#mBody').innerHTML = `<p>${HP.msg}</p>`; return; }
+  const n = q.type === 'result' ? q.a : q.t;
+  const low = s => s.toLowerCase();   // inside a sentence: "2 apples", not "2 Apples"
+  const story = q.type === 'result' ? t('hp_ask_result', { a: q.a, b: q.b, item: low(hpItemName(q.item, n)) }) : t('hp_ask_change', { t: q.t, a: q.a, item: low(hpItemName(q.item, q.t)) });
+  out.push(`<p><b>${story}</b></p><div class="small">${t('hp_smiles', { n: smiles })}</div>`);
+  if (HP.step === 1) {   // step 1: the item, in the book, and the card that gives its number
+    out.push(`<p class="small">${t('hp_pick')}</p><div class="hpBook">${HELPER.BOOK.map(x => `<span class="hpItem ${x.n === q.item.n ? 'on' : ''}"><b>${x.n}</b> ${x.em} ${hpItemName(x, 1)}</span>`).join('')}</div>`);
+    out.push(`<div class="hpCards">${HP.cards.map((c, i) => c.gone ? '' : `<button class="btn hpCard" data-hp="card" data-i="${i}">${HELPER.cardText(c)}</button>`).join('')}</div>`);
+  } else if (HP.step === 2) {   // step 2: how many to conjure
+    out.push(`<p class="small">${t('hp_ask')}</p><div class="hpNums">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(k => `<button class="btn hpNum" data-hp="amt" data-n="${k}">${k}</button>`).join('')}</div>`);
+    if (HP.shown) out.push(`<div class="hpShown">${q.item.em.repeat(HP.shown)}</div>`);
+  } else {   // the villager is helped: the items, then on to the next villager
+    out.push(`<div class="hpShown">${q.item.em.repeat(q.target)}</div><div class="hpNums"><button class="btn" data-hp="next">${t('hp_next')}</button></div>`);
+  }
+  if (HP.msg) out.push(`<div class="hpMsg">${HP.msg}</div>`);
+  $('#mBody').innerHTML = out.join('');
+}
+function helperClick(e) {
+  const b = e.target.closest && e.target.closest('[data-hp]'); if (!b || !HP) return;
+  const q = HP.q, act = b.dataset.hp;
+  if (act === 'card' && HP.step === 1) {
+    const c = HP.cards[+b.dataset.i]; if (!c || c.gone) return;
+    if (HELPER.cardOk(c, q.item)) { HP.step = 2; HP.msg = ''; sfx.ok(); return helperShow(); }
+    // a wrong item: the villager laughs, the card goes, one smiley less
+    c.gone = true; HP.smileys--; sfx.bad();
+    const w = HELPER.wrongItemFor(c);
+    HP.msg = t('hp_wrong', { em: w.em, got: hpItemName(w, 1), want: hpItemName(q.item, 2) });
+    if (HP.smileys <= 0) return helperEnd(false);
+    return helperShow();
+  }
+  if (act === 'amt' && HP.step === 2) {
+    const k = +b.dataset.n, r = HELPER.checkAmount(k, q.target); HP.shown = k;
+    if (r.ok) { HP.idx++; HP.step = 3; HP.msg = t('hp_ok'); sfx.win(); return helperShow(); }
+    HP.smileys--; sfx.bad();
+    HP.msg = r.kind === 'few' ? t('hp_few', { have: r.have, more: r.more }) : t('hp_many', { have: r.have, extra: r.extra });
+    if (HP.smileys <= 0) return helperEnd(false);
+    return helperShow();
+  }
+  if (act === 'next' && HP.step === 3) return helperNext();
+}
+$('#mBody').addEventListener('click', helperClick);
+
 function toast(msg) {
   const e = document.createElement('div');
   e.style.cssText = 'position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#ffd166;color:#3a2300;padding:10px 18px;border-radius:14px;font-weight:600;z-index:70;box-shadow:0 4px 0 #9b6411;max-width:92vw;text-align:center';
