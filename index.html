@@ -5848,9 +5848,9 @@ function startDemo() {
       P.academy = { passed: k - 1, certs: (P.academy && P.academy.certs) || [] }; P.mlvl = Math.max(P.mlvl || 1, ACAD_MATH[k - 1]);
       P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1))); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
     },
-    acadReset() { P.academy = { passed: 0, certs: [] }; AC = null; acadRender(); refreshAcademy(); toast('🎓 Academy progress reset: test 1 is next'); },
-    acadPass() { if (!AC || !AC.qs.length) { showAcademy(); acadStart(); } AC.right = AC.need; acadFinish(false); },   // the result screen of a pass, at once
-    acadFail() { if (!AC || !AC.qs.length) { showAcademy(); acadStart(); } AC.right = 0; acadFinish(false); }   // the result screen of a fail, at once
+    acadReset() { P.academy = { passed: 0, certs: [] }; ACQ = null; acadRender(); refreshAcademy(); toast('🎓 Academy progress reset: test 1 is next'); },
+    acadPass() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = ACQ.need; acadFinish(false); },   // the result screen of a pass, at once
+    acadFail() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = 0; acadFinish(false); }   // the result screen of a fail, at once
   };
   window.demo = D;
   const css = document.createElement('style');
