@@ -39,12 +39,17 @@
   test('a project has two items: the happy meter is perItem × 2', () => {
     assert(H.plan(5, 5).happyMax === 6 && H.plan(1, 1).happyMax === 2 && H.plan(1, 3).happyMax === 4, 'happy max');
   });
-  test('the amount: result-unknown below level 4, change-unknown from level 4', () => {
-    for (let i = 0; i < 200; i++) {
-      const r = H.makeAmount(2, rnd);
-      assert(r.kind === 'result' && r.amount === r.a + r.b, 'result');
-      const c = H.makeAmount(4, rnd);
-      assert(c.kind === 'change' && c.amount === c.t - c.a && c.a >= 1 && c.a <= c.t - 1 && c.t >= 5 && c.t <= 10, 'change');
+  test('story types by level: only result at level 2; separate from 3; change and part from 4; compare 5; start 6; two steps 9', () => {
+    assert(H.storyTypes(2).join() === 'result', 'level 2: ' + H.storyTypes(2).join());
+    assert(H.storyTypes(4).includes('change') && H.storyTypes(4).includes('separate'), 'level 4');
+    assert(!H.storyTypes(5).includes('two') && H.storyTypes(9).includes('two') && H.storyTypes(6).includes('start'), 'levels 5–9');
+  });
+  test('every story type: the amount is the value of its story card, and the amount stays in range', () => {
+    for (const lvl of [1, 3, 4, 5, 6, 9, 12]) for (let i = 0; i < 150; i++) {
+      const p = H.makeAmount(lvl, rnd);
+      assert(H.storyTypes(lvl).includes(p.kind), 'type ' + p.kind + ' at level ' + lvl);
+      assert(H.cardValue(p.expr) === p.amount, 'card value for ' + p.kind);
+      assert(p.amount >= 1 && p.amount <= 20, 'amount in range ' + p.amount);
     }
   });
   test('the card step: four cards, the story card fits, values all different', () => {

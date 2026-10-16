@@ -759,3 +759,4 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Not in this slice:** the endurance potion, rewards for villagers, read-aloud, Hebrew plurals and gender, score by type, wizard-level abilities. The old village encounter (smileys) is no longer used on this path.
 - **Tests:** helper.test.js (14 checks); tests/index.html passes.
 - **Mana potion (village visits):** the Heart potion restores 30% of the visit's mana (as it heals 30% of HP in a fight); once per item. Fights keep the Heart potion.
+- **Story types (spec 05 §5.1, slice 2):** separate (from level 3), part-part-whole and change (from 4), compare (5), start unknown (6), two steps (9). The result and change stories are as before. The count on screen never shows the answer.

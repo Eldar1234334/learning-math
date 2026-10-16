@@ -1333,6 +1333,11 @@ const STR = {
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_result: ['I have {a} {item}. My friend gives me {b} more. How many do I have now?', 'יש לי {a} {item}. החבר נותן לי עוד {b}. כמה יש לי עכשיו?'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. כשפו את השאר.'],
+  vh_separate: ['I had {t} {item}. {b} broke. How many are left?', 'היו לי {t} {item}. {b} נשברו. כמה נשארו?'], vh_broke: ['broke', 'נשברו'],
+  vh_part: ['I need {t} {item}. {a} are for the hall, and the rest are for the kitchen. Conjure the kitchen ones.', 'אני צריך {t} {item}. {a} מיועדים לאולם, והשאר למטבח. כשפו את אלה של המטבח.'],
+  vh_compare: ['The baker has {t} {item}. I have {a}. Conjure enough so I have as many as the baker.', 'לאופה יש {t} {item}. יש לי {a}. כשפו מספיק כדי שיהיו לי כמו לאופה.'],
+  vh_start: ['I used {u} {item}, and {r} are left. How many did I have? Conjure that many.', 'השתמשתי ב-{u} {item}, ונשארו {r}. כמה היו לי? כשפו כמה שהיו.'],
+  vh_two: ['I need {t} {item}. I have {a}, and my neighbour gives me {b}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, והשכן נותן לי {b}. כשפו את השאר.'],
   vh_card: ['Choose the card that fits my story.', 'בחרו את הכרטיס שמתאים לסיפור שלי.'], vh_calc: ['Work it out. How many do I need?', 'חשבו. כמה אני צריך?'],
   vh_item: ['Look up the item in the book, then choose its card.', 'מצאו את הפריט בספר, ואז בחרו את הכרטיס שלו.'],
   vh_wrong_card: ['That card does not fit my story!', 'הכרטיס הזה לא מתאים לסיפור שלי!'], vh_wrong_item: ['{em} {got}? I need {want}!', '{em} {got}? אני צריך {want}!'],
@@ -3778,11 +3783,17 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
 function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
   visitBars();
-  const p = V.p, story = p.kind === 'result' ? t('vh_result', { a: p.a, b: p.b, item: vhLow(hpItemName(V.item, p.a)) }) : t('vh_change', { t: p.t, a: p.a, item: vhLow(hpItemName(V.item, p.t)) });
+  const p = V.p, nm = n => vhLow(hpItemName(V.item, n)), e = V.item.em, s = p.show;
+  const story = { result: () => t('vh_result', { a: p.a, b: p.b, item: nm(p.a) }), change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
+    separate: () => t('vh_separate', { t: p.t, b: p.b, item: nm(p.t) }), part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
+    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }), start: () => t('vh_start', { u: p.u, r: p.r, item: nm(p.u) }),
+    two: () => t('vh_two', { t: p.t, a: p.a, b: p.b, item: nm(p.t) }) }[p.kind]();
   // the amounts are always on screen (for the early levels): what the villager has, and what they need
-  const shown = p.kind === 'change'
-    ? `<div class="vhCount"><span class="vhHave">${V.item.em.repeat(p.a) || '–'}</span> <b>${p.a} / ${p.t}</b></div>`
-    : `<div class="vhCount"><span class="vhHave">${V.item.em.repeat(p.a)}</span> + <span class="vhHave">${V.item.em.repeat(p.b)}</span> <b>${p.a} + ${p.b}</b></div>`;
+  const shown = s.minus !== undefined
+    ? `<div class="vhCount"><span class="vhHave">${e.repeat(s.have)}</span> <b>${s.minus} ${t('vh_broke')}</b></div>`
+    : s.plus !== undefined
+    ? `<div class="vhCount"><span class="vhHave">${e.repeat(s.have)}</span> + <span class="vhHave">${e.repeat(s.plus)}</span> <b>${s.have} + ${s.plus}${p.kind === 'two' ? ' → ' + s.of : ''}</b></div>`
+    : `<div class="vhCount"><span class="vhHave">${e.repeat(s.have) || '–'}</span> <b>${s.have} / ${s.of}</b></div>`;
   $('#qTitle').textContent = V.project.name;
   $('#qBig').innerHTML = `<div class="vhStory">${story}</div>${shown}`;
   $('#qSub').textContent = '';

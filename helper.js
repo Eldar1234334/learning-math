@@ -69,22 +69,51 @@
     return { beginner, cardStep, itemStep, items, perItem, happyMax: items * perItem, mana: 8 + 2 * (wlvl - 1) + 2 * mlvl, lowLevel: amountLevel(mlvl) };
   }
 
-  // one amount problem at a level: result unknown (levels 1–3: "I have a. My friend gives me b.") and change unknown
-  // (level 4 and up: "I need t. I have a. Conjure the rest.")
+  // the story types of the amount problems (spec 05 §5.1), each from the math level where its operation is ready
+  //   result  (join, result unknown)     level 1   "I have a. My friend gives me b. How many now?"       a + b
+  //   separate (result unknown)          level 3   "I had t. b broke. How many are left?"                t − b
+  //   change  (join, change unknown)     level 4   "I need t. I have a. Conjure the rest."               t − a
+  //   part    (part-part-whole)          level 4   "I need t: a for the hall, the rest for the kitchen."  t − a
+  //   compare (difference unknown)       level 5   "The baker has t. I have a. Conjure enough to match."  t − a
+  //   start   (join, start unknown)      level 6   "I used u, and r are left. How many did I have?"       u + r
+  //   two     (two steps)                level 9   "I need t. I have a, and my neighbour gives me b."    t − (a + b)
+  const TYPES = [
+    { id: 'result', from: 1 }, { id: 'separate', from: 3 }, { id: 'change', from: 4 }, { id: 'part', from: 4 },
+    { id: 'compare', from: 5 }, { id: 'start', from: 6 }, { id: 'two', from: 9 }
+  ];
+  const storyTypes = level => TYPES.filter(x => level >= x.from).map(x => x.id);
+  // one amount problem at a level (the story's numbers stay small at the first levels)
   function makeAmount(level, r = Math.random) {
-    if (level < 4) {
+    const type = pick(storyTypes(level), r);
+    if (type === 'result') {
       const hi = level <= 1 ? 3 : 5, a = int(1, hi, r), b = int(1, hi, r);
-      return { kind: 'result', a, b, amount: a + b, expr: { a, op: '+', b, value: a + b } };
+      return { kind: type, nums: [a, b], a, b, amount: a + b, expr: { a, op: '+', b, value: a + b }, show: { have: a, of: a + b, plus: b } };
     }
-    const t = int(5, 10, r), a = int(1, t - 1, r);
-    return { kind: 'change', a, t, amount: t - a, expr: { a: t, op: '−', b: a, value: t - a } };
+    if (type === 'separate') {
+      const tt = int(3, 10, r), b = int(1, tt - 1, r);
+      return { kind: type, nums: [tt, b], t: tt, b, amount: tt - b, expr: { a: tt, op: '−', b, value: tt - b }, show: { have: tt, of: tt, minus: b } };
+    }
+    if (type === 'start') {
+      const u = int(1, 9, r), rr = int(1, 10 - u, r);
+      return { kind: type, nums: [u, rr], u, r: rr, amount: u + rr, expr: { a: u, op: '+', b: rr, value: u + rr }, show: { have: u, of: u + rr, plus: rr } };
+    }
+    if (type === 'two') {
+      const tt = int(10, 20, r), a = int(1, 9, r), b = int(1, 9, r);
+      if (tt - a - b < 1) return makeAmount(level, r);
+      return { kind: type, nums: [tt, a, b], t: tt, a, b, amount: tt - a - b, expr: { a: tt, op: '−', b: a + b, value: tt - a - b }, show: { have: a, of: tt, plus: b } };
+    }
+    // change, part and compare share the numbers: a target t and what the student has, a
+    const tt = int(5, 10, r), a = int(1, tt - 1, r);
+    return { kind: type, nums: [tt, a], t: tt, a, amount: tt - a, expr: { a: tt, op: '−', b: a, value: tt - a }, show: { have: a, of: tt } };
   }
-  // the four cards of the card step: the story's own problem plus three that do not fit it (all values different)
+  // the four cards of the card step: the story's own problem plus three that do not fit it (all values different, from 0 to 20)
   function amountCards(p, r = Math.random) {
-    const cands = [];
-    const add = (a, op, b) => { const value = op === '+' ? a + b : a - b; if (value >= 0 && value <= 20 && value !== p.amount) cands.push({ a, op, b, value }); };
-    if (p.kind === 'result') { add(p.a, '−', p.b); add(p.b, '−', p.a); add(p.a + 1, '+', p.b); add(p.a, '+', p.b + 1); add(p.a, '+', p.b + 2); }
-    else { add(p.t, '+', p.a); add(p.t + 1, '−', p.a); add(p.t, '−', p.a + 1); add(p.t, '−', p.a - 1); add(p.a, '+', 1); }
+    const cands = [], nums = p.nums;
+    for (const a of nums) for (const b of nums) for (const op of ['+', '−']) {
+      if (a === b && op === '−') continue;
+      const value = op === '+' ? a + b : a - b;
+      if (value >= 0 && value <= 20 && value !== p.amount) cands.push({ a, op, b, value });
+    }
     const used = new Set([p.amount]), out = [];
     for (let i = cands.length - 1; i > 0; i--) { const j = int(0, i, r); [cands[i], cands[j]] = [cands[j], cands[i]]; }
     for (const c of cands) { if (out.length === 3) break; if (!used.has(c.value)) { used.add(c.value); out.push(c); } }
@@ -127,5 +156,5 @@
   // the visit is done when the happy meter is full; lost when the mana is gone first
   const visitOver = s => (s.happy >= s.happyMax ? 'done' : s.mana <= 0 ? 'lost' : null);
 
-  return { BOOK, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, wrongItemFor, checkAmount, spend, visitOver };
+  return { BOOK, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, wrongItemFor, checkAmount, spend, visitOver };
 });
