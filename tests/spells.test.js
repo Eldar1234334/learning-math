@@ -74,6 +74,15 @@
     assert(SB.wizLevel(59) === 1 && SB.wizLevel(60) === 2 && SB.wizLevel(139) === 2 && SB.wizLevel(140) === 3, 'edges');
     assert(SB.wizLevel(1e9) === 30, 'maximum 30');
   });
+  test('the Academy (spec 08): the ladder runs to 50 on request, and a spell tier opens only with its test', () => {
+    assert(SB.wizLevel(1e9, 50) === 50 && SB.wizLevel(SB.xpFor(50), 50) === 50 && SB.wizLevel(SB.xpFor(49), 50) === 49, 'level 50');
+    const need = id => SB.testNeed(SB.BY_ID[id]);
+    assert(need('2') === 0 && need('11') === 1 && need('20') === 1 && need('200') === 2 && need('110') === 2 && need('3000') === 3 && need('25') === 4, 'tests needed per tier');
+    const open = (p) => SB.book(30, 50, [], p).learned.map(s => s.id);
+    assert(!open(0).includes('20') && open(1).includes('20') && !open(1).includes('200') && open(2).includes('200') && !open(3).includes('25') && open(4).includes('25'), 'tiers open by test');
+    assert(open(undefined).includes('3000'), 'no gate when the passed count is left out (the live game)');
+    assert(SB.book(30, 50, ['20'], 0).learned.some(s => s.id === '20'), 'a spell already known stays learned');
+  });
   test('every spell number is an answer at its own math level or below (so the cards can offer it)', () => {
     for (const s of SB.SPELLS) { let ok = false; for (let n = s.mreq; n >= 1 && !ok; n--) { const vals = ME.answers(n); if (vals ? vals.some(v => ME.eq(v, s.v)) : ME.make(n, { target: s.v })) ok = true; } assert(ok, `spell ${s.id} (math gate ${s.mreq}) is not an answer at level ${s.mreq} or below`); }
   });

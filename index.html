@@ -1433,6 +1433,10 @@ const STR = {
   ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
   ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
   ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
+  ac_seal: ['Pass Academy test {n} to unlock', 'עברו את מבחן האקדמיה {n} כדי לפתוח'],
+  ac_bar: ['Fill your level bar first. Then come back for the test.', 'מלאו קודם את סרגל הרמה. אחר כך חזרו למבחן.'],
+  ac_leave_quest: ['Leave the quest and go to the Academy', 'לעזוב את המסע וללכת לאקדמיה'], ac_finish_quest: ['Finish the quest first', 'קודם לסיים את המסע'],
+  ac_say_ans: ['Now solve it and type the answer.', 'עכשיו פתרו והקלידו את התשובה.'], ac_say_pick: ['Now pick the answer.', 'עכשיו בחרו את התשובה.'], ac_say_go: ['Cast!', 'שגרו!'],
   ac_gold: ['gold', 'זהב'], ac_silver: ['silver', 'כסף'], ac_bronze: ['bronze', 'ארד'],
   vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'], vh_book_item: ['Find this item in the conjuration book', 'מצאו את הפריט הזה בספר הזימון'],
   vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
@@ -2031,7 +2035,7 @@ function migrate(p) {
   if (p.mlvl == null) p.mlvl = Math.min(CFG.MAX_LEVEL, Math.max(1, p.tier || 1));   // test profiles from version 1
   delete p.tier; delete p.hist;
   p.mhist = Array.isArray(p.mhist) ? p.mhist : []; p.mfacts = p.mfacts || {}; p.mplace = p.mplace || 0; p.grade = p.grade || ME.gradeOf(p.mlvl);
-  if (!Array.isArray(p.spells)) p.spells = SB.book(p.mlvl, SB.wizLevel(p.xp || 0)).learned.map(s => s.id);   // the spells this student has learned (spec 01 §8); they are never taken away
+  if (!Array.isArray(p.spells)) p.spells = SB.book(p.mlvl, SB.wizLevel(p.xp || 0), undefined, CFG.ACADEMY ? (p.academy && p.academy.passed) || 0 : undefined).learned.map(s => s.id);   // the spells this student has learned (spec 01 §8); they are never taken away
   p.wlvl = p.wlvl || SB.wizLevel(p.xp || 0);   // the wizard level last seen (to notice a new one)
   p.quest = p.quest || {};
   for (const k of ['battle', 'peace']) {   // len 0 = the run is not rolled yet; act = a quest run is in progress
@@ -2178,7 +2182,7 @@ async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: 
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   if (typeof refreshAcademy === 'function') refreshAcademy();   // the Academy icon shows on the map and the menu while a test is ready
-  if ((id === 'menu' || id === 'journey') && typeof academyOfferCheck === 'function') academyOfferCheck();   // §3.2: the offer, once per tier
+  if ((id === 'menu' || id === 'journey') && typeof academyOfferCheck === 'function') academyOfferCheck(id === 'journey');   // §3.2: the offer, once per tier
   document.body.classList.toggle('peace', (id === 'game' || id === 'journey') && G.quest === 'peace');
   window.scrollTo(0, 0);
 }
@@ -2346,9 +2350,14 @@ const TITLES = [[1, 'Number Apprentice', 'שוליית המספרים', 'שול�
   [14, 'Spell Scribe', 'כותב הלחשים', 'כותבת הלחשים'], [21, 'Sage of Sums', 'חכם החשבון', 'חכמת החשבון'], [25, 'Master of Numbers', 'אמן המספרים', 'אמנית המספרים'],
   [29, 'Number Legend', 'אגדת המספרים', 'אגדת המספרים'], [30, 'Archmage of Numbers', 'ארכי־קוסם המספרים', 'ארכי־קוסמת המספרים']];
 const titleAt = (wl, gender) => { const r = TITLES.filter(x => x[0] <= wl).pop(); return LANG === 'he' ? r[gender === 'f' ? 3 : 2] : r[1]; };
-function rankOf(xp, gender) { return titleAt(SB.wizLevel(xp || 0), gender); }
-const wizLvl = () => SB.wizLevel(P.xp || 0);
-function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1); return wl >= SB.MAX_WIZ ? 100 : 100 * (P.xp - x0) / (x1 - x0); }   // progress to the next wizard level
+function rankOf(xp, gender) { return titleAt(SB.wizLevel(xp || 0, CFG.ACADEMY ? SB.MAX_WIZ_ACADEMY : undefined), gender); }
+// The Academy (spec 08 §1, §10.3): with the Academy on, the ladder runs to level 50 and the level stops at the top of the tier (9, 19, 29, 39, 49)
+// until that tier's test is passed; the XP stays banked and turns into levels at once on a pass. On the live game the top stays 30.
+const acadPassed = () => (P && P.academy && P.academy.passed) || 0;
+const acadCap = () => acadPassed() >= 5 ? SB.MAX_WIZ_ACADEMY : 9 + 10 * acadPassed();
+const wizLvl = () => CFG.ACADEMY ? Math.min(SB.wizLevel(P.xp || 0, SB.MAX_WIZ_ACADEMY), acadCap()) : SB.wizLevel(P.xp || 0);
+const tiersArg = () => CFG.ACADEMY ? acadPassed() : undefined;   // the tests passed, for the spell tiers; undefined = no gate (the live game)
+function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1); return wl >= (CFG.ACADEMY ? SB.MAX_WIZ_ACADEMY : SB.MAX_WIZ) ? 100 : Math.min(100, 100 * (P.xp - x0) / (x1 - x0)); }   // progress to the next wizard level
 const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>`;
 function openMenu() {
   pingPlayed();   // (home heroes: once a day)
@@ -2357,7 +2366,7 @@ function openMenu() {
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
   $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
-  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
+  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + titleAt(wl, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
   $('#menuXp').style.width = xpPct() + '%';
   $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
@@ -4194,12 +4203,23 @@ const ACAD_MATH = [5, 7, 17, 21, 25];                                  // the ma
 const ACAD_Q = [8, 10, 12, 14, 16], ACAD_NEED = [6, 8, 10, 12, 14];    // questions, and the right answers needed (75–85%, rounded up)
 const ACAD_HITS = [[1], [1, 2], [2], [2, 3], [2, 3]];                  // the hits per dummy allowed in each test (§2)
 const ACAD_EL = ['fire', 'ice', 'dark', 'plant', 'storm', 'stone'];    // the six monster elements (spec 02 §2)
-const ACAD_BADGE = { fire: '🔥', ice: '❄️', dark: '🌑', plant: '🌿', storm: '⛈️', stone: '🪨' };
+// the element icons are drawn (spec 08 O11): an emoji can show as an empty box on some devices. Each is a shape on a 24 × 24 square.
+const ACAD_GLYPH = {
+  fire: '<path d="M12 2C13 7 18 9 18 15a6 6 0 0 1-12 0c0-3 2-5 3-7 1 2 2 2 3-6z" fill="#ff7a3d" stroke="#b3261e" stroke-width="1.2"/><path d="M12 12c2 2 3 3 3 5a3 3 0 0 1-6 0c0-2 2-3 3-5z" fill="#ffd166"/>',
+  ice: '<g stroke="#e8f8ff" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/></g><circle cx="12" cy="12" r="2.6" fill="#8fd8ff"/>',
+  dark: '<path d="M15 3a9 9 0 1 0 6 12 7 7 0 1 1-6-12z" fill="#d9ccff" stroke="#2f2457" stroke-width="1.2"/>',
+  plant: '<path d="M4 20C4 9 12 4 20 4c0 9-5 16-16 16z" fill="#5fbf5f" stroke="#2f7a2f" stroke-width="1.2"/><path d="M5 19L15 9" stroke="#2f7a2f" stroke-width="1.4" fill="none"/>',
+  storm: '<path d="M13 2L5 14h6l-2 8 10-13h-6z" fill="#ffe066" stroke="#8a6d00" stroke-width="1.2" stroke-linejoin="round"/>',
+  stone: '<path d="M3 18l3-9 7-3 6 4 2 8z" fill="#b8b8b8" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/><path d="M6 9l5 3 8-2M11 12l-1 6" stroke="#777" stroke-width="1" fill="none"/>'
+};
+const acadIcon = (el, em = 1.1) => `<svg class="acIco" viewBox="0 0 24 24" width="${em}em" height="${em}em" aria-hidden="true" style="vertical-align:-.22em">${ACAD_GLYPH[el]}</svg>`;   // inside text
+const acadGlyphAt = (el, x, y, s) => `<g transform="translate(${x - 12 * s} ${y - 12 * s}) scale(${s})">${ACAD_GLYPH[el]}</g>`;   // inside the dummy's drawing
 const ACAD_ELN = { fire: ['Fire', 'אש'], ice: ['Ice', 'קרח'], dark: ['Shadow', 'צל'], plant: ['Plant', 'צמח'], storm: ['Storm', 'סערה'], stone: ['Stone', 'אבן'] };
 const ACAD_RANK = [['Runeweaver', 'אורג הרונות'], ['Stormcaller', 'קורא הסערה'], ['Starwarden', 'שומר הכוכבים'], ['Eclipse Mage', 'מכשף הליקוי'], ['High Sorcerer', 'הקוסם העליון']];
 const acadS = () => (P.academy = P.academy || { passed: 0, certs: [] });
 const acadNext = () => (acadS().passed < 5 ? acadS().passed : null);  // the next test to take (0 = test 1); tests are taken in order
-const acadReady = () => CFG.ACADEMY && acadNext() !== null && wizLvl() >= ACAD_TOP(acadNext()) && (P.mlvl || 1) >= ACAD_MATH[acadNext()];
+const acadBarFull = k => (P.xp || 0) >= SB.xpFor(ACAD_TOP(k) + 1);   // the level bar is full at the top of the tier (§1)
+const acadReady = () => CFG.ACADEMY && acadNext() !== null && wizLvl() >= ACAD_TOP(acadNext()) && acadBarFull(acadNext()) && (P.mlvl || 1) >= ACAD_MATH[acadNext()];
 let ACQ = null;   // the trial in progress
 function refreshAcademy() {   // the Academy icon sits next to the book buttons, and shows only while a test is ready
   const ready = acadReady();
@@ -4215,9 +4235,17 @@ function refreshAcademy() {   // the Academy icon sits next to the book buttons,
 // STEP 1 (spec 08 §3): the offer, the Academy window and the rules screen, in the game's own windows
 const ACAD_EXAMINER = k => (k % 2 === 0 ? 'Orin' : 'Odelia');   // §10.6: Orin for tests 1, 3, 5; Odelia for 2, 4
 // §3.2: the offer, once per tier, when the map opens
-function academyOfferCheck() {
-  if (!acadReady() || acadS().offered === acadNext()) return;
-  acadS().offered = acadNext(); saveSoon(true);
+// inside a quest (the path screen) the window has two buttons: leave the quest and go, or finish the quest first
+function academyOfferCheck(inQuest) {
+  if (!acadReady()) return;
+  const S = acadS(), k = acadNext();
+  if (inQuest) {
+    if (S.qOffered === k || $('#modal').classList.contains('on')) return;
+    S.qOffered = k; saveSoon(true);
+    return modal(t('ac_offer_t'), `<p>${t('ac_offer')}</p>`, [[t('ac_leave_quest'), () => { openMenu(); academyAsk(); }], [t('ac_finish_quest'), null, true]]);
+  }
+  if (S.offered === k) return;
+  S.offered = k; saveSoon(true);
   modal(t('ac_offer_t'), `<p>${t('ac_offer')}</p>`, [[t('ac_go'), academyAsk], [t('later'), null, true]]);
 }
 function showAcademy() { if (!acadReady()) return; academyAsk(); }
@@ -4226,12 +4254,14 @@ function academyEnter() {
   const k = acadNext();
   if (k === null) return toast(t('ac_all_done'));
   if ((P.mlvl || 1) < ACAD_MATH[k]) return modal(t('ac_low_t'), `<p>${t('ac_low_b', { m: ACAD_MATH[k] })}</p>`, [[t('ok'), null]]);
+  if (!acadBarFull(k)) return modal(t('ac_t'), `<p>${t('ac_bar')}</p>`, [[t('ok'), null]]);
   if (!acadReady()) return;
   academyAsk();
 }
 // §3.4: the examiner says how many questions, that two mistakes are allowed and that nothing is lost; the student chooses the trial
 function academyAsk() {
   const k = acadNext(), T = ACAD_Q[k], miss = T - ACAD_NEED[k];
+  if (!acadBuildRow(k, P.mlvl || 1, null)) return modal(t('ac_t'), `<p>${t('ac_learn_more')}</p>`, [[t('ok'), null]]);   // §4 gap 2: a test whose row cannot be built is not offered
   modal(t('ac_t'), `<p><b>${ACAD_EXAMINER(k)}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: T, n: ACAD_NEED[k], m: miss })}</p>`,
     [[t('ac_fight_btn'), () => academyRules('fight')], [t('ac_conj_btn'), () => academyRules('conj')], [t('ac_not_yet'), null, true]]);
 }
@@ -4256,12 +4286,13 @@ function academyStart(kind) {
 }
 /* ---- the fighting trial (§4) ---- */
 // the learned spells that hurt this element, whose number is in the key pool at this math level (whole numbers only: the answer is typed)
+const sk = v => v.n + '/' + v.d;   // a spell's number as a key (fractions and decimals too)
 function acadWeak(el, lvl) {
   const seen = new Set(), out = [];
   for (const id of P.spells || []) {
-    const s = SB.BY_ID[id]; if (!s || !s.v || s.v.d !== 1 || seen.has(s.v.n)) continue;
+    const s = SB.BY_ID[id]; if (!s || !s.v || seen.has(sk(s.v))) continue;
     if (CB.relation(s, el) !== 'weak' || CB.levelFor(s.v, lvl, Math.random) == null) continue;
-    seen.add(s.v.n); out.push(s);
+    seen.add(sk(s.v)); out.push(s);
   }
   return out;
 }
@@ -4269,9 +4300,9 @@ function acadWeak(el, lvl) {
 function acadAoe(lvl) {
   const seen = new Set(), out = [];
   for (const id of P.spells || []) {
-    const s = SB.BY_ID[id]; if (!s || !s.v || s.v.d !== 1 || !s.fx || s.fx.k !== 'area' || seen.has(s.v.n)) continue;
+    const s = SB.BY_ID[id]; if (!s || !s.v || !s.fx || s.fx.k !== 'area' || seen.has(sk(s.v))) continue;
     if (CB.levelFor(s.v, lvl, Math.random) == null) continue;
-    seen.add(s.v.n); out.push(s);
+    seen.add(sk(s.v)); out.push(s);
   }
   return out;
 }
@@ -4280,8 +4311,8 @@ function acadAoe(lvl) {
 function acadBuildRow(k, lvl, Qn) {
   const Q = Qn || ACAD_Q[k], opts = ACAD_HITS[k], pool = ACAD_EL.map(el => ({ el, sp: acadWeak(el, lvl) })), aoeAll = acadAoe(lvl);
   const shuffle = a => a.sort(() => Math.random() - 0.5);
-  for (let tries = 0; tries < 300; tries++) {
-    const A = tries < 200 && aoeAll.length && Math.random() < 0.6 ? (Math.random() < 0.5 ? 1 : 2) : 0;   // the AOE questions of this row (one or two: the hits must fit the dummies' counts); the last tries build a row without one
+  for (let tries = 0; tries < 700; tries++) {
+    const A = tries < 450 && aoeAll.length && Math.random() < 0.6 ? (Math.random() < 0.5 ? 1 : 2) : 0;   // the AOE questions of this row (one or two: the hits must fit the dummies' counts); the last tries build a row without one
     const dummies = []; let rem = Q + A, prev = null, aoeLeft = A, ok = true;
     while (rem > 0 && ok) {
       const hs = opts.filter(h => h <= rem && (rem - h === 0 || rem - h >= Math.min(...opts)));
@@ -4297,21 +4328,21 @@ function acadBuildRow(k, lvl, Qn) {
       }
       let spells;
       if (shared) {
-        spells = [shared, ...acadShuffle(c.sp.filter(x => x.v.n !== shared.v.n))].slice(0, h);
+        spells = [shared, ...acadShuffle(c.sp.filter(x => sk(x.v) !== sk(shared.v)))].slice(0, h);
         const keep = [shared]; if (prev.pairPrevS) keep.push(prev.pairPrevS);
-        prev.spells = [...keep, ...prev.spells.filter(x => !keep.some(y => y.v.n === x.v.n))].slice(0, prev.need);
-        prev.pairNext = shared.v.n; aoeLeft--;
+        prev.spells = [...keep, ...prev.spells.filter(x => !keep.some(y => sk(y.v) === sk(x.v)))].slice(0, prev.need);
+        prev.pairNext = sk(shared.v); aoeLeft--;
       } else spells = acadShuffle(c.sp.slice()).slice(0, h);
-      const d = { el: c.el, need: h, hits: 0, spells, pairNext: null, pairPrevN: shared ? shared.v.n : null, pairPrevS: shared };
+      const d = { el: c.el, need: h, hits: 0, spells, pairNext: null, pairPrevN: shared ? sk(shared.v) : null, pairPrevS: shared };
       dummies.push(d); rem -= h; prev = d;
     }
     if (!ok || aoeLeft > 0) continue;
     // one question per hit; an AOE question covers the dummy and the next one (one entry each)
     const qs = [], done = new Set();
     dummies.forEach((d, j) => d.spells.forEach(s => {
-      const key = j + ':' + s.v.n; if (done.has(key)) return;
-      const pair = d.pairNext === s.v.n && j + 1 < dummies.length;
-      if (pair) done.add((j + 1) + ':' + s.v.n);
+      const key = j + ':' + sk(s.v); if (done.has(key)) return;
+      const pair = d.pairNext === sk(s.v) && j + 1 < dummies.length;
+      if (pair) done.add((j + 1) + ':' + sk(s.v));
       const ql = CB.levelFor(s.v, lvl, Math.random), p = ql ? ME.make(ql, { target: s.v }) : null;   // the question is made at the current level, or at the nearest earlier level that can make the number (as the fights review)
       if (p && ME.eq(p.a, s.v)) qs.push({ d: j, d2: pair ? j + 1 : null, s, p });
     }));
@@ -4333,14 +4364,18 @@ function acadStart() {   // the questions are built now, from the student's curr
     if (!row) { ACQ.phase = 'result'; ACQ.text = t('ac_learn_more'); ACQ.buttons = [[t('ac_back'), 'close']]; return acadRender(); }
     ACQ.dummies = row.dummies;
     ACQ.qs = row.qs.map(q => {   // step 1 shows four cards: the one whose answer is the spell, and three problems whose answers the dummy is not weak to
-      const bad = new Set(ACQ.dummies[q.d].spells.map(s => s.v.n).concat(q.d2 != null ? ACQ.dummies[q.d2].spells.map(s => s.v.n) : []));
+      // a wrong card never gives a number the dummy is weak to: every learned spell that hurts its element is kept out, not only the chosen ones
+      const bad = new Set();
+      [q.d, q.d2].filter(j => j != null).forEach(j => (P.spells || []).forEach(id => { const s = SB.BY_ID[id]; if (s && s.v && CB.relation(s, ACQ.dummies[j].el) === 'weak') bad.add(sk(s.v)); }));
       const others = [];
-      for (let n = 0; n < 120 && others.length < 3; n++) {
-        const p = ME.make(lvl, {}); if (!p || !p.a || p.a.d !== 1) continue;
-        if (bad.has(p.a.n) || p.a.n === q.s.v.n || others.some(o => ME.eq(o.a, p.a))) continue;
+      for (let n = 0; n < 200 && others.length < 3; n++) {
+        const p = ME.make(lvl, {}); if (!p || !p.a) continue;
+        if (bad.has(sk(p.a)) || ME.eq(p.a, q.s.v) || others.some(o => ME.eq(o.a, p.a))) continue;
         others.push(p);
       }
-      return Object.assign(q, { cards: acadShuffle([q.p, ...others]), choices: HELPER.itemAnswers(q.s.v.n, Math.random) });
+      // step 2: the answer is typed on a number pad (whole numbers and decimals); a fraction answer is picked, as in the game
+      const typed = ME.isWhole(q.s.v) || q.s.v.k === 'dec';
+      return Object.assign(q, { cards: acadShuffle([q.p, ...others]), choices: typed ? null : acadShuffle([q.s.v, ...ME.distractors(q.p, 3)]) });
     });
     ACQ.onGame = true; acGameEnter(); ACQ.phase = 'fpick'; return acadRender();
   }
@@ -4365,7 +4400,7 @@ function acadQDone(ok, fact) {
   const fightOk = ok ? (ACQ.lastDown && ACQ.lastDown.length ? 1100 : 800) : 1500;
   setTimeout(() => {
     if (!ACQ) return;
-    ACQ.busy = false; ACQ.i++; ACQ.j = 0; ACQ.msg = ''; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
+    ACQ.busy = false; ACQ.i++; ACQ.j = 0; ACQ.msg = ''; ACQ.typed = ''; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
     if (ACQ.mist > ACQ.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
     if (ACQ.i >= ACQ.Q) return acadFinish(false);
     ACQ.phase = ACQ.kind === 'fight' ? 'fpick' : 'citem'; acadRender();
@@ -4374,11 +4409,11 @@ function acadQDone(ok, fact) {
 const ACAD_COL = { fire: '#ff7a3d', ice: '#8fd8ff', dark: '#4a3f7a', plant: '#5fbf5f', storm: '#9aa7ff', stone: '#9e9e9e' };   // the dummy's colour: its element
 // a training dummy (spec 08 §4): its element on three places of its body (head, the band on the body, the base)
 function acadDummySvg(el) {
-  const c = ACAD_COL[el], b = ACAD_BADGE[el];
+  const c = ACAD_COL[el];
   return `<svg class="dsvg" viewBox="0 0 60 110" aria-hidden="true"><rect x="27" y="62" width="6" height="40" fill="#6b4a2b"/><rect x="8" y="98" width="44" height="8" rx="3" fill="#6b4a2b"/>
     <rect x="18" y="40" width="24" height="34" rx="6" fill="#c9a06a"/><rect x="18" y="52" width="24" height="9" fill="${c}"/>
-    <circle cx="30" cy="24" r="15" fill="${c}"/><text x="30" y="30" font-size="13" text-anchor="middle">${b}</text>
-    <text x="30" y="62" font-size="10" text-anchor="middle">${b}</text><text x="30" y="91" font-size="9" text-anchor="middle">${b}</text></svg>`;
+    <circle cx="30" cy="24" r="15" fill="${c}"/>${acadGlyphAt(el, 30, 24, 0.8)}
+    ${acadGlyphAt(el, 30, 56.5, 0.34)}${acadGlyphAt(el, 30, 88, 0.36)}</svg>`;
 }
 // the examiner, in a red robe, standing to the right of the dummies
 function acadExaminerSvg() {   // the examiner, full body, in a red robe, beside the dummies (spec 08 §4)
@@ -4463,22 +4498,20 @@ function acadClick(e) {
   if (ACQ.busy) return;
   const i = +b.dataset.i, q = ACQ.qs[ACQ.i];
   if (ACQ.kind === 'fight') {
-    const d = ACQ.dummies[q.d], targets = q.d2 != null ? [q.d, q.d2] : [q.d];
+    const d = ACQ.dummies[q.d];
     if (a === 'card' && ACQ.phase === 'fpick') {   // step 1: the card whose answer is a spell this dummy is weak to
-      if (q.cards[i] === q.p) { ACQ.phase = 'fsolve'; ACQ.msg = ''; return acadRender(); }
+      if (q.cards[i] === q.p) { ACQ.phase = 'fsolve'; ACQ.msg = ''; ACQ.typed = ''; return acadRender(); }
       d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
       ACQ.msg = t('ac_card_miss'); return acadQDone(false, q.p);
     }
-    if (a === 'num' && ACQ.phase === 'fsolve') {   // step 2: the answer of the card: the spell hits
-      if (+b.dataset.n === q.s.v.n) {
-        targets.forEach(j => ACQ.dummies[j].hits++);
-        ACQ.msg = t(q.d2 != null ? 'ac_aoe_hit' : 'ac_hit'); ACQ.lastHit = targets; ACQ.lastDown = targets.filter(j => ACQ.dummies[j].hits >= ACQ.dummies[j].need);
-        ACQ.shot = { emoji: q.d2 != null ? '🌟' : '✨', targets };
-        return acadQDone(true);
-      }
-      d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
-      ACQ.msg = t('ac_miss'); return acadQDone(false, q.p);
+    if (ACQ.phase !== 'fsolve') return;
+    if (a === 'key') {   // step 2, the number pad: digits, a point, and delete; only the display changes
+      const k = b.dataset.k, cur = ACQ.typed || '';
+      ACQ.typed = k === '⌫' ? cur.slice(0, -1) : cur.length < 8 && !(k === '.' && cur.includes('.')) ? cur + k : cur;
+      const sh = $('#padShow'); if (sh) sh.textContent = ACQ.typed || '…'; return;
     }
+    if (a === 'go') { const v = ME.parse(ACQ.typed || ''); if (v) acadAnswer(v); return; }
+    if (a === 'num') return acadAnswer(q.choices[i]);   // a fraction answer is picked from the buttons
     return;
   }
   const x = q.items[ACQ.j];
@@ -4496,6 +4529,27 @@ function acadClick(e) {
     return acadQDone(false, x.p);
   }
 }
+// step 2: the answer of the card is cast as the spell; right, it hits (an AOE question hits both dummies); wrong, it is the question's one mistake
+function acadAnswer(v) {
+  const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], targets = q.d2 != null ? [q.d, q.d2] : [q.d];
+  if (ME.eq(v, q.s.v)) {
+    targets.forEach(j => ACQ.dummies[j].hits++);
+    ACQ.msg = t(q.d2 != null ? 'ac_aoe_hit' : 'ac_hit'); ACQ.lastHit = targets; ACQ.lastDown = targets.filter(j => ACQ.dummies[j].hits >= ACQ.dummies[j].need);
+    ACQ.shot = { emoji: q.d2 != null ? '🌟' : '✨', targets };
+    return acadQDone(true);
+  }
+  d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
+  ACQ.msg = t('ac_miss'); acadQDone(false, q.p);
+}
+document.addEventListener('keydown', e => {   // typing on a keyboard also works for the trial's number pad
+  if (!ACQ || !ACQ.onGame || ACQ.phase !== 'fsolve' || ACQ.busy || !$('#padShow')) return;
+  const k = e.key === 'Backspace' ? '⌫' : /^[0-9.]$/.test(e.key) ? e.key : null;
+  if (e.key === 'Enter') { const v = ME.parse(ACQ.typed || ''); if (v) acadAnswer(v); return; }
+  if (!k) return;
+  const cur = ACQ.typed || '';
+  ACQ.typed = k === '⌫' ? cur.slice(0, -1) : cur.length < 8 && !(k === '.' && cur.includes('.')) ? cur + k : cur;
+  $('#padShow').textContent = ACQ.typed || '…';
+});
 // the spell flies from the typed answer to the dummy (or both dummies of an AOE question); the shot is set by the answer
 function acadFly(shot) {
   const src = $('#acadBox .acadPadShow'); if (!src) return;
@@ -4543,7 +4597,7 @@ function acadFinish(early) {
 }
 /* ----- The fighting trial on the game's own fight screen (as the Hebrew game): the same stage, the wizard, the dummy and the question panel,
    with the examiner standing on the right. The rules are the math rules: card, then answer. ----- */
-const acadDummyTitle = el => `${ACAD_BADGE[el]} ${t('ac_fight_title')}`;
+const acadDummyTitle = el => `${acadIcon(el)} ${t('ac_fight_title')}`;
 // the fight screen takes the trial: the stage, the examiner, the progress along the bottom, and the rest of the game's controls are hidden
 function acGameEnter() {
   show('game'); setBookIcon(false); VS = null;
@@ -4579,9 +4633,8 @@ function acadExit() { const wasGame = ACQ && ACQ.onGame; ACQ = null; const ov = 
 function acadDo(a) {
   if (a === 'close') return acadExit();
   if (a === 'start') return acadStart();
-  if (a === 'again') { ACQ.practice = false; return acadStart(); }
+  if (a === 'again' || a === 'take') { const kind = ACQ.kind; acadExit(); return academyRules(kind); }   // the rules screen comes before every start of the real test (§3.5)
   if (a === 'practice') { ACQ.practice = true; return acadStart(); }
-  if (a === 'take') { ACQ.practice = false; return acadStart(); }
 }
 // the fight screen of the trial: the dummy with its element in three places, the hit markers, the progress, and the question panel
 function fightRenderGame() {
@@ -4595,13 +4648,16 @@ function fightRenderGame() {
   $('#hpFill').style.width = (100 * ACQ.i / ACQ.Q) + '%';
   $('#acTop').innerHTML = ACQ.qs.map((x, i) => `<i class="${ACQ.results[i] === true ? 'ok' : ACQ.results[i] === false ? 'bad' : i === ACQ.i ? 'cur' : ''}"></i>`).join('');
   $('#acDots').innerHTML = ACQ.dummies.map((x, j) => `<i style="background:${ACAD_COL[x.el]}" class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
-  $('#qTitle').innerHTML = fpick ? acadDummyTitle(d.el) : t('ac_pick_answer');
+  const pad = !fpick && !q.choices;   // step 2 is typed on the number pad (spec 08 §2); a fraction answer is picked
+  $('#qTitle').innerHTML = fpick ? acadDummyTitle(d.el) : t(pad ? 'ac_say_ans' : 'ac_say_pick');
   $('#qSub').textContent = q.d2 != null ? t('ac_aoe_t') : (d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : (fpick ? t('ac_pick_card') : ''));
   $('#qBig').innerHTML = fpick ? '' : `<div class="acEq" dir="ltr">${exprHtml(q.p.e)}</div>`;
-  const o = $('#opts'); o.className = 'opts' + (fpick ? ' cards' : ''); o.style.display = ''; o.style.gridTemplateColumns = '1fr 1fr'; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
+  const o = $('#opts'); o.className = 'opts' + (fpick ? ' cards' : pad ? ' pad' : ''); o.style.display = ''; o.style.gridTemplateColumns = pad ? '' : '1fr 1fr'; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
   o.innerHTML = fpick
     ? q.cards.map((c, i) => `<button class="opt card" data-ac="card" data-i="${i}"><span class="cardEx" dir="ltr">${exprHtml(c.e)}</span></button>`).join('')
-    : q.choices.map(n => `<button class="opt num" data-ac="num" data-n="${n}">${n}</button>`).join('');
+    : pad
+      ? `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${t('ac_say_go')}</button>`
+      : q.choices.map((v, i) => `<button class="opt num" data-ac="num" data-i="${i}">${ME.fmtHtml(v)}</button>`).join('');
   $('#fb').textContent = ACQ.msg || '';
   if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; setTimeout(() => fly(s.emoji, $('#heroSvg'), $('#foeBody'), { trail: true, size: 1.2 }), 30); }   // the spell flies from the wizard to the dummy
 }
@@ -5052,7 +5108,7 @@ function spellCard(s, sealed, isNew) {
   const el = SB.ELEMENTS[s.el], ty = SB.TYPES[s.type];
   return `<div class="spellCard${sealed ? ' sealed' : ''}${isNew ? ' new' : ''}">${spellNum(s)}<div class="sName">${tl(s.nm)}</div>
     <div class="sTags"><span>${el.em} ${tl(el.nm)}</span><span>${ty.em} ${tl(ty.nm)}</span></div>
-    <div class="sFx">${SB.describe(s, LANG)}</div>${sealed ? `<div class="sLock">${t('unlocks_at', { n: s.greq })}</div>` : ''}</div>`;
+    <div class="sFx">${SB.describe(s, LANG)}</div>${sealed ? `<div class="sLock">${CFG.ACADEMY && !SB.isTierOpen(s, acadPassed()) ? t('ac_seal', { n: SB.testNeed(s) }) : t('unlocks_at', { n: s.greq })}</div>` : ''}</div>`;
 }
 let bookSort = 'tier';   // 'tier' (the tabs: 1–9, 11–19, Enhanced …), 'num' (every spell in number order) or 'type' (a tab per spell type)
 // the conjuration book (the village, spec 05): the same look as the spell book; the items with their numbers, locked until their math level
@@ -5077,7 +5133,7 @@ function openBook(kind = 'spell') {
   if (!P) return;
   if (kind === 'conj') return openConjBook();
   $('#bookTitle').textContent = t('book_t'); $('#bookSort').style.display = ''; $('#bookTabs').style.display = '';
-  const b = SB.book(P.mlvl, wizLvl(), P.spells), all = b.learned.concat(b.sealed);
+  const b = SB.book(P.mlvl, wizLvl(), P.spells, tiersArg()), all = b.learned.concat(b.sealed);
   const tabOf = s => bookSort === 'type' ? s.type : SB.tabOf(s);
   const TABS = bookSort === 'type' ? Object.keys(SB.TYPES).map(k => [k, SB.TYPES[k].nm, SB.TYPES[k].em]) : bookSort === 'num' ? [] : SB.TABS;
   const tabs = TABS.filter(([k]) => all.some(s => tabOf(s) === k));
@@ -5129,7 +5185,7 @@ function checkSpells() {
   if (!P || $('#modal').classList.contains('on') || !$('#book').hidden || TUT.on) return;
   const wl = wizLvl(), from = P.wlvl || 1, wUp = wl > from; P.wlvl = Math.max(from, wl);
   const unl = wUp ? wizUnlocks(from, wl) : [];
-  const learned = SB.book(P.mlvl, wl, P.spells).learned, fresh = learned.filter(s => !P.spells.includes(s.id));
+  const learned = SB.book(P.mlvl, wl, P.spells, tiersArg()).learned, fresh = learned.filter(s => !P.spells.includes(s.id));
   if (!fresh.length && !unl.length) { if (wUp) { saveSoon(); toast(t('wiz_up', { n: wl })); } return; }
   const firstEnh = fresh.some(s => s.tier === 'enhanced') && !P.spells.some(id => SB.BY_ID[id] && SB.BY_ID[id].tier === 'enhanced');
   P.spells = P.spells.concat(fresh.map(s => s.id)); if (fresh.length) P.newSeen = fresh.map(s => s.id); saveSoon(true);
@@ -6247,7 +6303,7 @@ function startDemo() {
     pics(v) { window.__picsAll = !!v; toast(v ? '🖼 Pictures at every level, free' : '🖼 Pictures only at the low levels'); },
     acad(k) {   // the Academy test k (1–5): the wizard is at its level bar, the math level is enough, and the earlier tests are passed
       P.academy = { passed: k - 1, certs: (P.academy && P.academy.certs) || [] }; P.mlvl = Math.max(P.mlvl || 1, ACAD_MATH[k - 1]);
-      P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1))); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
+      P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1) + 1)); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
     },
     acadReset() { P.academy = { passed: 0, certs: [] }; ACQ = null; acadRender(); refreshAcademy(); toast('🎓 Academy progress reset: test 1 is next'); },
     acadPass() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = ACQ.need; acadFinish(false); },   // the result screen of a pass, at once
