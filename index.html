@@ -914,7 +914,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div id="menuHero"></div>
     <div class="grow"><div class="who" id="menuWho" style="font-size:1.5rem"></div><div id="menuRank" class="small"></div>
       <div class="pbar" style="margin-top:6px"><i id="menuXp"></i></div></div>
-    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
+    <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="ib bookBtn" data-book="conj" data-tt="conj_btn">📜</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
   </div>
   <div class="stat">
     <span>📖 <b id="menuTier"></b></span>
@@ -1057,7 +1057,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 
 <section id="journey" class="screen" style="max-width:760px">
   <div class="top"><button class="ib" id="jBack" data-tt="back_map">🗺️</button><button class="ib" id="jAbandon" data-tt="abandon_title" style="display:none">🏳️</button>
-    <div class="grow"><div class="who" id="jArea"></div><div class="small" id="jStory"></div></div><div class="jHearts" id="jHearts"></div><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="langBtn" data-lang-toggle></button></div>
+    <div class="grow"><div class="who" id="jArea"></div><div class="small" id="jStory"></div></div><div class="jHearts" id="jHearts"></div><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="ib bookBtn" data-book="conj" data-tt="conj_btn">📜</button><button class="langBtn" data-lang-toggle></button></div>
   <div class="jBanner" id="jBanner" aria-live="polite"></div>
   <div class="jStage" id="jStage"><svg id="jMap" data-ta="journey_map"></svg></div>
   <div class="row" style="margin-top:10px;justify-content:center"><button class="btn" id="jWalk" data-t="walk_on"></button></div>
@@ -1347,6 +1347,7 @@ const STR = {
   vh_done: ['The villager is happy! "Thank you, wizard. Come back tomorrow."', 'התושב שמח! "תודה, קוסם. חזרו מחר."'],
   vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'],
   vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'], vh_found: ['Found: {x}', 'נמצא: {x}'],
+  conj_t: ['📜 Conjuration book', '📜 ספר ההטלה'], conj_info: ['The items you can conjure at math level {m}.', 'הפריטים שאפשר לכשף ברמה {m}.'], conj_lock: ['Unlocks at math level {n}', 'נפתח ברמה {n}'], conj_btn: ['Conjuration book', 'ספר ההטלה'],
   vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
   quest_locked: ['🔒 You are in the middle of a quest! Finish it, or tap 🏳️ Abandon quest to leave it.', '🔒 אתם באמצע מסע! סיימו אותו, או הקישו על 🏳️ עזיבת המסע.'],
@@ -4361,8 +4362,21 @@ function spellCard(s, sealed, isNew) {
     <div class="sFx">${SB.describe(s, LANG)}</div>${sealed ? `<div class="sLock">${t('unlocks_at', { n: s.greq })}</div>` : ''}</div>`;
 }
 let bookSort = 'tier';   // 'tier' (the tabs: 1–9, 11–19, Enhanced …), 'num' (every spell in number order) or 'type' (a tab per spell type)
-function openBook() {
+// the conjuration book (the village, spec 05): the same look as the spell book; the items with their numbers, locked until their math level
+function openConjBook() {
+  const ml = P.mlvl || 1;
+  $('#bookTitle').textContent = t('conj_t'); $('#bookInfo').textContent = t('conj_info', { m: ml });
+  $('#bookSort').style.display = 'none'; $('#bookTabs').style.display = 'none'; $('#bookTabs').innerHTML = '';
+  $('#bookPages').innerHTML = HELPER.BOOK.slice().sort((a, b) => a.n - b.n).map(x => {
+    const lock = x.lvl > ml;
+    return `<div class="spellCard${lock ? ' sealed' : ''}"><span class="sNum" dir="ltr">${x.n}</span><div class="sName">${x.em} ${tl(x.one)}</div>${lock ? `<div class="sLock">${t('conj_lock', { n: x.lvl })}</div>` : `<div class="sFx">${tl(HELPER.nameFor(x, 2))}</div>`}</div>`;
+  }).join('');
+  $('#book').hidden = false;
+}
+function openBook(kind = 'spell') {
   if (!P) return;
+  if (kind === 'conj') return openConjBook();
+  $('#bookTitle').textContent = t('book_t'); $('#bookSort').style.display = ''; $('#bookTabs').style.display = '';
   const b = SB.book(P.mlvl, wizLvl(), P.spells), all = b.learned.concat(b.sealed);
   const tabOf = s => bookSort === 'type' ? s.type : SB.tabOf(s);
   const TABS = bookSort === 'type' ? Object.keys(SB.TYPES).map(k => [k, SB.TYPES[k].nm, SB.TYPES[k].em]) : bookSort === 'num' ? [] : SB.TABS;
@@ -4381,7 +4395,8 @@ function openBook() {
   $('#book').hidden = false;  if (TUT.on && TUT.wantBook) tutResolve('book');   // the tutorial waits for the book
 }
 function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } if (TUT.on && TUT.wantClose) tutResolve('close'); }
-document.addEventListener('click', e => { if (e.target.closest('[data-book]')) { e.preventDefault(); openBook(); } });
+// a visit opens only the conjuration book; a fight only the spell book; the map has both buttons (data-book="conj" is the conjuration book)
+document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); const visit = !!VS && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
 $('#bookClose').onclick = closeBook;
 $('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
