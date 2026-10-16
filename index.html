@@ -66,8 +66,10 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #mapHero svg{width:100%;height:100%}#mapHero.drag{transition:none;cursor:grabbing;z-index:6}#mapHero.walk svg{animation:hop .3s infinite alternate}
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
-.vhIco{width:44px;min-width:44px;height:52px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
-.vhRow{display:grid;grid-template-columns:repeat(6,44px);justify-content:center;gap:6px}   /* both rows share the same columns: the potions, the satchel; the icons under them */
+.vhIco{width:58px;min-width:58px;height:58px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+#stage{position:relative}
+#vhTray{position:absolute;left:50%;top:40%;transform:translateX(-50%);z-index:4;pointer-events:none;white-space:nowrap}
+.vhRow{display:grid;grid-template-columns:repeat(6,60px);justify-content:center;gap:6px}   /* both rows share the same columns: the potions, the satchel; the icons under them */
 .vhPics{text-align:center;font-size:1.6rem;min-height:1.2em;margin:4px auto 0;line-height:1.2}
 .cjFx{position:absolute;left:50%;top:38%;font-size:2.6rem;line-height:1;pointer-events:none;z-index:6;white-space:nowrap;transform:translate(-50%,-50%);opacity:0}
 .cj1{animation:cj1 1s ease-out forwards}.cj2{animation:cj2 1s ease-out forwards;text-shadow:0 0 14px #ffd166}
@@ -3865,7 +3867,9 @@ function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
   visitBars();
   $('#qTitle').textContent = V.project.name;
-  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${visitTray()}${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
+  // the project's tray sits on the stage, beneath the roof of the place (not in the question panel)
+  let tr = $('#vhTray'); if (!tr) { tr = document.createElement('div'); tr.id = 'vhTray'; $('#stage').appendChild(tr); } tr.innerHTML = visitTray();
+  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
   V.storyText = visitStory();   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(V.storyText); }
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
@@ -3917,7 +3921,7 @@ function usePotionVisit(id) {
   }
   toast(t('hint_soon'));   // Whisper: coming soon, as in a fight (it is not used up)
 }
-function visitEnd() { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); $('#vhBar').style.display = 'none'; $('#potBar').classList.remove('vhRow'); renderPotBar(); }   // leaving: the map's potion row comes back
+function visitEnd() { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); $('#vhBar').style.display = 'none'; $('#potBar').classList.remove('vhRow'); if ($('#vhTray')) $('#vhTray').remove(); renderPotBar(); }   // leaving: the map's potion row comes back
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
   if (o) { V.phase = o; visitShow(); return true; }
