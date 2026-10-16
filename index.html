@@ -3811,14 +3811,14 @@ function visitShow() {
   V.storyText = story;   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(story); }
   $('#qSub').textContent = '';
-  const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.className = 'opts';
+  const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
   const done = V.phase === 'done' || V.phase === 'lost';
   if (V.phase === 'card') {
     $('#qSub').textContent = t('vh_card'); o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.cards.length}, 1fr)`;
     V.cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'card'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
   } else if (V.phase === 'calc') {
-    $('#qSub').textContent = t('vh_calc');
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(k => { const b = document.createElement('button'); b.className = 'opt num'; b.dataset.vh = 'amt'; b.dataset.n = k; b.textContent = k; o.appendChild(b); });
+    $('#qSub').textContent = t('vh_calc'); o.style.display = 'flex'; o.style.flexWrap = 'wrap'; o.style.justifyContent = 'center'; o.style.gap = '6px';   // 0–10 as a wrapping row: the whole pad is on screen
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(k => { const b = document.createElement('button'); b.className = 'opt num'; b.style.flex = '0 0 52px'; b.dataset.vh = 'amt'; b.dataset.n = k; b.textContent = k; o.appendChild(b); });
   } else if (V.phase === 'item') {
     if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1);
     $('#qSub').textContent = t('vh_item');
