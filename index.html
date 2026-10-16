@@ -66,10 +66,11 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #mapHero svg{width:100%;height:100%}#mapHero.drag{transition:none;cursor:grabbing;z-index:6}#mapHero.walk svg{animation:hop .3s infinite alternate}
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
-.vhIco{width:58px;min-width:58px;height:58px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.vhIco{width:58px;min-width:58px;height:72px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
 #stage{position:relative}
 #vhTray{position:absolute;left:50%;top:40%;transform:translateX(-50%);z-index:4;pointer-events:none;white-space:nowrap}
-.vhRow{display:grid;grid-template-columns:repeat(6,60px);justify-content:center;gap:6px}   /* both rows share the same columns: the potions, the satchel; the icons under them */
+#vhTray .trayName{font-size:.7rem}#vhTray .traySlot{width:22px;height:22px;font-size:.8rem;border-radius:6px}#vhTray .trayResult{font-size:1.1rem}
+.vhRow{display:grid;grid-template-columns:repeat(6,60px);justify-content:center;justify-items:center;gap:6px}   /* both rows share the same columns: the potions, the satchel; the icons under them */
 .vhPics{text-align:center;font-size:1.6rem;min-height:1.2em;margin:4px auto 0;line-height:1.2}
 .cjFx{position:absolute;left:50%;top:38%;font-size:2.6rem;line-height:1;pointer-events:none;z-index:6;white-space:nowrap;transform:translate(-50%,-50%);opacity:0}
 .cj1{animation:cj1 1s ease-out forwards}.cj2{animation:cj2 1s ease-out forwards;text-shadow:0 0 14px #ffd166}
@@ -3934,10 +3935,16 @@ function conjureFx(em, n) {
   const e = document.createElement('div'); e.className = 'cjFx cj' + tier; e.textContent = n > 6 ? em : em.repeat(n);
   host.appendChild(e); setTimeout(() => e.remove(), 1000);
 }
-function visitCraft() {   // the item is crafted: it appears in front of the villager; a big amount floats as a number
+// the wizard shoots from his staff at the villager; where the spell lands, the item is conjured (the look grows with the wizard tier)
+function conjureShot(em, n) {
+  const w = wizLvl(), tier = w >= 19 ? 4 : w >= 13 ? 3 : w >= 7 ? 2 : 1, shot = ['✨', '🌟', '💫', '🔮'][tier - 1];
+  const landed = () => { conjureFx(em, n); if (n > 6) floatText('+' + n, '#ffd166', $('#foeBody')); };
+  fly(shot, $('#heroSvg'), $('#foeBody'), { trail: true, size: 1.6 }).then(landed, landed);
+}
+function visitCraft() {   // the item is crafted: a shot from the staff, and the item appears in front of the villager; a big amount floats as a number
   const V = VS, n = V.p.amount, em = V.item.em, thanks = t('vh_ok', { items: n <= 6 ? em.repeat(n) : em + ' ×' + n });
-  conjureFx(em, n);
-  if (n > 6) floatText('+' + n, '#ffd166', document.querySelector('#foeBody'));
+  conjureShot(em, n);
+  if (!V.rounds.slice(V.round + 1).some(r => r.project === V.project)) visitMade(V.project);   // the last item of this project: the villager makes it
   return thanks;
 }
 // the villager's tray: the project's items as they arrive (❔ until then), and the result they make with them
@@ -3948,11 +3955,17 @@ function visitTray() {
   return `<div class="projTray vhTray"><div class="trayName">${V.project.name}</div><div class="traySlots">${slots}</div>${made}</div>`;
 }
 // a project is finished: the villager makes the result with sparkles
-function visitMade(p) { sfx.win(); confetti(['✨', '💛', '🎉']); toast('✨ ' + p.name + ' ✨'); }
+// the villager makes the project's item from its items: the item shows above them for a moment
+function visitMade(p) {
+  sfx.win(); confetti(['✨', '💛', '🎉']); toast('✨ ' + p.name + ' ✨');
+  const host = $('#foeBody') && $('#foeBody').parentElement; if (!host) return;
+  const e = document.createElement('div'); e.className = 'cjFx cj4'; e.style.animationDuration = '2.6s'; e.style.fontSize = '3.6rem'; e.innerHTML = p.result;
+  host.appendChild(e); setTimeout(() => e.remove(), 2600);
+}
 function visitNext(thanks) {   // the item is handed over: on to the next item of the projects, or the stop is done
-  const V = VS, old = V.project; V.round++;
-  if (V.round >= V.rounds.length) { V.phase = 'done'; V.msg = thanks; visitMade(old); return visitShow(); }
-  visitRound(); if (V.project !== old) visitMade(old); V.msg = thanks; visitShow();
+  const V = VS; V.round++;
+  if (V.round >= V.rounds.length) { V.phase = 'done'; V.msg = thanks; return visitShow(); }
+  visitRound(); V.msg = thanks; visitShow();
 }
 function visitRoundDone() {   // the item is crafted (see visitCraft)
   const thanks = visitCraft();

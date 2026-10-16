@@ -63,9 +63,10 @@
     }
   });
   test('story types by level: only result at level 2; separate from 3; change and part from 4; compare 5; start 6; two steps 9', () => {
-    assert(H.storyTypes(2).join() === 'result', 'level 2: ' + H.storyTypes(2).join());
-    assert(H.storyTypes(4).includes('change') && H.storyTypes(4).includes('separate'), 'level 4');
-    assert(!H.storyTypes(5).includes('two') && H.storyTypes(9).includes('two') && H.storyTypes(6).includes('start'), 'levels 5–9');
+    assert(H.storyTypes(1).join() === 'change', 'level 1: ' + H.storyTypes(1).join());
+    assert(H.storyTypes(4).includes('change') && H.storyTypes(4).includes('part'), 'level 4');
+    assert(!H.storyTypes(4).includes('two') && H.storyTypes(9).includes('two') && !H.storyTypes(9).includes('separate'), 'levels 4–9: only real problems');
+    for (const lvl of [1, 4, 5, 9]) for (let i = 0; i < 100; i++) { const p = H.makeAmount(lvl, rnd); assert(p.amount >= 1 && p.amount < p.t, 'the rest is needed, not given: ' + p.kind); assert(p.kind !== 'separate' && p.kind !== 'start' && p.kind !== 'result', 'no nonsense story'); }
   });
   test('every story type: the amount is the value of its story card, and the amount stays in range', () => {
     for (const lvl of [1, 3, 4, 5, 6, 9, 12]) for (let i = 0; i < 150; i++) {

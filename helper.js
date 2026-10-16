@@ -99,42 +99,24 @@
   }
 
   // the story types of the amount problems (spec 05 §5.1), each from the math level where its operation is ready
-  //   result  (join, result unknown)     level 1   "I have a. My friend gives me b. How many now?"       a + b
-  //   separate (result unknown)          level 3   "I had t. b broke. How many are left?"                t − b
-  //   change  (join, change unknown)     level 4   "I need t. I have a. Conjure the rest."               t − a
+  // every story is a real math problem: the answer (the amount) is never in the story, and the story has what is needed to work it out
+  //   change  (change unknown)           level 1   "I need t. I have a. Please conjure the rest."           t − a
   //   part    (part-part-whole)          level 4   "I need t: a for the hall, the rest for the kitchen."  t − a
   //   compare (difference unknown)       level 5   "The baker has t. I have a. Conjure enough to match."  t − a
-  //   start   (join, start unknown)      level 6   "I used u, and r are left. How many did I have?"       u + r
   //   two     (two steps)                level 9   "I need t. I have a, and my neighbour gives me b."    t − (a + b)
-  const TYPES = [
-    { id: 'result', from: 1 }, { id: 'separate', from: 3 }, { id: 'change', from: 4 }, { id: 'part', from: 4 },
-    { id: 'compare', from: 5 }, { id: 'start', from: 6 }, { id: 'two', from: 9 }
-  ];
+  const TYPES = [{ id: 'change', from: 1 }, { id: 'part', from: 4 }, { id: 'compare', from: 5 }, { id: 'two', from: 9 }];
   const storyTypes = level => TYPES.filter(x => level >= x.from).map(x => x.id);
   // one amount problem at a level (the story's numbers stay small at the first levels)
-  // every story says what the wizard needs (t) and what he has (a); the amount to conjure is always the rest.
-  // the story types differ in the words only: separate ("3 broke"), start ("I already have r"), two steps (a neighbour gives b)
+  // every story says what the wizard needs (t) and what he has (a); the amount to conjure is always the rest (t − a, or t − a − b)
   function makeAmount(level, r = Math.random) {
     const type = pick(storyTypes(level), r);
-    if (type === 'result') {   // "I need a+b, I have a" (the rest is b)
-      const a = int(1, level <= 1 ? 3 : 5, r), b = int(1, level <= 1 ? 3 : 5, r), tt = a + b;
-      return { kind: type, nums: [tt, a], t: tt, a, amount: b, expr: { a: tt, op: '−', b: a, value: b }, show: { have: a, of: tt } };
-    }
-    if (type === 'separate') {   // "I need t; b broke, so I have t−b" (the rest is b)
-      const tt = int(3, 10, r), b = int(1, tt - 1, r), a = tt - b;
-      return { kind: type, nums: [tt, b], t: tt, a, b, amount: b, expr: { a: tt, op: '−', b: a, value: b }, show: { have: a, of: tt } };
-    }
-    if (type === 'start') {   // "I need u+r; I already have r" (the rest is u)
-      const u = int(1, 9, r), rr = int(1, 10 - u, r), tt = u + rr;
-      return { kind: type, nums: [tt, rr], t: tt, a: rr, amount: u, expr: { a: tt, op: '−', b: rr, value: u }, show: { have: rr, of: tt } };
-    }
     if (type === 'two') {   // "I need t; I have a, and my neighbour gives me b" (the rest is t−a−b)
       const tt = int(10, 20, r), a = int(1, 9, r), b = int(1, 9, r);
       if (tt - a - b < 1) return makeAmount(level, r);
       return { kind: type, nums: [tt, a, b], t: tt, a, b, amount: tt - a - b, expr: { a: tt, op: '−', b: a + b, value: tt - a - b }, show: { have: a, of: tt, plus: b } };
     }
     // change, part and compare: a target t and what the student has, a (the rest is t−a)
-    const tt = int(5, 10, r), a = int(1, tt - 1, r);
+    const tt = int(2, level <= 1 ? 5 : 10, r), a = int(1, tt - 1, r);
     return { kind: type, nums: [tt, a], t: tt, a, amount: tt - a, expr: { a: tt, op: '−', b: a, value: tt - a }, show: { have: a, of: tt } };
   }
   // the four cards of the card step: the story's own problem plus three that do not fit it (all values different, from 0 to 20)
