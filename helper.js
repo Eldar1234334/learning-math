@@ -173,6 +173,8 @@
   // a right answer also fills the happy meter
   // an impatient villager (wizard level 6 and up) has a patience bar: it starts full and goes down by one on every action
   const PATIENCE = 5;
+  // the patience of a visit: the right answers it needs, plus three points, so two mistakes never make an impatient villager leave
+  const patienceFor = happyMax => happyMax + 3;
   const spend = (state, right) => ({ ...state, mana: Math.max(0, state.mana - 1), happy: Math.min(state.happyMax, state.happy + (right ? 1 : 0)), ...(state.patience !== undefined ? { patience: Math.max(0, state.patience - 1) } : {}) });
   // the visit is done when the happy meter is full; lost when the mana is gone first
   // done when the happy meter is full; lost when the mana is gone first; left when an impatient villager has had enough
@@ -197,5 +199,5 @@
     if (item.n === 60) return n === 1 ? ['torn', 'נקרעה'] : ['torn', 'נקרעו'];
     return n === 1 ? ['broke', genderOf(item) === 'f' ? 'נשברה' : 'נשבר'] : ['broke', 'נשברו'];
   };
-  return { BOOK, THEMES, themeOf, breakWord, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  return { BOOK, THEMES, themeOf, breakWord, PATIENCE, patienceFor, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });

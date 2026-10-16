@@ -129,6 +129,14 @@
     assert(H.visitOver(s) === 'left', 'left when patience is empty');
     assert(H.visitOver({ mana: 4, happy: 6, happyMax: 6, patience: 0 }) === 'done', 'finished first is done');
   });
+  test('an impatient villager survives two mistakes in a visit and finishes', () => {
+    const pl = H.plan(5, 5, 2);
+    let s = { mana: 30, happy: 0, happyMax: pl.happyMax, patience: H.patienceFor(pl.happyMax) };
+    s = H.spend(s, false); s = H.spend(s, false);
+    assert(H.visitOver(s) === null, 'still there after two mistakes');
+    for (let i = 0; i < pl.happyMax; i++) s = H.spend(s, true);
+    assert(H.visitOver(s) === 'done', 'finishes the visit');
+  });
   test('impatient villagers only from wizard level 6, about one visit in three', () => {
     assert(!H.isImpatient(5, () => 0), 'not before level 6');
     assert(H.isImpatient(6, () => 0.2) && !H.isImpatient(6, () => 0.5), 'one in three');

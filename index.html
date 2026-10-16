@@ -69,7 +69,6 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .vhIco{width:58px;min-width:58px;height:72px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
 #stage{position:relative}
 #vhTray{position:absolute;left:50%;top:40%;transform:translateX(-50%);z-index:4;pointer-events:none;white-space:nowrap}
-#vhTray .trayName{font-size:.7rem}#vhTray .traySlot{width:22px;height:22px;font-size:.8rem;border-radius:6px}#vhTray .trayResult{font-size:1.1rem}
 .vhRow{display:grid;grid-template-columns:repeat(6,60px);justify-content:center;justify-items:center;gap:6px}   /* both rows share the same columns: the potions, the satchel; the icons under them */
 .vhPics{text-align:center;font-size:1.6rem;min-height:1.2em;margin:4px auto 0;line-height:1.2}
 .cjFx{position:absolute;left:50%;top:38%;font-size:2.6rem;line-height:1;pointer-events:none;z-index:6;white-space:nowrap;transform:translate(-50%,-50%);opacity:0}
@@ -3817,7 +3816,8 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
   const pl = HELPER.plan(P.mlvl || 1, wizLvl(), rounds.length);
   G.site = o.site; G.vkey = o.site.bg; G.fname = o.site.name; G.big = o.festival; G.projs = null; G.mon = null; G.foes = null; G.group = false;
   const imp = !o.festival && (window.__forceImp != null ? window.__forceImp : HELPER.isImpatient(wizLvl()));   // the demo can force it; an impatient villager (spec 05 §8): a patience bar, the armor bar
-  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, picCost: 0, snap: null, noCount: false, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
+  const pat = HELPER.patienceFor(pl.happyMax);   // the impatient villager's patience (it survives two mistakes)
+  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, picCost: 0, snap: null, noCount: false, landed: {}, pat, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: pat } : {}) }, msg: '' };
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
   $('#itemBar').style.display = 'none'; setBookIcon(true);
   visitRound(); drawScene(); visitShow();
@@ -3839,7 +3839,7 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   const ab = $('#armorBar'); ab.classList.toggle('on', !!V.imp);   // the impatient villager's patience (the armor bar; the stylesheet shows it with class "on")
   ab.style.setProperty('--seg', HELPER.PATIENCE);   // five segments: one per point of patience
   ab.firstElementChild.style.background = 'linear-gradient(90deg,#ff6b3d,#ffb347)';   // warm colour: impatience, not armor
-  if (V.imp) ab.firstElementChild.style.width = Math.round(100 * V.st.patience / HELPER.PATIENCE) + '%';
+  if (V.imp) ab.firstElementChild.style.width = Math.round(100 * V.st.patience / V.pat) + '%';
   $('#foeName').textContent = G.site.name + ' · ' + V.project.name + ' · ' + (V.round + 1) + '/' + V.rounds.length;
   G.vmood = V.phase === 'done' ? 'happy' : (V.st.happy > 0 ? 'happy' : 'wait');
   renderVillager();
@@ -3936,20 +3936,26 @@ function conjureFx(em, n) {
   host.appendChild(e); setTimeout(() => e.remove(), 1000);
 }
 // the wizard shoots from his staff at the villager; where the spell lands, the item is conjured (the look grows with the wizard tier)
-function conjureShot(em, n) {
+// the item lands on the project's tray; when the last one is on it, the villager makes the project
+function conjureShot(em, n, proj) {
   const w = wizLvl(), tier = w >= 19 ? 4 : w >= 13 ? 3 : w >= 7 ? 2 : 1, shot = ['✨', '🌟', '💫', '🔮'][tier - 1];
-  const landed = () => { conjureFx(em, n); if (n > 6) floatText('+' + n, '#ffd166', $('#foeBody')); };
-  fly(shot, $('#heroSvg'), $('#foeBody'), { trail: true, size: 1.6 }).then(landed, landed);
+  const landed = () => {
+    conjureFx(em, n); if (n > 6) floatText('+' + n, '#ffd166', $('#foeBody'));
+    const V = VS; if (!V) return;   // the visit may have ended meanwhile
+    V.landed[proj.name] = (V.landed[proj.name] || 0) + 1;
+    const tr = $('#vhTray'); if (tr) tr.innerHTML = visitTray();
+    if (V.landed[proj.name] === V.rounds.filter(r => r.project === proj).length) visitMade(proj);   // all the items are on the tray: the whole project
+  };
+  fly(shot, $('#heroSvg'), $('#vhTray') || $('#foeBody'), { trail: true, size: 1.6 }).then(landed, landed);
 }
-function visitCraft() {   // the item is crafted: a shot from the staff, and the item appears in front of the villager; a big amount floats as a number
+function visitCraft() {   // the item is crafted: a shot from the staff onto the tray; a big amount floats as a number
   const V = VS, n = V.p.amount, em = V.item.em, thanks = t('vh_ok', { items: n <= 6 ? em.repeat(n) : em + ' ×' + n });
-  conjureShot(em, n);
-  if (!V.rounds.slice(V.round + 1).some(r => r.project === V.project)) visitMade(V.project);   // the last item of this project: the villager makes it
+  conjureShot(em, n, V.project);
   return thanks;
 }
 // the villager's tray: the project's items as they arrive (❔ until then), and the result they make with them
 function visitTray() {
-  const V = VS, pr = V.rounds.filter(r => r.project === V.project), got = V.rounds.slice(0, V.round).filter(r => r.project === V.project).length;
+  const V = VS, pr = V.rounds.filter(r => r.project === V.project), got = V.landed[V.project.name] || 0;   // the items that have landed on the tray
   const slots = pr.map((r, i) => `<span class="traySlot ${i < got ? 'full' : ''}">${i < got ? r.item.em : '❔'}</span>`).join('');
   const made = got >= pr.length ? `<div class="trayResult">✨ ${V.project.result} ✨</div>` : '';
   return `<div class="projTray vhTray"><div class="trayName">${V.project.name}</div><div class="traySlots">${slots}</div>${made}</div>`;
