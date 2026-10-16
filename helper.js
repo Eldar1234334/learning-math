@@ -54,7 +54,29 @@
   const GENDER = { 1: 'm', 2: 'm', 3: 'm', 4: 'f', 5: 'm', 6: 'm', 7: 'm', 8: 'm', 9: 'm', 10: 'm', 11: 'm', 12: 'm', 13: 'f', 14: 'm', 15: 'm', 16: 'f',
     17: 'f', 18: 'f', 19: 'm', 20: 'm', 21: 'm', 22: 'm', 23: 'm', 24: 'm', 25: 'f', 26: 'm', 27: 'm', 28: 'f', 30: 'm', 36: 'f', 40: 'f', 42: 'm',
     45: 'm', 48: 'm', 49: 'm', 50: 'f', 55: 'm', 60: 'f', 64: 'm' };
-  const genderOf = item => GENDER[item.n] || 'm';
+  // the mass items (spec 05 §6): counted with a unit, "3 sacks of flour" / "3 שקי קמח"; [singular, plural, of-part, gender] in English and Hebrew
+  const MASS = {
+    2: { one: ['cup', 'כוס'], many: ['cups', 'כוסות'], of: ['of water', 'מים'], g: 'f' },
+    5: { one: ['sack', 'שק'], many: ['sacks', 'שקי'], of: ['of flour', 'קמח'], g: 'm' },
+    10: { one: ['cup', 'כוס'], many: ['cups', 'כוסות'], of: ['of milk', 'חלב'], g: 'f' },
+    11: { one: ['spoon', 'כף'], many: ['spoons', 'כפות'], of: ['of salt', 'מלח'], g: 'f' },
+    12: { one: ['bar', 'מוט'], many: ['bars', 'מוטות'], of: ['of iron', 'ברזל'], g: 'm' },
+    13: { one: ['flame', 'להבה'], many: ['flames', 'להבות'], of: ['of fire', 'אש'], g: 'f' },
+    19: { one: ['bundle', 'צרור'], many: ['bundles', 'צרורות'], of: ['of straw', 'קש'], g: 'm' },
+    20: { one: ['roll', 'יריעה'], many: ['rolls', 'יריעות'], of: ['of cloth', 'בד'], g: 'f' },
+    21: { one: ['bottle', 'בקבוק'], many: ['bottles', 'בקבוקים'], of: ['of oil', 'שמן'], g: 'm' },
+    24: { one: ['plank', 'קורה'], many: ['planks', 'קורות'], of: ['of wood', 'עץ'], g: 'f' },
+    27: { one: ['loaf', 'כיכר'], many: ['loaves', 'כיכרות'], of: ['of bread', 'לחם'], g: 'f' },
+    28: { one: ['chunk', 'גוש'], many: ['chunks', 'גושי'], of: ['of cheese', 'גבינה'], g: 'm' }
+  };
+  const genderOf = item => (MASS[item.n] ? MASS[item.n].g : GENDER[item.n] || 'm');
+  // the item as it reads in a story, with its count: "3 sacks of flour" / "1 sack of flour" / "3 cups" for a countable item
+  const storyName = (item, n) => {
+    const m = MASS[item.n];
+    if (!m) return nameFor(item, n);
+    const u = n === 1 ? m.one : m.many;
+    return [`${u[0]} ${m.of[0]}`, `${u[1]} ${m.of[1]}`];
+  };
   const itemOf = n => BOOK.find(x => x.n === n) || null;
   const itemByHe = he => BOOK.find(x => x.one[1] === he) || null;
   const nameFor = (item, count) => (count === 1 ? item.one : item.many);   // [English, Hebrew]
@@ -166,5 +188,5 @@
   // the impatient villager: from wizard level 6, one visit in three
   const isImpatient = (wlvl, r = Math.random) => wlvl >= 6 && r() < 1 / 3;
 
-  return { BOOK, PATIENCE, genderOf, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  return { BOOK, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });

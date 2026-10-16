@@ -772,3 +772,4 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Bundles (spec 05 §3 and §8, wizard level 12): dismissed by the owner.** No bundle casting for now.
 - **Extra-information stories (spec 05 §8, wizard level 15):** about half the visits add one number that is not needed ("Also, there are 6 iron in the village."). Steps and cards are unchanged.
 - **Hebrew plurals and gender (spec 05 §6, part):** each item has a Hebrew gender; the verbs of the stories agree with the count and the gender ("נשבר" / "נשברה" / "נשברו"). Plural of thread fixed (חוטים). Open: mass nouns (flour, iron, water, milk…) need a unit phrase for amounts (owner to decide).
+- **Mass items with units (spec 05 §6):** flour, water, milk, iron, fire, salt, straw, cloth, oil, wood, bread and cheese are read with a unit in the stories ("3 sacks of flour", "3 שקי קמח"). The item book keeps the plain names.

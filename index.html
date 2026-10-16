@@ -3814,7 +3814,7 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
 function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
   visitBars();
-  const p = V.p, nm = n => vhLow(hpItemName(V.item, n)), e = V.item.em, s = p.show;
+  const p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), e = V.item.em, s = p.show;   // the item as the story says it (units for the mass items)
   const story = { result: () => t('vh_result', { a: p.a, b: p.b, item: nm(p.a) }), change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
     separate: () => t('vh_separate', { t: p.t, b: p.b, item: nm(p.t), broke: tl(['broke', p.b === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשברה' : 'נשבר') : 'נשברו']) }),   // the verb agrees with the count and the gender
     part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
@@ -3828,7 +3828,7 @@ function visitShow() {
     : `<div class="vhCount"><span class="vhHave">${e.repeat(s.have) || '–'}</span> <b>${s.have} / ${s.of}</b></div>`;
   $('#qTitle').textContent = V.project.name;
   $('#qBig').innerHTML = `<div class="vhStory">${story}</div>${shown}`;
-  const storyAll = V.extra ? story + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(hpItemName(V.extra.item, V.extra.n)) }) : story;
+  const storyAll = V.extra ? story + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(tl(HELPER.storyName(V.extra.item, V.extra.n))) }) : story;
   $('#qBig').innerHTML = `<div class="vhStory">${storyAll}</div>${shown}`;
   V.storyText = storyAll;   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(story); }
@@ -3845,7 +3845,7 @@ function visitShow() {
     if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1);
     $('#qSub').textContent = t('vh_item');
     if (wizLvl() >= 9) {   // the two-part request (spec 05 §8): one question at a time: the amount, then the spell
-      $('#qBig').innerHTML = `<div class="vhStory">${t('vh_spell_q', { n: V.p.amount, item: vhLow(hpItemName(V.item, V.p.amount)) })}</div>`;
+      $('#qBig').innerHTML = `<div class="vhStory">${t('vh_spell_q', { n: V.p.amount, item: vhLow(tl(HELPER.storyName(V.item, V.p.amount))) })}</div>`;
       $('#qSub').textContent = t('vh_spell_sub');
     }
     o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.itemCards.length}, 1fr)`;

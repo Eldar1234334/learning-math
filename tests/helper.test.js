@@ -16,6 +16,13 @@
     }
     assert(H.itemOf(30).many[1] === 'חוטים', 'thread plural');
   });
+  test('mass items read with a unit in a story: one sack, three sacks; countable items unchanged', () => {
+    assert(H.storyName(H.itemOf(5), 1)[0] === 'sack of flour' && H.storyName(H.itemOf(5), 3)[0] === 'sacks of flour', 'flour en');
+    assert(H.storyName(H.itemOf(5), 3)[1] === 'שקי קמח', 'flour he');
+    assert(H.storyName(H.itemOf(2), 3)[1] === 'כוסות מים', 'water he');
+    assert(H.storyName(H.itemOf(3), 3)[0] === 'Apples', 'apples unchanged');
+    assert(H.genderOf(H.itemOf(5)) === 'm' && H.genderOf(H.itemOf(2)) === 'f', 'mass genders from the unit');
+  });
   test('the book has the 39 approved items, each number once', () => {
     assert(H.BOOK.length === 39, 'items: ' + H.BOOK.length);
     assert(new Set(H.BOOK.map(x => x.n)).size === 39, 'numbers unique');
