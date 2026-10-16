@@ -4300,13 +4300,13 @@ function acadQDone(ok, fact = true) {   // one question is over: right only when
 // the weak-spot memory (§6): the wrong answers of a real test are kept for practice in normal play; the right ones are not; a closed test records nothing
 function acadApplyFacts() {
   if (ACQ.practice) return;
-  (ACQ.facts || []).forEach(f => { if (!f.ok) ME.noteFact(P.mfacts, f.p, false); });
+  (ACQ.facts || []).forEach(f => { if (!f.ok && f.p.e) ME.noteFact(P.mfacts, f.p, false); });   // the fighting problems are maths problems of the game: the conjuring amounts are not in its memory
   saveSoon(true);
 }
 // the facts to look at again (up to 8: the missed problems, with their answers)
 function acadFactsHtml() {
   const wrong = (ACQ.facts || []).filter(f => !f.ok).slice(0, 8);
-  return wrong.length ? `<p class="small">${t('ac_facts')}</p>` + wrong.map(f => `<div dir="ltr">${exprHtml(f.p.e)} = ${ME.fmtHtml(f.p.a)}</div>`).join('') : '';
+  return wrong.length ? `<p class="small">${t('ac_facts')}</p>` + wrong.map(f => `<div dir="ltr">${f.p.e ? exprHtml(f.p.e) + " = " + ME.fmtHtml(f.p.a) : HELPER.cardText(f.p.expr) + " = " + f.p.amount}</div>`).join('') : '';
 }
 // the practice run (§6): 6 questions with the same rules, no marks, no pass or fail
 function acadPracticeEnd() {
