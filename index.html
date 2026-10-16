@@ -3972,7 +3972,8 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   }
   if (act === 'card' && V.phase === 'card') {   // problem 1: the card that solves the story
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
-    if (c.fits) { V.phase = 'calc';   // the right card is free: the answer after it is the action V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
+    // the right card is free: the answer after it is the action
+    if (c.fits) { V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
     c.gone = true; V.st = vhMiss(c); sfx.bad(); V.msg = t('vh_wrong_card');
     if (visitAfter()) return; return visitShow();
   }
