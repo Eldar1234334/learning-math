@@ -99,8 +99,8 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .acPair{display:flex;gap:0;align-items:flex-end}#foeBody .acPair .acBigDum .dsvg{width:68px;height:88px}
 .acBigDum .dsvg{width:110px;height:190px;transition:transform .7s,opacity .7s}
 .acBigDum.hit .dsvg{animation:acadShake .6s}.acBigDum.miss .dsvg{animation:acadFlash .6s}.acBigDum.down .dsvg{transform:rotate(80deg) translateY(10px);opacity:.4}
-.acBigDum .mk{display:flex;gap:5px;justify-content:center;margin-top:2px}.acBigDum .mk i{width:14px;height:14px;border-radius:50%;border:2px solid #fffd;background:#0002;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-style:normal;line-height:1;color:#fff}
-.acBigDum .mk i.gold{background:#ffd166;border-color:#ffd166}.acBigDum .mk i.red{background:#ff5a5a66;border-color:#ff5a5a}.acBigDum .mk i.red::after{content:'✖'}
+.acBigDum .mk{display:flex;gap:5px;justify-content:center;margin-top:2px}.acBigDum .mk i{position:relative;width:14px;height:14px;border-radius:50%;border:2px solid #fffd;background:#0002;display:inline-block}
+.acBigDum .mk i.gold{background:#ffd166;border-color:#ffd166}.acBigDum .mk i.red{background:#fff3;border-color:#e8262a}.acBigDum .mk i.red::before,.acBigDum .mk i.red::after{width:90%;height:2px}
 .acProg{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#fff7;border-radius:12px;padding:4px 8px}
 .acProg i{width:10px;height:10px;border-radius:50%;background:#fff6}.acProg i.ok{background:#8f8}.acProg i.bad{background:#f66}.acProg i.cur{outline:2px solid #ffd166}
 .acPed{position:relative;width:100%;text-align:center}.acPedBase{height:26px;width:90%;margin:0 auto;border-radius:8px 8px 4px 4px;background:linear-gradient(#e8e0cf,#b9ad92)}
@@ -112,7 +112,9 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #acName{position:absolute;top:17%;left:50%;transform:translateX(-50%);color:#fff;font-weight:600;font-size:.95rem;text-shadow:0 1px 3px #0009;z-index:2;white-space:nowrap}
 #foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:14%;z-index:2;width:auto}
 #acDots{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;gap:6px;justify-content:center;z-index:3}#acDots i{width:12px;height:12px;border-radius:50%;display:inline-block;opacity:.55}#acDots i.cur{opacity:1;outline:2px solid #fff;outline-offset:1px}#acDots i.done{opacity:.3}
-.exBoxes{display:flex;gap:6px;justify-content:center;margin-top:6px}.exBoxes i{width:26px;height:26px;border:2px solid #fffc;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:.9rem;color:#ff6a6a;background:#0002}.exBoxes i.used{border-color:#ff6a6a;background:#ff5a5a33}
+.exBoxes{display:flex;gap:6px;justify-content:center;margin-top:6px}.exBoxes i{position:relative;width:26px;height:26px;border:2px solid #fffc;border-radius:6px;display:inline-block;background:#fff2}
+.exBoxes i.used::before,.exBoxes i.used::after,.acBigDum .mk i.red::before,.acBigDum .mk i.red::after{content:'';position:absolute;left:50%;top:50%;width:78%;height:3px;border-radius:2px;background:#e8262a;transform:translate(-50%,-50%) rotate(45deg)}
+.exBoxes i.used::after,.acBigDum .mk i.red::after{transform:translate(-50%,-50%) rotate(-45deg)}
 body.acadOn .side.foe{display:none}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
@@ -1433,7 +1435,7 @@ const STR = {
   ac_pick_amount_card: ['Pick the card with the amount to conjure.', 'בחרו את הקלף עם הכמות לזימון.'],
   ac_item_of: ['Item {k} of {n}', 'פריט {k} מתוך {n}'],
   ac_dummy: ['Training dummy', 'דמות אימון'], ac_practice_tag: ['Practice', 'תרגול'],
-  ac_fight_title: ['The dummy! Pick a card whose answer is a spell it is weak to.', 'הדמות! בחרו קלף שהתשובה שלו היא כישוף שהיא חלשה נגדו.'],
+  ac_fight_title: ['The {el} dummy! Pick a card whose answer is a spell it is weak to.', 'דמות ה{el}! בחרו קלף שהתשובה שלו היא כישוף שהיא חלשה נגדו.'],
   ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
   ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
   ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
@@ -4645,7 +4647,7 @@ function acadFinish(early) {
 }
 /* ----- The fighting trial on the game's own fight screen (as the Hebrew game): the same stage, the wizard, the dummy and the question panel,
    with the examiner standing on the right. The rules are the math rules: card, then answer. ----- */
-const acadDummyTitle = el => `${acadIcon(el)} ${t('ac_fight_title')}`;
+const acadDummyTitle = el => t('ac_fight_title', { el: tl(ACAD_ELN[el]).toLowerCase() });   // the element as a word (its icon is already on the dummy)
 // the fight screen takes the trial: the stage, the examiner, the progress along the bottom, and the rest of the game's controls are hidden
 function acGameEnter() {
   show('game'); setBookIcon(false); VS = null;
@@ -4697,7 +4699,7 @@ function fightRenderGame() {
   };
   $('#foeBody').innerHTML = q.d2 != null ? `<div class="acPair">${one(q.d)}${one(q.d2)}</div>` : one(q.d);
   // the mistakes allowed: empty boxes under the wizard, a cross in each one used (the practice run has none)
-  $('#hearts').innerHTML = ACQ.practice ? `<span class="exMarks">📚 ${t('ac_practice_tag')}</span>` : `<span class="exBoxes">${Array.from({ length: ACQ.allowed }, (_, m) => `<i class="${m < ACQ.mist ? 'used' : ''}">${m < ACQ.mist ? '✖' : ''}</i>`).join('')}</span>`;
+  $('#hearts').innerHTML = ACQ.practice ? `<span class="exMarks">${t('ac_practice_tag')}</span>` : `<span class="exBoxes">${Array.from({ length: ACQ.allowed }, (_, m) => `<i class="${m < ACQ.mist ? 'used' : ''}"></i>`).join('')}</span>`;
   $('#acTop .acPill').innerHTML = ACQ.qs.map((x, i) => `<i class="${ACQ.results[i] === true ? 'ok' : ACQ.results[i] === false ? 'bad' : i === ACQ.i ? 'cur' : ''}"></i>`).join('');
   $('#acName').textContent = t('ac_dummy');
   $('#acDots').innerHTML = ACQ.dummies.map((x, j) => `<i style="background:${ACAD_COL[x.el]}" class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
