@@ -4464,7 +4464,7 @@ function acadClick(e) {
     if (a === 'card' && ACQ.phase === 'fpick') {   // step 1: the card whose answer is a spell this dummy is weak to
       if (q.cards[i] === q.p) { ACQ.phase = 'fsolve'; ACQ.msg = ''; return acadRender(); }
       d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
-      ACQ.msg = t('ac_card_miss'); return acadQDone(false, null);
+      ACQ.msg = t('ac_card_miss'); return acadQDone(false, q.p);
     }
     if (a === 'num' && ACQ.phase === 'fsolve') {   // step 2: the answer of the card: the spell hits
       if (+b.dataset.n === q.s.v.n) {
@@ -4474,7 +4474,7 @@ function acadClick(e) {
         return acadQDone(true);
       }
       d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { emoji: '💨', targets: [q.d] };
-      ACQ.msg = t('ac_miss'); return acadQDone(false, null);
+      ACQ.msg = t('ac_miss'); return acadQDone(false, q.p);
     }
     return;
   }
