@@ -102,6 +102,8 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .acProg i{width:10px;height:10px;border-radius:50%;background:#fff6}.acProg i.ok{background:#8f8}.acProg i.bad{background:#f66}.acProg i.cur{outline:2px solid #ffd166}
 .acPed{position:relative;width:100%;text-align:center}.acPedBase{height:26px;width:90%;margin:0 auto;border-radius:8px 8px 4px 4px;background:linear-gradient(#e8e0cf,#b9ad92)}
 .acPedItems{position:absolute;bottom:26px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:30px;font-size:1.3rem}
+#acExam{position:absolute;right:3%;bottom:4px;width:70px;text-align:center;z-index:3}#acExam svg{width:100%;height:auto}#acExam small{display:block;color:#fff;font-size:.8rem}
+#acDots{display:flex;gap:4px;justify-content:center;margin:4px 0}#acDots i{width:11px;height:11px;border-radius:50%;display:inline-block;opacity:.45}#acDots i.cur{opacity:1;outline:2px solid #ffd166}#acDots i.done{opacity:1;filter:grayscale(.3)}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
 .acadDots i.cur{outline:2px solid #ffd166}.acadDots i.done{background:#8f8}
@@ -1410,6 +1412,8 @@ const STR = {
   ac_pick_item_card: ['Pick the card with the number of the item.', 'בחרו את הקלף עם מספר הפריט.'],
   ac_pick_amount_card: ['Pick the card with the amount to conjure.', 'בחרו את הקלף עם הכמות לזימון.'],
   ac_item_of: ['Item {k} of {n}', 'פריט {k} מתוך {n}'],
+  ac_dummy: ['Training dummy', 'דמות אימון'], ac_practice_tag: ['Practice', 'תרגול'],
+  ac_fight_title: ['The dummy! Pick a card whose answer is a spell it is weak to.', 'הדמות! בחרו קלף שהתשובה שלו היא כישוף שהיא חלשה נגדו.'],
   ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
   ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
   ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
@@ -4279,7 +4283,7 @@ function acadStart() {   // the questions are built now, from the student's curr
       }
       return Object.assign(q, { cards: acadShuffle([q.p, ...others]), choices: HELPER.itemAnswers(q.s.v.n, Math.random) });
     });
-    ACQ.phase = 'fpick'; return acadRender();
+    ACQ.onGame = true; acGameEnter(); ACQ.phase = 'fpick'; return acadRender();
   }
   const m = ACAD_ITEMS[k], pool = HELPER.reachable(lvl);
   ACQ.qs = Array.from({ length: ACQ.Q }, () => ({
@@ -4362,7 +4366,8 @@ function acadCardBtn(text, act, i) { return `<button class="opt card" data-ac="$
 function acadRender() {
   let ov = $('#academy');
   if (!ov) { ov = document.createElement('div'); ov.id = 'academy'; ov.className = 'acadOv'; ov.innerHTML = '<div class="acadBox" id="acadBox"></div>'; document.body.appendChild(ov); ov.onclick = acadClick; }
-  ov.style.display = ACQ ? '' : 'none'; if (!ACQ) return;
+  ov.style.display = ACQ && !ACQ.onGame ? '' : 'none'; if (!ACQ) return;
+  if (ACQ.onGame) { if (ACQ.phase === 'result') return acadResultModal(); return fightRenderGame(); }   // the fighting trial runs on the fight screen
   const box = $('#acadBox'), ex = ACQ.k % 2 === 0 ? 'Orin' : 'Odelia';   // the examiners (§10.6): Orin for tests 1, 3, 5; Odelia for 2, 4
   if (ACQ.phase === 'rules') {
     box.innerHTML = `<h3>${t('ac_t')}</h3><p><b>${ex}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: ACAD_Q[ACQ.k], n: ACAD_NEED[ACQ.k], m: ACAD_Q[ACQ.k] - ACAD_NEED[ACQ.k] })}</p>
@@ -4393,7 +4398,7 @@ function acadRender() {
 function acadClick(e) {
   const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !ACQ) return;
   const a = b.dataset.ac;
-  if (a === 'close') { ACQ = null; acadRender(); refreshAcademy(); return; }
+  if (a === 'close') return acadExit();
   if (a === 'start') { ACQ.kind = b.dataset.kind || 'conj'; ACQ.practice = false; return acadStart(); }
   if (a === 'again') { ACQ.practice = false; return acadStart(); }
   if (a === 'practice') { ACQ.practice = true; return acadStart(); }   // the practice run: 6 questions, the same rules, no marks
@@ -4479,6 +4484,63 @@ function acadFinish(early) {
   }
   acadRender(); refreshAcademy();
 }
+/* ----- The fighting trial on the game's own fight screen (as the Hebrew game): the same stage, the wizard, the dummy and the question panel,
+   with the examiner standing on the right. The rules are the math rules: card, then answer. ----- */
+const acadDummyTitle = el => `${ACAD_BADGE[el]} ${t('ac_fight_title')}`;
+// the fight screen takes the trial: the stage, the examiner, the progress along the bottom, and the rest of the game's controls are hidden
+function acGameEnter() {
+  show('game'); setBookIcon(false); VS = null;
+  $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P);
+  setStageBg('f:woods');
+  ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = 'none'; });
+  $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none'; $('#nextBtn').classList.add('hidden');
+  if (document.querySelector('#vhTray')) document.querySelector('#vhTray').remove();
+  if (!$('#acExam')) $('#stage').insertAdjacentHTML('beforeend', `<div id="acExam">${acadExaminerSvg()}<small>${ACQ.k % 2 === 0 ? 'Orin' : 'Odelia'}</small></div>`);
+  if (!$('#acDots')) $('#stage').insertAdjacentHTML('afterend', '<div id="acDots"></div>');
+  $('#foeName').textContent = t('ac_dummy');
+  $('#foeBody').className = 'foeBody';
+}
+// leaving the trial: the game's own screens and controls come back
+function acGameExit() {
+  ACQ = null; refreshAcademy();
+  ['#acExam', '#acDots'].forEach(s => { const e = $(s); if (e) e.remove(); });
+  ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = ''; });
+  $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none';
+  openMenu();
+}
+function acadExit() { const wasGame = ACQ && ACQ.onGame; ACQ = null; const ov = $('#academy'); if (ov) ov.style.display = 'none'; refreshAcademy(); if (wasGame) return acGameExit(); }
+// the buttons of a result or a rules screen
+function acadDo(a) {
+  if (a === 'close') return acadExit();
+  if (a === 'start') return acadStart();
+  if (a === 'again') { ACQ.practice = false; return acadStart(); }
+  if (a === 'practice') { ACQ.practice = true; return acadStart(); }
+  if (a === 'take') { ACQ.practice = false; return acadStart(); }
+}
+// the fight screen of the trial: the dummy with its element in three places, the hit markers, the progress, and the question panel
+function fightRenderGame() {
+  const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], fpick = ACQ.phase === 'fpick';
+  const cls = [ACQ.lastHit && ACQ.lastHit.includes(q.d) ? 'hit' : '', ACQ.lastMiss === q.d ? 'miss' : '', d.hits >= d.need ? 'down' : ''].join(' ');
+  const pips = Array.from({ length: d.need }, (_, m) => `<i class="${m < d.hits ? 'gold' : m < d.hits + (d.miss || 0) ? 'red' : ''}"></i>`).join('');
+  $('#foeBody').innerHTML = `<div class="acBigDum ${cls}">${acadDummySvg(d.el)}<div class="mk">${pips}</div></div>`;
+  $('#hearts').innerHTML = `<span class="exMarks">${ACQ.practice ? '📚 ' + t('ac_practice_tag') : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist))}</span>`;
+  $('#hpFill').style.width = (100 * ACQ.i / ACQ.Q) + '%';
+  $('#acDots').innerHTML = ACQ.dummies.map((x, j) => `<i style="background:${ACAD_COL[x.el]}" class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
+  $('#qTitle').innerHTML = fpick ? acadDummyTitle(d.el) : t('ac_pick_answer');
+  $('#qSub').textContent = q.d2 != null ? t('ac_aoe_t') : (d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : (fpick ? t('ac_pick_card') : ''));
+  $('#qBig').innerHTML = fpick ? '' : `<div class="acEq" dir="ltr">${exprHtml(q.p.e)}</div>`;
+  const o = $('#opts'); o.className = 'opts' + (fpick ? ' cards' : ''); o.style.display = ''; o.style.gridTemplateColumns = '1fr 1fr'; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
+  o.innerHTML = fpick
+    ? q.cards.map((c, i) => `<button class="opt card" data-ac="card" data-i="${i}"><span class="cardEx" dir="ltr">${exprHtml(c.e)}</span></button>`).join('')
+    : q.choices.map(n => `<button class="opt num" data-ac="num" data-n="${n}">${n}</button>`).join('');
+  $('#fb').textContent = ACQ.msg || '';
+  if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; setTimeout(() => fly(s.emoji, $('#heroSvg'), $('#foeBody'), { trail: true, size: 1.2 }), 30); }   // the spell flies from the wizard to the dummy
+}
+// the result of the fighting trial: the game's own box
+function acadResultModal() {
+  modal(t('ac_t'), ACQ.text, ACQ.buttons.map(([l, a]) => [l, () => acadDo(a)]));
+}
+$('#opts').addEventListener('click', e => { if (ACQ && ACQ.onGame) acadClick(e); });   // the trial's buttons on the fight screen
 /* ====================== THE FIGHT (spec 00 §3, combat.js) ====================== */
 // A turn: pick one of the problem cards (answers hidden) → from math level 5, say the answer (the incantation) → the answer is cast as the spell
 // with that number (weakness: damage · own element: the monster heals · other element: no effect · no spell: fizzle) → the monster's turn.
