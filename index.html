@@ -405,6 +405,18 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 /* teacher area */
 .adminLink{color:#fff;opacity:.5;font-size:.85rem;text-decoration:none;border-bottom:1px dotted #fff6}
 .adminLink:hover{opacity:.9}
+.hpBook,.hpCards,.hpNums{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.hpItem{background:#fff2;border-radius:10px;padding:4px 8px;font-size:.9rem}
+.hpItem.on{background:#ffd166;color:#3a2300}
+.hpCard,.hpNum{min-width:64px}
+.hpShown{font-size:1.6rem;text-align:center;min-height:1.8em}
+.hpMsg{font-weight:600;min-height:1.4em;margin:6px 0;text-align:center}
+.vhWrap{position:fixed;inset:0;z-index:80;background:rgba(12,8,34,.84);display:flex;align-items:center;justify-content:center;padding:12px}
+.vhBox{background:#2a1f5c;color:#fff;border-radius:18px;padding:14px 16px;width:min(480px,94vw);max-height:92vh;overflow:auto;box-shadow:0 8px 0 #0a0620}
+.vhHead{display:flex;gap:8px;align-items:center;font-size:1.1rem;margin-bottom:6px}.vhVil{font-size:2rem}
+.vhBar{display:flex;gap:8px;align-items:center;font-size:.9rem;margin:4px 0}.vhBar>span{min-width:86px}
+.vhTrack{flex:1;height:14px;border-radius:8px;background:#fff3;overflow:hidden}
+.vhFill{height:100%;width:0;transition:width .4s}.vhFill.mana{background:linear-gradient(90deg,#3aa0ff,#7fd1ff)}.vhFill.happy{background:linear-gradient(90deg,#ffb347,#ffd166)}
 #admTable .tk{width:28px;text-align:center;cursor:default}
 .admPlayed{margin:8px 0;padding:8px 12px;border-radius:12px;background:#2ecc7122;font-size:1rem}.admPlayed b{font-size:1.2rem}
 .mvBtn{margin-left:6px;padding:2px 8px;border-radius:10px;border:1px solid #fff5;background:#fff1;color:#fff;font:inherit;font-size:.75rem;cursor:pointer}.mvBtn:hover{background:#fff3}
@@ -1087,6 +1099,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <script src="combat.js"></script>
 <script src="brew.js"></script>
 <script src="shop.js"></script>
+<script src="helper.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -1316,6 +1329,16 @@ const STR = {
   pl_shut: ['Shuttered', 'סגור'], abandon_map: ['🏳️ Abandon quest', '🏳️ עזיבת המסע'], logout: ['🚪 Switch hero', '🚪 החלפת גיבור'],
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
+  vh_result: ['I have {a} {item}. My friend gives me {b} more. How many do I have now?', 'יש לי {a} {item}. החבר נותן לי עוד {b}. כמה יש לי עכשיו?'],
+  vh_change: ['I need {t} {item}. I have {a}. How many more do I need?', 'אני צריך {t} {item}. יש לי {a}. כמה עוד אני צריך?'],
+  vh_card: ['Choose the card that fits my story.', 'בחרו את הכרטיס שמתאים לסיפור שלי.'], vh_calc: ['Work it out. How many do I need?', 'חשבו. כמה אני צריך?'],
+  vh_item: ['Look up the item in the book, then choose its card.', 'מצאו את הפריט בספר, ואז בחרו את הכרטיס שלו.'],
+  vh_wrong_card: ['That card does not fit my story!', 'הכרטיס הזה לא מתאים לסיפור שלי!'], vh_wrong_item: ['{em} {got}? I need {want}!', '{em} {got}? אני צריך {want}!'],
+  vh_few: ['Now I have {have}. I still need {more} more!', 'עכשיו יש לי {have}. עוד {more} חסרים!'], vh_many: ['Now I have {have}. That is {extra} too many!', 'עכשיו יש לי {have}. זה {extra} יותר מדי!'],
+  vh_ok: ['Thank you, wizard! Here they are: {items}', 'תודה, קוסם! הנה הם: {items}'],
+  vh_mana: ['🔷 Mana', '🔷 מאנה'], vh_happy: ['😊 Happy', '😊 שמחה'], vh_book: ['Conjuration book', 'ספר הכישופים'],
+  vh_done: ['The villager is happy! "Thank you, wizard. Come back tomorrow."', 'התושב שמח! "תודה, קוסם. חזרו מחר."'],
+  vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
   ws_locked: ['🔒 Come back when you are a stronger wizard!', '🔒 חזרו כשתהיו קוסמים חזקים יותר!'],
   quest_locked: ['🔒 You are in the middle of a quest! Finish it, or tap 🏳️ Abandon quest to leave it.', '🔒 אתם באמצע מסע! סיימו אותו, או הקישו על 🏳️ עזיבת המסע.'],
   sound_off: ['🔇 The sound is off. Tap the speaker at the top.', '🔇 הצליל כבוי. הקישו על הרמקול למעלה.'],
@@ -3010,7 +3033,8 @@ function jWalk() {
 function jCoins(units) { const c = coinUnit(P.mlvl) * units; P.coins = (P.coins || 0) + c; const rr = runRec(); if (rr) rr.coins += c; const d = today(); if (P.coinDay.d !== d) P.coinDay = { d, c: 0 }; P.coinDay.c += c; return c; }
 function jArrive(i) {
   const qs = P.quest[J.q], code = qs.path[i - 1], kind = code[0], v = jVillage();
-  if (kind === 'm' || kind === 's' || kind === 'B') { jDraw(); jHud(); enterFight(); return; }   // the normal fight / village screen
+  if (kind === 's') { jDraw(); jHud(); return openVisit(i); }   // a villager visit (spec 05, slice 1)
+  if (kind === 'm' || kind === 'B') { jDraw(); jHud(); enterFight(); return; }   // the normal fight / boss
   qs.at = i; J.wizLen = null;   // a special stop is done the moment you arrive (so a refresh can not repeat it)
   let title, body;
   if (kind === 'r') {
@@ -3703,6 +3727,97 @@ function after(tier) {
   if (tier === 'down') toast(t('level_down', { n: P.mlvl, name: tierName(P.mlvl) }));
   updateBars(); saveSoon();
 }
+/* ----- The villager visit (spec 05, slice 1). At a village site the villager asks for two items. Each item is a round:
+   1. the amount: choose the card that fits the story (one level lower), then work the amount out;
+   2. the item: choose the card with the item's number from the conjuration book (not for beginners).
+   Mana goes down on every action; the villager's happy meter fills on every right action. Logic in helper.js. ----- */
+let VS = null;   // the visit: { site, pl, st: { mana, happy, happyMax }, item, p, cards, itemCards, phase, msg, got, idx }
+const vhLow = s => s.toLowerCase();
+function openVisit(i) {   // called when the wizard reaches a village site on the quest map
+  const pl = HELPER.plan(P.mlvl || 1, wizLvl());
+  G.quest = J.q; G.site = SITES[+P.quest[J.q].path[i - 1].slice(1)] || SITES[0];
+  VS = { idx: i, pl, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax }, got: [], msg: '' };
+  let w = $('#vhWrap'); if (w) w.remove();
+  w = document.createElement('div'); w.id = 'vhWrap'; w.className = 'vhWrap';
+  w.innerHTML = `<div class="vhBox"><div class="vhHead"><span class="vhVil" id="vhVil"></span><b id="vhSite"></b></div>
+    <div class="vhBar"><span>${t('vh_mana')}</span><div class="vhTrack"><div class="vhFill mana" id="vhMana"></div></div></div>
+    <div class="vhBar"><span>${t('vh_happy')}</span><div class="vhTrack"><div class="vhFill happy" id="vhHappy"></div></div></div>
+    <div id="vhStory"></div><div id="vhBody"></div><div class="hpMsg" id="vhMsg"></div>
+    <div id="vhFoot"></div></div>`;
+  document.body.appendChild(w); w.onclick = visitClick;
+  $('#vhVil').textContent = G.site.em; $('#vhSite').textContent = G.site.name;
+  visitRound(); visitShow();
+}
+function visitRound() {   // a new item: the story's amount (one level lower), its cards, and the item the villager needs
+  const V = VS; V.item = rnd(HELPER.BOOK); V.p = HELPER.makeAmount(V.pl.lowLevel); V.cards = HELPER.amountCards(V.p); V.phase = 'card'; V.msg = ''; V.itemCards = null;
+}
+function visitShow() {
+  const V = VS, st = V.st, w = $('#vhWrap'); if (!w || !V) return;
+  $('#vhMana').style.width = Math.round(100 * st.mana / V.pl.mana) + '%';
+  $('#vhHappy').style.width = Math.round(100 * st.happy / st.happyMax) + '%';
+  const p = V.p, story = p.kind === 'result' ? t('vh_result', { a: p.a, b: p.b, item: vhLow(hpItemName(V.item, p.a)) }) : t('vh_change', { t: p.t, a: p.a, item: vhLow(hpItemName(V.item, p.t)) });
+  $('#vhStory').innerHTML = `<p><b>${story}</b></p>`;
+  const body = [];
+  if (V.phase === 'card') {
+    body.push(`<p class="small">${t('vh_card')}</p><div class="hpCards">${V.cards.map((c, i) => c.gone ? '' : `<button class="btn hpCard" data-vh="card" data-i="${i}">${HELPER.cardText(c)}</button>`).join('')}</div>`);
+  } else if (V.phase === 'calc') {
+    body.push(`<p class="small">${t('vh_calc')}</p><div class="hpNums">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(k => `<button class="btn hpNum" data-vh="amt" data-n="${k}">${k}</button>`).join('')}</div>`);
+  } else if (V.phase === 'item') {
+    if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item);
+    body.push(`<p class="small">${t('vh_item')}</p><div class="hpBook"><span class="small">${t('vh_book')}</span></div>`);
+    body.push(`<div class="hpBook">${HELPER.BOOK.map(x => `<span class="hpItem ${x.n === V.item.n ? 'on' : ''}"><b>${x.n}</b> ${x.em} ${hpItemName(x, 1)}</span>`).join('')}</div>`);
+    body.push(`<div class="hpCards">${V.itemCards.map((c, i) => c.gone ? '' : `<button class="btn hpCard" data-vh="item" data-i="${i}">${HELPER.cardText(c)}</button>`).join('')}</div>`);
+  } else {   // the visit is over
+    const done = V.phase === 'done';
+    body.push(`<div class="hpMsg">${t(done ? 'vh_done' : 'vh_lost')}</div>`);
+    $('#vhFoot').innerHTML = `<div class="hpNums"><button class="btn" data-vh="leave">${t('vh_leave')}</button></div>`;
+  }
+  if (V.phase !== 'done' && V.phase !== 'lost') $('#vhFoot').innerHTML = `<div class="hpNums"><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button></div>`;
+  $('#vhBody').innerHTML = body.join(''); $('#vhMsg').textContent = V.msg;
+}
+function visitAct(over) {   // after each action: the visit may be over
+  const V = VS, o = HELPER.visitOver(V.st);
+  if (o) { V.phase = o; V.msg = ''; visitShow(); return true; }
+  return false;
+}
+function visitRoundDone() {   // the item is handed over
+  const V = VS; V.got.push(V.item);
+  V.msg = t('vh_ok', { items: V.item.em.repeat(V.p.amount) });
+  if (visitAct()) return;
+  const thanks = V.msg; visitRound(); V.msg = thanks; visitShow();   // the next item's story; the thank-you stays on screen
+}
+function visitClick(e) {
+  const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
+  const V = VS, act = b.dataset.vh;
+  if (act === 'quit') { VS = null; $('#vhWrap').remove(); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'leave') { const done = V.phase === 'done'; VS = null; $('#vhWrap').remove(); return jAfterVisit(done); }
+  if (act === 'card' && V.phase === 'card') {
+    const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
+    if (c.fits) { V.st = HELPER.spend(V.st, true); V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAct()) return; return visitShow(); }
+    c.gone = true; V.st = HELPER.spend(V.st, false); sfx.bad(); V.msg = t('vh_wrong_card');
+    if (visitAct()) return; return visitShow();
+  }
+  if (act === 'amt' && V.phase === 'calc') {
+    const k = +b.dataset.n, r = HELPER.checkAmount(k, V.p.amount);
+    if (r.ok) { V.st = HELPER.spend(V.st, true); sfx.ok(); if (V.pl.beginner) { if (visitAct()) return; return visitRoundDone(); } V.phase = 'item'; V.msg = ''; if (visitAct()) return; return visitShow(); }
+    V.st = HELPER.spend(V.st, false); sfx.bad();
+    V.msg = r.kind === 'few' ? t('vh_few', { have: r.have, more: r.more }) : t('vh_many', { have: r.have, extra: r.extra });
+    if (visitAct()) return; return visitShow();
+  }
+  if (act === 'item' && V.phase === 'item') {
+    const c = V.itemCards[+b.dataset.i]; if (!c || c.gone) return;
+    if (HELPER.itemCardOk(c, V.item)) { V.st = HELPER.spend(V.st, true); sfx.win(); return visitRoundDone(); }
+    c.gone = true; V.st = HELPER.spend(V.st, false); sfx.bad();
+    const w = HELPER.wrongItemFor(c); V.msg = t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(V.item, 2) });
+    if (visitAct()) return; return visitShow();
+  }
+}
+// the stop is finished (the villager is happy) or the run is lost (no mana): back to the map, or to the menu
+function jAfterVisit(done) {
+  if (done) { advanceQuest(); saveSoon(true); return continuePath(); }   // the stop is finished: the wizard walks on
+  restartQuest(); saveSoon(true); toast(t('vh_lost')); openMenu();   // out of mana: the run is lost (the only way to lose)
+}
+const hpItemName = (item, n) => tl(HELPER.nameFor(item, n));
 function toast(msg) {
   const e = document.createElement('div');
   e.style.cssText = 'position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#ffd166;color:#3a2300;padding:10px 18px;border-radius:14px;font-weight:600;z-index:70;box-shadow:0 4px 0 #9b6411;max-width:92vw;text-align:center';

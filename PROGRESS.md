@@ -737,3 +737,14 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Deviations to report to the owner:** session length is 6 hours (CacheService caps at 6 hours; the spec asked for 8). The audit log keeps the last 200 rows; the one-school-year retention is not built yet (spec 07 §15, owner decision).
 - **Tests:** staff-test 39 checks, reg-test 38, newschool 11, gsi-test 11, kit 14, move 22, class 20 (all pass); tests/index.html 111 pass.
 - **Next:** G4 (home players by hashed Google ID; the counting script change is for the owner to deploy), G5 (the security checks of spec §12). Going live waits for the owner's check on the test site.
+
+## Phase 16: villager visit, slice 1 (spec 05, on test-phase14; replaces the pop-up tried earlier)
+- **Where:** a village site on the quest map opens the visit (the stop used to start the fight screen).
+- **Two items per villager:** each item is a round. (1) The amount: the wizard chooses the card that fits the villager's story (one level lower than the current math level), then works out the amount. (2) The item (not for beginners): the wizard chooses the card whose number is the item in the conjuration book, like choosing a spell.
+- **Beginners** (math level 1, wizard level up to 2): no conjuration book; each item is only the amount round.
+- **Mana (blue bar):** 10 at the start of a visit; every action costs 1, right or wrong. Running out of mana loses the run (the run starts again).
+- **Happy meter:** starts at zero, +1 for each right action (3 per item, 2 for beginners). Full = the villager thanks the wizard and says to come back tomorrow; the stop is done.
+- **Leave for now:** back to the map, the stop waits, nothing is lost.
+- **Logic:** `helper.js`, with `tests/helper.test.js` (13 checks; tests/index.html 124 pass).
+- **Not in slice 1:** the other villagers and story types, read-aloud, Hebrew plurals and gender, the endurance potion (it will restore mana), rewards, the score-by-type column, the wizard-level abilities.
+- **Open points to confirm:** with mistakes, the wizard crafts more than two items to fill the happy meter; the simple numbers here are not yet the math ladder.
