@@ -417,6 +417,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .vhBar{display:flex;gap:8px;align-items:center;font-size:.9rem;margin:4px 0}.vhBar>span{min-width:86px}
 .vhTrack{flex:1;height:14px;border-radius:8px;background:#fff3;overflow:hidden}
 .vhCount{font-size:1.4rem;text-align:center;margin:6px 0}.vhCount b{font-size:1.1rem;display:block;margin-top:2px}
+.manaBar i{background:linear-gradient(90deg,#3aa0ff,#7fd1ff)!important}.vhStory{font-size:1.1rem;margin-bottom:4px}
 .vhFill{height:100%;width:0;transition:width .4s}.vhFill.mana{background:linear-gradient(90deg,#3aa0ff,#7fd1ff)}.vhFill.happy{background:linear-gradient(90deg,#ffb347,#ffd166)}
 #admTable .tk{width:28px;text-align:center;cursor:default}
 .admPlayed{margin:8px 0;padding:8px 12px;border-radius:12px;background:#2ecc7122;font-size:1rem}.admPlayed b{font-size:1.2rem}
@@ -3731,10 +3732,11 @@ function after(tier) {
   updateBars(); saveSoon();
 }
 /* ----- The village run (spec 05): the notice board starts a village run on the journey map, like the gate starts a fight.
-   Each village stop is a VISIT: a villager asks for the two items of a project. The festival (the last stop) is a visit with the festival projects.
+   Each village stop is a VISIT, on the same screen as a fight: the villager stands where the monster stands, the wizard is on the left.
+   A villager asks for the two items of a project. The festival (the last stop) is a visit with the festival projects.
    Each item is a round: the card that fits the story (from math level 2), the answer, then the item from the conjuration book (not for beginners).
-   A mistake costs one mana (as a mistake costs HP in the fight); a right answer fills the happy meter. Logic in helper.js. ----- */
-let VS = null;   // the visit: { festival, idx, pl, rounds, round, st: { mana, happy, happyMax }, item, project, p, cards, itemCards, phase, msg }
+   Every action costs one mana. A right answer fills the villager's happy meter. Logic in helper.js. ----- */
+let VS = null;   // the visit: { festival, idx, pl, rounds, round, st: { mana, happy, happyMax }, item, project, p, cards, itemCards, phase, msg, potUsed }
 const vhLow = s => s.toLowerCase();
 const vhNeeds = p => p.needs.slice(0, 2);   // two items per project
 const vhItems = p => vhNeeds(p).map(n => HELPER.itemByHe(n[0]));
@@ -3744,64 +3746,66 @@ function pickVisitProject(bg, ml) {   // a project of this site that the student
   return pool.length ? rnd(pool) : PROJECTS[0];
 }
 function openVisit(i) {   // a village stop on the quest map
-  G.quest = J.q; G.site = SITES[+P.quest[J.q].path[i - 1].slice(1)] || SITES[0];
-  startVisit({ festival: false, idx: i, projects: [pickVisitProject(G.site.bg, P.mlvl || 1)] });
+  G.quest = J.q; const site = SITES[+P.quest[J.q].path[i - 1].slice(1)] || SITES[0];
+  startVisit({ festival: false, idx: i, site, projects: [pickVisitProject(site.bg, P.mlvl || 1)] });
 }
 function openFestival(i) {   // the last stop: the festival projects that the student can reach (as in the Hebrew game's finale)
-  G.quest = J.q; G.site = { name: 'The festival', em: '🎊', bg: 'bakery' };
-  const ok = FINALE_PROJECTS.filter(p => vhUnlocked(p, P.mlvl || 1));
-  startVisit({ festival: true, idx: i, projects: ok.length ? ok : [FINALE_PROJECTS[0]] });
+  G.quest = J.q; const ok = FINALE_PROJECTS.filter(p => vhUnlocked(p, P.mlvl || 1));
+  startVisit({ festival: true, idx: i, site: { name: 'The festival', em: '🎊', bg: 'bakery' }, projects: ok.length ? ok : [FINALE_PROJECTS[0]] });
 }
-function startVisit(o) {
+function startVisit(o) {   // the fight screen, with the villager and the village picture
   const rounds = o.projects.flatMap(p => vhItems(p).map(item => ({ item, project: p })));
   const pl = HELPER.plan(P.mlvl || 1, wizLvl(), rounds.length);
+  G.site = o.site; G.vkey = o.site.bg; G.fname = o.site.name; G.big = o.festival; G.projs = null; G.mon = null; G.foes = null; G.group = false;
   VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax }, msg: '' };
-  let w = $('#vhWrap'); if (w) w.remove();
-  w = document.createElement('div'); w.id = 'vhWrap'; w.className = 'vhWrap';
-  w.innerHTML = `<div class="vhBox"><div class="vhHead"><span class="vhVil" id="vhVil"></span><b id="vhSite"></b></div>
-    <div class="vhBar"><span>${t('vh_mana')}</span><div class="vhTrack"><div class="vhFill mana" id="vhMana"></div></div></div>
-    <div class="vhBar"><span>${t('vh_happy')}</span><div class="vhTrack"><div class="vhFill happy" id="vhHappy"></div></div></div>
-    <div id="vhStory"></div><div id="vhBody"></div><div class="hpMsg" id="vhMsg"></div>
-    <div id="vhFoot"></div></div>`;
-  document.body.appendChild(w); w.onclick = visitClick;
-  $('#vhVil').textContent = G.site.em;
-  visitRound(); visitShow();
+  show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
+  $('#itemBar').style.display = 'none';
+  drawScene(); visitRound(); visitShow();
 }
 function visitRound() {   // the next item of the projects: its amount (one level lower) and the cards of the card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
   V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
   V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.msg = ''; V.potUsed = false;
 }
+function visitBars() {   // the wizard's mana (blue) sits where the fight shows hearts; the villager's happy meter where the monster's HP is
+  const V = VS;
+  $('#hearts').innerHTML = `<div class="hpbar manaBar"><i style="width:${Math.round(100 * V.st.mana / V.pl.mana)}%"></i></div>`;
+  $('#hpFill').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
+  $('#foeName').textContent = G.site.name + ' · ' + V.project.name + ' · ' + (V.round + 1) + '/' + V.rounds.length;
+  G.vmood = V.phase === 'done' ? 'happy' : (V.st.happy > 0 ? 'happy' : 'wait');
+  renderVillager();
+}
 function visitShow() {
-  const V = VS, w = $('#vhWrap'); if (!w || !V) return;
-  $('#vhMana').style.width = Math.round(100 * V.st.mana / V.pl.mana) + '%';
-  $('#vhHappy').style.width = Math.round(100 * V.st.happy / V.st.happyMax) + '%';
-  $('#vhSite').textContent = G.site.name + ' · ' + V.project.name + ' · ' + (V.round + 1) + '/' + V.rounds.length;
+  const V = VS; if (!V || !$('#game').classList.contains('on')) return;
+  visitBars();
   const p = V.p, story = p.kind === 'result' ? t('vh_result', { a: p.a, b: p.b, item: vhLow(hpItemName(V.item, p.a)) }) : t('vh_change', { t: p.t, a: p.a, item: vhLow(hpItemName(V.item, p.t)) });
   // the amounts are always on screen (for the early levels): what the villager has, and what they need
   const shown = p.kind === 'change'
     ? `<div class="vhCount"><span class="vhHave">${V.item.em.repeat(p.a) || '–'}</span> <b>${p.a} / ${p.t}</b></div>`
     : `<div class="vhCount"><span class="vhHave">${V.item.em.repeat(p.a)}</span> + <span class="vhHave">${V.item.em.repeat(p.b)}</span> <b>${p.a} + ${p.b}</b></div>`;
-  $('#vhStory').innerHTML = `<p><b>${story}</b></p>${shown}`;
-  const body = [];
+  $('#qTitle').textContent = V.project.name;
+  $('#qBig').innerHTML = `<div class="vhStory">${story}</div>${shown}`;
+  $('#qSub').textContent = '';
+  const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.className = 'opts';
+  const done = V.phase === 'done' || V.phase === 'lost';
   if (V.phase === 'card') {
-    body.push(`<p class="small">${t('vh_card')}</p><div class="hpCards">${V.cards.map((c, i) => c.gone ? '' : `<button class="btn hpCard" data-vh="card" data-i="${i}">${HELPER.cardText(c)}</button>`).join('')}</div>`);
+    $('#qSub').textContent = t('vh_card'); o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.cards.length}, 1fr)`;
+    V.cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'card'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
   } else if (V.phase === 'calc') {
-    body.push(`<p class="small">${t('vh_calc')}</p><div class="hpNums">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(k => `<button class="btn hpNum" data-vh="amt" data-n="${k}">${k}</button>`).join('')}</div>`);
+    $('#qSub').textContent = t('vh_calc');
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(k => { const b = document.createElement('button'); b.className = 'opt num'; b.dataset.vh = 'amt'; b.dataset.n = k; b.textContent = k; o.appendChild(b); });
   } else if (V.phase === 'item') {
     if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1);
-    body.push(`<p class="small">${t('vh_item')}</p><div class="hpBook"><span class="small">${t('vh_book')}</span></div>`);
-    body.push(`<div class="hpBook">${HELPER.BOOK.filter(x => x.lvl <= (P.mlvl || 1)).map(x => `<span class="hpItem ${x.n === V.item.n ? 'on' : ''}"><b>${x.n}</b> ${x.em} ${hpItemName(x, 1)}</span>`).join('')}</div>`);
-    body.push(`<div class="hpCards">${V.itemCards.map((c, i) => c.gone ? '' : `<button class="btn hpCard" data-vh="item" data-i="${i}">${HELPER.cardText(c)}</button>`).join('')}</div>`);
-  } else {   // the visit is over
-    body.push(`<div class="hpMsg">${t(V.phase === 'done' ? 'vh_done' : 'vh_lost')}</div>`);
-    $('#vhFoot').innerHTML = `<div class="hpNums"><button class="btn" data-vh="leave">${t('vh_leave')}</button></div>`;
+    $('#qSub').textContent = t('vh_item');
+    o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.itemCards.length}, 1fr)`;
+    V.itemCards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'item'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
   }
-  if (V.phase !== 'done' && V.phase !== 'lost') {   // the Mana potion: the Heart potion in a village visit (once per item, as in a fight)
-    const have = (P.carry || {}).heart || 0, can = have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
-    $('#vhFoot').innerHTML = `<div class="hpNums">${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="quit">${t('vh_quit')}</button></div>`;
-  }
-  $('#vhBody').innerHTML = body.join(''); $('#vhMsg').textContent = V.msg;
+  if (V.phase === 'item') $('#qSub').insertAdjacentHTML('afterend', `<div class="hpBook">${HELPER.BOOK.filter(x => x.lvl <= (P.mlvl || 1)).map(x => `<span class="hpItem ${x.n === V.item.n ? 'on' : ''}"><b>${x.n}</b> ${x.em} ${hpItemName(x, 1)}</span>`).join('')}</div>`);
+  $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : 'vh_lost') : V.msg;
+  // the Mana potion and leaving for now
+  const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
+  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}<button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave'); nb.onclick = () => { const d = VS && VS.phase === 'done'; VS = null; jAfterVisit(d); };
 }
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
@@ -3813,16 +3817,15 @@ function visitRoundDone() {   // the item is handed over; the next item of the p
   if (visitAfter()) return;
   V.round++; visitRound(); V.msg = thanks; visitShow();
 }
-function visitClick(e) {
+function visitClick(e) {   // the answers, cards and buttons of the visit (the fight's buttons)
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
-  if (act === 'quit') { VS = null; $('#vhWrap').remove(); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'quit') { VS = null; return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
     if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
     P.carry.heart--; V.potUsed = true; V.st.mana = Math.min(V.pl.mana, V.st.mana + Math.ceil(V.pl.mana * CB.CFG.HEART_POT_HEAL));
     saveSoon(true); sfx.up(); V.msg = t('vh_pot_used'); return visitShow();
   }
-  if (act === 'leave') { const done = V.phase === 'done'; VS = null; $('#vhWrap').remove(); return jAfterVisit(done); }
   if (act === 'card' && V.phase === 'card') {
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
     if (c.fits) { V.st = HELPER.spend(V.st, true); V.phase = 'calc'; V.msg = ''; sfx.ok(); if (visitAfter()) return; return visitShow(); }
@@ -3848,6 +3851,8 @@ function visitClick(e) {
     if (visitAfter()) return; return visitShow();
   }
 }
+$('#opts').addEventListener('click', visitClick);
+$('#potBar').addEventListener('click', visitClick);
 // the stop is finished (the villager is happy) or the run is lost (no mana): on to the next stop, or to the menu
 function jAfterVisit(done) {
   if (done) { const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath(); }
