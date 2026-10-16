@@ -5847,7 +5847,10 @@ function startDemo() {
     acad(k) {   // the Academy test k (1–5): the wizard is at its level bar, the math level is enough, and the earlier tests are passed
       P.academy = { passed: k - 1, certs: (P.academy && P.academy.certs) || [] }; P.mlvl = Math.max(P.mlvl || 1, ACAD_MATH[k - 1]);
       P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1))); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
-    }
+    },
+    acadReset() { P.academy = { passed: 0, certs: [] }; AC = null; acadRender(); refreshAcademy(); toast('🎓 Academy progress reset: test 1 is next'); },
+    acadPass() { if (!AC || !AC.qs.length) { showAcademy(); acadStart(); } AC.right = AC.need; acadFinish(false); },   // the result screen of a pass, at once
+    acadFail() { if (!AC || !AC.qs.length) { showAcademy(); acadStart(); } AC.right = 0; acadFinish(false); }   // the result screen of a fail, at once
   };
   window.demo = D;
   const css = document.createElement('style');
@@ -5860,6 +5863,7 @@ function startDemo() {
     '<h4>Wizard level (opens spell types)</h4>' + [1, 3, 5, 8, 10, 12, 15, 18, 22, 30].map(n => B(n, `wiz(${n})`)).join('') + B('📖 Open the spell book', 'book()') +
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Academy (spec 08): conjuring trial</h4>' + [1, 2, 3, 4, 5].map(k => B('🎓 Test ' + k, `acad(${k})`)).join('') +
+    B('↺ Reset Academy', 'acadReset()') + B('✅ Pass it now', 'acadPass()') + B('❌ Fail it now', 'acadFail()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
     B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +
