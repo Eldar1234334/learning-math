@@ -94,9 +94,9 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .acLeft{left:4%;width:86px}.acLeft svg{width:100%;height:auto}
 .acRight{right:4%;width:86px;text-align:center}.acRight .exsvg,.acRight svg{width:100%;height:auto}.acRight small{display:block;font-size:.8rem;color:#fff}
 .acMid{left:50%;transform:translateX(-50%);width:130px;text-align:center}
-#foeBody .acBigDum .dsvg{width:100px;height:130px;}
+#foeBody .acBigDum .dsvg{width:88px;height:114px;}
 .acCrown{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:1.4rem}.acBigDum{position:relative}
-.acPair{display:flex;gap:0;align-items:flex-end}#foeBody .acPair .acBigDum .dsvg{width:76px;height:99px}
+.acPair{display:flex;gap:0;align-items:flex-end}#foeBody .acPair .acBigDum .dsvg{width:68px;height:88px}
 .acBigDum .dsvg{width:110px;height:190px;transition:transform .7s,opacity .7s}
 .acBigDum.hit .dsvg{animation:acadShake .6s}.acBigDum.miss .dsvg{animation:acadFlash .6s}.acBigDum.down .dsvg{transform:rotate(80deg) translateY(10px);opacity:.4}
 .acBigDum .mk{display:flex;gap:5px;justify-content:center;margin-top:2px}.acBigDum .mk i{width:14px;height:14px;border-radius:50%;border:2px solid #fffd;background:#0002;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-style:normal;line-height:1;color:#fff}
@@ -107,10 +107,10 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 .acPedItems{position:absolute;bottom:26px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:30px;font-size:1.3rem}
 #acExam{position:absolute;right:3%;bottom:7%;width:64px;text-align:center;z-index:3}#acExam svg{width:100%;height:auto;display:block}#acExam small{display:block;color:#fff;font-size:.7rem;opacity:.85;text-shadow:0 1px 2px #0008}
 #acTop{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;z-index:4;direction:ltr}
-.acPill{display:flex;gap:4px;align-items:center;background:#f7ebc3;border:2px solid #c9b270;border-radius:14px;padding:4px 10px;box-shadow:0 2px 0 #0003}.acPill i{width:9px;height:9px;border-radius:50%;background:#ddc98a;flex:none}.acPill i.ok{background:#5fbf5f}.acPill i.bad{background:#e85a5a}.acPill i.cur{background:#f7ebc3;box-shadow:0 0 0 2px #8a6a2a;width:11px;height:11px}
+.acPill{display:flex;gap:4px;align-items:center;background:#f7ebc3;border:2px solid #c9b270;border-radius:14px;padding:2px 10px;box-shadow:0 2px 0 #0003}.acPill i{width:9px;height:9px;border-radius:50%;background:#ddc98a;flex:none}.acPill i.ok{background:#5fbf5f}.acPill i.bad{background:#e85a5a}.acPill i.cur{background:#f7ebc3;box-shadow:0 0 0 2px #8a6a2a;width:11px;height:11px}
 #acTop .acHour{flex:none}
-#acName{position:absolute;top:15%;left:50%;transform:translateX(-50%);color:#fff;font-weight:600;font-size:.95rem;text-shadow:0 1px 3px #0009;z-index:2;white-space:nowrap}
-#foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:15%;z-index:2;width:auto}
+#acName{position:absolute;top:17%;left:50%;transform:translateX(-50%);color:#fff;font-weight:600;font-size:.95rem;text-shadow:0 1px 3px #0009;z-index:2;white-space:nowrap}
+#foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:14%;z-index:2;width:auto}
 #acDots{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;gap:6px;justify-content:center;z-index:3}#acDots i{width:12px;height:12px;border-radius:50%;display:inline-block;opacity:.55}#acDots i.cur{opacity:1;outline:2px solid #fff;outline-offset:1px}#acDots i.done{opacity:.3}
 .exBoxes{display:flex;gap:6px;justify-content:center;margin-top:6px}.exBoxes i{width:26px;height:26px;border:2px solid #fffc;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:.9rem;color:#ff6a6a;background:#0002}.exBoxes i.used{border-color:#ff6a6a;background:#ff5a5a33}
 body.acadOn .side.foe{display:none}
@@ -4220,12 +4220,13 @@ const acadIcon = (el, em = 1.1) => `<svg class="acIco" viewBox="0 0 24 24" width
 const acadGlyphAt = (el, x, y, s) => `<g transform="translate(${x - 12 * s} ${y - 12 * s}) scale(${s})">${ACAD_GLYPH[el]}</g>`;   // inside the dummy's drawing
 const ACAD_ELN = { fire: ['Fire', 'אש'], ice: ['Ice', 'קרח'], dark: ['Shadow', 'צל'], plant: ['Plant', 'צמח'], storm: ['Storm', 'סערה'], stone: ['Stone', 'אבן'] };
 const ACAD_RANK = [['Runeweaver', 'אורג הרונות'], ['Stormcaller', 'קורא הסערה'], ['Starwarden', 'שומר הכוכבים'], ['Eclipse Mage', 'מכשף הליקוי'], ['High Sorcerer', 'הקוסם העליון']];
-const acadS = () => (P.academy = P.academy || { passed: 0, certs: [] });
+const acadS = () => P ? (P.academy = P.academy || { passed: 0, certs: [] }) : { passed: 0, certs: [] };   // (no hero yet on the sign-in screen)
 const acadNext = () => (acadS().passed < 5 ? acadS().passed : null);  // the next test to take (0 = test 1); tests are taken in order
 const acadBarFull = k => (P.xp || 0) >= SB.xpFor(ACAD_TOP(k) + 1);   // the level bar is full at the top of the tier (§1)
-const acadReady = () => CFG.ACADEMY && acadNext() !== null && wizLvl() >= ACAD_TOP(acadNext()) && acadBarFull(acadNext()) && (P.mlvl || 1) >= ACAD_MATH[acadNext()];
+const acadReady = () => CFG.ACADEMY && !!P && acadNext() !== null && wizLvl() >= ACAD_TOP(acadNext()) && acadBarFull(acadNext()) && (P.mlvl || 1) >= ACAD_MATH[acadNext()];
 let ACQ = null;   // the trial in progress
 function refreshAcademy() {   // the Academy icon sits next to the book buttons, and shows only while a test is ready
+  if (!P) return;
   const ready = acadReady();
   // the building on the map appears at the bottom once the wizard level of the next test is reached (the math level is checked when it is tapped)
   const pa = $('#placeAcad'), next = acadNext();
