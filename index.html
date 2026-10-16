@@ -4115,7 +4115,7 @@ const ACAD_RANK = [['Runeweaver', 'אורג הרונות'], ['Stormcaller', 'ק�
 const acadS = () => (P.academy = P.academy || { passed: 0, certs: [] });
 const acadNext = () => (acadS().passed < 5 ? acadS().passed : null);  // the next test to take (0 = test 1); tests are taken in order
 const acadReady = () => CFG.ACADEMY && acadNext() !== null && wizLvl() >= ACAD_TOP(acadNext()) && (P.mlvl || 1) >= ACAD_MATH[acadNext()];
-let AC = null;   // the trial in progress
+let ACQ = null;   // the trial in progress
 function refreshAcademy() {   // the Academy icon sits next to the book buttons, and shows only while a test is ready
   const ready = acadReady();
   document.querySelectorAll('.bookBtn').forEach(b => {
@@ -4126,87 +4126,87 @@ function refreshAcademy() {   // the Academy icon sits next to the book buttons,
 }
 function showAcademy() {
   if (!acadReady()) return;
-  AC = { k: acadNext(), phase: 'rules', i: 0, right: 0, mist: 0, qs: [], typed: '', msg: '', busy: false }; acadRender();
+  ACQ = { k: acadNext(), phase: 'rules', i: 0, right: 0, mist: 0, qs: [], typed: '', msg: '', busy: false }; acadRender();
 }
 function acadStart() {   // the questions are built now, from the student's current math level (never above it)
-  const k = AC.k, lvl = P.mlvl || 1, pool = HELPER.reachable(lvl);
-  AC.Q = ACAD_Q[k]; AC.need = ACAD_NEED[k]; AC.allowed = AC.Q - AC.need;
-  AC.qs = Array.from({ length: AC.Q }, () => {
+  const k = ACQ.k, lvl = P.mlvl || 1, pool = HELPER.reachable(lvl);
+  ACQ.Q = ACAD_Q[k]; ACQ.need = ACAD_NEED[k]; ACQ.allowed = ACQ.Q - ACQ.need;
+  ACQ.qs = Array.from({ length: ACQ.Q }, () => {
     const p = HELPER.makeAmount(lvl), item = rnd(pool), others = pool.filter(x => x.n !== item.n).sort(() => Math.random() - 0.5).slice(0, 3);
     return { p, item, opts: [item, ...others].sort(() => Math.random() - 0.5) };
   });
-  AC.phase = 'item'; AC.i = 0; AC.right = 0; AC.mist = 0; AC.typed = ''; AC.msg = ''; AC.busy = false; acadRender();
+  ACQ.phase = 'item'; ACQ.i = 0; ACQ.right = 0; ACQ.mist = 0; ACQ.typed = ''; ACQ.msg = ''; ACQ.busy = false; acadRender();
 }
 function acadQDone(ok) {   // one question is over: right only when both steps were right; a wrong step is the one mistake of the question
-  AC.busy = true; if (ok) AC.right++; else AC.mist++;
-  if (ok) AC.msg = t('ac_right');
+  ACQ.busy = true; if (ok) ACQ.right++; else ACQ.mist++;
+  if (ok) ACQ.msg = t('ac_right');
   acadRender();
   setTimeout(() => {
-    if (!AC) return;
-    AC.busy = false; AC.i++; AC.typed = ''; AC.msg = '';
-    if (AC.mist > AC.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
-    if (AC.i >= AC.Q) return acadFinish(false);
-    AC.phase = 'item'; acadRender();
+    if (!ACQ) return;
+    ACQ.busy = false; ACQ.i++; ACQ.typed = ''; ACQ.msg = '';
+    if (ACQ.mist > ACQ.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
+    if (ACQ.i >= ACQ.Q) return acadFinish(false);
+    ACQ.phase = 'item'; acadRender();
   }, ok ? 1000 : 1500);
 }
 function acadFinish(early) {
-  const k = AC.k, pass = AC.right >= AC.need, pct = AC.right / AC.Q;
+  const k = ACQ.k, pass = ACQ.right >= ACQ.need, pct = ACQ.right / ACQ.Q;
   const medal = pct >= 0.93 ? t('ac_gold') : pct >= 0.87 ? t('ac_silver') : t('ac_bronze');
-  AC.phase = 'result';
+  ACQ.phase = 'result';
   if (pass) {   // a pass: the next test opens, the banked XP turns into the level of the tier's top + 1, and the rank rises by one
-    const S = acadS(); S.passed = k + 1; S.certs.push({ test: k + 1, right: AC.right, q: AC.Q, medal: pct >= 0.93 ? 'gold' : pct >= 0.87 ? 'silver' : 'bronze', date: today() });
+    const S = acadS(); S.passed = k + 1; S.certs.push({ test: k + 1, right: ACQ.right, q: ACQ.Q, medal: pct >= 0.93 ? 'gold' : pct >= 0.87 ? 'silver' : 'bronze', date: today() });
     P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k) + 1)); saveSoon(true); sfx.win(); confetti(['🎓', '✨', '⭐']);
-    AC.text = t('ac_pass', { r: AC.right, q: AC.Q, medal, title: tl(ACAD_RANK[k]) });
-    AC.buttons = [[t('ac_cont'), 'close']];
+    ACQ.text = t('ac_pass', { r: ACQ.right, q: ACQ.Q, medal, title: tl(ACAD_RANK[k]) });
+    ACQ.buttons = [[t('ac_cont'), 'close']];
   } else {
-    AC.text = (early ? t('ac_enough') + ' ' : '') + t('ac_fail', { r: AC.right, q: AC.Q, n: AC.need });
-    AC.buttons = [[t('ac_again'), 'again'], [t('ac_back'), 'close']];
+    ACQ.text = (early ? t('ac_enough') + ' ' : '') + t('ac_fail', { r: ACQ.right, q: ACQ.Q, n: ACQ.need });
+    ACQ.buttons = [[t('ac_again'), 'again'], [t('ac_back'), 'close']];
   }
   acadRender(); refreshAcademy();
 }
 function acadRender() {
   let ov = $('#academy');
   if (!ov) { ov = document.createElement('div'); ov.id = 'academy'; ov.className = 'acadOv'; ov.innerHTML = '<div class="acadBox" id="acadBox"></div>'; document.body.appendChild(ov); ov.onclick = acadClick; }
-  ov.style.display = AC ? '' : 'none'; if (!AC) return;
-  const box = $('#acadBox'), ex = AC.k % 2 === 0 ? 'Orin' : 'Odelia';   // the examiners (§10.6): Orin for tests 1, 3, 5; Odelia for 2, 4
-  if (AC.phase === 'rules') {
-    box.innerHTML = `<h3>${t('ac_t')}</h3><p><b>${ex}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: ACAD_Q[AC.k], n: ACAD_NEED[AC.k], m: ACAD_Q[AC.k] - ACAD_NEED[AC.k] })}</p>
+  ov.style.display = ACQ ? '' : 'none'; if (!ACQ) return;
+  const box = $('#acadBox'), ex = ACQ.k % 2 === 0 ? 'Orin' : 'Odelia';   // the examiners (§10.6): Orin for tests 1, 3, 5; Odelia for 2, 4
+  if (ACQ.phase === 'rules') {
+    box.innerHTML = `<h3>${t('ac_t')}</h3><p><b>${ex}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: ACAD_Q[ACQ.k], n: ACAD_NEED[ACQ.k], m: ACAD_Q[ACQ.k] - ACAD_NEED[ACQ.k] })}</p>
       <div class="acadBtns"><button class="btn" data-ac="start">${t('ac_start')}</button><button class="btn ghost" data-ac="close">${t('ac_not_yet')}</button></div><p class="small">${t('ac_fight_soon')}</p>`;
-  } else if (AC.phase === 'result') {
-    box.innerHTML = `<h3>${t('ac_t')}</h3><p>${AC.text}</p><div class="acadBtns">${AC.buttons.map(([l, a]) => `<button class="btn" data-ac="${a}">${l}</button>`).join('')}</div>`;
+  } else if (ACQ.phase === 'result') {
+    box.innerHTML = `<h3>${t('ac_t')}</h3><p>${ACQ.text}</p><div class="acadBtns">${ACQ.buttons.map(([l, a]) => `<button class="btn" data-ac="${a}">${l}</button>`).join('')}</div>`;
   } else {
-    const q = AC.qs[AC.i], marks = '✖'.repeat(AC.mist) + '·'.repeat(Math.max(0, AC.allowed - AC.mist));   // the mistakes allowed, crossed when used
-    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: AC.i + 1, q: AC.Q })} · ${marks}</div>
+    const q = ACQ.qs[ACQ.i], marks = '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist));   // the mistakes allowed, crossed when used
+    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })} · ${marks}</div>
       <p class="acadStory">${visitStory({ p: q.p, item: q.item, extra: null })}</p>
-      ${AC.phase === 'item'
+      ${ACQ.phase === 'item'
         ? `<p class="small">${t('ac_pick_item')}</p><div class="acadGrid">${q.opts.map((o, j) => `<button class="opt card" data-ac="item" data-i="${j}"><span class="cardEx">${o.em}</span><small>${tl(HELPER.nameFor(o, 1))}</small></button>`).join('')}</div>`
-        : `<div class="acadPadShow">${AC.typed || '…'}</div><p class="small">${t('ac_type')}</p>
+        : `<div class="acadPadShow">${ACQ.typed || '…'}</div><p class="small">${t('ac_type')}</p>
            <div class="acadPad">${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => `<button class="opt num" data-ac="key" data-d="${d}">${d}</button>`).join('')}<button class="opt num" data-ac="key" data-d="del">⌫</button><button class="opt num" data-ac="key" data-d="0">0</button><button class="btn" data-ac="ok">✔</button></div>`}
-      <p class="acadFb">${AC.msg || ''}</p>`;
+      <p class="acadFb">${ACQ.msg || ''}</p>`;
   }
 }
 function acadClick(e) {
-  const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !AC) return;
+  const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !ACQ) return;
   const a = b.dataset.ac;
-  if (a === 'close') { AC = null; acadRender(); refreshAcademy(); return; }
+  if (a === 'close') { ACQ = null; acadRender(); refreshAcademy(); return; }
   if (a === 'start') return acadStart();
   if (a === 'again') return acadStart();
-  if (AC.busy) return;
-  if (a === 'item' && AC.phase === 'item') {   // step 1: the item; a wrong item ends the question
-    const q = AC.qs[AC.i], o = q.opts[+b.dataset.i];
-    if (o.n === q.item.n) { AC.phase = 'amount'; AC.msg = ''; return acadRender(); }
-    AC.msg = t('ac_wrong_item'); return acadQDone(false);
+  if (ACQ.busy) return;
+  if (a === 'item' && ACQ.phase === 'item') {   // step 1: the item; a wrong item ends the question
+    const q = ACQ.qs[ACQ.i], o = q.opts[+b.dataset.i];
+    if (o.n === q.item.n) { ACQ.phase = 'amount'; ACQ.msg = ''; return acadRender(); }
+    ACQ.msg = t('ac_wrong_item'); return acadQDone(false);
   }
-  if (a === 'key' && AC.phase === 'amount') {
+  if (a === 'key' && ACQ.phase === 'amount') {
     const d = b.dataset.d;
-    if (d === 'del') AC.typed = AC.typed.slice(0, -1); else if (AC.typed.length < 2) AC.typed += d;
+    if (d === 'del') ACQ.typed = ACQ.typed.slice(0, -1); else if (ACQ.typed.length < 2) ACQ.typed += d;
     return acadRender();
   }
-  if (a === 'ok' && AC.phase === 'amount') {   // step 2: the amount; the right amount is never shown
-    if (AC.typed === '') return;
-    const q = AC.qs[AC.i], r = HELPER.checkAmount(+AC.typed, q.p.amount);
+  if (a === 'ok' && ACQ.phase === 'amount') {   // step 2: the amount; the right amount is never shown
+    if (ACQ.typed === '') return;
+    const q = ACQ.qs[ACQ.i], r = HELPER.checkAmount(+ACQ.typed, q.p.amount);
     if (r.ok) return acadQDone(true);
-    AC.msg = r.kind === 'few' ? t('ac_few') : t('ac_many'); return acadQDone(false);
+    ACQ.msg = r.kind === 'few' ? t('ac_few') : t('ac_many'); return acadQDone(false);
   }
 }
 /* ====================== THE FIGHT (spec 00 §3, combat.js) ====================== */
