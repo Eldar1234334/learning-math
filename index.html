@@ -4246,7 +4246,11 @@ function academyRules(kind) {
     [[t('ac_start'), () => academyStart(kind)], [t('ac_not_yet'), null, true]]);
 }
 // the trials are built step by step: for now the start only says so
-function academyStart(kind) { toast(t('ac_building')); }
+function academyStart(kind) {
+  if (kind !== 'fight') return toast(t('ac_building'));   // the conjuring trial comes in a later step
+  ACQ = { k: acadNext(), phase: 'rules', kind: 'fight', i: 0, right: 0, mist: 0, qs: [], dummies: [], typed: '', msg: '', busy: false, practice: false };
+  acadStart();
+}
 /* ---- the fighting trial (§4) ---- */
 // the learned spells that hurt this element, whose number is in the key pool at this math level (whole numbers only: the answer is typed)
 function acadWeak(el, lvl) {
