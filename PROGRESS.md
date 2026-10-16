@@ -774,3 +774,12 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **Hebrew plurals and gender (spec 05 §6, part):** each item has a Hebrew gender; the verbs of the stories agree with the count and the gender ("נשבר" / "נשברה" / "נשברו"). Plural of thread fixed (חוטים). Open: mass nouns (flour, iron, water, milk…) need a unit phrase for amounts (owner to decide).
 - **Mass items with units (spec 05 §6):** flour, water, milk, iron, fire, salt, straw, cloth, oil, wood, bread and cheese are read with a unit in the stories ("3 sacks of flour", "3 שקי קמח"). The item book keeps the plain names.
 - **Teacher's story-type score (spec 05 §7, prepared, NOT deployed):** the school script (version 15) returns each student's story results by type, from the saved game data (no names); the teacher's list shows "Story types" as the accuracy of the story problems. The school owner must paste the new `Code.gs` and deploy a new version of the school's web app (same address).
+
+## Village changes on main after the spec 05 check (2026-10-16)
+Done on `main` at the owner's request, one difference at a time (the check of the village against `05-village-helper.md`).
+- **Fight start fix:** `enterFight()` had its `newEncounter()` call inside a `//` comment, so a monster stop opened an empty fight screen (sw cache mw-v89).
+- **Step order (spec 05 §4):** each item of a visit is now the item first (the card and its number from the conjuration book), then the amount (the story card and the answer). The item is conjured after the right amount (mw-v90).
+- **Kept as they are (owner decisions, 2026-10-16):** mana instead of smileys; two items per project instead of three.
+- **Story types by level (spec 05 §5):** join 1, separate 3, change and part 4, compare 5, start unknown 6, two steps 9, equal groups 11, arrays 13, sharing and grouping 15, times as many 16, remainder (round up) 20, fraction of a set 22, "g × n − a" 24, fraction left 25, decimal measures 28 (rope, cloth, thread, water, milk, oil, flour, salt, iron, straw), percent 34, ratio 35, fraction then rest 36. The numbers follow the ladder of the amount level (the math level minus one) and stay within 1000. The answer is never one of the numbers of the story. The cards of the card step are other operations on the story's numbers.
+- **Number pad:** the amount is typed on a pad when it is above 10 or a decimal (a point key); up to 10 the number buttons stay. A division card shows `:` in Hebrew.
+- **Tests:** tests/helper.test.js now runs in the Tests workflow too.

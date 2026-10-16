@@ -432,7 +432,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 .vhBar{display:flex;gap:8px;align-items:center;font-size:.9rem;margin:4px 0}.vhBar>span{min-width:86px}
 .vhTrack{flex:1;height:14px;border-radius:8px;background:#fff3;overflow:hidden}
 .vhCount{font-size:1.4rem;text-align:center;margin:6px 0}.vhCount b{font-size:1.1rem;display:block;margin-top:2px}
-.manaBar i{background:linear-gradient(90deg,#3aa0ff,#7fd1ff)!important}.vhStory{font-size:1.1rem;margin-bottom:4px}
+.manaBar i{background:linear-gradient(90deg,#3aa0ff,#7fd1ff)!important}.vhStory{font-size:1.1rem;margin-bottom:4px}.vhPadShow{font-size:1.5rem;text-align:center;min-height:1.9rem;margin:0 0 4px}.vhPad{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-width:340px;margin:0 auto}.vhPad .opt{padding:7px 0;font-size:1.15rem;min-width:0}.vhPadDel{grid-column:span 2}.vhPadOk{grid-column:span 3;padding:7px 0}.vhPadOk.dec{grid-column:span 2}
 .vhFill{height:100%;width:0;transition:width .4s}.vhFill.mana{background:linear-gradient(90deg,#3aa0ff,#7fd1ff)}.vhFill.happy{background:linear-gradient(90deg,#ffb347,#ffd166)}
 #admTable .tk{width:28px;text-align:center;cursor:default}
 .admPlayed{margin:8px 0;padding:8px 12px;border-radius:12px;background:#2ecc7122;font-size:1rem}.admPlayed b{font-size:1.2rem}
@@ -1352,10 +1352,24 @@ const STR = {
   vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'], vh_book_item: ['Find this item in the conjuration book', 'מצאו את הפריט הזה בספר הזימון'],
   vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. זמנו את השאר.'],
-  vh_separate: ['I need {t} {item}. I have {a}, because {b} {broke}. Please conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, כי {b} {broke}. זמנו את השאר.'], vh_broke: ['broke', 'נשברו'],
+  vh_join: ['I have {a} {item}, and my friend gives me {b} more. Conjure as many as I have now.', 'יש לי {a} {item}, והחבר שלי נותן לי עוד {b}. זמנו כמה שיש לי עכשיו.'],
+  vh_separate: ['I had {t} {item}. I gave {b} to my neighbour. Conjure as many as I have left.', 'היו לי {t} {item}. נתתי {b} לשכן. זמנו כמה שנשארו לי.'], vh_broke: ['broke', 'נשברו'],
+  vh_groups: ['I have {g} boxes. Each box needs {n} {item}. Conjure it all.', 'יש לי {g} קופסאות. בכל קופסה צריך {n} {item}. זמנו את הכול.'],
+  vh_array: ['My garden has {r} rows, with {c} {item} in each row. Conjure it all.', 'בגינה שלי {r} שורות, ובכל שורה {c} {item}. זמנו את הכול.'],
+  vh_share: ['I have {t} {item} to share equally among {k} children. Conjure one child\'s share.', 'יש לי {t} {item} לחלוקה שווה בין {k} ילדים. זמנו את החלק של ילד אחד.'],
+  vh_group: ['I need {one} for every {n} children. There are {t} children. Conjure what I need.', 'אני צריך {one} לכל {n} ילדים. יש {t} ילדים. זמנו מה שאני צריך.'],
+  vh_mcompare: ['The wall needs {a} {item}. The tower needs {k} times as many. Conjure what the tower needs.', 'לקיר צריך {a} {item}. למגדל צריך פי {k} יותר. זמנו את מה שהמגדל צריך.'],
+  vh_ceil: ['I need {one} for every group of {n} guests, even a smaller group. {t} guests are coming. Conjure enough.', 'אני צריך {one} לכל קבוצה של {n} אורחים, גם קבוצה קטנה יותר. מגיעים {t} אורחים. זמנו מספיק.'],
+  vh_fracset: ['I need {fr} of the {t} {item} on my shelf. Conjure that many.', 'אני צריך {fr} מתוך {t} {item} שעל המדף. זמנו כמה שאני צריך.'],
+  vh_multi: ['I need {g} boxes with {n} {item} in each. I have {a}. Conjure the rest.', 'אני צריך {g} קופסאות, ובכל אחת {n} {item}. יש לי {a}. זמנו את השאר.'],
+  vh_fracleft: ['I had {t} {item} and used {fr} of them. Conjure as many as are left.', 'היו לי {t} {item}, והשתמשתי ב-{fr} מהכול. זמנו כמה שנשארו.'],
+  vh_decimal: ['I need {a} {unit} of {item}. I have {b} {unit}. Conjure the rest.', 'אני צריך {a} {unit} {item}. יש לי {b} {unit}. זמנו את השאר.'],
+  vh_percent: ['{p}% of my {t} {item} are spoiled. Conjure the same number to replace them.', '{p}%‎ מ-{t} {item} התקלקלו. זמנו אותו מספר במקומם.'],
+  vh_ratio: ['For every {ok}, I need {im}. I have {ot}. Conjure what I need.', 'על כל {ok} אני צריך {im}. יש לי {ot}. זמנו מה שאני צריך.'],
+  vh_mix: ['I need {fr} of the {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {fr} מתוך {t} {item}. יש לי {a}. זמנו את השאר.'],
   vh_part: ['I need {t} {item}. {a} are for the hall, and the rest are for the kitchen. Conjure the kitchen ones.', 'אני צריך {t} {item}. {a} מהם לאולם, והשאר למטבח. זמנו את אלה של המטבח.'],
   vh_compare: ['The baker has {t} {item}. I have {a}. Conjure enough so I have as many as the baker.', 'לאופה יש {t} {item}. יש לי {a}. זמנו כמה שצריך, שיהיו לי כמו לאופה.'],
-  vh_start: ['I used {u} {item}, and {r} {left}. Please conjure the {u} I used.', 'השתמשתי ב-{u} {item}, ו{left} {r}. זמנו את ה-{u} שהשתמשתי בהם.'],
+  vh_start: ['I had some {item}. I used {u}, and {r} {left}. Conjure as many as I had at the start.', 'היו לי כמה {item}. השתמשתי ב-{u}, ו{left} {r}. זמנו כמה שהיו לי בהתחלה.'],
   vh_two: ['I need {t} {item}. I have {a}, and my neighbour gives me {b}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, והשכן נותן לי {b}. זמנו את השאר.'],
   vh_card: ['Choose the card that fits my story.', 'בחרו את הכרטיס שמתאים לסיפור שלי.'], vh_calc: ['Work it out. How many do I need?', 'חשבו כמה צריך לזמן.'],
   vh_item: ['Look up the item in the book, then choose its card.', 'מצאו את הפריט בספר, ואז בחרו את הכרטיס שלו.'],
@@ -3829,7 +3843,7 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
 function setBookIcon(conj) { const b = document.querySelector('#game [data-book]'); if (b) b.textContent = conj ? '📜' : '📖'; }
 function visitRound() {   // the next item of the projects: its amount, and the cards of the amount's card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
-  V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
+  V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel, Math.random, { item: V.item, others: HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n) }); V.typed = ''; V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
   V.phase = pl.itemStep ? 'icard' : pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.noCount = false; V.snap = null; V.read = false; V.picRev = false;
   // extra information (spec 05 §8, wizard level 15): half the stories also name a number that is not needed
   const others = HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n);
@@ -3849,23 +3863,26 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
 }
 // the story: always a request ("I need N, I have A, please conjure the rest"), never a question
 function visitStory() {
-  const V = VS, p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), s = p.kind;
-  const txt = {
-    change: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
-    result: () => t('vh_change', { t: p.t, a: p.a, item: nm(p.t) }),
-    separate: () => t('vh_separate', { t: p.t, a: p.a, b: p.b, item: nm(p.t), broke: tl(HELPER.breakWord(V.item, p.b)) }),
-    part: () => t('vh_part', { t: p.t, a: p.a, item: nm(p.t) }),
-    compare: () => t('vh_compare', { t: p.t, a: p.a, item: nm(p.t) }),
-    start: () => t('vh_start', { u: p.amount, r: p.a, item: nm(p.amount), left: tl([p.a === 1 ? 'is left' : 'are left', p.a === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']) }),
-    two: () => t('vh_two', { t: p.t, a: p.a, b: p.b, item: nm(p.t) })
-  }[s]();
+  const V = VS, p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), vars = { ...p.v };
+  for (const k in (p.names || {})) vars[k] = nm(p.names[k]);   // the item's name for the number it goes with: "1 sack of flour", "3 sacks of flour"
+  if (p.one) vars.one = vhLow(tl(HELPER.oneName(V.item)));   // "one bucket"
+  if (p.kind === 'start') vars.left = tl([p.v.r === 1 ? 'is left' : 'are left', p.v.r === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']);
+  if (p.measure) { vars.unit = tl(p.measure); vars.item = vhLow(tl(HELPER.nameFor(V.item, 1))); }   // measures: "4.5 metres of rope"
+  if (p.kind === 'ratio') { const o = p.other, no = n => vhLow(tl(HELPER.storyName(o, n))); vars.ok = p.v.k + ' ' + no(p.v.k); vars.ot = p.v.t + ' ' + no(p.v.t); vars.im = p.v.m + ' ' + nm(p.v.m); }
+  const txt = t('vh_' + p.kind, vars);
   return V.extra ? txt + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(tl(HELPER.storyName(V.extra.item, V.extra.n))) }) : txt;
 }
 // the pictures of what the villager has, shown in the thought bubble above them (no numbers): the low levels at once, the higher ones when asked
 function visitPics() {
   const V = VS; if (!V || !(P.mlvl <= PICS_MAX || V.picRev || window.__picsAll)) return '';
-  const s = V.p.show, e = V.item.em, pic = n => (n <= 12 ? e.repeat(n) : '');
+  const s = V.p.show; if (!s) return ''; const e = V.item.em, pic = n => (n <= 12 ? e.repeat(n) : '');
   return s.plus !== undefined ? pic(s.have) + '+' + pic(s.plus) : pic(s.have);
+}
+// the number pad of the amount (above 10, or a decimal): digits, a point for a decimal, ⌫ and ✔ to answer
+function visitPad() {
+  const V = VS, o = $('#opts'), dec = !Number.isInteger(V.p.amount), key = d => `<button class="opt num" data-vh="key" data-d="${d}">${d}</button>`;
+  o.className = 'opts pad'; o.style.display = 'block'; o.style.gridTemplateColumns = '';
+  o.innerHTML = `<div class="vhPadShow" dir="ltr">${V.typed || '…'}</div><div class="vhPad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(key).join('')}<button class="opt num vhPadDel" data-vh="key" data-d="del">⌫</button>${dec ? key('.') : ''}<button class="btn vhPadOk ${dec ? 'dec' : ''}" data-vh="amt" data-n="${V.typed}" ${V.typed === '' ? 'disabled' : ''}>✔</button></div>`;
 }
 function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
@@ -3873,15 +3890,15 @@ function visitShow() {
   $('#qTitle').textContent = V.project.name;
   // the project's tray sits on the stage, beneath the roof of the place (not in the question panel)
   let tr = $('#vhTray'); if (!tr) { tr = document.createElement('div'); tr.id = 'vhTray'; $('#stage').appendChild(tr); } tr.innerHTML = visitTray();
-  $('#qBig').innerHTML = `<button class="vhNeed" data-vh="bookItem" title="${t('vh_book_item')}">${V.item.em}</button><div class="vhStory">${visitStory()}</div>${V.phase === 'ians' && V.pick ? `<div class="vhCard" dir="ltr">${HELPER.cardText(V.pick)}</div>` : ''}`;
+  $('#qBig').innerHTML = `<button class="vhNeed" data-vh="bookItem" title="${t('vh_book_item')}">${V.item.em}</button><div class="vhStory">${visitStory()}</div>${V.phase === 'ians' && V.pick ? `<div class="vhCard" dir="ltr">${HELPER.cardText(V.pick, MATH_DIV())}</div>` : ''}`;
   V.storyText = visitStory();   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(V.storyText); }
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
   const done = V.phase === 'done' || V.phase === 'lost' || V.phase === 'left';
-  const cardBtns = (cards, act) => { o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${cards.length}, 1fr)`; cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = act; b.dataset.i = i; b.innerHTML = `<span class="cardEx" dir="ltr">${HELPER.cardText(c)}</span>`; o.appendChild(b); }); };
+  const cardBtns = (cards, act) => { o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${cards.length}, 1fr)`; cards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = act; b.dataset.i = i; b.innerHTML = `<span class="cardEx" dir="ltr">${HELPER.cardText(c, MATH_DIV())}</span>`; o.appendChild(b); }); };
   const numBtns = (nums, act, attr) => { o.style.display = 'flex'; o.style.flexWrap = 'wrap'; o.style.justifyContent = 'center'; o.style.gap = '6px'; nums.forEach(k => { const b = document.createElement('button'); b.className = 'opt num'; b.style.flex = '0 0 52px'; b.dataset.vh = act; b.dataset[attr] = k; b.textContent = k; o.appendChild(b); }); };
   if (V.phase === 'card') { $('#qSub').textContent = t('vh_card'); cardBtns(V.cards, 'card'); }
-  else if (V.phase === 'calc') { $('#qSub').textContent = t('vh_calc'); numBtns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'amt', 'n'); }
+  else if (V.phase === 'calc') { $('#qSub').textContent = t('vh_calc'); if (HELPER.needsPad(V.p)) visitPad(); else numBtns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'amt', 'n'); }
   else if (V.phase === 'icard') { if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1); $('#qSub').textContent = t('vh_item'); cardBtns(V.itemCards, 'icard'); }
   else if (V.phase === 'ians') { if (!V.iAns) V.iAns = HELPER.itemAnswers(V.item.n); $('#qSub').textContent = t('vh_ians', { item: vhLow(tl(HELPER.nameFor(V.item, 1))) }); numBtns(V.iAns, 'iamt', 'n'); }
   else { $('#qSub').textContent = ''; }
@@ -3952,8 +3969,8 @@ function conjureShot(em, n, proj) {
   fly(shot, $('#heroSvg'), $('#vhTray') || $('#foeBody'), { trail: true, size: 1.6 }).then(landed, landed);
 }
 function visitCraft() {   // the item is crafted: a shot from the staff onto the tray; a big amount floats as a number
-  const V = VS, n = V.p.amount, em = V.item.em, thanks = t('vh_ok', { items: n <= 6 ? em.repeat(n) : em + ' ×' + n });
-  conjureShot(em, n, V.project);
+  const V = VS, n = V.p.amount, dn = Math.max(1, Math.ceil(n)), em = V.item.em, thanks = t('vh_ok', { items: n <= 6 && Number.isInteger(n) ? em.repeat(n) : em + ' ×' + n });
+  conjureShot(em, dn, V.project);
   return thanks;
 }
 // the villager's tray: the project's items as they arrive (❔ until then), and the result they make with them
@@ -4002,6 +4019,13 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
     if (visitAfter()) return;
     return visitNext(thanks);
   }
+  if (act === 'key') {   // the number pad: digits (up to 6 characters), one point for a decimal, ⌫ deletes; ✔ answers (below)
+    const d = b.dataset.d, cur = V.typed || '';
+    if (d === 'del') V.typed = cur.slice(0, -1);
+    else if (d === '.') { if (!cur.includes('.')) V.typed = (cur || '0') + '.'; }
+    else if (cur.length < 6) V.typed = cur + d;
+    return visitShow();
+  }
   if (act === 'card' && V.phase === 'card') {   // step 2: the card that solves the story
     const c = V.cards[+b.dataset.i]; if (!c || c.gone) return;
     // the right card is free: the answer after it is the action
@@ -4016,7 +4040,7 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
       V.st = HELPER.spend(V.st, true); vhLog(true); sfx.ok(); V.msg = '';
       return visitRoundDone();
     }
-    V.st = vhMiss(); sfx.bad();
+    V.st = vhMiss(); sfx.bad(); V.typed = '';
     V.msg = r.kind === 'few' ? t('vh_few', { have: r.have, more: r.more }) : t('vh_many', { have: r.have, extra: r.extra });
     if (visitAfter()) return; return visitShow();
   }
