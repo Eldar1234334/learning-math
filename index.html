@@ -3876,7 +3876,9 @@ function visitShow() {
   // the potion row: the same potions as in a fight (with the village names), and the picture button in it; the owl, the sound and leaving for now below
   const pb = $('#potBar'); pb.style.display = done ? 'none' : ''; pb.innerHTML = done ? '' : visitPotsHtml();
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
-  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  // the second row: reading (🔊), the flag (leave for now), the pictures (above the free level), and the owl
+  const pics = !done && P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll;
+  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `<button class="btn ghost" data-vh="hear" title="🔊">🔊</button><button class="btn ghost" data-vh="quit" title="${t('vh_quit')}">🏳️</button>${pics ? `<button class="btn ghost" data-vh="pics" title="${t('vh_pics')}">🖼</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
   nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left', pc = (VS && VS.picCost) || 0; visitEnd(); jAfterVisit(d, f, m, im, lf, pc); };
 }
@@ -3884,8 +3886,7 @@ function visitShow() {
 function visitPotsHtml() {
   const V = VS, ids = POTION_IDS.filter(id => (P.carry[id] || 0) > 0);
   const pots = ids.map(id => `<button class="potBtn" data-vpot="${id}" ${V.potUsed ? 'disabled' : ''} title="${t('vpot_' + id)}: ${t('vpot_' + id + '_d')}">${potionSVG(id)}<i class="potSym">${POTIONS[id].em}</i><b>×${P.carry[id]}</b></button>`).join('');
-  const pics = P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll ? `<button class="potBtn picBtn" data-vh="pics">${t('vh_pics')}</button>` : '';
-  return pots + pics;
+  return pots + `<span class="lootSlot">${lootBadge()}</span>`;   // the satchel, as in a fight
 }
 // a potion in a village visit: the same potions as in a fight, each with its village effect
 function usePotionVisit(id) {
