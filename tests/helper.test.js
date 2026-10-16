@@ -138,6 +138,13 @@
     assert(H.visitOver({ mana: 3, happy: 2, happyMax: 4 }) === null, 'still going');
   });
 
+  test('the conjuration book themes: every item in exactly one theme; the blanket cannot break', () => {
+    const all = H.THEMES.flatMap(t => t.items);
+    assert(all.length === 39 && new Set(all).size === 39, 'each of the 39 items in one theme: ' + all.length);
+    for (const x of H.BOOK) assert(H.themeOf(x).items.includes(x.n), 'theme of ' + x.n);
+    assert(H.noBreak(H.itemOf(60)) && !H.noBreak(H.itemOf(5)), 'only the blanket is unbreakable');
+  });
+
   const failed = results.filter(r => !r.ok);
   if (isNode) { for (const r of results) console.log((r.ok ? 'ok   ' : 'FAIL ') + r.name + (r.ok ? '' : '\n      ' + r.msg)); console.log(`\n${results.length - failed.length} of ${results.length} helper tests passed`); if (failed.length) process.exitCode = 1; }
   else globalThis.HELPER_TEST_RESULTS = results;

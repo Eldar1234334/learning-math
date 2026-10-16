@@ -1041,6 +1041,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="side foe"><div id="foeName" class="small"></div><div class="hpbar"><i id="hpFill"></i></div><div class="hpbar armorBar" id="armorBar"><i></i></div><div class="foeWrap"><div class="aura" id="aura"></div><div class="foeBody" id="foeBody"></div></div></div>
   </div>
   <div class="potBar" id="potBar" style="display:none"></div>
+  <div class="potBar" id="vhBar" style="display:none"></div>
   <div class="itemBar" id="itemBar" style="display:none"></div>
   <div class="panel card">
     <div class="craftPic" id="craftPic" style="display:none"></div>
@@ -1332,7 +1333,7 @@ const STR = {
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_ians: ['The spell brings how many {item}? Choose the number.', 'הכישוף מביא כמה {item}? בחרו את המספר.'],
-  vh_pics: ['🖼 Show pictures (−{xp} XP)', '🖼 הראו תמונות (−{xp} ניסיון)'], vh_pics_used: ['Pictures shown: −{xp} XP', 'תמונות: −{xp} ניסיון'],
+  vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'],
   vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. כשפו את השאר.'],
   vh_separate: ['I need {t} {item}. I have {a}, because {b} {broke}. Please conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, כי {b} {broke}. כשפו את השאר.'], vh_broke: ['broke', 'נשברו'],
@@ -3254,7 +3255,7 @@ function drawScene() {
   } else {
     G.vskin = rnd(STAGE_BG.SKINS); G.vmood = ''; G.vkeyState = ''; $('#foeBody').textContent = '';
     $('#foeName').textContent = G.big ? '📜 ' + G.fname + ': big request!' : G.fname; setMood('😟');
-    $('#mid').innerHTML = `<b>${G.site ? G.site.em + ' ' + G.site.name : G.big ? '🏛️ Festival hall' : VILLAGES[(qs.ch - 1) % VILLAGES.length]}</b><div class="bubble" id="bubble"></div><div class="projTray" id="projTray"></div>`; renderTray();
+    $('#mid').innerHTML = `<b>${G.site ? G.site.em + ' ' + G.site.name : G.big ? '🏛️ Festival hall' : VILLAGES[(qs.ch - 1) % VILLAGES.length]}</b><div class="bubble" id="bubble" style="display:none"></div><div class="projTray" id="projTray" style="display:none"></div>`; renderTray();   // a village visit has no speech bubble and no tray (its own bars show the items)
   }
   updateBars(); updateReward();
 }
@@ -3765,9 +3766,10 @@ function storyTally(kind, right) {
   P.storyTypes = P.storyTypes || {}; const s = P.storyTypes[kind] || [0, 0]; s[right ? 0 : 1]++; P.storyTypes[kind] = s; saveSoon();
 }
 const vhMiss = () => { VS.mist = (VS.mist || 0) + 1; return HELPER.spend(VS.st, false); };   // a mistake: counted (no mistakes = a bonus), and it costs mana
-function openVisit(i) {   // a village stop on the quest map
+function openVisit(i) {   // a village stop on the quest map: the place is the project's own place (a cottage project is never at the bakery)
   G.quest = J.q; const site = SITES[+P.quest[J.q].path[i - 1].slice(1)] || SITES[0];
-  startVisit({ festival: false, idx: i, site, projects: [pickVisitProject(site.bg, P.mlvl || 1)] });
+  const p = pickVisitProject(site.bg, P.mlvl || 1);
+  startVisit({ festival: false, idx: i, site: SITES.find(x => x.bg === p.site) || site, projects: [p] });
 }
 function openFestival(i) {   // the last stop: the festival projects that the student can reach (as in the Hebrew game's finale)
   G.quest = J.q; const ok = FINALE_PROJECTS.filter(p => vhUnlocked(p, P.mlvl || 1));
@@ -3778,16 +3780,18 @@ function startVisit(o) {   // the fight screen, with the villager and the villag
   const pl = HELPER.plan(P.mlvl || 1, wizLvl(), rounds.length);
   G.site = o.site; G.vkey = o.site.bg; G.fname = o.site.name; G.big = o.festival; G.projs = null; G.mon = null; G.foes = null; G.group = false;
   const imp = !o.festival && (window.__forceImp != null ? window.__forceImp : HELPER.isImpatient(wizLvl()));   // the demo can force it   // an impatient villager (spec 05 §8): a patience bar, the armor bar
-  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
+  VS = { festival: o.festival, idx: o.idx, pl, rounds, round: 0, imp, owlUsed: false, made: [], picCost: 0, st: { mana: pl.mana, happy: 0, happyMax: pl.happyMax, ...(imp ? { patience: HELPER.PATIENCE } : {}) }, msg: '' };
   show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); $('#abandonBtn').style.display = 'none';
-  $('#itemBar').style.display = 'none'; setBookIcon(true);
+  $('#itemBar').style.display = 'none'; $('#potBar').style.display = 'none'; setBookIcon(true);
   drawScene(); visitRound(); visitShow();
 }
 // the book button of the game screen: 📜 in a village visit (the conjuration book), 📖 in a fight (the spell book)
 function setBookIcon(conj) { const b = document.querySelector('#game [data-book]'); if (b) b.textContent = conj ? '📜' : '📖'; }
 function visitRound() {   // the next item of the projects: its amount, and the cards of the amount's card step
   const V = VS, R = V.rounds[V.round], pl = V.pl;
-  V.item = R.item; V.project = R.project; V.p = HELPER.makeAmount(pl.lowLevel); V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
+  V.item = R.item; V.project = R.project;
+  do { V.p = HELPER.makeAmount(pl.lowLevel); } while (HELPER.noBreak(V.item) && V.p.kind === 'separate');   // the blanket cannot break
+  V.cards = pl.cardStep ? HELPER.amountCards(V.p) : null;
   V.phase = pl.cardStep ? 'card' : 'calc'; V.itemCards = null; V.pick = null; V.iAns = null; V.msg = ''; V.potUsed = false; V.read = false; V.picRev = false;
   // extra information (spec 05 §8, wizard level 15): half the stories also name a number that is not needed
   const others = HELPER.reachable(P.mlvl || 1).filter(x => x.n !== V.item.n);
@@ -3820,17 +3824,23 @@ function visitStory() {
   return V.extra ? txt + ' ' + t('vh_extra', { x: V.extra.n, item: vhLow(tl(HELPER.storyName(V.extra.item, V.extra.n))) }) : txt;
 }
 // the count: pictures of the items at the low levels (and above them when the student asks, for XP); numbers always
-function visitCount() {
+function visitCount() {   // pictures only (no numbers under the story): what the villager has
   const V = VS, s = V.p.show, e = V.item.em, pics = P.mlvl <= PICS_MAX || V.picRev || !!window.__picsAll;
-  const pic = n => (pics && n <= 12 ? e.repeat(n) : '');
-  if (s.plus !== undefined) return `<div class="vhCount">${pic(s.have)} + ${pic(s.plus)} <b>${s.have} + ${s.plus}${V.p.kind === 'two' ? ' → ' + s.of : ''}</b></div>`;
-  return `<div class="vhCount">${pic(s.have) || ''} <b>${s.have} / ${s.of}</b></div>`;
+  if (!pics) return '';
+  const pic = n => (n <= 12 ? e.repeat(n) : '');
+  if (s.plus !== undefined) return `<div class="vhCount">${pic(s.have)} + ${pic(s.plus)}</div>`;
+  return `<div class="vhCount">${pic(s.have)}</div>`;
+}
+// the items the villager has got so far in this visit: each one shows as its pictures, or as a count above 6
+function visitMade() {
+  const V = VS; if (!V.made.length) return '';
+  return `<div class="vhCount vhMade">${V.made.map(m => `<span>${m.n > 6 ? m.em + ' ×' + m.n : m.em.repeat(m.n)}</span>`).join(' ')}</div>`;
 }
 function visitShow() {
   const V = VS, w = $('#vhWrap'); if (!V || !$('#game').classList.contains('on')) return;
   visitBars();
   $('#qTitle').textContent = V.project.name;
-  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${visitCount()}${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
+  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${visitCount()}${visitMade()}${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
   V.storyText = visitStory();   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(V.storyText); }
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
@@ -3847,9 +3857,9 @@ function visitShow() {
   const have = (P.carry || {}).heart || 0, can = !done && have > 0 && !V.potUsed && V.st.mana < V.pl.mana;
   const owl = !done && wizLvl() >= 18 && !V.owlUsed && V.st.mana > 0;
   const pics = !done && P.mlvl > PICS_MAX && !V.picRev && !window.__picsAll;
-  $('#potBar').style.display = done ? 'none' : ''; $('#potBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}${pics ? `<button class="btn ghost" data-vh="pics">${t('vh_pics', { xp: PIC_XP })}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
+  $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `${can ? `<button class="btn" data-vh="pot">${t('vh_pot', { n: have })}</button>` : ''}${owl ? `<button class="btn" data-vh="owl">${t('vh_owl_btn')}</button>` : ''}${pics ? `<button class="btn ghost" data-vh="pics">${t('vh_pics')}</button>` : ''}<button class="btn ghost" data-vh="hear">🔊</button><button class="btn ghost" data-vh="quit">${t('vh_quit')}</button>`;
   const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
-  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left'; VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); jAfterVisit(d, f, m, im, lf); };
+  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left', pc = (VS && VS.picCost) || 0; visitEnd(); jAfterVisit(d, f, m, im, lf, pc); };
 }
 function visitAfter() {   // after each action: the visit may be over
   const V = VS, o = HELPER.visitOver(V.st);
@@ -3857,9 +3867,12 @@ function visitAfter() {   // after each action: the visit may be over
   return false;
 }
 // the item is crafted: the items appear; a big number floats above them
+// leaving the visit: its bars go, and the potion row of the map comes back
+function visitEnd() { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); $('#vhBar').style.display = 'none'; renderPotBar(); }
 function visitCraft() {
   const V = VS, n = V.p.amount, em = V.item.em, thanks = t('vh_ok', { items: n <= 6 ? em.repeat(n) : em + ' ×' + n });
-  if (n > 6) floatText('+' + n, '#ffd166', document.querySelector('#foeBody'));
+  V.made.push({ em, n });
+  floatText(n > 6 ? '+' + n : em.repeat(n), n > 6 ? '#ffd166' : '#fff', document.querySelector('#foeBody'));   // a big amount floats as a number; a small one as the items
   return thanks;
 }
 function visitNext(thanks) {   // the item is handed over: on to the next item of the projects, or the stop is done
@@ -3875,10 +3888,10 @@ function visitRoundDone() {   // the item is crafted (see visitCraft)
 function visitClick(e) {   // the answers, cards and buttons of the visit (the fight's buttons)
   const b = e.target.closest && e.target.closest('[data-vh]'); if (!b || !VS) return;
   const V = VS, act = b.dataset.vh;
-  if (act === 'quit') { VS = null; setBookIcon(false); $('#armorBar').classList.remove('on'); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
+  if (act === 'quit') { visitEnd(); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
   if (act === 'pics') {   // the pictures above the free level: the student asks, and it costs XP
-    if (V.picRev || P.mlvl <= PICS_MAX) return; V.picRev = true; P.xp = Math.max(0, P.xp - PIC_XP); saveSoon(true); toast(t('vh_pics_used', { xp: PIC_XP })); return visitShow();
+    if (V.picRev || P.mlvl <= PICS_MAX) return; V.picRev = true; V.picCost = PIC_XP; return visitShow();   // the cost comes off the stop's reward, and the student is not told
   }
   if (act === 'pot') {   // the Mana potion: restores 30% of the visit's mana (as the Heart potion heals 30% of HP in a fight)
     if (!((P.carry || {}).heart > 0) || V.potUsed || V.st.mana >= V.pl.mana) return;
@@ -3925,10 +3938,10 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   }
 }
 $('#opts').addEventListener('click', visitClick);
-$('#potBar').addEventListener('click', visitClick);
+$('#vhBar').addEventListener('click', visitClick);
 // the rewards (spec 05 §7): XP 10 (+5 with no mistakes) per villager, 40 (+20) for the festival; coins by math level (2 units a villager, 5 the festival)
-function vhRewards(fest, mist, imp) {   // an impatient villager, finished, pays double (spec 05 §8)
-  const x = imp ? 2 : 1, xp = x * (fest ? 40 + (mist === 0 ? 20 : 0) : 10 + (mist === 0 ? 5 : 0));
+function vhRewards(fest, mist, imp, pc = 0) {   // an impatient villager, finished, pays double (spec 05 §8); the pictures taken (pc) come off the stop's XP
+  const x = imp ? 2 : 1, xp = Math.max(0, x * (fest ? 40 + (mist === 0 ? 20 : 0) : 10 + (mist === 0 ? 5 : 0)) - pc);
   P.xp += xp; const c = jCoins((fest ? 5 : 2) * x);
   return { xp, c };
 }
@@ -3941,10 +3954,10 @@ function vhDrop(fest, mist) {
   const rr = runRec(); if (rr) { rr.loot[id] = (rr.loot[id] || 0) + 1; rr.loot[herb] = (rr.loot[herb] || 0) + n; rr.bounce = true; }
   return { id, herb, n };
 }
-function jAfterVisit(done, fest = false, mist = 0, imp = false, left = false) {
+function jAfterVisit(done, fest = false, mist = 0, imp = false, left = false, pc = 0) {
   if (left) { const chapter = advanceQuest(); saveSoon(true); toast(t('vh_left')); return chapter ? openMenu() : continuePath(); }   // the villager leaves: the stop is done, no reward, the run goes on
   if (done) {
-    const rw = vhRewards(fest, mist, imp); toast(t('vh_reward', rw));
+    const rw = vhRewards(fest, mist, imp, pc); toast(t('vh_reward', rw));
     const dr = vhDrop(fest, mist); setTimeout(() => toast(t('vh_found', { x: `${ING[dr.id].em} ${nameOf(ING[dr.id])} + ${ING[dr.herb].em} ${nameOf(ING[dr.herb])} ×${dr.n}` })), 1500);
     const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath();
   }
@@ -4413,11 +4426,18 @@ function spellCard(s, sealed, isNew) {
 }
 let bookSort = 'tier';   // 'tier' (the tabs: 1–9, 11–19, Enhanced …), 'num' (every spell in number order) or 'type' (a tab per spell type)
 // the conjuration book (the village, spec 05): the same look as the spell book; the items with their numbers, locked until their math level
+let conjTab = null;   // the conjuration book's theme tab (the same tabs as the spell book's)
 function openConjBook() {
-  const ml = P.mlvl || 1;
+  const ml = P.mlvl || 1, TH = HELPER.THEMES, byN = n => HELPER.BOOK.find(x => x.n === n);
+  if (!TH.some(x => x.k === conjTab)) conjTab = TH[0].k;
+  const cur = TH.find(x => x.k === conjTab);
   $('#bookTitle').textContent = t('conj_t'); $('#bookInfo').textContent = t('conj_info', { m: ml });
-  $('#bookSort').style.display = 'none'; $('#bookTabs').style.display = 'none'; $('#bookTabs').innerHTML = '';
-  $('#bookPages').innerHTML = HELPER.BOOK.slice().sort((a, b) => a.n - b.n).map(x => {
+  $('#bookSort').style.display = 'none'; $('#bookTabs').style.display = '';
+  $('#bookTabs').innerHTML = TH.map(x => {
+    const learned = x.items.filter(n => byN(n).lvl <= ml).length, sealed = x.items.length - learned;
+    return `<button class="bookTab${x.k === conjTab ? ' on' : ''}" role="tab" aria-selected="${x.k === conjTab}" data-ctab="${x.k}">${x.em} ${tl([x.en, x.he])} <small>${learned}${sealed ? ' + 🔒' + sealed : ''}</small></button>`;
+  }).join('');
+  $('#bookPages').innerHTML = cur.items.map(byN).sort((a, b) => a.n - b.n).map(x => {
     const lock = x.lvl > ml;
     return `<div class="spellCard${lock ? ' sealed' : ''}"><span class="sNum" dir="ltr">${x.n}</span><div class="sName">${x.em} ${tl(x.one)}</div>${lock ? `<div class="sLock">${t('conj_lock', { n: x.lvl })}</div>` : `<div class="sFx">${tl(HELPER.nameFor(x, 2))}</div>`}</div>`;
   }).join('');
@@ -4448,7 +4468,7 @@ function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen
 // a visit opens only the conjuration book; a fight only the spell book; the map has both buttons (data-book="conj" is the conjuration book)
 document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); const visit = G.quest === 'peace' && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
 $('#bookClose').onclick = closeBook;
-$('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
+$('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const ct = e.target.closest('[data-ctab]'); if (ct) { conjTab = ct.dataset.ctab; openConjBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
 // New spells and a new wizard level: when the math level or the wizard level opens spells the student did not have, they are learned and celebrated
 // ("You learned a new spell!", spec 02 §8); a new wizard level also lists what it brings (spec 03 §5): spell types, cards, kinds of monsters,

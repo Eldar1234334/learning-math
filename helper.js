@@ -197,5 +197,19 @@
   // the impatient villager: from wizard level 6, one visit in three
   const isImpatient = (wlvl, r = Math.random) => wlvl >= 6 && r() < 1 / 3;
 
-  return { BOOK, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  // the conjuration book's themes (inspired by the spell book's tabs): each item is in one theme, so a student finds it fast
+  const THEMES = [
+    { k: 'food', em: '🍞', en: 'Food & kitchen', he: 'אוכל ומטבח', items: [3, 4, 5, 10, 11, 21, 27, 28] },
+    { k: 'farm', em: '🌱', en: 'Farm & garden', he: 'חווה וגן', items: [9, 19, 23, 64] },
+    { k: 'water', em: '🌊', en: 'Water & sea', he: 'מים וים', items: [2, 14, 17, 18, 25] },
+    { k: 'light', em: '🕯️', en: 'Light & fire', he: 'אור ואש', items: [7, 13, 16, 36] },
+    { k: 'tools', em: '🔨', en: 'Tools & metal', he: 'כלים ומתכת', items: [1, 6, 8, 12, 22, 26] },
+    { k: 'wood', em: '🪵', en: 'Wood & home', he: 'עץ ובית', items: [24, 42, 50] },
+    { k: 'cloth', em: '🧶', en: 'Cloth & sewing', he: 'בד ותפירה', items: [20, 30, 40, 60] },
+    { k: 'party', em: '🎉', en: 'Festival & music', he: 'חג ומוזיקה', items: [15, 45, 48, 49, 55] }
+  ];
+  const themeOf = item => THEMES.find(t => t.items.includes(item.n)) || THEMES[THEMES.length - 1];
+  // the blanket cannot break: no story where some of them break (the "broke" story)
+  const noBreak = item => item.n === 60;
+  return { BOOK, THEMES, themeOf, noBreak, PATIENCE, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });
