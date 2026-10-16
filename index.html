@@ -3058,7 +3058,7 @@ function jArrive(i) {
   modal(title, body, [[t('continue'), () => { jDraw(); jHud(); }]]);
 }
 function enterFight() {
-  setBookIcon(false); show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted); newEncounter();
+  VS = null; setBookIcon(false); show('game');   // a fight never shows a village visit's book $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted); newEncounter();
 }
 $('#jWalk').onclick = jWalk;
 $('#jBack').onclick = () => { saveSoon(true); openMenu(); };
@@ -4398,7 +4398,7 @@ function openBook(kind = 'spell') {
 }
 function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } if (TUT.on && TUT.wantClose) tutResolve('close'); }
 // a visit opens only the conjuration book; a fight only the spell book; the map has both buttons (data-book="conj" is the conjuration book)
-document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); const visit = !!VS && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
+document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); const visit = G.quest === 'peace' && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
 $('#bookClose').onclick = closeBook;
 $('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
