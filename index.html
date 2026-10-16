@@ -1348,6 +1348,7 @@ const STR = {
   vh_lost: ['Your mana is empty. Rest, and come back tomorrow.', 'נגמרה המנה. נוחו, וחזרו מחר.'],
   vh_reward: ['+{xp} XP · +{c} coins', '+{xp} ניסיון · +{c} מטבעות'], vh_found: ['Found: {x}', 'נמצא: {x}'],
   vh_left: ['The villager has had enough and leaves. Come back another day.', 'התושב נמאס לו ועוזב. חזרו יום אחר.'],
+  vh_spell_q: ['Now conjure {n} {item}. Which spell brings them?', 'עכשיו כשפו {n} {item}. איזה כישוף מביא אותם?'], vh_spell_sub: ['Choose the spell.', 'בחרו את הכישוף.'],
   vh_owl_btn: ['🦉 Owl helper', '🦉 עוזר הינשוף'], vh_owl: ['🦉 The owl carries {items} to the villager!', '🦉 הינשוף מביא {items} לתושב!'],
   conj_t: ['📜 Conjuration book', '📜 ספר ההטלה'], conj_info: ['The items you can conjure at math level {m}.', 'הפריטים שאפשר לכשף ברמה {m}.'], conj_lock: ['Unlocks at math level {n}', 'נפתח ברמה {n}'], conj_btn: ['Conjuration book', 'ספר ההטלה'],
   vh_pot: ['🔷 Mana potion ({n})', '🔷 שיקוי מנה ({n})'], vh_pot_used: ['🔷 The Mana potion restores your mana!', '🔷 שיקוי המנה החזיר לכם מנה!'], vh_leave: ['Continue ▶', 'המשך ◀'], vh_quit: ['Leave for now', 'לעזוב לעת עתה'],
@@ -3836,6 +3837,10 @@ function visitShow() {
   } else if (V.phase === 'item') {
     if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1);
     $('#qSub').textContent = t('vh_item');
+    if (wizLvl() >= 9) {   // the two-part request (spec 05 §8): one question at a time: the amount, then the spell
+      $('#qBig').innerHTML = `<div class="vhStory">${t('vh_spell_q', { n: V.p.amount, item: vhLow(hpItemName(V.item, V.p.amount)) })}</div>`;
+      $('#qSub').textContent = t('vh_spell_sub');
+    }
     o.className = 'opts cards'; o.style.gridTemplateColumns = `repeat(${V.itemCards.length}, 1fr)`;
     V.itemCards.forEach((c, i) => { if (c.gone) return; const b = document.createElement('button'); b.className = 'opt card'; b.dataset.vh = 'item'; b.dataset.i = i; b.innerHTML = `<span class="cardEx">${HELPER.cardText(c)}</span>`; o.appendChild(b); });
   }

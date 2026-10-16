@@ -768,3 +768,4 @@ Decisions from the owner: Google is an extra option next to the e-mail code (not
 - **The conjuration book (village) looks and works like the spell book (fight):** the same look and idea. The map screen shows both books. In a fight or a village visit the student opens only the relevant one (the spell book in a fight, the conjuration book in a village visit).
 - **Impatient villager (spec 05 §8, wizard level 6+, one visit in three):** a patience bar (the armor bar) starts full and goes down by one on every action. Empty = the villager leaves (no reward, the run goes on). Finished = double rewards.
 - **Owl helper (spec 05 §8, wizard level 18+):** once per visit, one action (one mana): the owl carries the rest of the current item.
+- **Two-part request (spec 05 §8, wizard level 9+):** the villager asks one thing at a time: part 1 the amount, part 2 the spell that conjures the items ("Now conjure 1 flour. Which spell brings them?").
