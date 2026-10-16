@@ -4344,13 +4344,13 @@ function acadRender() {
   } else if (ACQ.phase === 'fight') {
     const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], marks = (ACQ.practice ? '' : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist)));
     const story = q.d2 != null ? t('ac_aoe_t') : d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : t('ac_fight_t');
-    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })} · ${marks}</div>${acadStageHtml(q)}
+    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })}${marks ? ' · ' + marks : ''}</div>${acadStageHtml(q)}
       <p class="acadStory">${story}</p><div class="acadEq" dir="ltr">${exprHtml(q.p.e)}</div>
       <div class="acadPadShow">${ACQ.typed || '…'}</div><p class="small">${t('ac_type')}</p>${acadPadHtml()}<p class="acadFb">${ACQ.msg || ''}</p>`;
     if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; setTimeout(() => acadFly(s), 30); }   // the spell flies once the dummies are drawn
   } else {
     const q = ACQ.qs[ACQ.i], marks = (ACQ.practice ? '' : '✖'.repeat(ACQ.mist) + '·'.repeat(Math.max(0, ACQ.allowed - ACQ.mist)));   // the mistakes allowed, crossed when used
-    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })} · ${marks}</div>
+    box.innerHTML = `<div class="acadTop">${t('ac_progress', { k: ACQ.i + 1, q: ACQ.Q })}${marks ? ' · ' + marks : ''}</div>
       <p class="acadStory">${visitStory({ p: q.p, item: q.item, extra: null })}</p>
       ${ACQ.phase === 'item'
         ? `<p class="small">${t('ac_pick_item')}</p><div class="acadGrid">${q.opts.map((o, j) => `<button class="opt card" data-ac="item" data-i="${j}"><span class="cardEx">${o.em}</span><small>${tl(HELPER.nameFor(o, 1))}</small></button>`).join('')}</div>`
