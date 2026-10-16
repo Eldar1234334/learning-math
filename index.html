@@ -66,6 +66,8 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #mapHero svg{width:100%;height:100%}#mapHero.drag{transition:none;cursor:grabbing;z-index:6}#mapHero.walk svg{animation:hop .3s infinite alternate}
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
+.vhNeed{display:flex;align-items:center;justify-content:center;margin:0 auto 4px;width:46px;height:46px;border-radius:50%;border:2px solid #ffd166;background:#ffffff26;font-size:1.6rem;cursor:pointer;padding:0}
+.spellCard.hlItem{outline:3px solid #ffd166;box-shadow:0 0 18px #ffd166}
 .vhIco{width:58px;min-width:58px;height:72px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
 #stage{position:relative}
 #vhTray{position:absolute;left:50%;top:40%;transform:translateX(-50%);z-index:4;pointer-events:none;white-space:nowrap}
@@ -1347,7 +1349,7 @@ const STR = {
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_ians: ['The spell brings how many {item}? Choose the number.', 'הכישוף מביא כמה {item}? בחרו את המספר.'],
-  vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'],
+  vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'], vh_book_item: ['Find this item in the conjuration book', 'מצאו את הפריט הזה בספר הכישופים'],
   vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. כשפו את השאר.'],
   vh_separate: ['I need {t} {item}. I have {a}, because {b} {broke}. Please conjure the rest.', 'אני צריך {t} {item}. יש לי {a}, כי {b} {broke}. כשפו את השאר.'], vh_broke: ['broke', 'נשברו'],
@@ -3870,7 +3872,7 @@ function visitShow() {
   $('#qTitle').textContent = V.project.name;
   // the project's tray sits on the stage, beneath the roof of the place (not in the question panel)
   let tr = $('#vhTray'); if (!tr) { tr = document.createElement('div'); tr.id = 'vhTray'; $('#stage').appendChild(tr); } tr.innerHTML = visitTray();
-  $('#qBig').innerHTML = `<div class="vhStory">${visitStory()}</div>${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
+  $('#qBig').innerHTML = `<button class="vhNeed" data-vh="bookItem" title="${t('vh_book_item')}">${V.item.em}</button><div class="vhStory">${visitStory()}</div>${V.phase === 'ians' && V.pick ? `<div class="vhCard">${HELPER.cardText(V.pick)}</div>` : ''}`;
   V.storyText = visitStory();   // read aloud (spec 05 §6): automatically for math levels 1–12, and with the 🔊 button
   if (!V.read && (P.mlvl || 1) <= 12) { V.read = true; vhSpeak(V.storyText); }
   const o = $('#opts'); o.innerHTML = ''; o.style.gridTemplateColumns = ''; o.style.display = ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = ''; o.className = 'opts';
@@ -3891,8 +3893,8 @@ function visitShow() {
   $('#vhBar').style.display = done ? 'none' : ''; $('#vhBar').innerHTML = done ? '' : `<button class="potBtn vhIco" data-vh="hear" title="🔊">🔊</button><button class="potBtn vhIco" data-vh="quit" title="${t('vh_quit')}">🏳️</button>${pics ? `<button class="potBtn vhIco" data-vh="pics" title="${t('vh_pics')}">🖼</button>` : ''}${owl ? `<button class="potBtn vhIco" data-vh="owl" title="${t('vh_owl_btn')}">🦉</button>` : ''}`;
   // the pictures of what the villager has: under the second row, when they are shown
   $('#vhPics').innerHTML = done ? '' : visitPics(); $('#vhPics').style.display = done ? 'none' : '';
-  const nb = $('#nextBtn'); nb.classList.toggle('hidden', !done); nb.textContent = t('vh_leave');
-  nb.onclick = () => { const d = VS && VS.phase === 'done', f = VS && VS.festival, m = (VS && VS.mist) || 0, im = !!(VS && VS.imp), lf = VS && VS.phase === 'left', pc = (VS && VS.picCost) || 0; visitEnd(); jAfterVisit(d, f, m, im, lf, pc); };
+  $('#nextBtn').classList.add('hidden');   // the end of the visit is the box (visitFinish), once the last item has landed
+  if (done && !V.shown) setTimeout(visitFinish, V.phase === 'done' ? 3000 : 300);
 }
 // the potion row, drawn as the fight's (same bottles, same counts); a potion can be used once per item
 function visitPotsHtml() {
@@ -3984,6 +3986,11 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
   const V = VS, act = b.dataset.vh;
   if (act === 'quit') { visitEnd(); return openJourney(G.quest); }   // leave for now: the stop waits, nothing is lost
   if (act === 'hear') { vhSpeak(V.storyText || ''); return; }   // the 🔊 button reads the story again
+  if (act === 'bookItem') {   // the item's icon: the conjuration book opens on the item's theme, with the item marked
+    conjTab = HELPER.themeOf(V.item).k; openConjBook();
+    const el = document.querySelector(`#bookPages [data-item="${V.item.n}"]`); if (el) { el.classList.add('hlItem'); el.scrollIntoView({ block: 'center' }); }
+    return;
+  }
   if (act === 'pics') {   // the pictures above the free level: the student asks; the answers of this item count half for the math level
     if (V.picRev || P.mlvl <= PICS_MAX) return; V.picRev = true; V.picCost = PIC_XP; return visitShow();
   }
@@ -4030,6 +4037,7 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
 $('#opts').addEventListener('click', visitClick);
 $('#potBar').addEventListener('click', visitClick);
 $('#vhBar').addEventListener('click', visitClick);
+$('#qBig').addEventListener('click', visitClick);   // the item's icon in the question
 // the rewards (spec 05 §7): XP 10 (+5 with no mistakes) per villager, 40 (+20) for the festival; coins by math level (2 units a villager, 5 the festival)
 function vhRewards(fest, mist, imp, pc = 0) {   // an impatient villager, finished, pays double (spec 05 §8); the pictures taken (pc) come off the stop's XP
   const x = imp ? 2 : 1, xp = Math.max(0, x * (fest ? 40 + (mist === 0 ? 20 : 0) : 10 + (mist === 0 ? 5 : 0)) - pc);
@@ -4045,14 +4053,22 @@ function vhDrop(fest, mist) {
   const rr = runRec(); if (rr) { rr.loot[id] = (rr.loot[id] || 0) + 1; rr.loot[herb] = (rr.loot[herb] || 0) + n; rr.bounce = true; }
   return { id, herb, n };
 }
-function jAfterVisit(done, fest = false, mist = 0, imp = false, left = false, pc = 0) {
-  if (left) { const chapter = advanceQuest(); saveSoon(true); toast(t('vh_left')); return chapter ? openMenu() : continuePath(); }   // the villager leaves: the stop is done, no reward, the run goes on
-  if (done) {
-    const rw = vhRewards(fest, mist, imp, pc); toast(t('vh_reward', rw));
-    const dr = vhDrop(fest, mist); setTimeout(() => toast(t('vh_found', { x: `${ING[dr.id].em} ${nameOf(ING[dr.id])} + ${ING[dr.herb].em} ${nameOf(ING[dr.herb])} ×${dr.n}` })), 1500);
-    const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath();
+// the end of a visit: a box says what the wizard received, with Continue (as in a fight)
+function visitFinish() {
+  const V = VS; if (!V || V.shown) return; V.shown = true;
+  const title = `🏘️ ${G.site ? G.site.name : ''}`;
+  if (V.phase === 'done') {
+    const rw = vhRewards(V.festival, V.mist || 0, !!V.imp, V.picCost || 0), dr = vhDrop(V.festival, V.mist || 0);
+    modal(title, `<p>${t('vh_done')}</p><p>${t('vh_reward', rw)}</p><p>${t('vh_found', { x: `${ING[dr.id].em} ${nameOf(ING[dr.id])} + ${ING[dr.herb].em} ${nameOf(ING[dr.herb])} ×${dr.n}` })}</p>`, [[t('continue'), () => { visitEnd(); visitNav(false); }]]);
+  } else if (V.phase === 'left') {   // the villager leaves: the stop is done, no reward, the run goes on
+    modal(title, `<p>${t('vh_left')}</p>`, [[t('continue'), () => { visitEnd(); visitNav(false); }]]);
+  } else {   // out of mana: the run is lost (the only way to lose)
+    modal(title, `<p>${t('vh_lost')}</p>`, [[t('continue'), () => { visitEnd(); visitNav(true); }]]);
   }
-  restartQuest(); saveSoon(true); toast(t('vh_lost')); openMenu();   // out of mana: the run is lost (the only way to lose)
+}
+function visitNav(lost) {   // on to the next stop of the run (or the menu when the chapter is done); a lost run starts again
+  if (lost) { restartQuest(); saveSoon(true); return openMenu(); }
+  const chapter = advanceQuest(); saveSoon(true); return chapter ? openMenu() : continuePath();
 }
 // reads a story aloud: Hebrew with the device's Hebrew voice (silent when there is none), English with the device's English voice
 function vhSpeak(text) {
@@ -4530,7 +4546,7 @@ function openConjBook() {
   }).join('');
   $('#bookPages').innerHTML = cur.items.map(byN).sort((a, b) => a.n - b.n).map(x => {
     const lock = x.lvl > ml;
-    return `<div class="spellCard${lock ? ' sealed' : ''}"><span class="sNum" dir="ltr">${x.n}</span><div class="sName">${x.em} ${tl(x.one)}</div>${lock ? `<div class="sLock">${t('conj_lock', { n: x.lvl })}</div>` : `<div class="sFx">${tl(HELPER.nameFor(x, 2))}</div>`}</div>`;
+    return `<div class="spellCard${lock ? ' sealed' : ''}" data-item="${x.n}"><span class="sNum" dir="ltr">${x.n}</span><div class="sName">${x.em} ${tl(x.one)}</div>${lock ? `<div class="sLock">${t('conj_lock', { n: x.lvl })}</div>` : `<div class="sFx">${tl(HELPER.nameFor(x, 2))}</div>`}</div>`;
   }).join('');
   $('#book').hidden = false;
 }
