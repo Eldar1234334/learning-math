@@ -3087,7 +3087,8 @@ function jArrive(i) {
   modal(title, body, [[t('continue'), () => { jDraw(); jHud(); }]]);
 }
 function enterFight() {
-  VS = null; setBookIcon(false); show('game');   // a fight never shows a village visit's book $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted); newEncounter();
+  // a fight never shows a village visit's book
+  VS = null; setBookIcon(false); show('game'); $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P); setMute(muted); newEncounter();
 }
 $('#jWalk').onclick = jWalk;
 $('#jBack').onclick = () => { saveSoon(true); openMenu(); };
