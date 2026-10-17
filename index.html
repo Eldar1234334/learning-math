@@ -4414,10 +4414,10 @@ function acadQDone(ok, fact) {
   if (ok && ACQ.msg === '') ACQ.msg = t('ac_right');
   ACQ.fxP = null; acadRender();
   const fightOk = ok ? (ACQ.lastDown && ACQ.lastDown.length ? 1100 : 800) : 1000;   // the spec's pauses start when the spell's effect is over
-  const wait = ms => ACQ.kind === 'fight' ? Promise.resolve(ACQ.fxP).then(() => sleep(ms)) : new Promise(r => setTimeout(r, ms));
+  const wait = ms => Promise.resolve(ACQ.fxP).then(() => sleep(ms));   // the pause starts when the effect is over
   wait(ACQ.kind === 'fight' ? fightOk : (ok ? 1500 : 3400)).then(() => {
     if (!ACQ) return;
-    ACQ.busy = false; ACQ.i++; ACQ.j = 0; ACQ.msg = ''; ACQ.typed = ''; ACQ.shown = null; ACQ.vmood = null; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
+    ACQ.busy = false; ACQ.i++; ACQ.j = 0; ACQ.msg = ''; ACQ.typed = ''; ACQ.shown = null; ACQ.vmood = null; ACQ.hold = false; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
     if (ACQ.mist > ACQ.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
     if (ACQ.i >= ACQ.Q) return acadFinish(false);
     ACQ.phase = ACQ.kind === 'fight' ? 'fpick' : 'citem'; acadRender();
@@ -4487,13 +4487,24 @@ const acadPedSvg = () => `<svg class="acPedSvg" viewBox="0 0 80 100" aria-hidden
   <defs><radialGradient id="acOrb" cx=".4" cy=".35"><stop offset="0" stop-color="#6a5f94" stop-opacity=".55"/><stop offset="1" stop-color="#1f1936" stop-opacity=".2"/></radialGradient></defs>
   <path d="M22 70H58L64 96H16Z" fill="#a89fdc"/><rect x="12" y="62" width="56" height="9" rx="3" fill="#8f84c8"/>
   <circle cx="40" cy="34" r="27" fill="#3a3150"/><circle cx="40" cy="34" r="27" fill="url(#acOrb)"/><ellipse cx="30" cy="22" rx="8" ry="5" fill="#fff" opacity=".18"/></svg>`;
-const acadPedItems = () => (ACQ.shown || []).map((pl, gi) => pl.n > 9
+// the wizard shoots a magic from his staff at the pedestal (its look grows with the wizard tier, as in the village); where it lands the items appear
+async function acadConjFx() {
+  const w = wizLvl(), tier = w >= 19 ? 4 : w >= 13 ? 3 : w >= 7 ? 2 : 1, shot = ['✨', '🌟', '💫', '🔮'][tier - 1], ped = $('#acPed');
+  try { await fly(shot, $('#heroSvg'), ped, { trail: true, size: 1.8 }); } catch (e) {}
+  if (!ACQ || !ped.isConnected) return;
+  ACQ.hold = false; sfx.up(); burst('✨', 10, ped); flashStage();
+  const pi = $('#acPedItems'); if (pi) pi.innerHTML = acadPedItems();
+  ped.classList.toggle('lit', !!(ACQ.shown && ACQ.shown.length));
+  if (ACQ.shown && ACQ.shown.some(p => p.n > 6)) floatText('+' + ACQ.shown[ACQ.shown.length - 1].n, '#ffd166', ped);
+}
+const acadPedItems = () => ACQ.hold ? '' : (ACQ.shown || []).map((pl, gi) => pl.n > 9
   ? `<span class="acPedItem" style="animation-delay:${gi * 0.4}s">${pl.em}<b>×${pl.n}</b></span>`
   : Array.from({ length: pl.n }, (_, i) => `<span class="acPedItem" style="animation-delay:${(gi * 9 + i) * 0.12}s">${pl.em}</span>`).join('')).join('');
 function conjRenderGame() {
   const q = ACQ.qs[ACQ.i], x = q.items[ACQ.j], citem = ACQ.phase === 'citem', story = visitStory({ p: x.p, item: x.item, extra: null });
   $('#acBubble').innerHTML = story;
-  $('#acPedItems').innerHTML = acadPedItems(); $('#acPed').classList.toggle('lit', !!(ACQ.shown && ACQ.shown.length));
+  if (ACQ.shot) ACQ.hold = true;   // the items wait for the magic to land
+  $('#acPedItems').innerHTML = acadPedItems(); $('#acPed').classList.toggle('lit', !ACQ.hold && !!(ACQ.shown && ACQ.shown.length));
   acadTopRender(); $('#acName').textContent = '';
   $('#acDots').innerHTML = q.items.length > 1 ? q.items.map((_, j) => `<i style="background:#ffd166" class="${j < ACQ.j ? 'done' : j === ACQ.j ? 'cur' : ''}"></i>`).join('') : '';   // the items of this request
   $('#qTitle').textContent = t('ac_conj_say', { ex: ACAD_EXAMINER(ACQ.k) });
@@ -4504,6 +4515,7 @@ function conjRenderGame() {
     ? x.icards.map((c, i) => `<button class="opt card" data-ac="icard" data-i="${i}"><span class="cardEx" dir="ltr">${HELPER.cardText(c)}</span></button>`).join('')
     : `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${ACQ.phase === 'cnum' ? '✔' : t('ac_conj_go')}</button>`;
   $('#fb').textContent = ACQ.msg || '';
+  if (ACQ.shot) { ACQ.shot = null; ACQ.fxP = acadConjFx(); }
   const key = ACQ.i + ':' + ACQ.j;   // the story is read aloud (spec 08 §6): automatically for math levels 1–12, and with the 🔊 button
   if (ACQ.spoke !== key && !ACQ.busy) { ACQ.spoke = key; if ((P.mlvl || 1) <= 12) vhSpeak(story); }
 }
@@ -4539,7 +4551,7 @@ function acadClick(e) {
 }
 // a wrong item (a wrong card, or a wrong number for the card): it appears on the pedestal and the examiner reacts; the question ends here, with one mistake
 function acadWrongItem(w, x) {
-  ACQ.shown = w ? [{ em: w.em, n: 1 }] : []; sfx.bad();
+  ACQ.shown = w ? [{ em: w.em, n: 1 }] : []; ACQ.shot = true; sfx.bad();
   ACQ.msg = w ? t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(x.item, 2) }) : t('ac_wrong_item');
   return acadQDone(false, null);
 }
@@ -4561,15 +4573,15 @@ function acadAmount(k) {
   const q = ACQ.qs[ACQ.i], x = q.items[ACQ.j], r = HELPER.checkAmount(k, x.p.amount);
   ACQ.shown = ACQ.shown || [];
   if (r.ok) {
-    ACQ.shown.push({ em: x.item.em, n: x.p.amount }); ACQ.vmood = 'happy'; ACQ.msg = t('ac_right'); sfx.win();
+    ACQ.shown.push({ em: x.item.em, n: x.p.amount }); ACQ.vmood = 'happy'; ACQ.msg = t('ac_right'); ACQ.shot = true; sfx.win();
     if (ACQ.j + 1 < q.items.length) {
       ACQ.busy = true; acadRender();
-      setTimeout(() => { if (!ACQ) return; ACQ.busy = false; ACQ.j++; ACQ.phase = 'citem'; ACQ.msg = ''; ACQ.typed = ''; ACQ.vmood = null; acadRender(); }, 1400);
+      Promise.resolve(ACQ.fxP).then(() => sleep(1100)).then(() => { if (!ACQ) return; ACQ.busy = false; ACQ.j++; ACQ.phase = 'citem'; ACQ.msg = ''; ACQ.typed = ''; ACQ.vmood = null; acadRender(); });
       return;
     }
     return acadQDone(true);
   }
-  ACQ.shown.push({ em: x.item.em, n: Math.max(0, Math.min(Math.round(k), 12)) }); ACQ.vmood = 'wait'; sfx.bad();
+  ACQ.shown.push({ em: x.item.em, n: Math.max(0, Math.min(Math.round(k), 12)) }); ACQ.vmood = 'wait'; ACQ.shot = true; sfx.bad();
   ACQ.msg = r.kind === 'few' ? t('ac_few') : t('ac_many');
   return acadQDone(false, x.p);
 }
