@@ -81,13 +81,14 @@
     let rev = 0, all = 0; for (let k = 0; k < 400; k++) { const c = CB.buildSet({ mlvl: 13, wlvl: 3, learned: learnedAt(13, 3), monEl: 'fire', rnd }).find(c => c.role === 'good'); if (c) { all++; if (c.p.src === 'review') rev++; } }
     assert(rev / all > .1 && rev / all < .35, 'review share ' + (rev / all).toFixed(2));
   });
-  test('Meteor Storm (spec 08 §1a): every monster is hit, full power on a stone-weak monster, half on the others, and it never heals', () => {
-    const storm = SB.BY_ID['625'], mk = el => ({ hp: 80, max: 80, el, boss: false });
-    const s = { g: 1, hero: { hp: 20, max: 20 }, foes: [mk('storm'), mk('fire'), mk('stone')], fx: CB.newFx() }; s.mon = s.foes[0];
+  test('Meteor Storm (spec 08 §1a, owner decision): every monster is hit for full power, whatever its element, and it never heals', () => {
+    const storm = SB.BY_ID['625'], els = ['fire', 'ice', 'dark', 'plant', 'storm', 'stone'], mk = el => ({ hp: 80, max: 80, el, boss: false });
+    const s = { g: 1, hero: { hp: 20, max: 20 }, foes: els.map(mk), fx: CB.newFx() }; s.mon = s.foes[0];
     const e = CB.cast(s, storm);
-    assert(e.k === 'area' && e.per.length === 3, 'it hits every monster');
-    assert(e.per[0].dmg === 20 && e.per[1].dmg === 10 && e.per[2].dmg === 10, 'full 20 on the monster weak to stone, half 10 on the others: ' + JSON.stringify(e.per.map(o => o.dmg)));
-    assert(!e.monHeal && s.foes[2].hp === 70, 'a stone monster is not healed');
+    assert(e.k === 'area' && e.per.length === 6, 'it hits every monster');
+    assert(e.per.every(o => o.dmg === 20) && s.foes.every(f => f.hp === 60), 'full power 20 on every element: ' + JSON.stringify(e.per.map(o => o.dmg)));
+    assert(!e.monHeal, 'it heals no monster, not even a stone one');
+    for (const el of els) assert(CB.relation(storm, el) === 'weak', 'always an effective pick against ' + el);
   });
   test('Meteor Storm does not set the monsters HP or make a fight winnable (spec 08 §1a)', () => {
     const base = learnedAt(21, 30), withStorm = SB.book(21, 30, [], 5).learned.map(s => s.id);

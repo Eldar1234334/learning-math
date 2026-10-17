@@ -77,8 +77,8 @@
     ['1/8', 'Shrinking Hex', 'כישוף הכיווץ', 'arcane', 'special', 31, { k: 'shrink', turns: 3 }],
     ['144', 'Starfall', 'מטר כוכבים', 'light', 'area', 34, { k: 'area' }, 6],
     ['360', 'Full Circle', 'מעגל שלם', 'nature', 'heal', 35, { k: 'fullHeal' }],
-    // spec 08 §1a, tier 6: the rare spell, opened only by Academy test 5. Meteors rain on every monster: full power on a monster weak to stone,
-    // half power on every other (it never heals one: the one exception to "other elements do nothing"). Rare on the cards (CFG.STORM_CHANCE, once per fight).
+    // spec 08 §1a, tier 6: the rare spell, opened only by Academy test 5. Meteors rain on every monster for full power, whatever its element (owner decision;
+    // it never heals one: the one exception to "other elements do nothing"). Rare on the cards (CFG.STORM_CHANCE, once per fight).
     ['625', 'Meteor Storm', 'סערת מטאורים', 'stone', 'area', 19, { k: 'area', storm: true }, 20]
   ];
 
@@ -141,7 +141,7 @@
     buff2: ['Your next spell has double power.', 'לכישוף הבא שלכם יש עוצמה כפולה.'], buff3: ['Your next spell has triple power.', 'לכישוף הבא שלכם יש עוצמה משולשת.'],
     buff15: ['Your next spell has 1½ times the power.', 'לכישוף הבא שלכם יש פי 1½ עוצמה.'],
     area: ['Hits every monster in the fight that is weak to {el}. Power {p}.', 'פוגע בכל המפלצות בקרב שחלשות מול {el}. עוצמה {p}.'],
-    storm: ['A rare spell! Meteors rain on every monster: full power {p} on a monster that is weak to stone, half power on all the others. It never heals one.', 'כישוף נדיר! מטאורים יורדים על כל המפלצות: עוצמה מלאה {p} על מפלצת שחלשה מול אבן, וחצי עוצמה על כל האחרות. הוא אף פעם לא מרפא מפלצת.'],
+    storm: ['A rare spell! Meteors rain on every monster with full power {p}, whatever its element. It never heals one.', 'כישוף נדיר! מטאורים יורדים על כל המפלצות בעוצמה מלאה {p}, בלי קשר ליסוד שלהן. הוא אף פעם לא מרפא מפלצת.'],
     allMon: [', every monster', ', בכל המפלצות'],
     dragon: ['{em} A dragon fights with you for {t} turns: every turn it breathes on every monster (half of a strong spell, always a weakness).', '{em} דרקון נלחם לצדכם {t} תורות: בכל תור הוא נושף על כל המפלצות (חצי מכישוף חזק, תמיד בנקודת התורפה).'],
     summon: ['{em} A familiar fights with you for {t} turns (power {p} each turn{any}).', '{em} חיה מלווה נלחמת לצדכם {t} תורות (עוצמה {p} בכל תור{any}).'],

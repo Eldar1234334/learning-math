@@ -270,7 +270,7 @@
       const r = relation(spell, m.el, m), o = { i: fs.indexOf(m), rel: r };
       if (m.shield) { m.shield = false; o.popped = true; }   // Shielded: the first hit only breaks the shield
       else if (r === 'break') { m.armor.hp -= 1; o.armorHit = 1; o.armorBroken = m.armor.hp <= 0; }   // the armor absorbs it (one layer, never heals)
-      else if (r === 'weak') o.dmg = hitOn(m, spell.power * mult * (f.storm && !MON_EL[m.el].weak.includes(spell.el) ? 0.5 : 1));   // Meteor Storm: half power on a monster that is not weak to stone
+      else if (r === 'weak') o.dmg = hitOn(m, spell.power * mult);   // (Meteor Storm is full power on every monster, whatever its element: its relation is always 'weak')
       else if (r === 'heal') o.monHeal = healOn(m, spell.power * S(st.g));
       return o;
     };

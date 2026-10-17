@@ -1217,7 +1217,7 @@ const CFG = {
   VISITOR_SHARE: 0.4,   // spec 06 §6: about 40% of the normal stops are visitors from other elements (the area's own monsters are the rest)
   // the test build only (spec 07 §14): the test site lives under /learning-math/test/, and local preview runs on localhost; the live site never shows the Demo button
   DEMO_BUTTON: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),
-  ACADEMY: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),   // spec 08: the Academy is off on the live site until the owner approves it
+  ACADEMY: true,   // spec 08: the Academy is live (the owner approved it); existing heroes are placed by their level (see migrate)
   POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, BOOKS_FROM: 30, WORKSHOP_WIZ: 8,   // BOOKS_FROM: (owner request) the wizard level that offers to leave the spell book and the conjuration book on the shelf (+1 potion; no books on quests)   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
     // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
@@ -2111,6 +2111,14 @@ function migrate(p) {
   p.superCh = p.superCh || 0;                             // chapter in which the super potion was last used
   p.style = p.style || null; p.acc = p.acc || {}; p.wd = p.wd || [];   // the wardrobe: robe style, accessories, and what you own of them
   p.beard = p.beard || (p.gender === 'f' ? 'none' : 'short');
+  // The Academy is live (spec 08 §8): a hero who is already past the top of a tier counts as having passed that test and keeps its rewards (the hat is offered,
+  // the gifts are in the room); nobody drops a level. Level 10–19: test 1 passed, 20–29: two, and so on. No certificate is made up for a test not taken.
+  if (CFG.ACADEMY && !p.academy) {
+    try {
+      const n = Math.max(0, Math.min(5, Math.floor(SB.wizLevel(p.xp || 0, SB.MAX_WIZ_ACADEMY) / 10)));
+      if (n > 0) { p.academy = { passed: n, certs: [], newHat: n, migrated: true }; for (let k = 0; k < n; k++) for (const id of ACAD_GIFTS[k]) if (!p.own.decor.includes(id)) p.own.decor.push(id); }
+    } catch (e) {}
+  }
   p.items = p.items || blankUses(); p.itemUses = p.itemUses || { battle: blankUses(), peace: blankUses() }; p.ws = p.ws || { on: false, hi: false };   // the Artificer: magic items, uses this quest, workshop seen
   noRealName(p);   // never a real name or class on the device (login spec §9)
   p.mode = p.mode || (p.local ? 'off' : p.app ? 'home' : 'school');   // the login mode (login spec): heroes made before it keep their old way
