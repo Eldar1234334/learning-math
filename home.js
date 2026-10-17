@@ -68,6 +68,18 @@
     const price = v === 0 ? (START_FREE.includes(k.id) ? 0 : 5) : v === 1 ? 8 : 12;
     ITEMS[`${k.id}_0_${v}`] = { id: `${k.id}_0_${v}`, kind: k.id, tier: 0, v, price: k.pair ? price + 4 : price, en: nm[0], he: nm[1], buy: true };
   });
+  /* ---- tiers 1 to 5: 2 items of each kind at each tier (spec 13 §4), so 13 items per kind. The names follow the tier's look; the picture is the tier 0 drawing in the tier's colours with its mark (homeart.js). ---- */
+  const TIER_NAMES = [   // tier 1..5: [[en prefix, he suffix], [en prefix, he suffix]]; the Hebrew endings do not change with the noun's gender
+    [['Cosy ', ' עם רונה'], ["Runeweaver's ", ' של אורג הרונות']], [['Storm-blue ', ' בצבעי סערה'], ["Stormcaller's ", ' של קורא הסערה']],
+    [['Starry ', ' עם כוכבים'], ["Starwarden's ", ' של שומר הכוכבים']], [['Eclipse ', ' בשחור וזהב'], ["Eclipse Mage's ", ' של מכשף הליקוי']],
+    [['Grand ', ' בזהב זוהר'], ["High Sorcerer's ", ' של הקוסם העליון']]
+  ];
+  const SIZE = { sofa: 1, table: .9, chair: .5, desk: .9, bed: 1, fireplace: .9, rug: .7, window: .8, curtains: .6, picture: .3, clock: .35, banner: .4, mirror: .5, lamp: .3, plant: .25, pet: .55, trinket: .2, light: .5 };   // how big and costly a kind is: 0 to 1 of the tier's price range
+  for (const k of KINDS) for (let t = 1; t < TIERS; t++) for (let j = 0; j < 2; j++) {
+    const [lo, hi] = PRICE[t], base = lo + (hi - lo) * (.04 + .8 * SIZE[k.id] * (j ? 1 : .8)), price = Math.round(base / (t < 3 ? 1 : 5)) * (t < 3 ? 1 : 5);
+    const [en, he] = TIER_NAMES[t - 1][j];
+    ITEMS[`${k.id}_${t}_${j}`] = { id: `${k.id}_${t}_${j}`, kind: k.id, tier: t, v: (t + j + KINDS.indexOf(k)) % 3, j, price: Math.min(hi, Math.max(lo, price)), en: en + k.en, he: k.he + he, buy: true };
+  }
   const startItem = kind => `${kind}_0_0`;
 
   /* ---- the Academy's rewards (spec 13 §7): free items with their own art ---- */

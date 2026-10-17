@@ -77,6 +77,18 @@
     }
     assert(HA.draw('sofa', 0).svg !== HA.draw('sofa', 1).svg && HA.draw('sofa', 1).svg !== HA.draw('sofa', 2).svg, 'the three variants differ');
   });
+  test('tiers 1 to 5: 2 items of each kind at each tier, 13 items per kind (spec 13 §4), prices in the tier range, all with names and pictures', () => {
+    for (const k of HM.KINDS) {
+      assert(Object.values(HM.ITEMS).filter(i => i.kind === k.id && i.buy).length === 13, k.id + ' has 13 items');
+      for (let t = 1; t <= 5; t++) {
+        const list = Object.values(HM.ITEMS).filter(i => i.kind === k.id && i.tier === t && i.buy); assert(list.length === 2, `${k.id} tier ${t}`);
+        for (const it of list) { const [lo, hi] = HM.PRICE[t]; assert(it.price >= lo && it.price <= hi, `${it.id} price ${it.price}`); assert(it.en && it.he && it.en !== list.find(o => o !== it).en, it.id + ' names differ');
+          const a = HA.draw(it.kind, it.v, it.tier, it.j); assert(a.svg.startsWith('<svg viewBox') && a.svg.endsWith('</svg>') && (a.svg.match(/<g[ >]/g) || []).length === (a.svg.match(/<\/g>/g) || []).length, it.id + ' picture'); }
+      }
+    }
+    assert(HM.ITEMS.sofa_5_1.price > HM.ITEMS.sofa_1_1.price && HM.ITEMS.lamp_3_0.price < HM.ITEMS.bed_3_0.price, 'prices grow with the tier and the size');
+    assert(HA.draw('sofa', 1, 3, 0).svg !== HA.draw('sofa', 1, 3, 1).svg && HA.draw('sofa', 1, 2, 0).svg !== HA.draw('sofa', 1, 4, 0).svg, 'tiers and items look different');
+  });
   test('wall and floor colours: 4 at tier 0, then 2 more of each at each of tiers 1 to 5 (a proposal), all different', () => {
     for (const list of [HM.WALLS, HM.FLOORS]) {
       for (let t = 0; t <= 5; t++) assert(list.filter(c => c.tier === t).length === (t === 0 ? 4 : 2), 'tier ' + t);

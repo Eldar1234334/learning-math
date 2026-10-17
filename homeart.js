@@ -73,6 +73,39 @@
       : S(52, 52, `<path d="M26 0V14" stroke="#2b1a0e" stroke-width="1.6"/><path d="M8 38Q10 18 26 14Q42 18 44 38Z" fill="#c28a52" ${OL}/><rect x="22" y="38" width="8" height="5" fill="#ffd166"/><circle cx="26" cy="44" r="7" fill="#ffd166" opacity=".25"/>`)
   };
 
-  const HA = { draw: (kind, v) => (ART[kind] || ART.trinket)(v || 0), kinds: Object.keys(ART) };
+  /* ---- tiers 1 to 5 (spec 13 §4): the tier 0 drawing in the tier's colours, with the tier's mark (a rune, a bolt, stars, an eclipse, a golden glow) ---- */
+  // theme per tier and per item (j): hue, saturation, lightness shift. Tier 0 stays as drawn.
+  const THEME = [null,
+    [{ h: 22, s: .62, l: .04 }, { h: 135, s: .5, l: .02 }],      // 1: cosy, warm and green, a rune
+    [{ h: 214, s: .6, l: .0 }, { h: 192, s: .45, l: -.02 }],     // 2: storm blue and grey-teal, a bolt
+    [{ h: 270, s: .5, l: .04 }, { h: 245, s: .16, l: .12 }],     // 3: starry violet and silver, stars
+    [{ h: 268, s: .35, l: -.2 }, { h: 12, s: .4, l: -.2 }],      // 4: dark and gold, an eclipse
+    [{ h: 44, s: .72, l: .1 }, { h: 282, s: .5, l: .06 }]];      // 5: grand gold and royal purple, a glow
+  const toHsl = n => { const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+    let h = 0, s = 0; if (d) { s = d / (1 - Math.abs(2 * l - 1)); h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; } return [h, s, l]; };
+  const fromHsl = (h, s, l) => { const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2, [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+    return '#' + [r, g, b].map(v => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join(''); };
+  const retint = (svg, th) => svg.replace(/#([0-9a-f]{6})\b/gi, (m, hex) => {
+    const [h, s, l] = toHsl(parseInt(hex, 16));
+    if (hex.toLowerCase() === '2b1a0e' || s < .08 || l > .86 || (l > .62 && h > 25 && h < 65) || (h > 15 && h < 40 && s > .9)) return m;   // outlines, greys, glass, glowing yellows and flames stay
+    return fromHsl(th.h, Math.min(1, s * .5 + th.s * .5), Math.max(.06, Math.min(.92, l + th.l)));
+  });
+  const markOf = (t, j, cx, cy, r) => {   // the tier's mark, drawn small in a corner of the picture
+    const G = '#ffd166', st = `stroke="#2b1a0e" stroke-width="${(r * .12).toFixed(2)}" stroke-linejoin="round"`;
+    const star = (x, y, q) => `<path d="M${[...Array(10)].map((_, i) => { const a = -Math.PI / 2 + i * Math.PI / 5, d = i % 2 ? q * .45 : q; return (x + d * Math.cos(a)).toFixed(2) + ' ' + (y + d * Math.sin(a)).toFixed(2); }).join('L')}Z" fill="#fff6c9" ${st}/>`;
+    if (t === 1) return `<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="#2b1a0ecc"/><path d="M${cx - r * .3} ${cy - r * .6}V${cy + r * .6}M${cx - r * .3} ${cy - r * .5}L${cx + r * .45} ${cy - r * .05}L${cx - r * .3} ${cy + r * .25}" stroke="${G}" stroke-width="${(r * .22).toFixed(2)}" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+    if (t === 2) return `<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="#2b1a0ecc"/><path d="M${cx + r * .15} ${cy - r * .7}L${cx - r * .4} ${cy + r * .1}H${cx} L${cx - r * .15} ${cy + r * .7}L${cx + r * .45} ${cy - r * .15}H${cx + r * .05}Z" fill="${G}"/></g>`;
+    if (t === 3) return `<g>${star(cx, cy, r)}${j ? '' : star(cx - r * 1.5, cy + r * .9, r * .55)}</g>`;
+    if (t === 4) return `<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="#17141f" stroke="${G}" stroke-width="${(r * .25).toFixed(2)}"/><circle cx="${cx + r * .22}" cy="${cy - r * .1}" r="${r * .78}" fill="#17141f"/></g>`;
+    return `<g><circle cx="${cx}" cy="${cy}" r="${r * 1.5}" fill="${G}" opacity=".3"/>${star(cx, cy, r * 1.1)}${star(cx - r * 1.4, cy + r * 1.1, r * .5)}</g>`;
+  };
+  const draw = (kind, v, tier, j) => {
+    const a = (ART[kind] || ART.trinket)(v || 0);
+    if (!tier) return a;
+    const m = /^<svg viewBox="0 0 ([\d.]+) ([\d.]+)"([^>]*)>([\s\S]*)<\/svg>$/.exec(a.svg), w = +m[1], h = +m[2], th = THEME[tier][j || 0];
+    const r = Math.max(3.4, Math.min(w, h) * .13), cx = j ? w * .22 : w * .78, cy = Math.max(r * 1.15, h * .2), glow = tier >= 4 ? `<ellipse cx="${w / 2}" cy="${h / 2}" rx="${w * .58}" ry="${h * .58}" fill="#ffd166" opacity="${tier === 5 ? .22 : .1}"/>` : '';
+    return { svg: `<svg viewBox="0 0 ${w} ${h}"${m[3]}>${glow}${retint(m[4], th)}${markOf(tier, j || 0, cx, cy, r)}</svg>`, ar: a.ar };
+  };
+  const HA = { draw, kinds: Object.keys(ART) };
   if (typeof module === 'object' && module.exports) module.exports = HA; else root.HA = HA;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

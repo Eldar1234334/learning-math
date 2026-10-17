@@ -5547,7 +5547,7 @@ function itemArt(it) {
     return f ? { svg: f(), ar: viewBoxAr(f()) } : { svg: `<svg viewBox="0 0 40 40" aria-hidden="true"><text x="20" y="31" font-size="30" text-anchor="middle">${d ? d.em : '❔'}</text></svg>`, ar: 1 };
   }
   if (it.gift) { if (it.id === 'a_rug') return glowRugArt(); const f = { a_lamp: FURN_ART.r_lamp, a_ball: FURN_ART.r_ball, a_wheel: FURN_ART.r_wheel, a_statue: FURN_ART.r_statue }[it.id]; return f ? { svg: f(), ar: viewBoxAr(f()) } : null; }
-  return window.HA ? HA.draw(it.kind, it.v) : null;
+  return window.HA ? HA.draw(it.kind, it.v, it.buy ? it.tier : 0, it.j) : null;
 }
 function applyRoomColours() {   // the wall and the floor colours (spec 13 §3.6): the shell's gradients read these variables
   const home = homeOf(), w = HM.wallOf(home.wall), f = HM.floorOf(home.floor), st = $('#rmScene').style;
