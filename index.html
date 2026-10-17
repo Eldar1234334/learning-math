@@ -426,6 +426,13 @@ body.tutOn .screen{padding-bottom:230px}body.tutOn #homeBtn{visibility:hidden}
 .stat{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:8px 0}
 .stat>span{background:#0004;border-radius:10px;padding:6px 12px}
 /* game */
+.wizBadge{display:inline-block;position:relative;overflow:hidden;background:linear-gradient(180deg,#fff0a8,#f7c640 50%,#e2a21f);color:#4a2f00;border:2px solid #a8740f;border-radius:999px;padding:1px 12px;font-weight:800;font-size:.9rem;line-height:1.3;box-shadow:inset 0 1px 0 #fffb,0 1px 5px #0007}
+.wizBadge::after{content:'';position:absolute;top:0;bottom:0;width:30%;left:-40%;background:linear-gradient(100deg,transparent,#ffffffaa,transparent);animation:wbShine 5s ease-in-out infinite}@keyframes wbShine{0%,70%{left:-40%}100%{left:130%}}
+body.noAnim .wizBadge::after{animation:none}@media(prefers-reduced-motion:reduce){.wizBadge::after{animation:none}}
+.lvlAvatar{cursor:pointer}.lvlAvatar:focus-visible{outline:3px solid #f7c640;outline-offset:2px;border-radius:12px}
+.lvlCard{display:none;position:fixed;z-index:9500;background:#2b2260;color:#fff;border:2px solid #e2a21f;border-radius:14px;padding:10px 14px 12px;box-shadow:0 6px 24px #000b;font-size:.95rem;line-height:1.35}
+.lvlCard .lcTitle{font-weight:800;margin-bottom:6px;color:#ffe58a}.lvlCard .lcRow{display:flex;gap:8px;align-items:flex-start}.lvlCard .lcIco{font-size:1.3rem}
+.lvlCard .lcX{position:absolute;top:4px;inset-inline-end:6px;background:none;border:0;color:#fff;font-size:1rem;cursor:pointer;padding:4px 8px}
 .top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .top .grow{flex:1;min-width:0}
 .top .who{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -998,13 +1005,12 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 
 <section id="menu" class="screen">
   <div class="top">
-    <div id="menuHero"></div>
+    <div id="menuHero" class="lvlAvatar" role="button" tabindex="0" aria-haspopup="dialog" data-lvlcard="1"></div>
     <div class="grow"><div class="who" id="menuWho" style="font-size:1.5rem"></div><div id="menuRank" class="small"></div>
       <div class="pbar" style="margin-top:6px"><i id="menuXp"></i></div></div>
     <div class="vctl"><button class="ib bookBtn" data-book data-tt="book_btn">📖</button><button class="ib bookBtn" data-book="conj" data-tt="conj_btn">📜</button><button class="langBtn" data-lang-toggle></button><button class="ib" id="menuMute" data-tt="sound_title">🔊</button><input type="range" class="vslider" min="10" max="100" step="5" data-ta="volume"></div>
   </div>
   <div class="stat">
-    <span>📖 <b id="menuTier"></b></span>
     <span>⏱️ <span data-t="today"></span> <b id="menuToday"></b></span>
     <span>🔥 <span data-t="streak"></span> <b id="menuStreak"></b></span>
     <span>🪙 <b id="menuCoins">0</b></span>
@@ -1124,7 +1130,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
   </div>
   <div class="stage" id="stage">
     <svg class="stageBg" id="stageBg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg><div class="stageVig" id="stageVig" style="display:none"></div>
-    <div class="side hero" id="heroBox"><div id="heroSvg"></div><div class="hearts" id="hearts"></div></div>
+    <div class="side hero lvlAvatar" id="heroBox" role="button" tabindex="0" aria-haspopup="dialog" data-lvlcard="1"><div id="heroSvg"></div><div class="hearts" id="hearts"></div></div>
     <div class="mid" id="mid"></div>
     <div class="side foe"><div id="foeName" class="small"></div><div class="hpbar"><i id="hpFill"></i></div><div class="hpbar armorBar" id="armorBar"><i></i></div><div class="foeWrap"><div class="aura" id="aura"></div><div class="foeBody" id="foeBody"></div></div></div>
   </div>
@@ -1553,7 +1559,7 @@ const STR = {
   // the spell book (spec 02)
   book_t: ['📖 Spell book', '📖 ספר הכישופים'], book_btn: ['Spell book', 'ספר הכישופים'],
   book_info: ['Every spell has a number that never changes. The answer to a problem casts the spell with that number. · Math level {m} · Wizard level {w}', 'לכל כישוף יש מספר שלעולם לא משתנה. התשובה לתרגיל מטילה את הכישוף עם המספר הזה. · שלב {m} · דרגת קוסם {w}'],
-  unlocks_at: ['🔒 Unlocks at wizard level {n}', '🔒 נפתח בדרגת קוסם {n}'], power: ['Power {p}', 'עוצמה {p}'], wiz_lvl: ['Wizard level {n}', 'דרגת קוסם {n}'],
+  unlocks_at: ['🔒 Unlocks at wizard level {n}', '🔒 נפתח בדרגת קוסם {n}'], power: ['Power {p}', 'עוצמה {p}'], wiz_lvl: ['Wizard level {n}', 'דרגת קוסם {n}'], wiz_badge: ['Lv {n} · {r}', 'דרגה {n} · {r}'], rank0: ['Apprentice', 'שוליה'], lc_math: ['Math level {n}', 'שלב חשבון {n}'], lc_grade: ['Grade {n}', 'כיתה {h}'], lc_title: ['Your levels', 'הדרגות שלכם'], lc_close: ['Close', 'סגירה'], lc_aria: ['Show my levels', 'הצגת הדרגות שלי'],
   new_spell_t: ['✨ You learned a new spell!', '✨ למדתם כישוף חדש!'], new_spells_t: ['✨ You learned {n} new spells!', '✨ למדתם {n} כישופים חדשים!'],
   enhanced_t: ['✨ Your spells became enhanced!', '✨ הכישופים שלכם התחזקו!'],
   enhanced_b: ['The same digits ×10 are stronger versions of your spells: 3 Fire Bolt → 30 Enhanced Fire Bolt.', 'אותן ספרות ×10 הן גרסאות חזקות יותר של הכישופים שלכם: 3 חץ אש ← 30 חץ אש מוגבר.'],
@@ -2250,6 +2256,7 @@ async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: 
 
 /* ====================== SCREENS / MODAL ====================== */
 function show(id) {
+  closeLvlCard();
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   if (typeof refreshAcademy === 'function') refreshAcademy();   // the Academy icon shows on the map and the menu while a test is ready
   if (typeof applyBookLock === 'function') applyBookLock();   // the books are not available on a quest when they are on the shelf at Home
@@ -2433,6 +2440,36 @@ const wizLvl = () => CFG.ACADEMY ? Math.min(SB.wizLevel(P.xp || 0, SB.MAX_WIZ_AC
 const tiersArg = () => CFG.ACADEMY ? acadPassed() : undefined;   // the tests passed, for the spell tiers; undefined = no gate (the live game)
 function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1); return wl >= (CFG.ACADEMY ? SB.MAX_WIZ_ACADEMY : SB.MAX_WIZ) ? 100 : Math.min(100, 100 * (P.xp - x0) / (x1 - x0)); }   // progress to the next wizard level
 const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>`;
+/* ----- spec 14: the level display. The bar shows only the wizard (level and rank title on a gold badge); the math level is on a small card that opens from the avatar ----- */
+const rankTitle = () => { const k = acadPassed(); return k > 0 ? tl(ACAD_RANK[Math.min(k, ACAD_RANK.length) - 1]) : t('rank0'); };
+const wizBadge = () => `<span class="wizBadge">${esc(t('wiz_badge', { n: wizLvl(), r: rankTitle() }))}</span>`;
+let lvlPinned = false, lvlOwner = null;
+function lvlCardHtml() {
+  const lv = P.mlvl || 1, g = (ME.LV[lv] && ME.LV[lv].g) || 1;
+  return `<button class="lcX" data-lcx="1" aria-label="${t('lc_close')}">✕</button><div class="lcTitle">${t('lc_title')}</div>
+    <div class="lcRow"><span class="lcIco">🔢</span><span><b>${t('lc_math', { n: lv })}</b> · ${t('lc_grade', { n: g, h: 'אבגדהו'[g - 1] + '׳' })} · <bdi dir="ltr">${esc(tierName(lv))}</bdi></span></div>`;   // (the geometry row 📐 comes with the engineering patch)
+}
+function showLvlCard(av, pin) {
+  if (!P || !av) return; let c = $('#lvlCard');
+  if (!c) { c = document.createElement('div'); c.id = 'lvlCard'; c.className = 'lvlCard'; c.setAttribute('role', 'dialog'); document.body.appendChild(c); }
+  c.innerHTML = lvlCardHtml(); c.setAttribute('aria-label', t('lc_title')); c.style.display = 'block';
+  const r = av.getBoundingClientRect(), w = Math.min(300, innerWidth - 16);   // below the avatar, so it never covers the answer buttons in a fight
+  c.style.width = w + 'px'; c.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px'; c.style.top = Math.min(r.bottom + 6, innerHeight - c.offsetHeight - 8) + 'px';
+  lvlOwner = av; if (pin) lvlPinned = true; av.setAttribute('aria-expanded', 'true');
+}
+function closeLvlCard() { const c = $('#lvlCard'); if (c) c.style.display = 'none'; if (lvlOwner) lvlOwner.setAttribute('aria-expanded', 'false'); lvlPinned = false; lvlOwner = null; }
+document.addEventListener('mouseover', e => { const a = e.target.closest && e.target.closest('[data-lvlcard]'); if (a && !lvlPinned && matchMedia('(hover:hover)').matches) showLvlCard(a, false); });
+document.addEventListener('mouseout', e => { const a = e.target.closest && e.target.closest('[data-lvlcard]'); if (a && !lvlPinned && !a.contains(e.relatedTarget)) closeLvlCard(); });
+document.addEventListener('click', e => {
+  const a = e.target.closest && e.target.closest('[data-lvlcard]'), c = $('#lvlCard');
+  if (e.target.closest && e.target.closest('[data-lcx]')) { closeLvlCard(); return; }
+  if (a) { if (lvlPinned && lvlOwner === a) closeLvlCard(); else { lvlPinned = false; showLvlCard(a, true); } return; }
+  if (lvlPinned && c && !c.contains(e.target)) closeLvlCard();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && lvlOwner) { const a = lvlOwner; closeLvlCard(); a.focus(); return; }
+  const a = document.activeElement; if ((e.key === 'Enter' || e.key === ' ') && a && a.matches && a.matches('[data-lvlcard]')) { e.preventDefault(); if (lvlPinned && lvlOwner === a) closeLvlCard(); else { lvlPinned = false; showLvlCard(a, true); } }
+});
 function openMenu() {
   pingPlayed();   // (home heroes: once a day)
   setTimeout(checkSchoolOpen, 0);   // (school heroes: is the school's access still on?)
@@ -2440,9 +2477,8 @@ function openMenu() {
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
   $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
-  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + titleAt(wl, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
+  $('#menuRank').innerHTML = wizBadge() + (APP ? '' : esc(t('my_number', { id: P.id })));   // spec 14: only the wizard on the bar (level and rank title on the gold badge); the math level is on the level card
   $('#menuXp').style.width = xpPct() + '%';
-  $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
   $('#menuToday').textContent = t('min_today', { m: Math.min(10, Math.floor(sec / 60)) }) + (sec >= CFG.DAILY_SEC ? ' ⭐' : '');
   $('#menuStreak').textContent = plural(streak(), 'days_1', 'days_n');
@@ -3483,7 +3519,7 @@ function updateBars() {
   const ar = b && G.mon && CB.armorUp(G.mon) ? G.mon.armor : null;   // the armor bar over the HP bar (spec 03 §4.1)
   $('#armorBar').classList.toggle('on', !!ar); if (ar) { $('#armorBar > i').style.width = (100 * ar.hp / ar.max) + '%'; $('#armorBar').style.setProperty('--seg', ar.max); }   // one part per armor layer
   if (b && G.group) G.st.foes.forEach(f => { const e = foeNode(f); if (e) { e.querySelector('.packHp > b').style.width = (100 * Math.max(0, f.hp) / f.max) + '%'; e.classList.toggle('down', f.hp <= 0); e.classList.toggle('tgt', f === G.mon); } });
-  $('#tierLbl').textContent = levelLbl(P.mlvl);
+  $('#tierLbl').innerHTML = wizBadge();
   $('#xpFill').style.width = xpPct() + '%';
 }
 /* ----- abandoning a quest: leave the run, keep coins and ingredients, start from the beginning next time ----- */
