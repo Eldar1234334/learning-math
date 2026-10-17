@@ -131,6 +131,8 @@ body.acadOn .side.foe{display:none}
 .gradSay{margin:8px 0 2px}.medalWord{padding:0 8px;border:2px solid;border-radius:10px;color:#2a2050;font-weight:700}.gradNow{font-size:1.15rem;font-weight:800;color:#ffd166;margin:4px 0}.gradH{margin:6px 0 2px;font-size:.85rem;opacity:.85}
 .gSpells{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-height:92px;overflow:auto}.gSp{background:#ffffff22;border-radius:10px;padding:1px 7px;font-size:.78rem}.gSp small{opacity:.8}.gSp.wait{opacity:.7}.gSp i{font-style:normal;font-size:.7rem;opacity:.85}
 .gradHat,.gradGift{font-size:.85rem;margin:6px 0 0;display:flex;align-items:center;justify-content:center;gap:6px}
+.bookTake{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 2px;font-weight:600;cursor:pointer}.bookTake input{width:20px;height:20px}
+.certNote{margin:4px auto 0;padding:2px 8px;border:1px dashed #8a6a3a;border-radius:6px;font-size:.7rem;font-weight:700;color:#7a2a1a;background:#fff3d6aa}.gradNoBook{color:#ffd166;font-weight:700;margin:2px 0 6px}.vhNeed.noBook{cursor:default;opacity:.8}
 .newTag{color:#ffd166;font-weight:700}.rRug.glow{background:radial-gradient(ellipse,#fff3b0 0 10%,#2fc7b8 11% 34%,#fff3b0 35% 40%,#7a5cff 41% 66%,#fff3b0 67% 70%,#2fc7b8 71%);box-shadow:0 0 calc(var(--u)*2.2) #7af3e0cc,0 calc(var(--u)*.5) calc(var(--u)*.8) #0006}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
@@ -1216,7 +1218,7 @@ const CFG = {
   // the test build only (spec 07 §14): the test site lives under /learning-math/test/, and local preview runs on localhost; the live site never shows the Demo button
   DEMO_BUTTON: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),
   ACADEMY: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),   // spec 08: the Academy is off on the live site until the owner approves it
-  POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, WORKSHOP_WIZ: 8,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
+  POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, BOOKS_FROM: 30, WORKSHOP_WIZ: 8,   // BOOKS_FROM: (owner request) the wizard level that offers to leave the spell book and the conjuration book on the shelf (+1 potion; no books on quests)   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
     // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
   MAX_LEVEL: 36,            // the math ladder; moving up and down follows spec 01 §6 (the rules are in math.js: ME.RULES)
@@ -1543,6 +1545,14 @@ const STR = {
   manual_is_carried: ['The monster manual is in your bag: the fights show each monster’s weakness.', 'ספר המפלצות איתכם: בקרבות מופיעה נקודת התורפה של כל מפלצת.'],
   manual_is_home: ['Your monster manual is at home: the fights show no weaknesses, and you carry one more potion.', 'ספר המפלצות נמצא בבית: בקרבות לא מופיעות נקודות התורפה, ואתם לוקחים שיקוי אחד נוסף.'],
   manual_deal: ['Without the manual you can carry {n} potions on a quest.', 'בלי הספר אפשר לקחת {n} שיקויים למסע.'], manual_quest: ['Finish or leave your quest first, then you can change this.', 'קודם סיימו או עזבו את המסע, ואז אפשר לשנות.'],
+  books_t: ['The books', 'הספרים'],
+  books_offer: ['You are a Starwarden now! You may leave your spell book and your conjuration book on the shelf at Home: you can carry {n} potions instead of {m}, but the books will not be with you on quests. You can take them back from the shelf at Home any time.', 'אתם כבר שומרי כוכבים! אפשר להשאיר את ספר הכישופים ואת ספר הזימון על המדף בבית: אפשר לקחת {n} שיקויים במקום {m}, אבל הספרים לא יהיו איתכם במסעות. תמיד אפשר לקחת אותם בחזרה מהמדף בבית.'],
+  books_is_home: ['Your books are on the shelf at Home: you carry one more potion, and the books are not with you on quests.', 'הספרים על המדף בבית: אתם לוקחים שיקוי אחד נוסף, והספרים לא איתכם במסעות.'], books_is_carried: ['Your spell book and your conjuration book are with you.', 'ספר הכישופים וספר הזימון איתכם.'],
+  books_deal: ['Without the books you can carry {n} potions on a quest.', 'בלי הספרים אפשר לקחת {n} שיקויים למסע.'], books_leave: ['📖 Put them on the shelf', '📖 להניח על המדף'], books_keep: ['Keep carrying them', 'להמשיך לקחת אותם'], books_take: ['📖 Take them with me', '📖 לקחת אותם איתי'],
+  books_left: ['📖 The books are on the shelf. +1 potion in your pouch!', '📖 הספרים על המדף. ‎+1 שיקוי בתיק!'], books_taken: ['📖 The books are back in your bag.', '📖 הספרים חזרו לתיק.'], books_away: ['The books are on the shelf at Home. You cannot use them on a quest.', 'הספרים על המדף בבית. אי אפשר להשתמש בהם במסע.'],
+  books_potion_back: ['A potion went back to the shelf at Home.', 'שיקוי חזר למדף בבית.'], books_test_no: ['You left the books out of this test.', 'השארתם את הספרים מחוץ למבחן.'],
+  ac_book_take: ['Take my books to the test', 'לקחת את הספרים למבחן'], ac_book_note: ['Without the books the test is harder, and a special note goes on your certificate.', 'בלי הספרים המבחן קשה יותר, ובתעודה תירשם הערה מיוחדת.'],
+  cert_nobook: ['Completed without the spell book and the conjuration book', 'הושלם ללא ספר הכישופים וספר הזימון'], ac_grad_nobook: ['You passed without the books! A special note is on your certificate.', 'עברתם בלי הספרים! הערה מיוחדת נרשמה בתעודה.'],
   manual_leave: ['📕 Leave it at home', '📕 להשאיר בבית'], manual_keep: ['Keep carrying it', 'להמשיך לקחת אותו'], manual_take: ['📕 Take it with me', '📕 לקחת אותו איתי'],
   manual_left: ['📕 The manual stays at home. +1 potion in your pouch!', '📕 הספר נשאר בבית. ‎+1 שיקוי בתיק!'], manual_taken: ['📕 The manual is back in your bag.', '📕 הספר חזר לתיק.'],
   un_manual: ['📕 You may leave the monster manual at home', '📕 אפשר להשאיר את ספר המפלצות בבית'],
@@ -2214,6 +2224,7 @@ async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: 
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   if (typeof refreshAcademy === 'function') refreshAcademy();   // the Academy icon shows on the map and the menu while a test is ready
+  if (typeof applyBookLock === 'function') applyBookLock();   // the books are not available on a quest when they are on the shelf at Home
   if ((id === 'menu' || id === 'journey') && typeof academyOfferCheck === 'function') academyOfferCheck(id === 'journey');   // §3.2: the offer, once per tier
   document.body.classList.toggle('peace', (id === 'game' || id === 'journey') && G.quest === 'peace');
   window.scrollTo(0, 0);
@@ -4305,18 +4316,20 @@ function academyAsk() {
 function academyRules(kind) {
   const k = acadNext(), T = ACAD_Q[k], need = ACAD_NEED[k], miss = T - need, pct = ACAD_PCT[k];
   const marks = Array.from({ length: miss }, () => '✖').join(' ');
+  const choose = CFG.ACADEMY && wizLvl() >= CFG.BOOKS_FROM; let take = true;   // from wizard level BOOKS_FROM the student chooses whether to take the books to the test
   modal(t('ac_rules_t'), `<div class="rulesList">
     <div><span>❓</span>${t('ac_qcount', { q: T })}</div>
     <div><span>✅</span>${t('ac_need', { n: need, q: T, p: pct })}</div>
     <div><span>✖️</span>${t('ac_mistakes')} ${marks}</div>
     <div><span>🙈</span>${t('ac_no_hints')}</div>
     <div><span>🏆</span>${t('ac_win', { title: tl(ACAD_RANK[k]) })}</div>
-    </div><p class="small" style="text-align:center">${t('ac_nothing_lost')}</p>`,
-    [[t('ac_start'), () => academyStart(kind)], [t('ac_not_yet'), null, true]]);
+    </div>${choose ? `<label class="bookTake"><input type="checkbox" id="acBook" checked> 📖📜 ${t('ac_book_take')}</label><p class="small" style="text-align:center;margin-top:2px">${t('ac_book_note')}</p>` : ''}<p class="small" style="text-align:center">${t('ac_nothing_lost')}</p>`,
+    [[t('ac_start'), () => academyStart(kind, take, choose)], [t('ac_not_yet'), null, true]]);
+  const cb = $('#acBook'); if (cb) cb.onchange = () => { take = cb.checked; };
 }
 // the trials are built step by step: for now the start only says so
-function academyStart(kind) {
-  ACQ = { k: acadNext(), phase: 'rules', kind, i: 0, right: 0, mist: 0, qs: [], dummies: [], typed: '', msg: '', busy: false, practice: false };
+function academyStart(kind, book = true, choice = false) {
+  ACQ = { k: acadNext(), phase: 'rules', kind, book, choice, i: 0, right: 0, mist: 0, qs: [], dummies: [], typed: '', msg: '', busy: false, practice: false };
   acadStart();
 }
 /* ---- the fighting trial (§4) ---- */
@@ -4528,7 +4541,7 @@ function conjRenderGame() {
   $('#acDots').innerHTML = q.items.length > 1 ? q.items.map((_, j) => `<i style="background:#ffd166" class="${j < ACQ.j ? 'done' : j === ACQ.j ? 'cur' : ''}"></i>`).join('') : '';   // the items of this request
   $('#qTitle').textContent = t('ac_conj_say', { ex: ACAD_EXAMINER(ACQ.k) });
   $('#qSub').textContent = t(citem ? 'ac_conj_pick' : ACQ.phase === 'cnum' ? 'ac_conj_num' : 'ac_conj_amount');
-  $('#qBig').innerHTML = (ACQ.phase === 'cnum' && ACQ.pickCard ? `<div class="acEq" dir="ltr">${HELPER.cardText(ACQ.pickCard)}</div>` : '') + `<div class="acBtnRow"><button class="vhNeed" data-ac="bookItem" title="${t('vh_book_item')}">${x.item.em}</button><button class="vhNeed" data-ac="hear" title="🔊">🔊</button></div>`;
+  $('#qBig').innerHTML = (ACQ.phase === 'cnum' && ACQ.pickCard ? `<div class="acEq" dir="ltr">${HELPER.cardText(ACQ.pickCard)}</div>` : '') + `<div class="acBtnRow">${ACQ.book ? `<button class="vhNeed" data-ac="bookItem" title="${t('vh_book_item')}">${x.item.em}</button>` : `<span class="vhNeed noBook">${x.item.em}</span>`}<button class="vhNeed" data-ac="hear" title="🔊">🔊</button></div>`;   // without the book the item's icon does not open it
   const o = $('#opts'); o.className = 'opts' + (citem ? ' cards' : ' pad'); o.style.display = ''; o.style.gridTemplateColumns = citem ? '1fr 1fr' : ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
   o.innerHTML = citem
     ? x.icards.map((c, i) => `<button class="opt card" data-ac="icard" data-i="${i}"><span class="cardEx" dir="ltr">${HELPER.cardText(c)}</span></button>`).join('')
@@ -4541,7 +4554,7 @@ function conjRenderGame() {
 function acadClick(e) {
   const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !ACQ) return;
   const a = b.dataset.ac;
-  if (a === 'bookItem') { const x = ACQ.qs[ACQ.i].items[ACQ.j]; conjTab = HELPER.themeOf(x.item).k; return openConjBook(); }   // the conjuration book, on the item's theme (the item is not marked)
+  if (a === 'bookItem') { if (!ACQ.book) return toast(t('books_test_no')); const x = ACQ.qs[ACQ.i].items[ACQ.j]; conjTab = HELPER.themeOf(x.item).k; return openConjBook(); }   // the conjuration book, on the item's theme (the item is not marked)
   if (a === 'hear') { const x = ACQ.qs[ACQ.i].items[ACQ.j]; return vhSpeak(visitStory({ p: x.p, item: x.item, extra: null })); }
   if (ACQ.busy) return;
   const i = +b.dataset.i, q = ACQ.qs[ACQ.i];
@@ -4689,6 +4702,7 @@ function acadFinish(early) {
   if (pass) {   // a pass: the next test opens, the level bar turns into the level of the tier's top + 1, and the rank rises by one
     // one action sets it all (spec 08 §1, §7): the rank, the level, the spell tier, the certificate, the new hat (offered, not put on) and the gifts
     const S = acadS(), cert = { test: k + 1, right: ACQ.right, q: ACQ.Q, medal: pct >= 0.93 ? 'gold' : pct >= 0.87 ? 'silver' : 'bronze', date: today() };
+    if (ACQ.choice && !ACQ.book) cert.noBook = true;   // the student left the books out of the test: a special note on the certificate
     S.passed = k + 1; S.certs.push(cert); S.newHat = k + 1;
     P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k) + 1));   // the banked XP turns into levels at once: the cap lifts with the pass
     const gifts = acadGrant(k), sp = acadNewSpells(k);
@@ -4718,6 +4732,7 @@ function acGameEnter() {
   if (!$('#acDots')) $('#stage').insertAdjacentHTML('beforeend', '<div id="acDots"></div>');
   $('#foeName').textContent = t('ac_dummy');
   $('#foeBody').className = 'foeBody ' + (conj ? 'acNone' : 'acCentre');
+  applyBookLock();   // a test taken without the books hides the book buttons
 }
 // the arena of picture 15 (arches, flags, pale floor), the hourglass and the question progress across the top; the dummy in the centre
 function acadSetStage() {
@@ -4736,7 +4751,7 @@ function acadSetStage() {
 // leaving the trial: the game's own screens and controls come back
 function acGameExit(was) {   // `was`: the trial that has just been left (acadExit clears ACQ first)
   const A = was || ACQ, foe = $('#foeBody'); foe.classList.remove('acCentre', 'acNone'); foe.innerHTML = ''; setBookIcon(false); if (A && A.foeParent) A.foeParent.insertBefore(foe, A.foeNext && A.foeNext.parentNode === A.foeParent ? A.foeNext : null);   // the dummy goes back to its place on the fight screen
-  ACQ = null; refreshAcademy();
+  ACQ = null; refreshAcademy(); applyBookLock();
   document.body.classList.remove('acadOn'); ['#acExam', '#acDots', '#acTop', '#acName', '#acPed', '#acBubble'].forEach(s => { const e = $(s); if (e) e.remove(); }); $('#foeBody').classList.remove('acCentre', 'acNone'); $('#stageBg').dataset.key = '';
   ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = ''; });
   $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none';
@@ -5092,7 +5107,25 @@ function isLocked(place) {   // during a quest run you cannot go home, to the sh
 }
 // The monster manual (owner decision): from wizard level MANUAL_FROM the student may leave it at home: the fights show no weakness hints,
 // and the pouch holds one more potion. Its place is on the small shelf at Home (owner decision): tap it there to take it or put it back.
-const pouchSize = () => CFG.POUCH + (P && P.manual === 'home' ? 1 : 0);
+const pouchSize = () => CFG.POUCH + (P && P.manual === 'home' ? 1 : 0) + (booksHome() ? 1 : 0);
+/* The books (owner request, with the Academy): from wizard level BOOKS_FROM the student may leave the spell book and the conjuration book on the shelf at Home
+   for one more potion in the pouch. The books are then not available during a quest (the map and Home still show them). The student may also choose, at each
+   test from that level, whether to take the books to the test; a student who does not gets a special note on the certificate. */
+const booksHome = () => !!(CFG.ACADEMY && P && P.books === 'home');
+const booksOffered = () => !!(CFG.ACADEMY && P && (wizLvl() >= CFG.BOOKS_FROM || P.books === 'home'));
+const booksLocked = () => booksHome() && (G.quest === 'battle' || G.quest === 'peace') && !(ACQ && ACQ.onGame);   // on a quest, with the books on the shelf
+const testNoBook = () => !!(ACQ && ACQ.onGame && !ACQ.book);   // a test taken without the books
+function applyBookLock() { const hide = booksLocked() || testNoBook(); document.querySelectorAll('.bookBtn').forEach(b => { b.style.display = hide ? 'none' : ''; }); }
+function fitPouch() {   // the pouch got smaller: the extra potions go back to the shelf at Home
+  let moved = 0; while (carried() > pouchSize()) { const id = [...POTION_IDS].reverse().find(i => (P.carry[i] || 0) > 0); P.carry[id]--; P.pot[id] = (P.pot[id] || 0) + 1; moved++; }
+  if (moved) toast(t('books_potion_back'));
+}
+function openBooks() {
+  if (runOf()) { modal(t('books_t'), `<p>${t('manual_quest')}</p>`, [[t('ok'), null]]); return; }
+  const home = booksHome();
+  modal(t('books_t'), `<p>${t(home ? 'books_is_home' : 'books_is_carried')}</p><p>${t('books_deal', { n: pouchSize() + (home ? 0 : 1) })}</p>`,
+    [[t(home ? 'books_take' : 'books_leave'), () => { P.books = home ? 'carry' : 'home'; if (home) fitPouch(); saveSoon(true); toast(t(home ? 'books_taken' : 'books_left')); applyBookLock(); if ($('#home').classList.contains('on')) renderRoom(rmDisp); }], [t('close'), null, true]]);
+}
 function openManual() {
   if (P.quest.battle.act) { modal(t('manual_t'), `<p>${t('manual_quest')}</p>`, [[t('ok'), null]]); return; }
   const home = P.manual === 'home';
@@ -5270,7 +5303,7 @@ function openBook(kind = 'spell') {
 }
 function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } if (TUT.on && TUT.wantClose) tutResolve('close'); }
 // a visit opens only the conjuration book; a fight only the spell book; the map has both buttons (data-book="conj" is the conjuration book)
-document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); const visit = G.quest === 'peace' && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
+document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); if (booksLocked()) { toast(t('books_away')); return; } if (testNoBook()) { toast(t('books_test_no')); return; } const visit = G.quest === 'peace' && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
 $('#bookClose').onclick = closeBook;
 $('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const ct = e.target.closest('[data-ctab]'); if (ct) { conjTab = ct.dataset.ctab; openConjBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
@@ -5314,8 +5347,12 @@ function checkSpells() {
   const spHtml = fresh.length ? (wUp ? `<h3 class="unlH">${spTitle}</h3>` : '') + (firstEnh ? `<p>${t('enhanced_b')}</p>` : '') + `<div class="newSpells">${shown.slice(0, 6).map(s => spellCard(s, false)).join('')}</div>` + (more ? `<p class="small">+${more}</p>` : '') + `<p class="small">${t('new_spell_tip')}</p>` : '';
   const offer = wUp && from < CFG.MANUAL_FROM && wl >= CFG.MANUAL_FROM && P.manual !== 'home';   // the monster manual moment (owner decision)
   const manHtml = offer ? `<div class="manualOffer"><p><b>📕 ${t('manual_t')}</b></p><p>${t('manual_offer', { n: CFG.POUCH + 1 })}</p></div>` : '';
-  const btns = offer ? [[t('manual_leave'), () => { P.manual = 'home'; saveSoon(true); toast(t('manual_left')); if ($('#menu').classList.contains('on')) openMenu(); }], [t('manual_keep'), null, true]] : fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]];
-  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + manHtml + spHtml, btns);
+  const offerBk = wUp && CFG.ACADEMY && from < CFG.BOOKS_FROM && wl >= CFG.BOOKS_FROM && P.books !== 'home';   // the books moment: leave the books on the shelf for one more potion
+  const bkHtml = offerBk ? `<div class="manualOffer"><p><b>📖 ${t('books_t')}</b></p><p>${t('books_offer', { n: pouchSize() + 1, m: pouchSize() })}</p></div>` : '';
+  const btns = offer ? [[t('manual_leave'), () => { P.manual = 'home'; saveSoon(true); toast(t('manual_left')); if ($('#menu').classList.contains('on')) openMenu(); }], [t('manual_keep'), null, true]]
+    : offerBk ? [[t('books_leave'), () => { P.books = 'home'; saveSoon(true); toast(t('books_left')); applyBookLock(); if ($('#menu').classList.contains('on')) openMenu(); }], [t('books_keep'), null, true]]
+    : fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]];
+  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + manHtml + bkHtml + spHtml, btns);
 }
 /* ====================== HOME & CRAFTING ====================== */
 // A recipe lists the RARITY of each ingredient it needs (0 common ... 4 legendary), not the exact item. Every ingredient must be a different item.
@@ -5500,6 +5537,7 @@ function renderRoom(disp) {   // disp = the ingredient counts to show (they fill
     H.push(`<div class="prop ${it.t === 'wall' ? 'wall' : 'floor'} ${it.t === 'rug' ? 'rugwrap' : ''}" data-id="${id}" aria-label="${t('drag_aria', { n: nameOf(d) })}" style="--x:${p.x};--y:${p.y};--base:${it.b || 8};--s:${rmScale(id, p.y)};--z:${rmZ(id, p.y)}">${inner}</div>`);
   }
   if (wizLvl() >= CFG.MANUAL_FROM || P.manual === 'home') H.push(`<button class="rManual${P.manual === 'home' ? '' : ' gone'}" id="manualShelf" aria-label="${t('manual_t')}" title="${t('manual_t')}" style="left:39.4%;top:${41 * 1.25}%"><span>📕</span></button>`);   // the monster manual's place on the shelf
+  if (booksOffered()) H.push(`<button class="rManual${booksHome() ? '' : ' gone'}" id="booksShelf" aria-label="${t('books_t')}" title="${t('books_t')}" style="left:46%;top:${41 * 1.25}%"><span>📖</span></button>`);   // the books' place on the shelf (the same kind of shelf spot as the manual)
   if ((P.ws && P.ws.on) || MAGIC_SLOTS.some(s => itemVer(s))) H.push(`<button class="rManq" id="manqBtn" aria-label="${t('manq_t')}" title="${t('manq_t')}" style="left:17%;top:${66 * 1.25}%">${manqSVG()}</button>`);   // the mannequin with the forged items
   H.push(`<button class="rCaul" id="caulBtn" aria-label="${t('brew_aria', { c: caulName(c) })}" style="--liq:${cau.liq};--liqa:${cau.liqa};--cs:${cau.cs}"><span class="aura"></span>${cauldronArt(c)}${[0, 1, 2, 3].map(i => `<i class="bub" style="left:${34 + i * 11}%;animation-delay:${i * .6}s"></i>`).join('')}<span class="caulLbl">${t('tap_brew', { c: caulName(c) })}</span></button>`);
   $('#rmProps').innerHTML = H.join(''); renderRoomPanel();
@@ -5555,6 +5593,7 @@ $('#home').onclick = e => {
   if (e.target.closest('#caulBtn')) { openRecipes(); return; }
   if (e.target.closest('#wardBtn')) { openWardrobe(); return; }
   if (e.target.closest('#manualShelf')) { openManual(); return; }
+  if (e.target.closest('#booksShelf')) { openBooks(); return; }
   if (e.target.closest('#manqBtn')) { openManq(); return; }
   if (e.target.closest('[data-close]')) { rmPanel = null; renderRoom(rmDisp); return; }
   const hit = e.target.closest('.rHit'); if (hit) { rmPanel = rmPanel === hit.dataset.kind ? null : hit.dataset.kind; renderRoom(rmDisp); if (rmPanel) $('#roomPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
@@ -6044,7 +6083,7 @@ const hatIcon = (n, w = 44) => `<svg viewBox="20 -22 80 72" width="${w}" height=
 function certHtml(c) {
   const m = ACAD_MEDAL[c.medal] || ACAD_MEDAL.bronze;
   return `<div class="cert"><div class="certTop">${t('cert_t')}</div><div class="certRank">${tl(ACAD_RANK[c.test - 1])}</div><div class="certName">${esc(P.nick)}</div>
-    <div class="certLine">${t('cert_line', { r: c.right, q: c.q })}</div><div class="certDate">${esc(c.date)}</div>
+    <div class="certLine">${t('cert_line', { r: c.right, q: c.q })}</div>${c.noBook ? `<div class="certNote">${t('cert_nobook')}</div>` : ''}<div class="certDate">${esc(c.date)}</div>
     <div class="certSeal" style="background:radial-gradient(circle at 35% 30%,${m[0]},${m[1]})"><span>★</span></div></div>`;
 }
 function openCert(n) {
@@ -6100,7 +6139,7 @@ function acadGradHtml(c, gifts, sp) {
   const wait = s => `<span class="gSp wait">${ME.fmtHtml(s.v)} <small>${tl(s.nm)}</small> <i>${P.mlvl < s.mreq ? t('ac_grad_mlvl', { n: s.mreq }) : t('ac_grad_wlvl', { n: s.greq })}</i></span>`;
   return `<div class="grad"><div class="gradTop"><div class="gradHero">${hero}</div><div class="gradCert">${certHtml(c)}</div></div>
     <p class="gradSay"><b>${ACAD_EXAMINER(k)}:</b> ${t('ac_grad_say', { r: c.right, q: c.q, medal: `<span class="medalWord" style="background:${m[0]};border-color:${m[1]}">${medal}</span>` })}</p>
-    <p class="gradNow">${t('ac_grad_now', { title: tl(ACAD_RANK[k]) })}</p>
+    <p class="gradNow">${t('ac_grad_now', { title: tl(ACAD_RANK[k]) })}</p>${c.noBook ? `<p class="gradNoBook">📖 ${t('ac_grad_nobook')}</p>` : ''}
     ${sp.now.length ? `<p class="gradH">${t('ac_grad_spells')}</p><div class="gSpells">${sp.now.map(chip).join('')}</div>` : ''}
     ${sp.wait.length ? `<p class="gradH">${t('ac_grad_wait')}</p><div class="gSpells">${sp.wait.map(wait).join('')}</div>` : ''}
     <p class="gradHat">${hatIcon(k + 1, 40)} ${t('ac_grad_hat', { hat: tl(ACAD_HAT_NAMES[k]) })}</p>
