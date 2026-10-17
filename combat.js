@@ -39,6 +39,7 @@
     GROUP_SIZE: [2, 3], GROUP_HP_EACH: 0.8, GROUP_ATK_EACH: 1,            // owner decisions: each monster of a group has 80% of a single monster's HP, and attacks as hard as one
     DRAGON_SHARE: 0.5,                                                     // owner decision: each Dragon breath deals half of a typical good cast (P_typ × S) to every monster
     GROUP_CASTS: 2,                                                        // owner decision: in a group fight the student casts 2 spells every turn
+    STORM_CHANCE: 0.08,                                                    // spec 08 §1a: the rare spell Meteor Storm is on a card set this often (about 1 card in 40), and never in two sets of one fight
     // XP (spec 03 §5.1)
     XP_FIGHT: 10, XP_FIGHT_PERFECT: 5, XP_BOSS: 40, XP_BOSS_PERFECT: 20, XP_CRAFT: 3
   };
@@ -55,8 +56,10 @@
   // how a spell meets a monster: 'weak' (damage), 'heal' (the monster gets stronger), 'none' (no effect), 'util' (always works), 'fizzle' (no spell),
   // 'break' (an armored monster: the spell hits the armor). mon (optional): the monster's state, for its armor
   const armorUp = mon => !!(mon && mon.armor && mon.armor.hp > 0);
+  const isStorm = s => !!(s && s.fx && s.fx.storm);   // Meteor Storm (spec 08 §1a): it hits every monster, so it is always an effective pick (the power differs: see cast)
   function relation(spell, monEl, mon) {
     if (!spell) return 'fizzle';
+    if (isStorm(spell)) return 'weak';
     if (elemental(spell)) {
       if (armorUp(mon) && ARMOR[mon.armor.type].breaks.includes(spell.el)) return 'break';
       const m = MON_EL[monEl]; return m.weak.includes(spell.el) ? 'weak' : m.heal.includes(spell.el) ? 'heal' : 'none';
@@ -92,7 +95,7 @@
   // From wizard level 15 the cards offer two good spells (spec 03 §2): the strongest one the cards can make (hard) and a weaker one (easy);
   // then P_typ is their average, so the hard card ends a fight in about 2 casts and the easy one takes longer (step 6 tuning).
   function pTyp(mlvl, learnedIds, g = 1) {
-    const atk = learnedIds.map(id => SB.BY_ID[id]).filter(s => s && elemental(s) && s.power > 0);
+    const atk = learnedIds.map(id => SB.BY_ID[id]).filter(s => s && elemental(s) && !isStorm(s) && s.power > 0);   // (the rare spell does not set the monsters' HP)
     if (g >= CFG.TWO_GOOD_FROM) {
       const can = atk.filter(s => buildable(s, mlvl)); if (can.length) {
         const top = Math.max(...can.map(s => s.power)), easy = can.filter(s => s.power * CFG.HARD_MIN_RATIO <= top), e = easy.length ? easy : can;
@@ -107,7 +110,7 @@
     return Math.max(3, Math.round(base * spread * (boss ? CFG.BOSS_HP_MULT : 1)));
   }
   // always winnable (spec 03 §3.4): the student has at least one learned spell that hurts a monster of this element, and the cards can offer it
-  const canBeat = (monEl, learnedIds, mlvl) => learnedIds.some(id => { const s = SB.BY_ID[id]; return s && relation(s, monEl) === 'weak' && buildable(s, mlvl); });
+  const canBeat = (monEl, learnedIds, mlvl) => learnedIds.some(id => { const s = SB.BY_ID[id]; return s && !isStorm(s) && relation(s, monEl) === 'weak' && buildable(s, mlvl); });   // (the rare spell is not what makes a fight winnable)
 
   /* ---- monster abilities (spec 03 §4, with the owner's step 5 changes) ---- */
   // A monster has at most one main ability (a boss: one, two from wizard level 20). The traits (charging, magic shield) come on top, by chance,
@@ -120,7 +123,7 @@
   }
   // armors this monster may wear: never one that breaks with its own element, and only when the student can break it (always winnable)
   const armorsFor = (el, learnedIds, mlvl) => Object.keys(ARMOR).filter(a => !ARMOR[a].breaks.includes(OWN[el]) &&
-    learnedIds.some(id => { const s = SB.BY_ID[id]; return s && elemental(s) && ARMOR[a].breaks.includes(s.el) && buildable(s, mlvl); }));
+    learnedIds.some(id => { const s = SB.BY_ID[id]; return s && elemental(s) && !isStorm(s) && ARMOR[a].breaks.includes(s.el) && buildable(s, mlvl); }));
   // the elements a shapeshifter may change into: ones the student can beat
   const shiftEls = (el, learnedIds, mlvl) => Object.keys(MON_EL).filter(e => e !== el && canBeat(e, learnedIds, mlvl));
   // a group's elements: 2–3 monsters the student can beat, at least two of them weak to the same element the student can cast (null: no group possible)
@@ -186,7 +189,7 @@
     };
     // while an armor is up, the good card breaks it (spec 03 §4.1: first the armor, then the weakness)
     const goodRel = !group && armorUp(o.mon) && learned.some(s => rel(s) === 'break' && buildable(s, mlvl)) ? 'break' : 'weak';
-    const weakS = learned.filter(s => rel(s) === goodRel && buildable(s, mlvl));
+    const weakS = learned.filter(s => !isStorm(s) && rel(s) === goodRel && buildable(s, mlvl));   // (the rare spell comes on its own chance, below)
     const utilS = learned.filter(s => rel(s) === 'util' && buildable(s, mlvl));
     const isSupport = s => s.type === 'defense' || s.type === 'heal';
     const supportS = utilS.filter(s => isSupport(s) && !(o.hpFull && s.type === 'heal')), otherS = utilS.filter(s => !isSupport(s));   // no healing card at full HP
@@ -211,12 +214,12 @@
     // a group: an area spell (the one that hurts the most monsters), then a good card for every monster (by element) that no card hurts yet
     if (group && !cards.some(c => c.spell && c.spell.fx.k === 'area')) {
       const hurts = s => fs.filter(f => relation(s, f.el, f) === 'weak').length;
-      const areaS = learned.filter(s => s.fx.k === 'area' && hurts(s) > 0 && buildable(s, mlvl)), best = Math.max(0, ...areaS.map(hurts));
+      const areaS = learned.filter(s => s.fx.k === 'area' && !isStorm(s) && hurts(s) > 0 && buildable(s, mlvl)), best = Math.max(0, ...areaS.map(hurts));
       for (const s of shuffleBy(areaS.filter(s => hurts(s) === best), rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
     }
     if (group) for (const f of fs) {
       if (cards.length >= n - 1 || cards.some(c => relation(c.spell, f.el, f) === 'weak')) continue;
-      const mine = learned.filter(s => relation(s, f.el, f) === 'weak' && buildable(s, mlvl));
+      const mine = learned.filter(s => !isStorm(s) && relation(s, f.el, f) === 'weak' && buildable(s, mlvl));
       for (const s of shuffleBy(mine, rnd)) if (add(s, 'good', levelFor(s.v, mlvl, rnd))) break;
     }
     // the support card (4+ cards): a shield or healing, so the player chooses between attacking and defending; with low HP healing comes first
@@ -227,6 +230,9 @@
       for (const s of shuffleBy(pool, rnd)) if (add(s, 'util', levelFor(s.v, mlvl, rnd))) break;
     }
     if (n >= CFG.OTHER_UTIL_FROM_CARDS && otherS.length && cards.length < n - 1) for (const s of shuffleBy(otherS, rnd)) if (add(s, 'util', levelFor(s.v, mlvl, rnd))) break;
+    // the rare spell (spec 08 §1a): Meteor Storm, on one card of a set now and then, and never in two sets of one fight (o.stormSeen)
+    const storm = learned.find(s => isStorm(s) && buildable(s, mlvl));
+    if (storm && !o.stormSeen && cards.length < n - 1 && rnd() < CFG.STORM_CHANCE) add(storm, 'good', levelFor(storm.v, mlvl, rnd));
     // 2. at least one trap: a spell the monster resists or that heals it, or a number that is no spell (fizzle)
     const fizzleCard = () => { for (let k = 0; k < 30; k++) { const p = ME.next(mlvl, { avoid, noReview: true }); if (!learned.some(s => ME.eq(s.v, p.a)) && add(null, 'trap', null, Object.assign({}, p, { src: 'cur' }))) return true; } return false; };
     const trapSpell = () => { for (const s of shuffleBy(badS, rnd)) if (add(s, 'trap', levelFor(s.v, mlvl, rnd))) return true; return false; };
@@ -264,7 +270,7 @@
       const r = relation(spell, m.el, m), o = { i: fs.indexOf(m), rel: r };
       if (m.shield) { m.shield = false; o.popped = true; }   // Shielded: the first hit only breaks the shield
       else if (r === 'break') { m.armor.hp -= 1; o.armorHit = 1; o.armorBroken = m.armor.hp <= 0; }   // the armor absorbs it (one layer, never heals)
-      else if (r === 'weak') o.dmg = hitOn(m, spell.power * mult);
+      else if (r === 'weak') o.dmg = hitOn(m, spell.power * mult * (f.storm && !MON_EL[m.el].weak.includes(spell.el) ? 0.5 : 1));   // Meteor Storm: half power on a monster that is not weak to stone
       else if (r === 'heal') o.monHeal = healOn(m, spell.power * S(st.g));
       return o;
     };
@@ -351,7 +357,7 @@
     return ev;
   }
 
-  const CB = { CFG, MON_EL, ARMOR, relation, isGood, elemental, S, wizMaxHP, monAttack, cardsFor, canMake, levelFor, pTyp, monsterHP, canBeat,
+  const CB = { CFG, MON_EL, ARMOR, relation, isStorm, isGood, elemental, S, wizMaxHP, monAttack, cardsFor, canMake, levelFor, pTyp, monsterHP, canBeat,
     abilitiesAt, abilityChance, armorsFor, groupEls, rollAbilities, newMonster, foesOf, alive, defeated, retarget, charging, armorUp, buildSet, newFx, cast, monsterTurn, clamp };
   if (typeof module === 'object' && module.exports) module.exports = CB; else root.CB = CB;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

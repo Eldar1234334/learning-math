@@ -81,6 +81,29 @@
     let rev = 0, all = 0; for (let k = 0; k < 400; k++) { const c = CB.buildSet({ mlvl: 13, wlvl: 3, learned: learnedAt(13, 3), monEl: 'fire', rnd }).find(c => c.role === 'good'); if (c) { all++; if (c.p.src === 'review') rev++; } }
     assert(rev / all > .1 && rev / all < .35, 'review share ' + (rev / all).toFixed(2));
   });
+  test('Meteor Storm (spec 08 §1a): every monster is hit, full power on a stone-weak monster, half on the others, and it never heals', () => {
+    const storm = SB.BY_ID['625'], mk = el => ({ hp: 80, max: 80, el, boss: false });
+    const s = { g: 1, hero: { hp: 20, max: 20 }, foes: [mk('storm'), mk('fire'), mk('stone')], fx: CB.newFx() }; s.mon = s.foes[0];
+    const e = CB.cast(s, storm);
+    assert(e.k === 'area' && e.per.length === 3, 'it hits every monster');
+    assert(e.per[0].dmg === 20 && e.per[1].dmg === 10 && e.per[2].dmg === 10, 'full 20 on the monster weak to stone, half 10 on the others: ' + JSON.stringify(e.per.map(o => o.dmg)));
+    assert(!e.monHeal && s.foes[2].hp === 70, 'a stone monster is not healed');
+  });
+  test('Meteor Storm does not set the monsters HP or make a fight winnable (spec 08 §1a)', () => {
+    const base = learnedAt(21, 30), withStorm = SB.book(21, 30, [], 5).learned.map(s => s.id);
+    assert(withStorm.includes('625') && !base.includes('625'), 'the storm is learned only with the Academy');
+    assert(CB.pTyp(21, withStorm, 30) === CB.pTyp(21, base, 30), 'the same typical power');
+    assert(CB.canBeat('fire', ['625'], 21) === false, 'the storm alone does not make a fight winnable');
+  });
+  test('Meteor Storm is rare on the cards: about 1 set in 12, and never again once it has been seen in a fight', () => {
+    const learned = SB.book(21, 30, [], 5).learned.map(s => s.id); let withStorm = 0, repeat = 0; const N = 3000;
+    for (let k = 0; k < N; k++) {
+      if (CB.buildSet({ mlvl: 21, wlvl: 30, learned, monEl: 'fire', rnd }).some(c => CB.isStorm(c.spell))) withStorm++;
+      if (CB.buildSet({ mlvl: 21, wlvl: 30, learned, monEl: 'fire', rnd, stormSeen: true }).some(c => CB.isStorm(c.spell))) repeat++;
+    }
+    assert(withStorm / N > 0.04 && withStorm / N < 0.13, 'share of sets with the storm ' + (withStorm / N).toFixed(3));
+    assert(repeat === 0, 'never two in one fight');
+  });
   test('casting: damage on a weakness, healing on the own element, no effect, fizzle', () => {
     let s = st(); let e = CB.cast(s, SB.BY_ID['2']); assert(e.dmg === 2 && s.mon.hp === 4, 'Water Splash on fire: 2');
     s = st({ mhp: 3 }); e = CB.cast(s, SB.BY_ID['3']); assert(e.monHeal === 2 && s.mon.hp === 5, 'Fire Bolt heals a fire monster');

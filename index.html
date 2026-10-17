@@ -3611,6 +3611,10 @@ const AREA_FX = {
     }
     await sleep(250);
   },
+  '625': async (nodes, o) => {   // Meteor Storm (spec 08 §1a): the sky turns to night, then two waves of big meteors fall on every monster
+    const st = $('#stage'), night = document.createElement('div'); night.className = 'starNight'; st.appendChild(night);
+    try { await AREA_FX[18](nodes, o); await AREA_FX[18](nodes, o); } finally { night.remove(); }
+  },
   18: async (nodes, o) => {   // Meteor Rain (owner request): burning meteors streak from the sky and hit by each monster with a flash and dust; 180: more and bigger
     const st = $('#stage'), s = st.getBoundingClientRect(), big = o.spell && o.spell.tier !== 'strong', pts = nodes.map(n => ptIn(n, s)), d = big ? 46 : 34, list = [];
     for (let r = 0; r < (big ? 2 : 1); r++) pts.forEach((p, i) => list.push({ p: { x: p.x + (r ? 26 : -8), y: p.y + 18 }, nd: nodes[i], delay: (r * pts.length + i) * 190 }));
@@ -4846,8 +4850,9 @@ function incantIntro() {   // the story moment when the incantation step starts 
 function dealCards() {
   const h = G.st.hero;
   G.cards = CB.buildSet({ mlvl: P.mlvl, wlvl: wizLvl(), learned: P.spells, monEl: G.mon.el, mon: G.mon, foes: G.st.foes, avoid: new Set(G.recent || []), facts: P.mfacts,
-    hpLow: h.hp <= h.max * 0.35, hpFull: h.hp >= h.max, charging: CB.alive(G.st).some(CB.charging) });
-  G.recent = (G.recent || []).concat(G.cards.map(c => c.p.key)).slice(-CFG.RECENT * 2); G.used = [];
+    hpLow: h.hp <= h.max * 0.35, hpFull: h.hp >= h.max, charging: CB.alive(G.st).some(CB.charging), stormSeen: !!G.st.stormSeen });
+  if (G.cards.some(c => CB.isStorm(c.spell))) G.st.stormSeen = true;   // the rare spell Meteor Storm is on the cards once per fight at most (spec 08 §1a)
+  G.recent =(G.recent || []).concat(G.cards.map(c => c.p.key)).slice(-CFG.RECENT * 2); G.used = [];
 }
 // A turn: pick a card (in a group fight: two cards, one after the other, and the cards may be changed once per turn), then the monsters attack
 function nextTurn() {

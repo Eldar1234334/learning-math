@@ -15,9 +15,9 @@
   test('every spell has its own number (no two spells with the same value, spec 02 §1)', () => {
     for (let i = 0; i < SB.SPELLS.length; i++) for (let j = i + 1; j < SB.SPELLS.length; j++) assert(!ME.eq(SB.SPELLS[i].v, SB.SPELLS[j].v), `${SB.SPELLS[i].id} and ${SB.SPELLS[j].id} have the same value`);
   });
-  test('the catalog: 9 base, 9 strong, their tiers, and 16 special spells', () => {
+  test('the catalog: 9 base, 9 strong, their tiers, and 17 special spells (the rare Meteor Storm is the 17th)', () => {
     const by = t => SB.SPELLS.filter(s => s.tier === t).length;
-    assert(by('base') === 9 && by('strong') === 9 && by('enhanced') === 9 && by('greater') === 9 && by('legendary') === 9 && by('enhStrong') === 9 && by('family') === 16, JSON.stringify({ base: by('base'), strong: by('strong'), fam: by('family') }));
+    assert(by('base') === 9 && by('strong') === 9 && by('enhanced') === 9 && by('greater') === 9 && by('legendary') === 9 && by('enhStrong') === 9 && by('family') === 17, JSON.stringify({ base: by('base'), strong: by('strong'), fam: by('family') }));
     assert(SB.BY_ID['3'].nm[0] === 'Fire Bolt' && SB.BY_ID['30'].nm[0] === 'Enhanced Fire Bolt' && SB.BY_ID['300'].nm[0] === 'Greater Fire Bolt' && SB.BY_ID['3000'].nm[0] === 'Legendary Fire Bolt', '×10 tiers of Fire Bolt');
     assert(SB.BY_ID['130'].nm[0] === 'Enhanced Fireball', '130 Enhanced Fireball');
     assert(SB.BY_ID['30'].nm[1] === 'חץ אש מוגבר' && SB.BY_ID['20'].nm[1] === 'התזת מים מוגברת', 'Hebrew adjectives agree with the noun');
@@ -82,6 +82,15 @@
     assert(!open(0).includes('20') && open(1).includes('20') && !open(1).includes('200') && open(2).includes('200') && !open(3).includes('25') && open(4).includes('25'), 'tiers open by test');
     assert(open(undefined).includes('3000'), 'no gate when the passed count is left out (the live game)');
     assert(SB.book(30, 50, ['20'], 0).learned.some(s => s.id === '20'), 'a spell already known stays learned');
+  });
+  test('the rare spell 625 Meteor Storm (spec 08 §1a): tier 6, math level 19, opened only by test 5, and not in the live game', () => {
+    const m = SB.BY_ID['625']; assert(m && m.nm[0] === 'Meteor Storm' && m.power === 20 && m.mreq === 19 && m.fx.k === 'area' && m.fx.storm, 'the spell');
+    assert(SB.testNeed(m) === 5, 'opened by test 5');
+    assert(!has(SB.book(30, 50).learned, '625') && !has(SB.book(30, 50).sealed, '625'), 'the live game (no Academy) does not show it at all');
+    assert(has(SB.book(30, 50, [], 4).sealed, '625') && !has(SB.book(30, 50, [], 4).learned, '625'), 'sealed until test 5');
+    assert(has(SB.book(30, 50, [], 5).learned, '625'), 'learned after test 5 when the math level is 19 or more');
+    assert(!has(SB.book(18, 50, [], 5).learned, '625') && !has(SB.book(18, 50, [], 5).sealed, '625'), 'hidden below math level 19');
+    for (const L of ['en', 'he']) assert(/\d/.test(SB.describe(m, L)) && !/\{|undefined/.test(SB.describe(m, L)), 'description ' + L);
   });
   test('every spell number is an answer at its own math level or below (so the cards can offer it)', () => {
     for (const s of SB.SPELLS) { let ok = false; for (let n = s.mreq; n >= 1 && !ok; n--) { const vals = ME.answers(n); if (vals ? vals.some(v => ME.eq(v, s.v)) : ME.make(n, { target: s.v })) ok = true; } assert(ok, `spell ${s.id} (math gate ${s.mreq}) is not an answer at level ${s.mreq} or below`); }

@@ -76,7 +76,10 @@
     ['0.1', 'Mist of Tenths', 'ערפל העשיריות', 'shadow', 'control', 28, { k: 'weaken', part: 1 / 10 }],
     ['1/8', 'Shrinking Hex', 'כישוף הכיווץ', 'arcane', 'special', 31, { k: 'shrink', turns: 3 }],
     ['144', 'Starfall', 'מטר כוכבים', 'light', 'area', 34, { k: 'area' }, 6],
-    ['360', 'Full Circle', 'מעגל שלם', 'nature', 'heal', 35, { k: 'fullHeal' }]
+    ['360', 'Full Circle', 'מעגל שלם', 'nature', 'heal', 35, { k: 'fullHeal' }],
+    // spec 08 §1a, tier 6: the rare spell, opened only by Academy test 5. Meteors rain on every monster: full power on a monster weak to stone,
+    // half power on every other (it never heals one: the one exception to "other elements do nothing"). Rare on the cards (CFG.STORM_CHANCE, once per fight).
+    ['625', 'Meteor Storm', 'סערת מטאורים', 'stone', 'area', 19, { k: 'area', storm: true }, 20]
   ];
 
   const SPELLS = [], BY_ID = {};
@@ -109,6 +112,7 @@
   function book(mlvl, wlvl, known, passed) {
     const k = new Set(known || []), learned = [], sealed = [];
     for (const s of SPELLS) {
+      if (s.fx && s.fx.storm && passed == null) continue;   // the rare spell exists only with the Academy (spec 08 §1a): the live game does not show it
       if (k.has(s.id) || (isMathOpen(s, mlvl) && isGameOpen(s, wlvl) && isTierOpen(s, passed))) learned.push(s);
       else if (isMathOpen(s, mlvl)) sealed.push(s);
     }
@@ -137,6 +141,7 @@
     buff2: ['Your next spell has double power.', 'לכישוף הבא שלכם יש עוצמה כפולה.'], buff3: ['Your next spell has triple power.', 'לכישוף הבא שלכם יש עוצמה משולשת.'],
     buff15: ['Your next spell has 1½ times the power.', 'לכישוף הבא שלכם יש פי 1½ עוצמה.'],
     area: ['Hits every monster in the fight that is weak to {el}. Power {p}.', 'פוגע בכל המפלצות בקרב שחלשות מול {el}. עוצמה {p}.'],
+    storm: ['A rare spell! Meteors rain on every monster: full power {p} on a monster that is weak to stone, half power on all the others. It never heals one.', 'כישוף נדיר! מטאורים יורדים על כל המפלצות: עוצמה מלאה {p} על מפלצת שחלשה מול אבן, וחצי עוצמה על כל האחרות. הוא אף פעם לא מרפא מפלצת.'],
     allMon: [', every monster', ', בכל המפלצות'],
     dragon: ['{em} A dragon fights with you for {t} turns: every turn it breathes on every monster (half of a strong spell, always a weakness).', '{em} דרקון נלחם לצדכם {t} תורות: בכל תור הוא נושף על כל המפלצות (חצי מכישוף חזק, תמיד בנקודת התורפה).'],
     summon: ['{em} A familiar fights with you for {t} turns (power {p} each turn{any}).', '{em} חיה מלווה נלחמת לצדכם {t} תורות (עוצמה {p} בכל תור{any}).'],
@@ -161,7 +166,7 @@
       case 'fullHeal': return tt('fullHeal', L);
       case 'skip': return f.n === 1 ? tt('skip1', L) : tt('skipN', L, { n: f.n });
       case 'buff': return tt(f.x === 2 ? 'buff2' : f.x === 3 ? 'buff3' : 'buff15', L);
-      case 'area': return tt('area', L, { el: ELEMENTS[s.el].nm[i], p: s.power });
+      case 'area': return f.storm ? tt('storm', L, { p: s.power }) : tt('area', L, { el: ELEMENTS[s.el].nm[i], p: s.power });
       case 'summon': if (f.area) return tt('dragon', L, { em: f.em, t: f.turns });
         return tt('summon', L, { em: f.em, t: f.turns, p: f.pw, any: (f.el === 'arcane' ? TXT.anyEl[i] : '') + (f.area ? TXT.allMon[i] : '') });
       case 'reflect': return tt('reflect', L);
