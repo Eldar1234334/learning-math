@@ -433,6 +433,10 @@ body.noAnim .wizBadge::after{animation:none}@media(prefers-reduced-motion:reduce
 .lvlCard{display:none;position:fixed;z-index:9500;background:#2b2260;color:#fff;border:2px solid #e2a21f;border-radius:14px;padding:10px 14px 12px;box-shadow:0 6px 24px #000b;font-size:.95rem;line-height:1.35}
 .lvlCard .lcTitle{font-weight:800;margin-bottom:6px;color:#ffe58a}.lvlCard .lcRow{display:flex;gap:8px;align-items:flex-start}.lvlCard .lcIco{font-size:1.3rem}
 .lvlCard .lcX{position:absolute;top:4px;inset-inline-end:6px;background:none;border:0;color:#fff;font-size:1rem;cursor:pointer;padding:4px 8px}
+#wizStrip{display:none;position:sticky;top:0;z-index:900;justify-content:center;align-items:center;gap:8px;padding:5px 8px 8px;background:linear-gradient(#1b1240ee,#1b124000);pointer-events:none;font-weight:700;white-space:nowrap}
+#wizStrip.on{display:flex}#wizStrip .wizBadge{pointer-events:auto}#wizStrip .wsName{max-width:50vw;overflow:hidden;text-overflow:ellipsis}
+#game .top .grow{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px}#game .top .grow #who,#game .top .grow #tierLbl{flex:none;max-width:100%}#game .top .grow .pbar{flex:1 0 100%}#game .top #tierLbl{display:block;-webkit-line-clamp:unset;overflow:visible}
+#menu .top .grow #menuWho{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px}
 .top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .top .grow{flex:1;min-width:0}
 .top .who{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -793,6 +797,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 </style>
 </head>
 <body>
+<div id="wizStrip" aria-live="off"></div>
 
 <section id="gate" class="screen on">
   <h1>🔒 <span data-t="game_name"></span></h1>
@@ -2255,8 +2260,15 @@ async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: 
 }
 
 /* ====================== SCREENS / MODAL ====================== */
+// the wizard's name and level on every screen that has no bar of its own (shop, quest map, home, brewing, ...): a thin strip at the top
+const STRIP_SCREENS = ['home', 'brew', 'wardrobe', 'checkout', 'shop', 'journey', 'workshop'];
+function updateWizStrip(id) {
+  const s = $('#wizStrip'); if (!s) return;
+  const on = !!P && STRIP_SCREENS.includes(id); s.classList.toggle('on', on);
+  if (on) s.innerHTML = `<span class="wsName">${esc(P.nick || '')}</span>${wizBadge()}`;
+}
 function show(id) {
-  closeLvlCard();
+  closeLvlCard(); updateWizStrip(id);
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   if (typeof refreshAcademy === 'function') refreshAcademy();   // the Academy icon shows on the map and the menu while a test is ready
   if (typeof applyBookLock === 'function') applyBookLock();   // the books are not available on a quest when they are on the shelf at Home
@@ -2443,7 +2455,7 @@ const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>
 /* ----- spec 14: the level display. The bar shows only the wizard (level and rank title on a gold badge); the math level is on a small card that opens from the avatar ----- */
 const rankTitle = () => { const k = acadPassed(); return k > 0 ? tl(ACAD_RANK[Math.min(k, ACAD_RANK.length) - 1]) : t('rank0'); };
 const labelAvatars = () => document.querySelectorAll('[data-lvlcard]').forEach(a => a.setAttribute('aria-label', t('lc_aria')));
-const wizBadge = () => `<span class="wizBadge">${esc(t('wiz_badge', { n: wizLvl(), r: rankTitle() }))}</span>`;
+const wizBadge = () => `<span class="wizBadge" data-lvlcard="hover">${esc(t('wiz_badge', { n: wizLvl(), r: rankTitle() }))}</span>`;
 let lvlPinned = false, lvlOwner = null;
 function lvlCardHtml() {
   const lv = P.mlvl || 1, g = (ME.LV[lv] && ME.LV[lv].g) || 1;
@@ -2464,6 +2476,7 @@ document.addEventListener('mouseout', e => { const a = e.target.closest && e.tar
 document.addEventListener('click', e => {
   const a = e.target.closest && e.target.closest('[data-lvlcard]'), c = $('#lvlCard');
   if (e.target.closest && e.target.closest('[data-lcx]')) { closeLvlCard(); return; }
+  if (a && a.dataset.lvlcard === 'hover') { if (lvlPinned) closeLvlCard(); return; }   // the level box only shows the card on hover: not clickable
   if (a) { if (lvlPinned && lvlOwner === a) closeLvlCard(); else { lvlPinned = false; showLvlCard(a, true); } return; }
   if (lvlPinned && c && !c.contains(e.target)) closeLvlCard();
 });
@@ -2476,9 +2489,9 @@ function openMenu() {
   setTimeout(checkSchoolOpen, 0);   // (school heroes: is the school's access still on?)
   G.quest = null; show('menu');
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
-  $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
+  $('#menuWho').innerHTML = `${esc(P.nick)} ${wizBadge()} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
-  labelAvatars(); $('#menuRank').innerHTML = wizBadge() + (APP ? '' : esc(t('my_number', { id: P.id })));   // spec 14: only the wizard on the bar (level and rank title on the gold badge); the math level is on the level card
+  labelAvatars(); $('#menuRank').innerHTML = APP ? '' : esc(t('my_number', { id: P.id }).replace(/^ · /, ''));   // spec 14: only the wizard on the bar (level and rank title on the gold badge); the math level is on the level card
   $('#menuXp').style.width = xpPct() + '%';
   const sec = P.sec[today()] || 0;
   $('#menuToday').textContent = t('min_today', { m: Math.min(10, Math.floor(sec / 60)) }) + (sec >= CFG.DAILY_SEC ? ' ⭐' : '');
