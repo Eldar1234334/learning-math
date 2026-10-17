@@ -4316,7 +4316,7 @@ function academyAsk() {
 function academyRules(kind) {
   const k = acadNext(), T = ACAD_Q[k], need = ACAD_NEED[k], miss = T - need, pct = ACAD_PCT[k];
   const marks = Array.from({ length: miss }, () => '✖').join(' ');
-  const choose = CFG.ACADEMY && wizLvl() >= CFG.BOOKS_FROM; let take = true;   // from wizard level BOOKS_FROM the student chooses whether to take the books to the test
+  const choose = CFG.ACADEMY && (wizLvl() >= CFG.BOOKS_FROM || k >= 2); let take = true;   // from test 3 (taken at wizard level 29) the student chooses whether to take the books to the test
   modal(t('ac_rules_t'), `<div class="rulesList">
     <div><span>❓</span>${t('ac_qcount', { q: T })}</div>
     <div><span>✅</span>${t('ac_need', { n: need, q: T, p: pct })}</div>
