@@ -4044,7 +4044,7 @@ function visitPics() {
 function visitPad(act = 'amt') {   // act: the answer the ✔ gives: the amount (amt) or the item's number (iamt)
   const V = VS, o = $('#opts'), dec = act === 'amt' && !Number.isInteger(V.p.amount), key = d => `<button class="opt num" data-vh="key" data-d="${d}">${d}</button>`;
   o.className = 'opts pad'; o.style.display = 'block'; o.style.gridTemplateColumns = '';
-  o.innerHTML = `<div class="vhPadShow" dir="ltr">${V.typed || '…'}</div><div class="vhPad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(key).join('')}<button class="opt num vhPadDel" data-vh="key" data-d="del">⌫</button>${dec ? key('.') : ''}<button class="btn vhPadOk ${dec ? 'dec' : ''}" data-vh="amt" data-n="${V.typed}" ${V.typed === '' ? 'disabled' : ''}>✔</button></div>`;
+  o.innerHTML = `<div class="vhPadShow" dir="ltr">${V.typed || '…'}</div><div class="vhPad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(key).join('')}<button class="opt num vhPadDel" data-vh="key" data-d="del">⌫</button>${dec ? key('.') : ''}<button class="btn vhPadOk ${dec ? 'dec' : ''}" data-vh="${act}" data-n="${V.typed}" ${V.typed === '' ? 'disabled' : ''}>✔</button></div>`;
 }
 function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
