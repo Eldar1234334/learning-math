@@ -199,7 +199,7 @@
   const MGEN = {
     ram: (o, big) => { const [a, b] = fitProd([[2, big ? 5 : 4], [2, big ? 6 : 5]], o); return mk(10, 'number', [`The ram's frame is ${a} squares wide and ${b} squares long. How many squares is it?`, `מסגרת האיל ברוחב ${a} ריבועים ובאורך ${b} ריבועים. כמה ריבועים יש בה?`], { answer: a * b, role: 'measure' }); },
     ballista: (o, big) => { const per = pick([1, 2], o.rnd), n = range(2, Math.max(2, Math.min(big ? 12 : 8, Math.floor(maxProd(o.mlvl) / per))), o.rnd), u = unitText(o.units, 'small', 'en'), uh = unitText(o.units, 'small', 'he');
-      return mk(12, 'number', [`The ballista's arm is ${n} squares long. Each square is ${per} ${u}. How long is the arm in ${u}?`, `זרוע הבליסטרה באורך ${n} ריבועים. כל ריבוע הוא ${per} ${uh}. מה אורך הזרוע ב${uh}?`], { answer: n * per, role: 'measure' }); },
+      return mk(12, 'number', [`The ballista's arm is ${n} squares long. Each square is ${per} ${u}. How long is the arm, in ${o.units === 'imperial' ? 'inches' : 'cm'}?`, `זרוע הבליסטרה באורך ${n} ריבועים. כל ריבוע הוא ${per} ${uh}. מה אורך הזרוע ב${uh}?`], { answer: n * per, role: 'measure' }); },
     catapult: (o, big) => { const [a, b] = fitProd([[2, big ? 5 : 4], [2, big ? 6 : 5]], o), m = unitText(o.units, 'medium', 'en'), mh = unitText(o.units, 'medium', 'he'), a2 = unitText(o.units, 'areaM', 'en'), a2h = unitText(o.units, 'areaM', 'he');
       return mk(22, 'number', [`The arm frame is ${a} ${m} by ${b} ${m}. What is its area in ${a2}?`, `מסגרת הזרוע היא ${a} ${mh} על ${b} ${mh}. מה שטחה ב${a2h}?`], { answer: a * b, role: 'measure' }); },
     trebuchet: (o, big) => { const x = range(2, big ? 9 : 7, o.rnd), y = range(1, 5, o.rnd);
