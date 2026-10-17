@@ -25,5 +25,7 @@ jobs:
         run: node tests/shop.test.js
       - name: Run the villager visit tests (story problems, cards, number pad logic)
         run: node tests/helper.test.js
+      - name: Run the Home room tests (fixed places, items, tiers, placing, migration)
+        run: node tests/home.test.js
       - name: Check the balance goals (fight simulator, spec 03 §1)
         run: node tools/sim.js 60
