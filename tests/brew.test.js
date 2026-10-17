@@ -35,22 +35,22 @@
     assert(open(0) === 'heart,sound' && open(1) === 'heart,power,second,sound' && open(2) === open(1) && open(3) === 'heart,power,second,sound,super', 'potions by rank: ' + [0, 1, 2, 3].map(open).join(' | '));
     assert(BR.potionOpen('forge1', 0) && BR.potionOpen('forge2', 0), 'the forge has no rank');
     assert(BR.rareFor('sound', 0).length === 0 && BR.rareFor('sound', 1).length === 1 && BR.rareFor('power', 1).length === 2, 'Hint has no stone at rank 0, one from rank 1');
-    assert(BR.herbLinesFor('heart', 0) === 1 && BR.herbLinesFor('sound', 0) === 1 && BR.herbLinesFor('power', 1) === 2 && BR.herbLinesFor('heart', 2) === 2 && BR.herbLinesFor('heart', 3) === BR.RECIPES.heart.herbs && BR.herbLinesFor('super', 4) === 1, 'herb lines by rank');
-    assert(!BR.liquidOk(0) && !BR.liquidOk(2) && BR.liquidOk(3) && BR.liquidOk(undefined), 'liquids from rank 3');
+    assert(BR.herbLinesFor('heart', 0) === 1 && BR.herbLinesFor('sound', 0) === 1 && BR.herbLinesFor('heart', 2) === 1 && BR.herbLinesFor('heart', 5) === 1 && BR.herbLinesFor('sound', 3) === 1 && BR.herbLinesFor('power', 1) === 2 && BR.herbLinesFor('second', 2) === 2 && BR.herbLinesFor('power', 3) === BR.RECIPES.power.herbs && BR.herbLinesFor('super', 4) === 1, 'herb lines by rank: Heart and Hint always one');
+    assert(!BR.liquidOk(0, 'power') && !BR.liquidOk(2, 'power') && BR.liquidOk(3, 'power') && BR.liquidOk(3, 'super') && BR.liquidOk(undefined) && !BR.liquidOk(3, 'heart') && !BR.liquidOk(5, 'sound'), 'liquids from rank 3, never for Heart and Hint');
   });
-  test('rank 0: one herb line, no liquid, every math level; ranks 1 and 2: two herb lines, no liquid; rank 3: the full recipe with the liquid', () => {
+  test('Heart and Hint: one herb line at every rank; Power and Second chance: two herb lines at ranks 1 and 2, the full recipe with the liquid from rank 3', () => {
     for (let m = 1; m <= 36; m++) {
       for (const potion of ['heart', 'sound']) {
         const r0 = BR.recipe({ potion, mlvl: m, owned, rnd, rank: 0 }); assert(r0, 'rank 0 recipe ' + potion + ' at ' + m);
         assert(r0.lines.length === 1 && r0.lines[0].kind === 'herb' && ME.eq(r0.lines[0].p.a, r0.lines[0].amount), 'rank 0 is one herb line: ' + potion + ' at ' + m);
         const a = ME.num(r0.lines[0].amount), hi = BR.HERB_RANGE[potion][1] * r0.batch; assert(ME.isWhole(r0.lines[0].amount) && a >= 2 && a <= hi, 'rank 0 amount ' + a + ' (' + potion + ' at ' + m + ')');
       }
-      for (const potion of ['heart', 'sound', 'power', 'second']) {
+      for (const potion of ['power', 'second']) {
         const r1 = BR.recipe({ potion, mlvl: m, owned, rnd, rank: 1 }); assert(r1, 'rank 1 recipe ' + potion + ' at ' + m);
         assert(r1.lines.length === 2 && r1.lines.every(l => l.kind === 'herb') && r1.lines[0].herb !== r1.lines[1].herb, 'rank 1 is two herb lines of two herbs: ' + potion + ' at ' + m);
       }
-      const r3 = BR.recipe({ potion: 'sound', mlvl: m, owned, rnd, rank: 3 }); assert(r3.lines.length === 2 && r3.lines[1].kind === 'liquid', 'rank 3 has the liquid at ' + m);
-      const h3 = BR.recipe({ potion: 'heart', mlvl: m, owned, rnd, rank: 3 }); assert(h3.lines.length === 3 && h3.lines[2].kind === 'liquid', 'rank 3 Heart: two herb lines and the liquid at ' + m);
+      for (const potion of ['heart', 'sound']) for (const rk of [1, 2, 3, 5]) { const r = BR.recipe({ potion, mlvl: m, owned, rnd, rank: rk }); assert(r && r.lines.length === 1 && r.lines[0].kind === 'herb' && ME.eq(r.lines[0].p.a, r.lines[0].amount), 'Heart and Hint are one herb line at rank ' + rk + ': ' + potion + ' at ' + m); }
+      const p3 = BR.recipe({ potion: 'power', mlvl: m, owned, rnd, rank: 3 }); assert(p3.lines.length === 2 && p3.lines[1].kind === 'liquid', 'rank 3 Power has the liquid at ' + m);
     }
     let lo = 99, hi = 0; for (let k = 0; k < 200; k++) { const r = BR.recipe({ potion: 'heart', mlvl: 5, owned, rnd, rank: 0 }), a = ME.num(r.lines[0].amount); lo = Math.min(lo, a); hi = Math.max(hi, a); }
     assert(lo >= 4 && hi <= 10, 'a Heart potion at rank 0 asks for 4 to 10 herbs: ' + lo + ' to ' + hi);
