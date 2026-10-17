@@ -437,6 +437,7 @@ body.noAnim .wizBadge::after{animation:none}@media(prefers-reduced-motion:reduce
 #wizStrip.on{display:flex}#wizStrip .wizBadge{pointer-events:auto}#wizStrip .wsName{max-width:50vw;overflow:hidden;text-overflow:ellipsis}
 #game .top .grow{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px}#game .top .grow #who,#game .top .grow #tierLbl{flex:none;max-width:100%}#game .top .grow .pbar{flex:1 0 100%}#game .top #tierLbl{display:block;-webkit-line-clamp:unset;overflow:visible}
 #menu .top .grow #menuWho{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px}
+@media(max-width:560px){#menu .top{flex-wrap:wrap}#menu .top .vctl{flex:1 0 100%;justify-content:flex-end}#game .top{flex-wrap:wrap}#game .top .vctl{flex:1 0 100%;justify-content:flex-end}}
 .top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .top .grow{flex:1;min-width:0}
 .top .who{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
