@@ -124,6 +124,14 @@ body.acadOn .side.foe{display:none}
 #acBubble{position:absolute;left:50%;top:44px;transform:translateX(-50%);max-width:58%;min-width:30%;background:#fff;color:#2a2050;border-radius:14px;padding:4px 10px;font-size:.74rem;font-weight:600;line-height:1.25;text-align:center;z-index:4;box-shadow:0 2px 0 #0003}
 #acBubble::after{content:'';position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
 .acBtnRow{display:flex;gap:10px;justify-content:center;margin:2px 0 4px}
+.grad{text-align:center}.gradTop{display:flex;gap:10px;align-items:center;justify-content:center}.gradHero{flex:0 0 38%}.gradHero svg{width:100%;height:auto;max-height:170px}.gradCert{flex:1;min-width:0}
+.cert{background:linear-gradient(135deg,#f9ecc8,#efd8a0);border:3px double #b8975a;border-radius:8px;padding:8px 8px 10px;color:#4a3318;text-align:center;position:relative;box-shadow:0 3px 0 #0003}
+.certTop{font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;opacity:.75}.certRank{font-size:1.05rem;font-weight:800;margin:2px 0}.certName{font-size:.95rem;font-weight:700;border-bottom:1px solid #b8975a;display:inline-block;padding:0 8px;margin-bottom:2px}
+.certLine,.certDate{font-size:.72rem;opacity:.85}.certSeal{width:36px;height:36px;border-radius:50%;margin:6px auto 0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;box-shadow:0 2px 0 #0004,inset 0 0 0 2px #fff6}
+.gradSay{margin:8px 0 2px}.medalWord{padding:0 8px;border:2px solid;border-radius:10px;color:#2a2050;font-weight:700}.gradNow{font-size:1.15rem;font-weight:800;color:#ffd166;margin:4px 0}.gradH{margin:6px 0 2px;font-size:.85rem;opacity:.85}
+.gSpells{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-height:92px;overflow:auto}.gSp{background:#ffffff22;border-radius:10px;padding:1px 7px;font-size:.78rem}.gSp small{opacity:.8}.gSp.wait{opacity:.7}.gSp i{font-style:normal;font-size:.7rem;opacity:.85}
+.gradHat,.gradGift{font-size:.85rem;margin:6px 0 0;display:flex;align-items:center;justify-content:center;gap:6px}
+.newTag{color:#ffd166;font-weight:700}.rRug.glow{background:radial-gradient(ellipse,#fff3b0 0 10%,#2fc7b8 11% 34%,#fff3b0 35% 40%,#7a5cff 41% 66%,#fff3b0 67% 70%,#2fc7b8 71%);box-shadow:0 0 calc(var(--u)*2.2) #7af3e0cc,0 calc(var(--u)*.5) calc(var(--u)*.8) #0006}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
 .acadDots i.cur{outline:2px solid #ffd166}.acadDots i.done{background:#8f8}
@@ -1447,6 +1455,11 @@ const STR = {
   ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
   ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
   ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
+  cert_t: ['Certificate of the Academy', 'תעודת האקדמיה'], cert_line: ['{r} of {q} right', '{r} מתוך {q} נכונות'],
+  ac_grad_say: ['{r} of {q}, {medal} medal!', '{r} מתוך {q}, מדליית {medal}!'], ac_grad_now: ['You are now a {title}!', 'עכשיו אתם {title}!'],
+  ac_grad_spells: ['New spells:', 'כישופים חדשים:'], ac_grad_wait: ['Waiting for you:', 'מחכים לכם:'], ac_grad_mlvl: ['at math level {n}', 'ברמת חשבון {n}'], ac_grad_wlvl: ['at wizard level {n}', 'ברמת קוסם {n}'],
+  ac_grad_hat: ['A new hat: {hat}! Find it in the wardrobe.', 'כובע חדש: {hat}! חפשו אותו בארון הבגדים.'], ac_grad_gift: ['Gifts for your room: {items}. A certificate hangs on the wall.', 'מתנות לחדר שלכם: {items}. תעודה תלויה על הקיר.'],
+  wd_hat: ['Hat', 'כובע'], wd_nohat: ['No hat', 'בלי כובע'], ac_test_n: ['Test {n}', 'מבחן {n}'], ac_hat_lock: ['Pass Academy test {n} to get this hat.', 'עברו את מבחן האקדמיה {n} כדי לקבל את הכובע הזה.'], new_tag: ['new!', 'חדש!'],
   ac_conj_go: ['Conjure!', 'זמנו!'], ac_conj_num: ['Now solve the card and type its answer: the number of the item.', 'עכשיו פתרו את הקלף והקלידו את התשובה: מספר הפריט.'],
   ac_conj_say: ['Examiner {ex} says: conjure it!', 'הבוחן {ex} אומר: זמנו את זה!'],
   ac_conj_pick: ['Pick the card whose answer is the number of the item.', 'בחרו את הקלף שהתשובה שלו היא מספר הפריט.'],
@@ -2004,6 +2017,7 @@ function heroSVG(g, color, skinIn, hairIn, look) {
   const hat = f
     ? `<ellipse cx="60" cy="38" rx="40" ry="8.5" fill="${dark}"/><path d="M28 38 Q48 26 56 -6 Q62 -14 80 -2 Q72 8 80 20 Q86 30 94 38 Z" fill="${color}"/><path d="M28 37 Q60 47 92 37 L92 31 Q60 41 28 31 Z" fill="#e0b84a"/><rect x="55" y="30" width="10" height="9" rx="1.5" fill="none" stroke="${dark}" stroke-width="2"/>`
     : `<ellipse cx="60" cy="38" rx="35" ry="8" fill="${dark}"/><path d="M28 38 Q50 28 58 -4 Q62 -12 78 0 Q74 10 80 20 Q86 30 92 38 Z" fill="${color}"/><path d="M30 37 Q60 46 90 37 L90 32 Q60 41 30 32 Z" fill="#e0b84a"/><polygon points="60,16 62.6,22 69,22 64,26 66,32 60,28 54,32 56,26 51,22 57.4,22" fill="#ffd166"/>`;
+  const hatSvg = look.hat === -1 ? '' : look.hat >= 1 && look.hat <= 5 ? rankHat(look.hat, f) : hat;   // the Academy's rank hats (spec 08 §7): -1 no hat, 0 the plain hat, 1 to 5 a rank hat
   const vials = pots.slice(0, 5).map((id, k) => `<rect x="${44.8 + k * 6.4}" y="125" width="4.6" height="8" rx="2.2" fill="${POTION_COL[id] || '#999'}" stroke="#ffffff88" stroke-width=".5"/>`).join('');
   const strings = pots.slice(0, 5).map((id, k) => `M${47.1 + k * 6.4} 118 V125`).join(' ');
   // a crown takes the place of the basic hat (spec 06 §3: no hat on a hat)
@@ -2020,11 +2034,11 @@ function heroSVG(g, color, skinIn, hairIn, look) {
    <circle cx="60" cy="52" r="24" fill="${skin}"/>
    <ellipse cx="51" cy="50" rx="4.6" ry="5" fill="#fff"/><ellipse cx="69" cy="50" rx="4.6" ry="5" fill="#fff"/><circle cx="52" cy="51" r="2.6" fill="#2a2340"/><circle cx="70" cy="51" r="2.6" fill="#2a2340"/>
    <circle cx="43" cy="60" r="3.4" fill="${cheek}" opacity=".55"/><circle cx="77" cy="60" r="3.4" fill="${cheek}" opacity=".55"/><circle cx="60" cy="57" r="2.6" fill="${nose}"/>
-   <path d="M53 64 Q60 69 67 64" fill="none" stroke="${mouth}" stroke-width="2" stroke-linecap="round"/>${beard}${faceAcc}${brows}${lashes}${fringe}${has('ac_crown') ? '' : hat}${head}${pet}</svg>`;
+   <path d="M53 64 Q60 69 67 64" fill="none" stroke="${mouth}" stroke-width="2" stroke-linecap="round"/>${beard}${faceAcc}${brows}${lashes}${fringe}${has('ac_crown') ? '' : hatSvg}${head}${pet}</svg>`;
 }
 // spec 06 §4: a magic item can be hidden on the hero (👁️ off). Its effect in quests is not changed: only the drawing reads this.
 const shownItems = p => { const m = p.items || {}, s = p.showItem || {}; return { amulet: s.amulet === false ? 0 : (m.amulet || 0), staff: s.staff === false ? 0 : (m.staff || 0), belt: s.belt === false ? 0 : (m.belt || 0) }; };
-const heroOf = p => heroSVG(p.gender, p.color, p.skin, p.hair, { style: p.style, acc: p.acc, beard: p.beard, items: shownItems(p), pots: typeof POTION_IDS === 'undefined' ? [] : POTION_IDS.filter(id => ((p.pot || {})[id] || 0) + ((p.carry || {})[id] || 0) > 0) });
+const heroOf = p => heroSVG(p.gender, p.color, p.skin, p.hair, { style: p.style, acc: p.acc, beard: p.beard, hat: p.academy && p.academy.hat, items: shownItems(p), pots: typeof POTION_IDS === 'undefined' ? [] : POTION_IDS.filter(id => ((p.pot || {})[id] || 0) + ((p.carry || {})[id] || 0) > 0) });
 // Villagers are people emoji: a skin-tone modifier goes right after the FIRST code point (before any zero-width joiner), e.g. 👩🏽‍🌾. Tones are dealt from a shuffled bag so they are evenly spread.
 const TONE_MODS = ['🏻', '🏼', '🏽', '🏾', '🏿'];
 const tonedEmoji = (e, k) => { const cp = [...e]; return cp[0] + TONE_MODS[k % 5] + cp.slice(1).join(''); };
@@ -2293,10 +2307,10 @@ function askLookOnce() {   // existing heroes: one friendly, skippable question
 let WD = null, wdTab = 'robe';
 const wdChip = (key, id, emo, on, locked, price, extra = '') => `<button class="wdChip ${on ? 'on' : ''} ${locked ? 'lock' : ''}" data-k="${key}" data-id="${id}">${emo}${locked ? `<small>🔒 ${price}</small>` : ''}${extra}</button>`;
 function openWardrobe() {
-  G.quest = null; WD = { color: P.color, style: P.style || null, skin: P.skin || DEFAULT_SKIN, hair: P.hair || null, beard: P.beard || 'short', acc: Object.assign({}, P.acc), showItem: Object.assign({ amulet: true, staff: true, belt: true }, P.showItem) }; wdTab = 'robe'; show('wardrobe'); drawWardrobe();
+  G.quest = null; WD = { color: P.color, style: P.style || null, skin: P.skin || DEFAULT_SKIN, hair: P.hair || null, beard: P.beard || 'short', acc: Object.assign({}, P.acc), showItem: Object.assign({ amulet: true, staff: true, belt: true }, P.showItem), hat: (P.academy && P.academy.hat) || 0, newHat: (P.academy && P.academy.newHat) || null }; wdTab = 'robe'; show('wardrobe'); drawWardrobe();
 }
 function drawWardrobe() {
-  $('#wdPrev').innerHTML = heroSVG(P.gender, WD.color, WD.skin, WD.hair, { style: WD.style, acc: WD.acc, beard: WD.beard, items: shownItems({ items: P.items, showItem: WD.showItem }) });
+  $('#wdPrev').innerHTML = heroSVG(P.gender, WD.color, WD.skin, WD.hair, { style: WD.style, acc: WD.acc, beard: WD.beard, hat: WD.hat, items: shownItems({ items: P.items, showItem: WD.showItem }) });
   document.querySelectorAll('.wdTab').forEach(b => b.classList.toggle('on', b.dataset.tab === wdTab));
   const sw = (list, cur, key) => list.map((c, i) => `<button class="sw ${c === cur ? 'sel' : ''}" data-k="${key}" data-i="${i}" style="background:${c}" aria-label="${key}"></button>`).join('');
   const dot = c => `<span class="wdDot" style="background:${c}"></span>`;
@@ -2313,7 +2327,9 @@ function drawWardrobe() {
       return `<div class="wdMagicRow">${magicPic(s, itemVer(s))}<span class="wdMagicName"><b>${en}</b> <small>${verName(itemVer(s))}</small></span>
         <button class="wdChip ${on ? 'sel' : ''}" data-eye="${s}" aria-pressed="${on}">👁️ ${t(on ? 'wd_eye_on' : 'wd_eye_off')}</button></div>`; }).join('') : `<p class="wdWhy">${t('wd_magic_none')}</p>`);
   } else {
-    h = SLOTS.map(slot => `<div class="wdLbl">${t('slot_' + slot)}</div><div class="wdChips">${wdChip('acc-' + slot, '','<span class="wdEm">✖️</span>', !WD.acc[slot], false, 0, `<small>${t('none')}</small>`)}${ACCS.filter(a => a[1] === slot).map(a => { const own = P.wd.includes(a[0]); return wdChip('acc-' + slot, a[0], `<span class="wdEm">${a[4]}</span>`, WD.acc[slot] === a[0], !own, a[6]); }).join('')}</div>`).join('');
+    // the hats (spec 08 §7): No hat first, then the plain hat, then the rank hats; a hat that is not earned yet shows the test that opens it; a new one is marked
+    const hats = !CFG.ACADEMY ? '' : `<div class="wdLbl">${t('wd_hat')}</div><div class="wdChips">${wdChip('hat', 'n', '<span class="wdEm">✖️</span>', WD.hat === -1, false, 0, `<small>${t('wd_nohat')}</small>`)}${wdChip('hat', '0', hatIcon(0, 40), WD.hat === 0, false, 0)}${[1, 2, 3, 4, 5].map(n => wdChip('hat', String(n), hatIcon(n, 40), WD.hat === n, n > acadPassed(), t('ac_test_n', { n }), WD.newHat === n ? `<small class="newTag">${t('new_tag')}</small>` : '')).join('')}</div>`;
+    h = hats + SLOTS.map(slot => `<div class="wdLbl">${t('slot_' + slot)}</div><div class="wdChips">${wdChip('acc-' + slot, '','<span class="wdEm">✖️</span>', !WD.acc[slot], false, 0, `<small>${t('none')}</small>`)}${ACCS.filter(a => a[1] === slot).map(a => { const own = P.wd.includes(a[0]); return wdChip('acc-' + slot, a[0], `<span class="wdEm">${a[4]}</span>`, WD.acc[slot] === a[0], !own, a[6]); }).join('')}</div>`).join('');
   }
   $('#wdBody').innerHTML = h;
 }
@@ -2331,13 +2347,14 @@ $('#wardrobe').onclick = e => {
   const ch = e.target.closest('.wdChip');
   if (ch) {
     const k = ch.dataset.k, id = ch.dataset.id;
+    if (k === 'hat') { const n = id === 'n' ? -1 : +id; if (n > acadPassed()) toast(t('ac_hat_lock', { n })); else WD.hat = n; drawWardrobe(); return; }   // a hat the student has not earned says which test opens it
     if (id && !P.wd.includes(id)) { toast(t('wd_lock', { p: SHOP[id].price })); return; }
     if (k === 'style') WD.style = id ? ROBE_STYLES.find(s => s[0] === id)[1] : null;
     else { const slot = k.slice(4); if (id) WD.acc[slot] = id; else delete WD.acc[slot]; }
     drawWardrobe(); return;
   }
 };
-$('#wdSave').onclick = () => { P.color = WD.color; P.style = WD.style; P.skin = WD.skin; P.hair = WD.hair; P.beard = WD.beard; P.acc = WD.acc; P.showItem = WD.showItem; saveSoon(true); toast(t('wd_saved')); openHome(); };
+$('#wdSave').onclick = () => { P.color = WD.color; P.style = WD.style; P.skin = WD.skin; P.hair = WD.hair; P.beard = WD.beard; P.acc = WD.acc; P.showItem = WD.showItem; if (CFG.ACADEMY) { acadS().hat = WD.hat; acadS().newHat = null; } saveSoon(true); toast(t('wd_saved')); openHome(); };
 $('#wdBack').onclick = () => openHome();
 /* ----- install as an app (works from Chrome on Android) and keep a saved copy for offline play ----- */
 let installEvt = null;
@@ -4666,12 +4683,15 @@ function acadFinish(early) {
   if (ACQ.practice) return acadPracticeEnd();
   acadApplyFacts();
   const k = ACQ.k, pass = ACQ.right >= ACQ.need, pct = ACQ.right / ACQ.Q;
-  const medal = pct >= 0.93 ? t('ac_gold') : pct >= 0.87 ? t('ac_silver') : t('ac_bronze');
   ACQ.phase = 'result';
   if (pass) {   // a pass: the next test opens, the level bar turns into the level of the tier's top + 1, and the rank rises by one
-    const S = acadS(); S.passed = k + 1; S.certs.push({ test: k + 1, right: ACQ.right, q: ACQ.Q, medal: pct >= 0.93 ? 'gold' : pct >= 0.87 ? 'silver' : 'bronze', date: today() });
-    P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k) + 1)); saveSoon(true); sfx.win(); confetti(['🎓', '✨', '⭐']);
-    ACQ.text = t('ac_pass', { r: ACQ.right, q: ACQ.Q, medal, title: tl(ACAD_RANK[k]) });
+    // one action sets it all (spec 08 §1, §7): the rank, the level, the spell tier, the certificate, the new hat (offered, not put on) and the gifts
+    const S = acadS(), cert = { test: k + 1, right: ACQ.right, q: ACQ.Q, medal: pct >= 0.93 ? 'gold' : pct >= 0.87 ? 'silver' : 'bronze', date: today() };
+    S.passed = k + 1; S.certs.push(cert); S.newHat = k + 1;
+    P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k) + 1));   // the banked XP turns into levels at once: the cap lifts with the pass
+    const gifts = acadGrant(k), sp = acadNewSpells(k);
+    saveSoon(true); sfx.win(); confetti(['🎓', '✨', '⭐']);
+    ACQ.text = acadGradHtml(cert, gifts, sp);   // the graduation window
     ACQ.buttons = [[t('ac_cont'), 'close']];
   } else {
     ACQ.text = (early ? t('ac_enough') + ' ' : '') + t('ac_fail', { r: ACQ.right, q: ACQ.Q, n: ACQ.need });
@@ -5430,7 +5450,7 @@ function rmSetup() {
     const up = () => {
       el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
       el.classList.remove('drag'); rmDragging = false;
-      if (moved) saveSoon(true); else { const d = SHOP[id]; toast(`${d.em} ${nameOf(d)}`); if (findHeVoice()) playSound({ say: d.he }); }
+      if (moved) saveSoon(true); else if (/^c_cert\d$/.test(id)) openCert(+id.slice(6)); else { const d = SHOP[id]; toast(`${d.em} ${nameOf(d)}`); if (findHeVoice()) playSound({ say: d.he }); }
     };
     el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   });
@@ -5474,7 +5494,7 @@ function renderRoom(disp) {   // disp = the ingredient counts to show (they fill
   rmShown(disp).slice(0, 6).forEach((id, i) => H.push(`<div class="rJar jarbox" data-jar="${id}" style="left:${JAR_SLOTS[i][0]}%;top:${JAR_SLOTS[i][1] * 1.25}%">${jarInner(id, disp[id])}</div>`));
   for (const id of Object.keys(ROOM_ITEMS)) {
     if (!P.own.decor.includes(id)) continue; const it = ROOM_ITEMS[id], d = SHOP[id], p = rmPos(id);
-    const inner = it.t === 'rug' ? '<div class="rRug"></div>' : FURN_ART[id] ? `<span class="shadow"></span><span class="art">${FURN_ART[id]()}</span>` : it.t === 'floor' ? `<span class="shadow"></span><span class="em">${d.em}</span>` : `<span class="em">${d.em}</span>`;   // furniture: a big drawing
+    const inner = it.t === 'rug' ? `<div class="rRug${id === 'r_rug' ? ' glow' : ''}"></div>` : FURN_ART[id] ? `<span class="shadow"></span><span class="art">${FURN_ART[id]()}</span>` : it.t === 'floor' ? `<span class="shadow"></span><span class="em">${d.em}</span>` : `<span class="em">${d.em}</span>`;   // furniture: a big drawing
     H.push(`<div class="prop ${it.t === 'wall' ? 'wall' : 'floor'} ${it.t === 'rug' ? 'rugwrap' : ''}" data-id="${id}" aria-label="${t('drag_aria', { n: nameOf(d) })}" style="--x:${p.x};--y:${p.y};--base:${it.b || 8};--s:${rmScale(id, p.y)};--z:${rmZ(id, p.y)}">${inner}</div>`);
   }
   if (wizLvl() >= CFG.MANUAL_FROM || P.manual === 'home') H.push(`<button class="rManual${P.manual === 'home' ? '' : ' gone'}" id="manualShelf" aria-label="${t('manual_t')}" title="${t('manual_t')}" style="left:39.4%;top:${41 * 1.25}%"><span>📕</span></button>`);   // the monster manual's place on the shelf
@@ -5986,6 +6006,104 @@ for (const [id, hex, he, nk, em, en] of ROBE_EXTRA) SHOP[id] = { id, kind: 'wear
 for (const [id, style, he, nk, em, en, price] of ROBE_STYLES) SHOP[id] = { id, kind: 'wear', wtype: 'style', style, he, nk, em, en: en + ' robe', price };
 for (const [id, slot, he, nk, em, en, price] of ACCS) SHOP[id] = { id, kind: 'wear', wtype: 'acc', slot, he, nk, em, en, price };
 const owns = s => s.kind === 'caul' ? (P.own.caul || 0) >= s.lv : s.kind === 'decor' ? P.own.decor.includes(s.id) : s.kind === 'wear' ? P.wd.includes(s.id) : false;
+/* ----- The Academy's rewards (spec 08 §7): the five rank hats (each more detailed than the one before), the certificate, and the gifts for the home room ----- */
+const ACAD_HAT_NAMES = [['Rune Hat', 'כובע רונות'], ['Storm Hat', 'כובע סערה'], ['Star Hat', 'כובע כוכבים'], ['Eclipse Hat', 'כובע ליקוי'], ['High Sorcerer’s Crown', 'כתר הקוסם העליון']];
+// the gifts for the room, by test (spec 08 §7): decorations that share the room's own decoration list (they are given, never sold)
+const ACAD_GIFTS = [['r_monsters', 'r_lamp'], ['r_ball'], ['r_rug'], ['r_wheel'], ['r_statue']];
+const ACAD_GIFT_NAMES = { r_monsters: ['Book-of-monsters shelf', 'מדף ספר המפלצות'], r_lamp: ['Reading lamp', 'מנורת קריאה'], r_ball: ['Crystal ball', 'כדור קריסטל'], r_rug: ['Glowing rug', 'שטיח זוהר'], r_wheel: ['Fraction wheel', 'גלגל השברים'], r_statue: ['Golden statue', 'פסל זהב'] };
+const ACAD_MEDAL = { gold: ['#ffe066', '#c9961a'], silver: ['#f1f4f8', '#9aa4b2'], bronze: ['#f0b27a', '#a05a22'] };
+// the rank hat n (1 to 5), drawn on the hero's head in the shape of the plain hat; the higher the rank, the more detail (the last one glows softly, without pulsing)
+function rankHat(n, f) {
+  const rx = f ? 40 : 35, ry = f ? 8.5 : 8, cone = f ? 'M28 38 Q48 26 56 -6 Q62 -14 80 -2 Q72 8 80 20 Q86 30 94 38 Z' : 'M28 38 Q50 28 58 -4 Q62 -12 78 0 Q74 10 80 20 Q86 30 92 38 Z';
+  const band = f ? 'M28 37 Q60 47 92 37 L92 31 Q60 41 28 31 Z' : 'M30 37 Q60 46 90 37 L90 32 Q60 41 30 32 Z', tip = f ? [68, -10] : [66, -8];
+  const star = (x, y, r, c) => `<path d="M${x} ${y - r}L${x + r * .3} ${y - r * .3}L${x + r} ${y}L${x + r * .3} ${y + r * .3}L${x} ${y + r}L${x - r * .3} ${y + r * .3}L${x - r} ${y}L${x - r * .3} ${y - r * .3}Z" fill="${c}"/>`;
+  const trim = c => `<ellipse cx="60" cy="38" rx="${rx}" ry="${ry}" fill="none" stroke="${c}" stroke-width="1.8"/>`;
+  const base = (coneC, brimC, bandC) => `<ellipse cx="60" cy="38" rx="${rx}" ry="${ry}" fill="${brimC}"/><path d="${cone}" fill="${coneC}"/><path d="${band}" fill="${bandC}"/>`;
+  if (n === 1) return base('#3fa05e', '#2a6b40', '#2f8a4c') + trim('#e0b84a')
+    + `<path d="M46 35v6M46 36l3 2M60 35v6M57 37h6M74 35v6M72 36l4 4" stroke="#ffd166" stroke-width="1.5" fill="none" stroke-linecap="round"/>`
+    + `<path d="M61 9v16M61 13l6 4M61 19l6 4" stroke="#ffd166" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="${tip[0]}" cy="${tip[1]}" r="2.6" fill="#ffd166"/>`;
+  if (n === 2) return base('#6b7a8f', '#55627a', '#5a6880') + trim('#d5dbe6')
+    + `<path d="M34 38L40 33L45 39L51 33L56 39L62 33L67 39L73 33L78 39L84 34" stroke="#ffe14d" stroke-width="2" fill="none" stroke-linejoin="round"/>`
+    + `<path d="M64 8l-7 10h5l-3 9l9-12h-5z" fill="#ffd166" stroke="#b8860b" stroke-width=".7"/>` + [[50, 22], [72, 24], [56, 3], [72, 8], [48, 31]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.4" fill="#e6ebf2"/>`).join('');
+  if (n === 3) return base('#4a2a8a', '#35206a', '#cfd6e8') + trim('#aab2c8')
+    + `<path d="M32 37Q60 45 88 37" stroke="#e0b84a" stroke-width="1.8" fill="none"/>` + star(55, 21, 5.5, '#dfe5f2') + star(68, 10, 3.6, '#dfe5f2') + star(48, 29, 2.6, '#dfe5f2')
+    + `<path d="M55 43A6 6 0 1 0 66 43A4.6 4.6 0 1 1 55 43Z" fill="#ffd166"/><circle cx="${tip[0]}" cy="${tip[1]}" r="3" fill="#dfe5f2"/>`;
+  if (n === 4) return base('#15131f', '#0c0b14', '#e8a21a') + trim('#e8a21a')
+    + `<path d="M40 34v5M40 36l3 2M52 35v5M49 37h6M66 34v5M64 36l4 3M80 35v5" stroke="#1a1424" stroke-width="1.5" fill="none" stroke-linecap="round"/>`
+    + `<circle cx="62" cy="16" r="6" fill="#0c0b14" stroke="#e8a21a" stroke-width="2"/>` + Array.from({ length: 8 }, (_, i) => { const a = i * Math.PI / 4; return `<path d="M${(62 + Math.cos(a) * 8.5).toFixed(1)} ${(16 + Math.sin(a) * 8.5).toFixed(1)}L${(62 + Math.cos(a) * 12).toFixed(1)} ${(16 + Math.sin(a) * 12).toFixed(1)}" stroke="#e8a21a" stroke-width="1.4" stroke-linecap="round"/>`; }).join('')
+    + `<circle cx="${tip[0]}" cy="${tip[1]}" r="2.8" fill="#e8a21a"/>`;
+  return `<circle cx="${tip[0]}" cy="${tip[1] + 4}" r="17" fill="#ffe08a" opacity=".22"/>` + base('#1c2a6a', '#121c4a', '#e0b84a') + trim('#ffd166')
+    + `<path d="M45 33L47 14L54 22L60 9L66 22L73 14L75 33Z" fill="#ffd166" stroke="#b8860b" stroke-width="1"/><circle cx="47.5" cy="15" r="2.2" fill="#e53935"/><circle cx="60" cy="11" r="2.4" fill="#2b7bff"/><circle cx="72.5" cy="15" r="2.2" fill="#2ecc71"/>`
+    + star(tip[0] + 10, tip[1] + 2, 3.4, '#fff6b0') + star(tip[0] - 8, tip[1] - 6, 2.6, '#fff6b0') + star(tip[0] + 2, tip[1] - 11, 2.2, '#fff6b0');
+}
+// the hat on its own, for the wardrobe chips and the graduation window (n = 0 is the plain hat)
+const hatIcon = (n, w = 44) => `<svg viewBox="20 -22 80 72" width="${w}" height="${Math.round(w * .9)}" aria-hidden="true">${n >= 1 ? rankHat(n, false) : `<ellipse cx="60" cy="38" rx="35" ry="8" fill="#4a3070"/><path d="M28 38 Q50 28 58 -4 Q62 -12 78 0 Q74 10 80 20 Q86 30 92 38 Z" fill="#6b3fa8"/><path d="M30 37 Q60 46 90 37 L90 32 Q60 41 30 32 Z" fill="#e0b84a"/>`}</svg>`;
+// the certificate, full size: a parchment with the rank, the student's name, the date and the medal seal
+function certHtml(c) {
+  const m = ACAD_MEDAL[c.medal] || ACAD_MEDAL.bronze;
+  return `<div class="cert"><div class="certTop">${t('cert_t')}</div><div class="certRank">${tl(ACAD_RANK[c.test - 1])}</div><div class="certName">${esc(P.nick)}</div>
+    <div class="certLine">${t('cert_line', { r: c.right, q: c.q })}</div><div class="certDate">${esc(c.date)}</div>
+    <div class="certSeal" style="background:radial-gradient(circle at 35% 30%,${m[0]},${m[1]})"><span>★</span></div></div>`;
+}
+function openCert(n) {
+  const c = acadS().certs.find(x => x.test === n); if (!c) return;
+  modal(t('cert_t'), certHtml(c), [[t('close'), null]]);
+}
+// the certificate on the home wall: a small parchment with the medal seal
+const certThumb = n => { const c = (acadS().certs || []).find(x => x.test === n), m = ACAD_MEDAL[(c && c.medal) || 'bronze'];
+  return `<svg viewBox="0 0 60 46" aria-hidden="true"><rect x="3" y="3" width="54" height="40" rx="3" fill="#f6e7c0" ${OL}/><rect x="7" y="7" width="46" height="32" rx="2" fill="none" stroke="#b8975a" stroke-width="1"/>
+    <path d="M14 15H46M18 20H42" stroke="#8a6a3a" stroke-width="2" stroke-linecap="round"/><path d="M20 26H40" stroke="#b8975a" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M38 36L36 44L41 41L46 44L44 36Z" fill="${m[1]}"/><circle cx="41" cy="33" r="7" fill="${m[0]}" stroke="${m[1]}" stroke-width="1.4"/><path d="M41 28.5l1.4 3 3.2.4-2.4 2.2.7 3.2-2.9-1.7-2.9 1.7.7-3.2-2.4-2.2 3.2-.4z" fill="${m[1]}"/></svg>`; };
+// the gifts: decorations with their own drawings (they stand on the floor or hang on the wall, and can be dragged like the rest)
+FURN_ART.r_monsters = () => `<svg viewBox="0 0 64 46" aria-hidden="true"><rect x="2" y="34" width="60" height="8" rx="2" fill="#7a4d27" ${OL}/><rect x="6" y="40" width="5" height="5" fill="#5e3a1d"/><rect x="53" y="40" width="5" height="5" fill="#5e3a1d"/>
+  <rect x="6" y="10" width="9" height="24" rx="1" fill="#6a4bd0" ${OL}/><rect x="16" y="6" width="9" height="28" rx="1" fill="#c0392b" ${OL}/><rect x="26" y="12" width="9" height="22" rx="1" fill="#2f9e6a" ${OL}/>
+  <rect x="36" y="8" width="11" height="26" rx="1" fill="#e8d3b0" ${OL}/><circle cx="41.5" cy="18" r="3.6" fill="#fff" stroke="#2b1a0e"/><circle cx="41.5" cy="18" r="1.5" fill="#2b1a0e"/><path d="M37 26q4.5 3 9 0" stroke="#2b1a0e" stroke-width="1.2" fill="none"/>
+  <path d="M38 8l1.5-4 2 3 2-3 1.5 4" fill="#c0392b" ${OL}/><rect x="49" y="14" width="8" height="20" rx="1" fill="#e0b84a" ${OL}/></svg>`;
+FURN_ART.r_lamp = () => `<svg viewBox="0 0 40 84" aria-hidden="true"><ellipse cx="20" cy="80" rx="13" ry="3.6" fill="#4a2f1a" ${OL}/><rect x="18" y="34" width="4" height="46" fill="#8a5a2b" ${OL}/>
+  <circle cx="20" cy="30" r="22" fill="#ffd166" opacity=".22"/><path d="M6 32L11 8H29L34 32Z" fill="#ffd98a" ${OL}/><path d="M11 8H29L28 14H12Z" fill="#ffe9b0"/><circle cx="20" cy="30" r="4" fill="#fff3c4"/></svg>`;
+FURN_ART.r_ball = () => `<svg viewBox="0 0 50 58" aria-hidden="true"><path d="M12 56H38L34 46H16Z" fill="#6a4bd0" ${OL}/><rect x="10" y="52" width="30" height="5" rx="2" fill="#4a3399" ${OL}/>
+  <circle cx="25" cy="26" r="21" fill="#8fd0ff" fill-opacity=".55" ${OL}/><circle cx="25" cy="26" r="21" fill="url(#rBall)"/><defs><radialGradient id="rBall" cx=".35" cy=".3"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".5" stop-color="#9b7bff" stop-opacity=".35"/><stop offset="1" stop-color="#3a2a8a" stop-opacity=".5"/></radialGradient></defs>
+  <path d="M25 14l2.2 5.6 5.8.4-4.5 3.7 1.5 5.7-5-3.2-5 3.2 1.5-5.7-4.5-3.7 5.8-.4z" fill="#fff6b0"/><ellipse cx="16" cy="14" rx="4.5" ry="2.8" fill="#fff" opacity=".6" transform="rotate(-30 16 14)"/></svg>`;
+FURN_ART.r_wheel = () => { const cols = ['#e53935', '#fb8c00', '#fdd835', '#43a047', '#1e88e5', '#8e24aa', '#ec407a', '#26a69a'];
+  return `<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="27" fill="#f6efe0" ${OL}/>${cols.map((c, i) => { const a0 = i * Math.PI / 4 - Math.PI / 2, a1 = (i + 1) * Math.PI / 4 - Math.PI / 2; return `<path d="M30 30L${(30 + Math.cos(a0) * 24).toFixed(1)} ${(30 + Math.sin(a0) * 24).toFixed(1)}A24 24 0 0 1 ${(30 + Math.cos(a1) * 24).toFixed(1)} ${(30 + Math.sin(a1) * 24).toFixed(1)}Z" fill="${c}" stroke="#2b1a0e" stroke-width=".9"/>`; }).join('')}<circle cx="30" cy="30" r="5" fill="#fff" ${OL}/><text x="30" y="33" font-size="7" text-anchor="middle" font-weight="700" fill="#2b1a0e">⅛</text></svg>`; };
+FURN_ART.r_statue = () => { const hero = heroSVG(P.gender, '#e0b84a', '#f0cf6a', '#fff1b0', { beard: P.beard, pots: [] }).replace('<svg ', '<svg x="6" y="0" width="58" height="96" ');
+  return `<svg viewBox="0 0 70 124" aria-hidden="true"><path d="M8 122H62L58 100H12Z" fill="#6b5a3a" ${OL}/><rect x="14" y="94" width="42" height="9" rx="2" fill="#8a7448" ${OL}/>${hero}<circle cx="35" cy="40" r="30" fill="#ffd166" opacity=".14"/></svg>`; };
+for (let i = 1; i <= 5; i++) FURN_ART['c_cert' + i] = () => certThumb(i);
+// [id, Hebrew, English, emoji, where it goes (floor / wall / rug), size, x, y]
+for (const [id, he, en, em, ty, b, x, y] of [['r_monsters', 'מדף ספר המפלצות', 'book-of-monsters shelf', '📚', 'wall', 9, 14, 31], ['r_lamp', 'מנורת קריאה', 'reading lamp', '💡', 'floor', 5.5, 12, 66], ['r_ball', 'כדור קריסטל', 'crystal ball', '🔮', 'floor', 5.5, 91, 66],
+  ['r_rug', 'שטיח זוהר', 'glowing rug', '🧶', 'rug', 0, 50, 79], ['r_wheel', 'גלגל השברים', 'fraction wheel', '🎡', 'wall', 8, 86, 30], ['r_statue', 'פסל זהב', 'golden statue', '🏆', 'floor', 8, 8, 78],
+  ...[1, 2, 3, 4, 5].map(n => ['c_cert' + n, 'תעודה ' + n, 'certificate ' + n, '📜', 'wall', 6.5, 36 + (n - 1) * 8, 22])]) {
+  SHOP[id] = { id, kind: 'decor', big: true, he, nk: he, em, en, price: 0 }; ROOM_ITEMS[id] = ty === 'rug' ? { t: 'rug', x, y } : { t: ty, b, x, y };
+}
+// a pass: the gifts for the room and the certificate go on the list of what the student owns (once)
+function acadGrant(k) {
+  const got = [...ACAD_GIFTS[k], 'c_cert' + (k + 1)];
+  P.own.decor = P.own.decor || []; got.forEach(id => { if (!P.own.decor.includes(id)) P.own.decor.push(id); });
+  return ACAD_GIFTS[k];
+}
+// the spells a test opens (its tier), for the graduation window: the ones the student can learn now are learned; the others say what they wait for
+function acadNewSpells(k) {
+  const tier = SB.SPELLS.filter(s => SB.testNeed(s) === k + 1), b = SB.book(P.mlvl || 1, wizLvl(), P.spells, tiersArg()), now = [], wait = [];
+  for (const s of tier) (b.learned.includes(s) ? now : wait).push(s);
+  const fresh = b.learned.filter(s => !P.spells.includes(s.id));
+  if (fresh.length) { P.spells = P.spells.concat(fresh.map(s => s.id)); P.newSeen = (P.newSeen || []).concat(fresh.map(s => s.id)); }
+  const num = (a, c) => ME.num(a.v) - ME.num(c.v);
+  return { now: now.sort(num), wait: wait.sort(num) };
+}
+// the graduation window (spec 08 §7): the wizard with the new hat, the certificate, the examiner reading the result, the new rank, and what unlocked
+function acadGradHtml(c, gifts, sp) {
+  const k = c.test - 1, medal = t('ac_' + c.medal), m = ACAD_MEDAL[c.medal];
+  const hero = heroSVG(P.gender, P.color, P.skin || DEFAULT_SKIN, P.hair, { style: P.style, acc: P.acc, beard: P.beard, hat: k + 1, items: shownItems(P) });
+  const chip = s => `<span class="gSp">${ME.fmtHtml(s.v)} <small>${tl(s.nm)}</small></span>`;
+  const wait = s => `<span class="gSp wait">${ME.fmtHtml(s.v)} <small>${tl(s.nm)}</small> <i>${P.mlvl < s.mreq ? t('ac_grad_mlvl', { n: s.mreq }) : t('ac_grad_wlvl', { n: s.greq })}</i></span>`;
+  return `<div class="grad"><div class="gradTop"><div class="gradHero">${hero}</div><div class="gradCert">${certHtml(c)}</div></div>
+    <p class="gradSay"><b>${ACAD_EXAMINER(k)}:</b> ${t('ac_grad_say', { r: c.right, q: c.q, medal: `<span class="medalWord" style="background:${m[0]};border-color:${m[1]}">${medal}</span>` })}</p>
+    <p class="gradNow">${t('ac_grad_now', { title: tl(ACAD_RANK[k]) })}</p>
+    ${sp.now.length ? `<p class="gradH">${t('ac_grad_spells')}</p><div class="gSpells">${sp.now.map(chip).join('')}</div>` : ''}
+    ${sp.wait.length ? `<p class="gradH">${t('ac_grad_wait')}</p><div class="gSpells">${sp.wait.map(wait).join('')}</div>` : ''}
+    <p class="gradHat">${hatIcon(k + 1, 40)} ${t('ac_grad_hat', { hat: tl(ACAD_HAT_NAMES[k]) })}</p>
+    <p class="gradGift">${t('ac_grad_gift', { items: gifts.map(id => tl(ACAD_GIFT_NAMES[id])).join(', ') })}</p></div>`;
+}
 function whyNot(s) {   // why this item cannot be bought right now ('' = it can)
   if (owns(s)) return t('have_it');
   if (s.kind === 'caul' && s.lv > (P.own.caul || 0) + 1) return t('buy_iron_first');
