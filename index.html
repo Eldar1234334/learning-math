@@ -148,6 +148,8 @@ body.noAnim .hFlame,body.noAnim .hTail{animation:none}@media (prefers-reduced-mo
 .hPicks{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;max-height:54vh;overflow:auto}
 .hPick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border-radius:12px;background:#ffffff1c;border:2px solid transparent;color:#fff;font:inherit;cursor:pointer}.hPick.on{border-color:#ffd166}.hPick .hThumb{display:block;width:64px;height:48px;line-height:48px;font-size:1.4rem;text-align:center}.hPick .hThumb svg{width:100%;height:100%}.hPick b{font-size:.78rem;text-align:center}
 .hCols{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.hCol{height:54px;border-radius:12px;border:3px solid transparent;color:#fff;font:inherit;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;text-shadow:0 1px 3px #000a}.hCol.on{border-color:#ffd166}.hCol.lock{opacity:.55}.hCol small{font-size:.66rem}
+.hKinds{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin-bottom:6px;-webkit-overflow-scrolling:touch}.hKind{flex:none;padding:5px 10px;border-radius:14px;border:2px solid #ffffff40;background:#ffffff14;color:#fff;font:inherit;font-size:.82rem;cursor:pointer;white-space:nowrap}.hKind.on{border-color:#ffd166;background:#ffd16626}
+.shHArt{display:block;width:calc(var(--u)*5.4);height:calc(var(--u)*4.6);line-height:0}.shHArt svg{display:block;width:100%;height:100%}.hShopArt svg,.shFurnBig svg{display:block;width:100%;height:auto;max-height:100%}
 .newTag{color:#ffd166;font-weight:700}.rRug.glow{background:radial-gradient(ellipse,#fff3b0 0 10%,#2fc7b8 11% 34%,#fff3b0 35% 40%,#7a5cff 41% 66%,#fff3b0 67% 70%,#2fc7b8 71%);box-shadow:0 0 calc(var(--u)*2.2) #7af3e0cc,0 calc(var(--u)*.5) calc(var(--u)*.8) #0006}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
@@ -1581,6 +1583,8 @@ const STR = {
   manual_is_home: ['Your monster manual is at home: the fights show no weaknesses, and you carry one more potion.', 'ספר המפלצות נמצא בבית: בקרבות לא מופיעות נקודות התורפה, ואתם לוקחים שיקוי אחד נוסף.'],
   manual_deal: ['Without the manual you can carry {n} potions on a quest.', 'בלי הספר אפשר לקחת {n} שיקויים למסע.'], manual_quest: ['Finish or leave your quest first, then you can change this.', 'קודם סיימו או עזבו את המסע, ואז אפשר לשנות.'],
   recipe_rank: ['Opens at rank {n} ({name})', 'נפתח בדרגה {n} ({name})'],
+  home_shop_t: ['🏠 Home', '🏠 לבית'], home_shop_tip: ['Things for your room. Buy them here, then tap a place at Home to put them there. Higher ranks open cooler things.', 'דברים לחדר שלכם. קונים אותם כאן, ואז מקישים על מקום בבית כדי לשים אותם שם. דרגות גבוהות פותחות דברים מגניבים יותר.'],
+  opens_math: ['Opens at math level {n}', 'נפתח ברמת חשבון {n}'],
   slot_aria: ['{k}: {n} (tap to change)', '{k}: {n} (הקישו כדי להחליף)'], slot_empty_aria: ['An empty place for a {k}. Tap to choose one.', 'מקום פנוי ל{k}. הקישו כדי לבחור.'],
   slot_pick_t: ['Choose a {k}', 'בחרו {k}'], slot_empty: ['Empty', 'ריק'], slot_none: ['You have no {k} yet. Buy some in the shop 🏪', 'עוד אין לכם {k}. אפשר לקנות בחנות 🏪'],
   wall_btn: ['🎨 Wall colour', '🎨 צבע הקיר'], floor_btn: ['🟫 Floor colour', '🟫 צבע הרצפה'], cert_wait: ['The certificate of Academy test {n} will hang here.', 'התעודה של מבחן האקדמיה {n} תיתלה כאן.'],
@@ -5183,7 +5187,7 @@ const pouchSize = () => CFG.POUCH + (P && P.manual === 'home' ? 1 : 0) + (booksH
    for one more potion in the pouch. The books are then not available during a quest (the map and Home still show them). The student may also choose, at each
    test from that level, whether to take the books to the test; a student who does not gets a special note on the certificate. */
 const booksHome = () => !!(CFG.ACADEMY && P && P.books === 'home');
-const booksOffered = () => !!(CFG.ACADEMY && P && (wizLvl() >= CFG.BOOKS_FROM || P.books === 'home'));
+const booksOffered = () => !!(CFG.ACADEMY && P && (acadPassed() >= 3 || P.books === 'home'));   // the book shelves open at rank 3 (spec 13 §3.3)
 const booksLocked = () => booksHome() && (G.quest === 'battle' || G.quest === 'peace') && !(ACQ && ACQ.onGame);   // on a quest, with the books on the shelf
 const testNoBook = () => !!(ACQ && ACQ.onGame && !ACQ.book);   // a test taken without the books
 function applyBookLock() { const hide = booksLocked() || testNoBook(); document.querySelectorAll('.bookBtn').forEach(b => { b.style.display = hide ? 'none' : ''; }); }
@@ -5384,9 +5388,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book'
 const GIFTS = { 4: 'decor', 17: 'decor', 23: 'decor', 27: 'decor', 19: 'wear', 24: 'wear', 26: 'wear', 28: 'wear' };   // the other gap levels give a title (TITLES)
 function giveGift(lv) {   // a free decoration or wardrobe item the student does not own yet (coins if they own them all); once per level
   P.gifts = P.gifts || {}; if (P.gifts[lv]) return '';
-  const kind = GIFTS[lv], free = Object.values(SHOP).filter(s => s.kind === kind && !s.big && !owns(s)), s = free.length ? rnd(free) : null;
+  const kind = GIFTS[lv], want = kind === 'decor' ? 'home' : kind, free = Object.values(SHOP).filter(s => s.kind === want && !s.big && !owns(s) && (kind !== 'decor' || HM.ITEMS[s.id].tier === 0)), s = free.length ? rnd(free) : null;   // a free decoration is an item for the Home room (spec 13)
   if (!s) { P.coins = (P.coins || 0) + 50; P.gifts[lv] = 'coins'; return t('un_gift_coins'); }
-  if (kind === 'decor') P.own.decor.push(s.id); else P.wd.push(s.id);
+  if (kind === 'decor') HM.give(homeOf(), s.id); else P.wd.push(s.id);
   P.gifts[lv] = s.id; return t('un_gift', { em: s.em, name: nameOf(s) }) + t(kind === 'decor' ? 'bought_decor' : 'bought_wear');
 }
 function wizUnlocks(from, to) {
@@ -6181,11 +6185,12 @@ const FURN_IDS = FURN.map(f => f[0]);
 const catalogSVG = () => `<svg viewBox="0 0 60 40" aria-hidden="true"><path d="M4 30 L30 36 L56 30 L56 6 L30 12 L4 6Z" fill="#7a2a3a" ${OL}/><path d="M30 12 V36" stroke="#2b1a0e" stroke-width="1.3"/>
   <path d="M7 9 L28 14 V32 L7 27Z" fill="#f3e6c4"/><path d="M53 9 L32 14 V32 L53 27Z" fill="#f3e6c4"/><path d="M10 22 h14 v4 h-14z M12 18 h10 v4 h-10z" fill="#6a4bd0"/><path d="M36 18 q5 -5 12 -2 v8 q-7 -2 -12 2z" fill="#c58f58"/><path d="M41 20 h4" stroke="#2b1a0e"/></svg>`;
 const DECOR = Object.values(SHOP).filter(s => s.kind === 'decor' && !s.big);   // the daily shelves (furniture is in the catalog)
+// the Home room's items (spec 13) are sold like any shop item (the checkout task, the daily sale); a bought item goes into the collection, and the student places itconst HOME_EM = { sofa: '🛋️', table: '🍽️', chair: '🪑', desk: '📝', bed: '🛏️', fireplace: '🔥', rug: '🧶', window: '🪟', curtains: '🪟', picture: '🖼️', clock: '🕰️', banner: '🚩', mirror: '🪞', lamp: '💡', plant: '🪴', pet: '🐈', trinket: '🏺', light: '💡', statue: '🏆' };for (const it of Object.values(HM.ITEMS)) if (it.buy) SHOP[it.id] = { id: it.id, kind: 'home', price: it.price, he: it.he, nk: it.he, en: it.en, em: HOME_EM[it.kind] || '🏠' };
 // wardrobe items in the shop
 for (const [id, hex, he, nk, em, en] of ROBE_EXTRA) SHOP[id] = { id, kind: 'wear', wtype: 'robe', hex, he, nk, em, en: en + ' robe', price: 30 };
 for (const [id, style, he, nk, em, en, price] of ROBE_STYLES) SHOP[id] = { id, kind: 'wear', wtype: 'style', style, he, nk, em, en: en + ' robe', price };
 for (const [id, slot, he, nk, em, en, price] of ACCS) SHOP[id] = { id, kind: 'wear', wtype: 'acc', slot, he, nk, em, en, price };
-const owns = s => s.kind === 'caul' ? (P.own.caul || 0) >= s.lv : s.kind === 'decor' ? P.own.decor.includes(s.id) : s.kind === 'wear' ? P.wd.includes(s.id) : false;
+const owns = s => s.kind === 'caul' ? (P.own.caul || 0) >= s.lv : s.kind === 'home' ? HM.count(homeOf(), s.id) > 0 && !HM.KIND[HM.ITEMS[s.id].kind].multi : s.kind === 'decor' ? P.own.decor.includes(s.id) : s.kind === 'wear' ? P.wd.includes(s.id) : false;
 /* ----- The Academy's rewards (spec 08 §7): the five rank hats (each more detailed than the one before), the certificate, and the gifts for the home room ----- */
 const ACAD_HAT_NAMES = [['Rune Hat', 'כובע רונות'], ['Storm Hat', 'כובע סערה'], ['Star Hat', 'כובע כוכבים'], ['Eclipse Hat', 'כובע ליקוי'], ['High Sorcerer’s Crown', 'כתר הקוסם העליון']];
 // the gifts for the room, by test (spec 08 §7): decorations that share the room's own decoration list (they are given, never sold)
@@ -6280,11 +6285,12 @@ function acadGradHtml(c, gifts, sp) {
 function whyNot(s) {   // why this item cannot be bought right now ('' = it can)
   if (owns(s)) return t('have_it');
   if (s.kind === 'caul' && s.lv > (P.own.caul || 0) + 1) return t('buy_iron_first');
+  if (s.kind === 'home') { const k = HM.lock(HM.ITEMS[s.id], acadPassed(), P.mlvl, homeOf()); if (k && k.why === 'rank') return t('recipe_rank', { n: k.n, name: tl(ACAD_RANK[k.n - 1]) }); if (k && k.why === 'math') return t('opens_math', { n: k.n }); }   // locked by rank or by math level (spec 13 §4.3)
   if (Math.floor(P.coins || 0) < unitPrice(s)) return t('need_coins', { n: unitPrice(s) - Math.floor(P.coins || 0) });
   return '';
 }
 function shopCard(s) {   // a card in the potions / wardrobe lists under the shop room
-  const why = whyNot(s), pic = FURN_ART[s.id] ? `<span class="shopFurn">${FURN_ART[s.id]()}</span>` : s.kind === 'wear' && s.wtype !== 'acc' ? `<span class="shopRobe">${robePic(s)}</span>` : s.kind === 'potion' ? `<span class="packBottle">${potionSVG(s.pid)}<i>${s.em}</i></span>` : `<span class="shopEm">${s.em}</span>`;
+  const why = whyNot(s), pic = s.kind === 'home' ? (a => a ? `<span class="shopFurn hShopArt">${a.svg}</span>` : `<span class="shopEm">${s.em}</span>`)(itemArt(HM.ITEMS[s.id])) : FURN_ART[s.id] ? `<span class="shopFurn">${FURN_ART[s.id]()}</span>` : s.kind === 'wear' && s.wtype !== 'acc' ? `<span class="shopRobe">${robePic(s)}</span>` : s.kind === 'potion' ? `<span class="packBottle">${potionSVG(s.pid)}<i>${s.em}</i></span>` : `<span class="shopEm">${s.em}</span>`;
   const name = s.kind === 'potion' ? `<b class="potTitle">${pBoth(s.pid)}</b>` : `<b>${nameOf(s)}</b>`;   // ONE name per card
   return `<button class="shopItem ${why ? 'off' : ''} ${owns(s) ? 'own' : ''}" data-buy="${s.id}">${pic}${name}<span class="price">${owns(s) ? '✓' : priceHtml(s)}</span>${why && !owns(s) ? `<small class="why">${why}</small>` : ''}</button>`;
 }
@@ -6294,12 +6300,12 @@ const SH = { BACK_Y0: 8, BACK_Y1: 46, FRONT: 80 };
 const SH_SLOTS = [[32.2, 36.8], [44.2, 36.8], [55.8, 36.8], [68.2, 36.8], [31.9, 51.2], [43.4, 51.2], [55.8, 51.2], [68.2, 51.2]];   // on the picture's two middle shelves (% of its width and height)
 const SH_SKINS = ['#f6cfa6', '#e8b98a', '#c68d5e', '#8d5a3b', '#5c3a24'];
 const strHash = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
-function shopShelf() {   // today's 8 decorations (not owned yet when the day started); the choice is saved, so buying one leaves it on the shelf as SOLD until tomorrow
+function shopShelf() {   // today's 8 home items the hero can buy (open at their rank and math level, not owned yet when the day started); saved, so buying one leaves it on the shelf as SOLD until tomorrow
   const d = today(); let sh = P.shelf;
-  if (!sh || sh.d !== d || !Array.isArray(sh.ids)) {
-    const r = rngSeed(strHash(d + P.id)), arr = DECOR.filter(s => !P.own.decor.includes(s.id));
+  if (!sh || sh.d !== d || sh.v !== 2 || !Array.isArray(sh.ids)) {
+    const home = homeOf(), r = rngSeed(strHash(d + P.id)), arr = Object.values(HM.ITEMS).filter(it => it.buy && !HM.lock(it, acadPassed(), P.mlvl, home) && SHOP[it.id]);
     for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
-    sh = P.shelf = { d, ids: arr.slice(0, 8).map(s => s.id), skin: Math.floor(r() * SH_SKINS.length) }; saveSoon();
+    sh = P.shelf = { d, v: 2, ids: arr.slice(0, 8).map(s => s.id), skin: Math.floor(r() * SH_SKINS.length) }; saveSoon();
   }
   return sh;
 }
@@ -6327,7 +6333,7 @@ const shCounterSVG = () => `<defs><linearGradient id="shCsh" gradientUnits="user
   <polygon points="14,57 86,57 90,61 10,61" fill="#c58f58"/><polygon points="10,61 90,61 90,69.5 10,69.5" fill="#6e4222"/><polygon points="10,61 90,61 90,62.2 10,62.2" fill="#8a5a2b"/>
   ${[18, 34, 50, 66, 82].map(x => `<rect x="${x - 6}" y="63.4" width="12" height="4.6" rx=".8" fill="none" stroke="#4a2a14" stroke-width=".4"/>`).join('')}`;
 const robePic = s => s.wtype === 'robe' ? heroSVG(P.gender, s.hex, P.skin, P.hair, { beard: P.beard }) : s.wtype === 'style' ? heroSVG(P.gender, P.color, P.skin, P.hair, { style: s.style, beard: P.beard }) : '';   // robes are shown on the student's own wizard
-const shPic = s => s.kind === 'forge' ? `<span class="shFurnBig" style="width:5rem;display:block;margin:auto">${magicPic(s.slot, s.v)}</span>` : FURN_ART[s.id] ? `<span class="shFurnBig">${FURN_ART[s.id]()}</span>` : s.kind === 'wear' && s.wtype !== 'acc' ? '<span class="shopRobe big">' + robePic(s) + '</span>' : s.kind === 'potion' ? `<span class="packBottle" style="transform:scale(1.8);margin:12px">${potionSVG(s.pid)}<i>${s.em}</i></span>` : s.kind === 'caul' ? cauldronArt(s.lv) : s.id === 'd_rug' ? '<span class="shRug" style="width:6rem;height:2.4rem"></span>' : s.em;
+const shPic = s => s.kind === 'home' ? (a => a ? `<span class="shFurnBig">${a.svg}</span>` : s.em)(itemArt(HM.ITEMS[s.id])) : s.kind === 'forge' ? `<span class="shFurnBig" style="width:5rem;display:block;margin:auto">${magicPic(s.slot, s.v)}</span>` : FURN_ART[s.id] ? `<span class="shFurnBig">${FURN_ART[s.id]()}</span>` : s.kind === 'wear' && s.wtype !== 'acc' ? '<span class="shopRobe big">' + robePic(s) + '</span>' : s.kind === 'potion' ? `<span class="packBottle" style="transform:scale(1.8);margin:12px">${potionSVG(s.pid)}<i>${s.em}</i></span>` : s.kind === 'caul' ? cauldronArt(s.lv) : s.id === 'd_rug' ? '<span class="shRug" style="width:6rem;height:2.4rem"></span>' : s.em;
 // The room is the owner's picture (art/shop-room.webp, 1352×1163). Positions are % of the picture: x of its width, y of its height.
 // Tap areas (owner, step 8): the wardrobe (robes), the mannequin (accessories) and the potion shelves (potions). Today's 8 items stand on the two middle shelves, their prices on the painted tags.
 const SH_HOT = [['robes', 1.5, 19, 16, 38], ['accs', 0, 53, 17, 45], ['pots', 83.5, 14, 15.5, 49]];   // [panel, left, top, width, height]
@@ -6336,17 +6342,26 @@ function renderShop() {
   let p = SH_HOT.map(([k, x, y, w, h]) => `<button class="shHot" data-panel="${k}" style="left:${x}%;top:${y}%;width:${w}%;height:${h}%" aria-label="${t(k === 'pots' ? 'potions' : k + '_t')}"></button>`).join('');
   p += `<div class="shP shMerchant" style="--x:50;--y:69" aria-label="${t('merchant')}">${merchantSVG(skin)}</div><div class="shP shSay" id="shSay" style="--x:71;--y:59">${sh.ids.length ? t('welcome_look') : t('own_all')}</div>`;
   sh.ids.forEach((id, i) => { const it = SHOP[id], [x, y] = SH_SLOTS[i], sold = owns(it);
-    p += `<button class="shP shSlot${sold ? ' sold' : ''}" data-buy="${id}" style="--x:${x};--y:${y}" aria-label="${t('coins_aria', { n: nameOf(it), p: it.price })}">${id === 'd_rug' ? '<span class="em"><span class="shRug"></span></span>' : `<span class="em">${it.em}</span>`}<span class="shPrice">${sold ? t('sold') : priceHtml(it)}</span></button>`; });
+    p += `<button class="shP shSlot${sold ? ' sold' : ''}" data-buy="${id}" style="--x:${x};--y:${y}" aria-label="${t('coins_aria', { n: nameOf(it), p: it.price })}">${shSlotPic(it)}<span class="shPrice">${sold ? t('sold') : priceHtml(it)}</span></button>`; });
   p += next ? `<button class="shP shCau" data-buy="${next.id}" style="--x:31;--y:70" aria-label="${t('coins_aria', { n: nameOf(next), p: next.price })}">${cauldronArt(c + 1)}<span class="shPrice">🪙 ${next.price}</span></button>` : `<div class="shP shFull" style="--x:31;--y:69">${t('fully_up')}</div>`;
-  p += `<button class="shP shCat" data-panel="furn" style="--x:64.5;--y:70.5" aria-label="${t('furn_t')}">${catalogSVG()}<span class="shPrice">${t('furn_t')}</span></button>`;   // the furniture catalog on the counter
+  p += `<button class="shP shCat" data-panel="home" style="--x:64.5;--y:70.5" aria-label="${t('home_shop_t')}">${catalogSVG()}<span class="shPrice">${t('home_shop_t')}</span></button>`;   // the furniture catalog on the counter
   if (LANG === 'he') p += '<div class="shSign" aria-hidden="true">חנות</div>';   // the painted sign says SHOP: in Hebrew a Hebrew sign covers it
+  if (!window.HA) homeArt().then(h => { if (h && $('#shop').classList.contains('on')) { renderShop(); renderShopPanel(); } });   // the item pictures load on demand
   $('#shProps').innerHTML = p; $('#shBack').innerHTML = ''; $('#shCounter').innerHTML = ''; $('#shFront').innerHTML = '';
   if (!window.CSS || !CSS.supports || !CSS.supports('width', '1cqw')) { const sc = $('#shScene'); sc.style.setProperty('--u', (sc.clientWidth / 100) + 'px'); }
+}
+let shopKind = 'sofa';   // the kind shown in the shop's Home section
+const shSlotPic = it => { const a = it.kind === 'home' ? itemArt(HM.ITEMS[it.id]) : null; return a ? `<span class="em shHArt">${a.svg}</span>` : `<span class="em">${it.em}</span>`; };
+// the shop's Home section (spec 13 §5.1): the items by kind with their price, locked by rank or math level, owned ones with a tick
+function homeShopHtml() {
+  const kinds = HM.KINDS.map(k => `<button class="hKind${k.id === shopKind ? ' on' : ''}" data-hkind="${k.id}">${HOME_EM[k.id]} ${tl([k.en, k.he])}</button>`).join('');
+  const items = Object.values(HM.ITEMS).filter(it => it.buy && it.kind === shopKind).sort((a, b) => a.tier - b.tier || a.price - b.price);
+  return `<h3>${t('home_shop_t')} <button class="ib" data-close="1" aria-label="${t('close')}">✕</button></h3><p class="small" style="margin:0 0 8px">${t('home_shop_tip')}</p><div class="hKinds">${kinds}</div><div class="shopGrid">${items.map(it => shopCard(SHOP[it.id])).join('')}</div>`;
 }
 let shopPanel = null;
 function renderShopPanel() {
   const p = $('#shopPanel'); if (!shopPanel) { p.hidden = true; return; } p.hidden = false;
-  if (shopPanel === 'furn') p.innerHTML = `<h3>${t('furn_t')} <button class="ib" data-close="1" aria-label="${t('close')}">✕</button></h3><p class="small" style="margin:0 0 8px">${t('furn_tip')}</p><div class="shopGrid furnGrid">${FURN_IDS.map(id => shopCard(SHOP[id])).join('')}</div>`;
+  if (shopPanel === 'home') p.innerHTML = homeShopHtml();
   else if (shopPanel === 'pots') p.innerHTML = `<h3><span><span class="potIco">${potionSVG('any')}</span> ${t('potions')}</span> <button class="ib" data-close="1" aria-label="${t('close')}">✕</button></h3><div class="shopGrid">${POTION_IDS.map(id => shopCard(SHOP['pot_' + id])).join('')}</div>`;
   else p.innerHTML = `<h3>${t(shopPanel === 'robes' ? 'robes_t' : shopPanel === 'accs' ? 'accs_t' : 'wear_btn')} <button class="ib" data-close="1" aria-label="${t('close')}">✕</button></h3><div class="shopGrid">${[...(shopPanel !== 'accs' ? ROBE_EXTRA.map(r => r[0]).concat(ROBE_STYLES.map(r => r[0])) : []), ...(shopPanel !== 'robes' ? ACCS.map(a => a[0]) : [])].map(id => shopCard(SHOP[id])).join('')}</div>`;
 }
@@ -6359,6 +6374,7 @@ function openShop() {
 $('#shopBack').onclick = () => { saveSoon(true); openMenu(); };
 $('#shop').onclick = e => {
   if (e.target.closest('[data-close]')) { shopPanel = null; renderShopPanel(); return; }
+  const hk = e.target.closest('[data-hkind]'); if (hk) { shopKind = hk.dataset.hkind; renderShopPanel(); return; }
   const w = e.target.closest('[data-panel]'); if (w) { shopPanel = shopPanel === w.dataset.panel ? null : w.dataset.panel; renderShopPanel(); if (shopPanel) $('#shopPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
   const b = e.target.closest('[data-buy]'); if (b) openShopItem(SHOP[b.dataset.buy]);
 };
@@ -6388,7 +6404,7 @@ function openShopItem(s) {   // look at it first: picture, name and price (and h
   const why = whyNot(s), own = owns(s), nm = s.kind === 'potion' ? pBoth(s.pid) : nameOf(s), many = s.kind === 'potion' && BR.easy(P.mlvl) >= CK.CFG.QTY_FROM; let qty = 1;
   const qtyRow = () => many ? `<div class="slotOpts" id="qtyRow">${Array.from({ length: CK.CFG.QTY_MAX }, (_, i) => i + 1).map(q => `<button class="slotBtn ${q === qty ? 'sel' : ''}" data-q="${q}" ${q * unitPrice(s) > Math.floor(P.coins || 0) ? 'disabled' : ''}>${s.em} ×${q}</button>`).join('')}</div>` : '';
   modal('', `<div class="shCard"><div class="pic">${shPic(s)}</div><h2>${nm}</h2><p class="en">${[s.kind === 'potion' ? pDesc(s.pid) : '', s.unlock ? t('unlocks', { x: t(s.unlock) }) : ''].filter(Boolean).join(' · ')}</p><span class="chipPrice">${priceHtml(s)}</span>
-    <p style="min-height:1.4em;margin:4px 0 0">${own ? t('own_this') + (s.kind === 'decor' ? t('waiting_home') : '') : why}</p>${!why && many ? `<p class="small">${t('how_many')}</p>${qtyRow()}` : ''}</div>`,
+    <p style="min-height:1.4em;margin:4px 0 0">${own ? t('own_this') + (s.kind === 'decor' || s.kind === 'home' ? t('waiting_home') : '') : why}</p>${!why && many ? `<p class="small">${t('how_many')}</p>${qtyRow()}` : ''}</div>`,
     why ? [[t('close'), null, true]] : [[t('buy'), () => startCheckout(s, qty), false], [t('not_now'), null, true]]);
   const card = $('#modal .shCard'); if (card) card.onclick = e => { const b = e.target.closest('[data-q]'); if (!b || b.disabled) return; qty = +b.dataset.q; $('#qtyRow').outerHTML = qtyRow(); };
 }
@@ -6497,7 +6513,7 @@ function ckBought() {
   if (s.kind === 'forge') { if (Math.floor(P.coins || 0) < cost) { openWorkshop(); return; } P.coins = Math.round((P.coins - cost) * 1000) / 1000; s.paid = cost; $('#ckFb').innerHTML = `✅ ${exprHtml(CKS.k.p.e, CKS.k.p.a)}`; forgeMade(s); return; }   // step 2 of forging is done
   if (Math.floor(P.coins || 0) < cost || owns(s)) { openShop(); return; }
   P.coins = Math.round((P.coins - cost) * 1000) / 1000;
-  if (s.kind === 'caul') P.own.caul = s.lv; else if (s.kind === 'potion') P.pot[s.pid] = (P.pot[s.pid] || 0) + qty; else if (s.kind === 'wear') P.wd.push(s.id); else P.own.decor.push(s.id);
+  if (s.kind === 'caul') P.own.caul = s.lv; else if (s.kind === 'potion') P.pot[s.pid] = (P.pot[s.pid] || 0) + qty; else if (s.kind === 'wear') P.wd.push(s.id); else if (s.kind === 'home') HM.give(homeOf(), s.id); else P.own.decor.push(s.id);
   P.xp += xp; saveSoon(true); sfx.coins(); setTimeout(sfx.win, 350); confetti(['🪙', '✨', s.em]); $('#ckFb').innerHTML = `✅ ${exprHtml(CKS.k.p.e, CKS.k.p.a)}`;
   setTimeout(() => modal(t('thanks_t'), `<p style="text-align:center;font-size:3rem;margin:6px">${s.em}</p><p style="text-align:center">${t('bought', { n: ckItemName() })}${t(s.kind === 'potion' ? 'bought_pot' : s.kind === 'decor' ? 'bought_decor' : s.kind === 'wear' ? 'bought_wear' : 'bought_caul')}</p><p style="text-align:center">${t('ck_paid', { x: cost })} ${walletHtml(P.coins)}</p>${xpLine(xp)}`,
     [[t('keep_shop'), openShop], [t('go_home'), openHome], [t('back_map'), openMenu, true]]), 900);
@@ -6654,6 +6670,7 @@ async function adminCall(action, extra) {
 }
 const admOwner = () => !ADMME || ADMME.role === 'owner';
 /* ----- Demo run (teacher area): a pretend student with a small control panel, to try every feature. Nothing is saved anywhere (no cloud, no device storage); leaving the demo reloads the game. ----- */
+const demoRoom = () => { if ($("#home").classList.contains("on")) renderRoom(rmDisp); };
 function startDemo() {
   if (document.querySelector("#demoTab")) { openMenu(); return; }
   saveSoon = () => {}; cloudSave = async () => {};   // the demo student is never saved
@@ -6693,6 +6710,10 @@ function startDemo() {
       P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1) + 1)); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
     },
     acadReset() { P.academy = { passed: 0, certs: [] }; ACQ = null; acadRender(); refreshAcademy(); toast('🎓 Academy progress reset: test 1 is next'); },
+    rank(n) { n = Math.max(0, Math.min(5, +n)); P.academy = Object.assign(P.academy || { certs: [] }, { passed: n }); P.xp = Math.max(P.xp, n ? SB.xpFor(ACAD_TOP(n - 1) + 1) : 0); saveSoon(); toast('🎓 Rank ' + n + ' (' + (n ? tl(ACAD_RANK[n - 1]) : 'Apprentice') + ')'); demoRoom(); },   // spec 13 §10: set the rank to test the room
+    homeItem(id) { if (!HM.ITEMS[id]) { toast('No such item: ' + id); return; } HM.give(homeOf(), id); saveSoon(); toast('🏠 ' + itemName(HM.ITEMS[id])); demoRoom(); },
+    homeAll(tier) { for (const it of Object.values(HM.ITEMS)) if (it.buy && it.tier <= (tier == null ? 0 : tier) && !HM.count(homeOf(), it.id)) HM.give(homeOf(), it.id); saveSoon(); toast('🏠 Every item up to tier ' + (tier == null ? 0 : tier)); demoRoom(); },
+    homeReset() { delete P.home; P.own.decor = []; HM.migrate(P); saveSoon(); toast('🏠 The starting room'); demoRoom(); },
     acadPass() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = ACQ.need; acadFinish(false); },   // the result screen of a pass, at once
     acadFail() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = 0; acadFinish(false); }   // the result screen of a fail, at once
   };
@@ -6708,6 +6729,7 @@ function startDemo() {
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Academy (spec 08): conjuring trial</h4>' + [1, 2, 3, 4, 5].map(k => B('🎓 Test ' + k, `acad(${k})`)).join('') +
     B('↺ Reset Academy', 'acadReset()') + B('✅ Pass it now', 'acadPass()') + B('❌ Fail it now', 'acadFail()') +
+    '<h4>Home room (spec 13)</h4>' + [0, 1, 2, 3, 4, 5].map(n => B('Rank ' + n, `rank(${n})`)).join('') + B('🏠 Give every tier 0 item', 'homeAll(0)') + B('🏠 Back to the starting room', 'homeReset()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
     B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +
