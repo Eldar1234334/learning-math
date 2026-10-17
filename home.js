@@ -20,15 +20,15 @@
   const SLOTS = [
     { id: 'sofa', kind: 'sofa', x: 32, y: 62, b: 20 }, { id: 'table', kind: 'table', x: 26, y: 76, b: 14 },
     { id: 'chair1', kind: 'chair', x: 15, y: 78, b: 7, pair: 'chair2' }, { id: 'chair2', kind: 'chair', x: 38, y: 78, b: 7, pair: 'chair1' },
-    { id: 'desk', kind: 'desk', x: 74, y: 53, b: 14 }, { id: 'deskchair', kind: 'chair', x: 66, y: 58, b: 6.5 },
+    { id: 'desk', kind: 'desk', x: 73, y: 56, b: 23 }, { id: 'deskchair', kind: 'chair', x: 61, y: 61, b: 10 },
     { id: 'bed', kind: 'bed', x: 76, y: 77, b: 20 }, { id: 'fireplace', kind: 'fireplace', x: 51, y: 50, b: 15 },
     { id: 'rug', kind: 'rug', x: 50, y: 71 }, { id: 'window', kind: 'window', x: 51, y: 24, b: 14 }, { id: 'curtains', kind: 'curtains', x: 51, y: 24, b: 20 },
-    { id: 'pic1', kind: 'picture', x: 33, y: 13, b: 6.5 }, { id: 'pic2', kind: 'picture', x: 41, y: 13, b: 6.5 }, { id: 'pic3', kind: 'picture', x: 62, y: 13, b: 6.5 },
-    { id: 'clock', kind: 'clock', x: 51, y: 11, b: 5.5 }, { id: 'banner', kind: 'banner', x: 71, y: 13, b: 6 }, { id: 'mirror', kind: 'mirror', x: 25, y: 14, b: 6.5 },
-    { id: 'lamp1', kind: 'lamp', x: 88, y: 64, b: 5 }, { id: 'lamp2', kind: 'lamp', x: 9, y: 79, b: 5 }, { id: 'tlamp', kind: 'lamp', x: 70, y: 46.5, b: 3.6 },
-    { id: 'plant1', kind: 'plant', x: 22, y: 50, b: 6 }, { id: 'plant2', kind: 'plant', x: 62, y: 50, b: 6.5 }, { id: 'pet', kind: 'pet', x: 50, y: 79, b: 6 },
+    { id: 'pic1', kind: 'picture', x: 33, y: 13, b: 6.5 }, { id: 'pic2', kind: 'picture', x: 41, y: 13, b: 6.5 }, { id: 'pic3', kind: 'picture', x: 67, y: 13, b: 6.5 },
+    { id: 'clock', kind: 'clock', x: 60, y: 12, b: 5.5 }, { id: 'banner', kind: 'banner', x: 73, y: 13, b: 6 }, { id: 'mirror', kind: 'mirror', x: 25, y: 14, b: 6.5 },
+    { id: 'lamp1', kind: 'lamp', x: 88, y: 64, b: 5 }, { id: 'lamp2', kind: 'lamp', x: 9, y: 79, b: 5 }, { id: 'tlamp', kind: 'lamp', x: 68, y: 48, b: 3.6 },
+    { id: 'plant1', kind: 'plant', x: 22, y: 50, b: 6 }, { id: 'plant2', kind: 'plant', x: 62, y: 50, b: 6.5 }, { id: 'pet', kind: 'pet', x: 44, y: 74, b: 4.5 },
     { id: 'trinket1', kind: 'trinket', x: 26, y: 41, b: 3.6 }, { id: 'trinket2', kind: 'trinket', x: 31.5, y: 41, b: 3.6 }, { id: 'trinket3', kind: 'trinket', x: 37, y: 41, b: 3.6 },
-    { id: 'light', kind: 'light', x: 50, y: 2, b: 6 }
+    { id: 'light', kind: 'light', x: 38, y: 2, b: 6 }
   ];
   const SLOT = Object.fromEntries(SLOTS.map(s => [s.id, s]));
 

@@ -5608,7 +5608,7 @@ function rmDyn() {
   L.push(shelf(.74, 'books', booksOffered(), booksHome(), '#b8860b', (a, b, c, d) => markIn(true, a, b, c, d, '#fff3c4')));
   // the name plaque on the back wall (from wizard level 5)
   const plOpen = lvl >= HM.SPECIAL.plaque.level, nm = (P.nick || '').slice(0, 14);
-  L.push(`<g data-act="plaque" style="cursor:pointer"><rect x="57" y="41" width="13" height="3.4" rx=".5" fill="${plOpen ? '#6b4220' : '#6b422080'}" stroke="#2b1a0e" stroke-width=".2"/>${plOpen ? `<text x="63.5" y="43.4" font-size="1.9" text-anchor="middle" fill="#ffe8a8" textLength="${Math.min(11, Math.max(4, nm.length * 1.1)).toFixed(1)}" lengthAdjust="spacingAndGlyphs">${esc(nm)}</text>` : `<text x="63.5" y="43.5" font-size="2.2" text-anchor="middle">🔒</text>`}</g>`);
+  L.push(`<g data-act="plaque" style="cursor:pointer"><rect x="44" y="9.4" width="14" height="3.4" rx=".5" fill="${plOpen ? '#6b4220' : '#6b422080'}" stroke="#2b1a0e" stroke-width=".2"/>${plOpen ? `<text x="51" y="11.8" font-size="1.9" text-anchor="middle" fill="#ffe8a8" textLength="${Math.min(11, Math.max(4, nm.length * 1.1)).toFixed(1)}" lengthAdjust="spacingAndGlyphs">${esc(nm)}</text>` : `<text x="51" y="11.9" font-size="2.2" text-anchor="middle">🔒</text>`}</g>`);
   return L.join('');
 }
 // the statue stand on the floor (from Academy test 5): the golden statue of the student stands on it
@@ -6715,6 +6715,7 @@ function startDemo() {
     homeItem(id) { if (!HM.ITEMS[id]) { toast('No such item: ' + id); return; } HM.give(homeOf(), id); saveSoon(); toast('🏠 ' + itemName(HM.ITEMS[id])); demoRoom(); },
     homeAll(tier) { for (const it of Object.values(HM.ITEMS)) if (it.buy && it.tier <= (tier == null ? 0 : tier) && !HM.count(homeOf(), it.id)) HM.give(homeOf(), it.id); saveSoon(); toast('🏠 Every item up to tier ' + (tier == null ? 0 : tier)); demoRoom(); },
     homeReset() { delete P.home; P.own.decor = []; HM.migrate(P); saveSoon(); toast('🏠 The starting room'); demoRoom(); },
+homeFurnish() { const h = homeOf(), top = acadPassed(); demo.homeAll(top); const pool = Object.values(HM.ITEMS).filter(i => (i.buy ? i.tier <= top : true) && HM.count(h, i.id)); let n = 0; for (const s of HM.SLOTS) { const c = pool.filter(i => i.kind === s.kind).sort(() => Math.random() - .5).sort((a, b) => b.tier - a.tier); for (const i of c) if (HM.place(h, s.id, i.id)) { n++; break; } } saveSoon(); toast('🛋️ ' + n + ' places furnished (tiers 0 to ' + top + ')'); demoRoom(); },
     acadPass() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = ACQ.need; acadFinish(false); },   // the result screen of a pass, at once
     acadFail() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = 0; acadFinish(false); }   // the result screen of a fail, at once
   };
@@ -6730,7 +6731,7 @@ function startDemo() {
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Academy (spec 08): conjuring trial</h4>' + [1, 2, 3, 4, 5].map(k => B('🎓 Test ' + k, `acad(${k})`)).join('') +
     B('↺ Reset Academy', 'acadReset()') + B('✅ Pass it now', 'acadPass()') + B('❌ Fail it now', 'acadFail()') +
-    '<h4>Home room (spec 13)</h4>' + [0, 1, 2, 3, 4, 5].map(n => B('Rank ' + n, `rank(${n})`)).join('') + B('🏠 Give every tier 0 item', 'homeAll(0)') + B('🏠 Back to the starting room', 'homeReset()') +
+    '<h4>Home room (spec 13)</h4>' + [0, 1, 2, 3, 4, 5].map(n => B('Rank ' + n, `rank(${n})`)).join('') + B('🏠 Give every tier 0 item', 'homeAll(0)') + B('🛋️ Furnish the whole house (opened tiers)', 'homeFurnish()') + B('🏠 Back to the starting room', 'homeReset()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
     B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +
