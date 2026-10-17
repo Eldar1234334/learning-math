@@ -133,6 +133,21 @@ body.acadOn .side.foe{display:none}
 .gradHat,.gradGift{font-size:.85rem;margin:6px 0 0;display:flex;align-items:center;justify-content:center;gap:6px}
 .bookTake{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 2px;font-weight:600;cursor:pointer}.bookTake input{width:20px;height:20px}
 .certNote{margin:4px auto 0;padding:2px 8px;border:1px dashed #8a6a3a;border-radius:6px;font-size:.7rem;font-weight:700;color:#7a2a1a;background:#fff3d6aa}.gradNoBook{color:#ffd166;font-weight:700;margin:2px 0 6px}.vhNeed.noBook{cursor:default;opacity:.8}
+/* Home v2 (spec 13): the fixed places, the picker, the colour choices, the dynamic wall layer */
+#rmDyn{pointer-events:none}#rmDyn [data-act]{pointer-events:auto}#rmDyn text{user-select:none}
+.hSlot{position:absolute;left:calc(var(--x)*1%);top:calc(var(--y)*1.25%);z-index:var(--z);padding:0;margin:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;line-height:0;width:calc(var(--b)*var(--u)*var(--s))}
+.hSlot.floor,.hSlot.shelf{transform:translate(-50%,-100%)}.hSlot.wall,.hSlot.rug{transform:translate(-50%,-50%)}.hSlot.ceiling{transform:translate(-50%,0)}
+.hSlot .hArt{display:block}.hSlot .hArt svg,.hSlot>svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 calc(var(--u)*.3) calc(var(--u)*.3) #0006)}
+.hSlot.empty{aspect-ratio:var(--ar);border:2px dashed #ffffff4d;border-radius:calc(var(--u)*1);background:#ffffff0d;display:flex;align-items:center;justify-content:center}
+.hSlot.empty i{font-style:normal;color:#ffffffa0;font-size:max(.8rem,calc(var(--u)*2.4));font-weight:700}
+.hSlot.empty:hover,.hSlot.empty:focus-visible{background:#ffffff22;border-color:#ffd166}
+.hSlot.isnew .hArt{animation:hNew 1.6s ease-in-out infinite}@keyframes hNew{50%{filter:drop-shadow(0 0 8px #ffd166)}}
+.hSlot.hSpark::after{content:'✨';position:absolute;left:50%;top:30%;font-size:calc(var(--u)*3);animation:hSp .7s ease-out forwards;pointer-events:none}@keyframes hSp{0%{transform:translate(-50%,0) scale(.4);opacity:1}100%{transform:translate(-50%,-120%) scale(1.3);opacity:0}}
+.hFlame{transform-box:fill-box;transform-origin:50% 100%;animation:rFlick .6s ease-in-out infinite alternate}.hTail{transform-box:fill-box;transform-origin:0 100%;animation:hTail 2.4s ease-in-out infinite}@keyframes hTail{50%{transform:rotate(14deg)}}
+body.noAnim .hFlame,body.noAnim .hTail{animation:none}@media (prefers-reduced-motion:reduce){.hFlame,.hTail,.hSlot.isnew .hArt{animation:none}}
+.hPicks{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;max-height:54vh;overflow:auto}
+.hPick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border-radius:12px;background:#ffffff1c;border:2px solid transparent;color:#fff;font:inherit;cursor:pointer}.hPick.on{border-color:#ffd166}.hPick .hThumb{display:block;width:64px;height:48px;line-height:48px;font-size:1.4rem;text-align:center}.hPick .hThumb svg{width:100%;height:100%}.hPick b{font-size:.78rem;text-align:center}
+.hCols{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.hCol{height:54px;border-radius:12px;border:3px solid transparent;color:#fff;font:inherit;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;text-shadow:0 1px 3px #000a}.hCol.on{border-color:#ffd166}.hCol.lock{opacity:.55}.hCol small{font-size:.66rem}
 .newTag{color:#ffd166;font-weight:700}.rRug.glow{background:radial-gradient(ellipse,#fff3b0 0 10%,#2fc7b8 11% 34%,#fff3b0 35% 40%,#7a5cff 41% 66%,#fff3b0 67% 70%,#2fc7b8 71%);box-shadow:0 0 calc(var(--u)*2.2) #7af3e0cc,0 calc(var(--u)*.5) calc(var(--u)*.8) #0006}
 .acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
@@ -1074,8 +1089,8 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 
 <section id="home" class="screen" style="max-width:760px">
   <div class="top"><button class="ib" id="homeBack" data-tt="back_map">🗺️</button><div class="grow"><div class="who" data-t="home_title"></div><div class="small" data-t="home_tip"></div></div><button class="langBtn" data-lang-toggle></button></div>
-  <div class="rScene" id="rmScene" data-ta="room"><svg class="rShell" id="rmShell" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="true"></svg><div id="rmProps"></div><div class="rVig"></div></div>
-  <div class="rBar"><button class="btn ghost" id="tidyBtn" data-t="tidy"></button></div>
+  <div class="rScene" id="rmScene" data-ta="room"><svg class="rShell" id="rmShell" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="true"></svg><svg class="rShell" id="rmDyn" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="false"></svg><div id="rmProps"></div><div class="rVig"></div></div>
+  <div class="rBar"><button class="btn ghost" id="wallBtn" data-t="wall_btn"></button> <button class="btn ghost" id="floorBtn" data-t="floor_btn"></button></div>
   <section class="rPanel" id="roomPanel" hidden aria-live="polite"></section>
   <div class="small center" style="opacity:.7;margin:10px 0" data-t="home_foot"></div>
 </section>
@@ -1192,6 +1207,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <script src="brew.js"></script>
 <script src="shop.js"></script>
 <script src="helper.js"></script>
+<script src="home.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -1565,6 +1581,12 @@ const STR = {
   manual_is_home: ['Your monster manual is at home: the fights show no weaknesses, and you carry one more potion.', 'ספר המפלצות נמצא בבית: בקרבות לא מופיעות נקודות התורפה, ואתם לוקחים שיקוי אחד נוסף.'],
   manual_deal: ['Without the manual you can carry {n} potions on a quest.', 'בלי הספר אפשר לקחת {n} שיקויים למסע.'], manual_quest: ['Finish or leave your quest first, then you can change this.', 'קודם סיימו או עזבו את המסע, ואז אפשר לשנות.'],
   recipe_rank: ['Opens at rank {n} ({name})', 'נפתח בדרגה {n} ({name})'],
+  slot_aria: ['{k}: {n} (tap to change)', '{k}: {n} (הקישו כדי להחליף)'], slot_empty_aria: ['An empty place for a {k}. Tap to choose one.', 'מקום פנוי ל{k}. הקישו כדי לבחור.'],
+  slot_pick_t: ['Choose a {k}', 'בחרו {k}'], slot_empty: ['Empty', 'ריק'], slot_none: ['You have no {k} yet. Buy some in the shop 🏪', 'עוד אין לכם {k}. אפשר לקנות בחנות 🏪'],
+  wall_btn: ['🎨 Wall colour', '🎨 צבע הקיר'], floor_btn: ['🟫 Floor colour', '🟫 צבע הרצפה'], cert_wait: ['The certificate of Academy test {n} will hang here.', 'התעודה של מבחן האקדמיה {n} תיתלה כאן.'],
+  shelf_test1: ['This shelf opens with Academy test 1.', 'המדף הזה נפתח עם מבחן האקדמיה 1.'], shelf_rank3: ['This shelf opens at rank 3 (Academy test 3).', 'המדף הזה נפתח בדרגה 3 (מבחן האקדמיה 3).'],
+  trophies_t: ['🏆 The trophy shelf: a cup for each Academy medal.', '🏆 מדף הגביעים: גביע לכל מדליה מהאקדמיה.'], opens_level: ['Opens at wizard level {n}.', 'נפתח ברמת קוסם {n}.'],
+  statue_aria: ['The statue stand', 'בסיס הפסל'], statue_t: ['The golden statue of you', 'פסל הזהב שלכם'], statue_locked: ['The statue stand opens with Academy test 5.', 'בסיס הפסל נפתח עם מבחן האקדמיה 5.'],
   books_t: ['The books', 'הספרים'],
   books_offer: ['You are a Starwarden now! You may leave your spell book and your conjuration book on the shelf at Home: you can carry {n} potions instead of {m}, but the books will not be with you on quests. You can take them back from the shelf at Home any time.', 'אתם כבר שומרי כוכבים! אפשר להשאיר את ספר הכישופים ואת ספר הזימון על המדף בבית: אפשר לקחת {n} שיקויים במקום {m}, אבל הספרים לא יהיו איתכם במסעות. תמיד אפשר לקחת אותם בחזרה מהמדף בבית.'],
   books_is_home: ['Your books are on the shelf at Home: you carry one more potion, and the books are not with you on quests.', 'הספרים על המדף בבית: אתם לוקחים שיקוי אחד נוסף, והספרים לא איתכם במסעות.'], books_is_carried: ['Your spell book and your conjuration book are with you.', 'ספר הכישופים וספר הזימון איתכם.'],
@@ -2120,6 +2142,7 @@ function migrate(p) {
       if (n > 0) { p.academy = { passed: n, certs: [], newHat: n, migrated: true }; for (let k = 0; k < n; k++) for (const id of ACAD_GIFTS[k]) if (!p.own.decor.includes(id)) p.own.decor.push(id); }
     } catch (e) {}
   }
+  if (!p.home) { try { HM.migrate(p); } catch (e) {} }   // the Home room of fixed places (spec 13): the older decorations become items of the new collection
   p.items = p.items || blankUses(); p.itemUses = p.itemUses || { battle: blankUses(), peace: blankUses() }; p.ws = p.ws || { on: false, hi: false };   // the Artificer: magic items, uses this quest, workshop seen
   noRealName(p);   // never a real name or class on the device (login spec §9)
   p.mode = p.mode || (p.local ? 'off' : p.app ? 'home' : 'school');   // the login mode (login spec): heroes made before it keep their old way
@@ -5376,7 +5399,6 @@ function wizUnlocks(from, to) {
     if (lv === CB.CFG.HEAVY_ARMOR_FROM) out.push(t('un_heavy'));
     const ti = TITLES.find(x => x[0] === lv); if (ti) out.push(t('un_title', { name: titleAt(lv, P.gender) }));
     if (GIFTS[lv]) { const g = giveGift(lv); if (g) out.push(g); }
-    if (lv === CFG.MANUAL_FROM) out.push(t('un_manual'));
   }
   return out;
 }
@@ -5385,7 +5407,9 @@ function checkSpells() {
   const wl = wizLvl(), from = P.wlvl || 1, wUp = wl > from; P.wlvl = Math.max(from, wl);
   const unl = wUp ? wizUnlocks(from, wl) : [];
   const learned = SB.book(P.mlvl, wl, P.spells, tiersArg()).learned, fresh = learned.filter(s => !P.spells.includes(s.id));
-  if (!fresh.length && !unl.length) { if (wUp) { saveSoon(); toast(t('wiz_up', { n: wl })); } return; }
+  const offer = !P.manualOffered && acadPassed() >= 1 && P.manual !== 'home';   // the monster manual moment: its shelf opens with Academy test 1 (spec 13 §3.3), the owner chose test 1 over level 12
+  if (!fresh.length && !unl.length && !offer) { if (wUp) { saveSoon(); toast(t('wiz_up', { n: wl })); } return; }
+  if (offer) P.manualOffered = true;
   const firstEnh = fresh.some(s => s.tier === 'enhanced') && !P.spells.some(id => SB.BY_ID[id] && SB.BY_ID[id].tier === 'enhanced');
   P.spells = P.spells.concat(fresh.map(s => s.id)); if (fresh.length) P.newSeen = fresh.map(s => s.id); saveSoon(true);
   sfx.up(); confetti(wUp ? ['🧙', '⭐', '✨', '🎉'] : ['✨', '📖', '🪄', '⭐']);
@@ -5393,14 +5417,13 @@ function checkSpells() {
   const spTitle = firstEnh ? t('enhanced_t') : fresh.length === 1 ? t('new_spell_t') : t('new_spells_t', { n: fresh.length });
   const unlHtml = unl.length ? `<ul class="unlocks">${unl.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
   const spHtml = fresh.length ? (wUp ? `<h3 class="unlH">${spTitle}</h3>` : '') + (firstEnh ? `<p>${t('enhanced_b')}</p>` : '') + `<div class="newSpells">${shown.slice(0, 6).map(s => spellCard(s, false)).join('')}</div>` + (more ? `<p class="small">+${more}</p>` : '') + `<p class="small">${t('new_spell_tip')}</p>` : '';
-  const offer = wUp && from < CFG.MANUAL_FROM && wl >= CFG.MANUAL_FROM && P.manual !== 'home';   // the monster manual moment (owner decision)
   const manHtml = offer ? `<div class="manualOffer"><p><b>📕 ${t('manual_t')}</b></p><p>${t('manual_offer', { n: CFG.POUCH + 1 })}</p></div>` : '';
   const offerBk = wUp && CFG.ACADEMY && from < CFG.BOOKS_FROM && wl >= CFG.BOOKS_FROM && P.books !== 'home';   // the books moment: leave the books on the shelf for one more potion
   const bkHtml = offerBk ? `<div class="manualOffer"><p><b>📖 ${t('books_t')}</b></p><p>${t('books_offer', { n: pouchSize() + 1, m: pouchSize() })}</p></div>` : '';
   const btns = offer ? [[t('manual_leave'), () => { P.manual = 'home'; saveSoon(true); toast(t('manual_left')); if ($('#menu').classList.contains('on')) openMenu(); }], [t('manual_keep'), null, true]]
     : offerBk ? [[t('books_leave'), () => { P.books = 'home'; saveSoon(true); toast(t('books_left')); applyBookLock(); if ($('#menu').classList.contains('on')) openMenu(); }], [t('books_keep'), null, true]]
     : fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]];
-  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + manHtml + bkHtml + spHtml, btns);
+  modal(wUp ? t('wiz_up', { n: wl }) : fresh.length ? spTitle : t(offer ? 'manual_t' : 'books_t'), unlHtml + manHtml + bkHtml + spHtml, btns);
 }
 /* ====================== HOME & CRAFTING ====================== */
 // A recipe lists the RARITY of each ingredient it needs (0 common ... 4 legendary), not the exact item. Every ingredient must be a different item.
@@ -5422,18 +5445,10 @@ const RM = { x0: 20, x1: 80, y0: 8, y1: 46, front: 80, vpx: 50, vpy: 30 };
 const rmDepth = y => 0.5 + (y - RM.y1) / (RM.front - RM.y1) * 0.85;
 const rmFloorLeft = y => 20 * (RM.front - y) / (RM.front - RM.y1);
 const rmClamp = (v, a, b) => Math.max(a, Math.min(b, v));
-// t = wall | floor | rug; b = size in scene units; x,y = where it starts (the student can drag it anywhere that fits its type)
-const ROOM_ITEMS = {
-  d_picture: { t: 'wall', b: 7.5, x: 31, y: 13 }, d_clock: { t: 'wall', b: 5.5, x: 51, y: 11 }, d_banner: { t: 'wall', b: 6.5, x: 70, y: 12 },
-  d_lamp: { t: 'wall', b: 5.5, x: 26, y: 38 }, d_candle: { t: 'wall', b: 4.5, x: 32, y: 38.4 }, d_books: { t: 'wall', b: 5.5, x: 37.5, y: 38 },
-  d_vase: { t: 'floor', b: 6.5, x: 86, y: 72 }, d_chair: { t: 'floor', b: 7, x: 36, y: 63 }, d_teddy: { t: 'floor', b: 6, x: 66, y: 61 }, d_turtle: { t: 'floor', b: 5, x: 36, y: 76 }, d_cactus: { t: 'floor', b: 6.5, x: 80, y: 66 }, d_scope: { t: 'floor', b: 8.5, x: 20, y: 75 },
-  d_map: { t: 'wall', b: 6, x: 50, y: 38 }, d_key: { t: 'wall', b: 4.5, x: 57.5, y: 40.5 }, d_shield: { t: 'wall', b: 6, x: 43, y: 40 }, d_violin: { t: 'wall', b: 5.5, x: 66, y: 41 }, d_mirror: { t: 'wall', b: 7, x: 24, y: 19 },
-  d_plant: { t: 'floor', b: 8, x: 30, y: 70 }, d_cat: { t: 'floor', b: 7, x: 71, y: 74 },
-  d_egg: { t: 'floor', b: 5.5, x: 25, y: 57 }, d_owl: { t: 'floor', b: 7, x: 82, y: 58 }, d_rug: { t: 'rug', x: 50, y: 71 }
-};
-const rmPos = id => (P.own.pos && P.own.pos[id]) || { x: ROOM_ITEMS[id].x, y: ROOM_ITEMS[id].y };
-const rmZ = (id, y) => ROOM_ITEMS[id].t === 'wall' ? 8 : ROOM_ITEMS[id].t === 'rug' ? 3 : 10 + Math.round(y);
-const rmScale = (id, y) => ROOM_ITEMS[id].t === 'floor' ? rmDepth(y) : ROOM_ITEMS[id].t === 'rug' ? rmDepth(y) : 1;
+// The room of fixed places (spec 13): every item stands in a slot (home.js). Nothing is dragged. Where an item is drawn: a floor item gets smaller toward the back wall.
+const KIND_AR = { sofa: 1.8, table: 1.8, chair: .65, desk: 1.6, bed: 2, fireplace: 1.2, rug: 2.8, window: .85, curtains: 1.3, picture: 1, clock: 1, banner: .65, mirror: .7, lamp: .45, plant: .65, pet: 1.4, trinket: .9, light: 1, statue: .6 };   // width / height, for the empty outlines
+const slotZ = s => ({ wall: 8, rug: 3, ceiling: 8, shelf: 9 }[HM.KIND[s.kind].mode] || 10 + Math.round(s.y));
+const slotScale = s => ['floor', 'rug'].includes(HM.KIND[s.kind].mode) ? rmDepth(s.y) : 1;
 
 function rmShell() {
   const planks = [];
@@ -5444,10 +5459,10 @@ function rmShell() {
   const board = (x0, x1, y) => `<polygon points="${x0},${y} ${x1},${y} ${x1 + .8},${y + 1.1} ${x0 - .8},${y + 1.1}" fill="#c58f58"/><rect x="${x0 - .8}" y="${y + 1.1}" width="${x1 - x0 + 1.6}" height="1.1" fill="#7a4d27"/>
     <polygon points="${x0 + 2},${y + 2.2} ${x0 + 3.6},${y + 2.2} ${x0 + 2},${y + 4}" fill="#5e3a1d"/><polygon points="${x1 - 2},${y + 2.2} ${x1 - 3.6},${y + 2.2} ${x1 - 2},${y + 4}" fill="#5e3a1d"/>`;
   let s = `<defs>
-    <linearGradient id="rmWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d4ba3"/><stop offset="1" stop-color="#46397f"/></linearGradient>
-    <linearGradient id="rmSideL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2c2260"/><stop offset="1" stop-color="#3b3074"/></linearGradient>
-    <linearGradient id="rmSideR" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#2c2260"/><stop offset="1" stop-color="#3b3074"/></linearGradient>
-    <linearGradient id="rmFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a33"/><stop offset="1" stop-color="#b98450"/></linearGradient>
+    <linearGradient id="rmWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--rmW1,#5d4ba3)"/><stop offset="1" style="stop-color:var(--rmW2,#46397f)"/></linearGradient>
+    <linearGradient id="rmSideL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--rmS1,#2c2260)"/><stop offset="1" style="stop-color:var(--rmS2,#3b3074)"/></linearGradient>
+    <linearGradient id="rmSideR" x1="1" y1="0" x2="0" y2="0"><stop offset="0" style="stop-color:var(--rmS1,#2c2260)"/><stop offset="1" style="stop-color:var(--rmS2,#3b3074)"/></linearGradient>
+    <linearGradient id="rmFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--rmF1,#8a5a33)"/><stop offset="1" style="stop-color:var(--rmF2,#b98450)"/></linearGradient>
     <linearGradient id="rmCeil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1547"/><stop offset="1" stop-color="#2a1f60"/></linearGradient>
     <linearGradient id="rmSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1b4c"/><stop offset="1" stop-color="#3a4f9a"/></linearGradient>
     <linearGradient id="rmBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe0ff" stop-opacity=".35"/><stop offset="1" stop-color="#cfe0ff" stop-opacity="0"/></linearGradient></defs>`;
@@ -5457,9 +5472,6 @@ function rmShell() {
     <polygon points="20,${RM.y1} 80,${RM.y1} 100,${RM.front} 0,${RM.front}" fill="url(#rmFloor)"/>${planks.join('')}
     <polygon points="20,${RM.y1 - 1.6} 80,${RM.y1 - 1.6} 80,${RM.y1} 20,${RM.y1}" fill="#2a1a3d"/>
     <polygon points="20,${RM.y1 - 1.6} 20,${RM.y1} 0,${RM.front} 0,${RM.front - 3.4}" fill="#241633"/><polygon points="80,${RM.y1 - 1.6} 80,${RM.y1} 100,${RM.front} 100,${RM.front - 3.4}" fill="#241633"/>
-    <rect x="44" y="16" width="14" height="16" rx="1" fill="#2a1a3d"/><rect x="45" y="17" width="12" height="14" fill="url(#rmSky)"/><circle cx="53" cy="21.5" r="2" fill="#fff6c9"/>
-    <g fill="#fff" opacity=".85"><circle cx="48" cy="20" r=".3"/><circle cx="50.5" cy="25" r=".25"/><circle cx="55" cy="27" r=".3"/><circle cx="47" cy="28" r=".25"/></g>
-    <rect x="50.8" y="17" width=".5" height="14" fill="#2a1a3d"/><rect x="45" y="23.8" width="12" height=".5" fill="#2a1a3d"/><rect x="43" y="32" width="16" height="1.1" rx=".3" fill="#4a2f66"/>
     <polygon points="45,31 57,31 74,${RM.y1 + 24} 52,${RM.y1 + 24}" fill="url(#rmBeam)" opacity=".55"/>`;
   return s + board(22, 41, 27) + board(22, 41, 41) + board(61, 78, 24) + board(61, 78, 35) + rmWardrobe();   // potion shelf, a small decoration shelf, two ingredient boards, the wardrobe on the left wall
 }
@@ -5515,7 +5527,93 @@ function jarInner(id, n) {
     <b class="${[...g.em].length > 1 ? 'two' : ''}">${g.em}</b><span class="tag">${nameOf(g)}</span><em>${n}</em>`;
 }
 const JAR_SLOTS = [[64.3, 24.3], [70.6, 24.3], [76.9, 24.3], [64.3, 35.3], [70.6, 35.3], [76.9, 35.3]];   // six jars fit on the two boards; the close-up shows the rest
-let rmInit = false, rmPanel = null, rmDisp = {}, rmDragging = false, rmTok = 0;
+let rmInit = false, rmPanel = null, rmDisp = {}, rmTok = 0;
+/* ----- Home v2: the room of fixed places (spec 13). The student taps a place to choose which owned item stands there; nothing is dragged. ----- */
+let HA_LOAD = null;   // the item art (homeart.js) is loaded when the Home or the shop's Home section first opens
+const homeArt = () => window.HA ? Promise.resolve(window.HA) : (HA_LOAD = HA_LOAD || new Promise(res => { const s = document.createElement('script'); s.src = 'homeart.js'; s.onload = () => res(window.HA); s.onerror = () => { HA_LOAD = null; res(null); }; document.head.appendChild(s); }));
+const homeOf = () => P.home || HM.migrate(P);
+const itemName = it => tl([it.en, it.he]);
+const viewBoxAr = svg => { const m = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/); return m ? m[1] / m[2] : 1; };
+const glowRugArt = () => ({ svg: '<svg viewBox="0 0 120 44" aria-hidden="true"><defs><filter id="hgl"><feGaussianBlur stdDeviation="3"/></filter></defs><ellipse cx="60" cy="22" rx="58" ry="20" fill="#7af3e0" opacity=".55" filter="url(#hgl)"/><ellipse cx="60" cy="22" rx="56" ry="19" fill="#2fc7b8" stroke="#2b1a0e" stroke-width="1.2"/><ellipse cx="60" cy="22" rx="44" ry="14" fill="#fff3b0"/><ellipse cx="60" cy="22" rx="33" ry="10" fill="#7a5cff"/><ellipse cx="60" cy="22" rx="20" ry="6" fill="#fff3b0"/><ellipse cx="60" cy="22" rx="9" ry="3" fill="#2fc7b8"/></svg>', ar: 120 / 44 });
+// the picture of an item and its width / height ratio: a tier 0 item (homeart.js), an Academy gift or an older decoration (their own drawings); null while homeart.js loads
+function itemArt(it) {
+  if (it.legacy) {
+    if (it.legacy === 'd_rug') return window.HA ? HA.draw('rug', 1) : null;
+    const f = FURN_ART[it.legacy], d = SHOP[it.legacy];
+    return f ? { svg: f(), ar: viewBoxAr(f()) } : { svg: `<svg viewBox="0 0 40 40" aria-hidden="true"><text x="20" y="31" font-size="30" text-anchor="middle">${d ? d.em : '❔'}</text></svg>`, ar: 1 };
+  }
+  if (it.gift) { if (it.id === 'a_rug') return glowRugArt(); const f = { a_lamp: FURN_ART.r_lamp, a_ball: FURN_ART.r_ball, a_wheel: FURN_ART.r_wheel, a_statue: FURN_ART.r_statue }[it.id]; return f ? { svg: f(), ar: viewBoxAr(f()) } : null; }
+  return window.HA ? HA.draw(it.kind, it.v) : null;
+}
+function applyRoomColours() {   // the wall and the floor colours (spec 13 §3.6): the shell's gradients read these variables
+  const home = homeOf(), w = HM.wallOf(home.wall), f = HM.floorOf(home.floor), st = $('#rmScene').style;
+  st.setProperty('--rmW1', w.top); st.setProperty('--rmW2', w.bot); st.setProperty('--rmS1', shade(w.bot, -50)); st.setProperty('--rmS2', shade(w.top, -36));
+  st.setProperty('--rmF1', f.far); st.setProperty('--rmF2', f.near);
+}
+// the places: a picture of the item that stands there, or a soft outline with a + (spec 13 §2.1)
+function homeSlotsHtml() {
+  const home = homeOf(), out = [];
+  for (const s of HM.SLOTS) {
+    const id = home.slots[s.id], it = id && HM.ITEMS[id], k = HM.KIND[s.kind], sc = slotScale(s), art = it ? itemArt(it) : null, kn = tl([k.en, k.he]);
+    const style = `--x:${s.x};--y:${s.y};--s:${sc};--b:${s.kind === 'rug' ? 24 : s.b};--z:${slotZ(s)};--ar:${KIND_AR[s.kind] || 1}`;
+    if (it && art) out.push(`<button class="hSlot ${k.mode}${home.new.includes(id) ? ' isnew' : ''}" data-slot="${s.id}" style="${style}" aria-label="${esc(t('slot_aria', { k: kn, n: itemName(it) }))}"><span class="hArt">${art.svg}</span></button>`);
+    else out.push(`<button class="hSlot ${k.mode} empty" data-slot="${s.id}" style="${style}" aria-label="${esc(t('slot_empty_aria', { k: kn }))}"><i>+</i></button>`);
+  }
+  return out.join('');
+}
+// tapping a place lists the owned items of its kind, and "Empty" (spec 13 §5.2); swapping is free
+async function openSlot(slotId) {
+  await homeArt(); const home = homeOf(), s = HM.SLOT[slotId], k = HM.KIND[s.kind], cur = home.slots[slotId], kn = tl([k.en, k.he]);
+  const ids = HM.owned(home, s.kind).sort((a, b) => (home.new.includes(b) - home.new.includes(a)) || (HM.ITEMS[a].price - HM.ITEMS[b].price));
+  const card = id => { const it = HM.ITEMS[id], art = itemArt(it), n = HM.count(home, id);
+    return `<button class="hPick${id === cur ? ' on' : ''}" data-id="${id}"><span class="hThumb">${art ? art.svg : ''}</span><b>${itemName(it)}</b><small>${n > 1 ? '×' + n : ''}${home.new.includes(id) ? ` <span class="newTag">${t('new_tag')}</span>` : ''}</small></button>`; };
+  modal(t('slot_pick_t', { k: kn }), `<div class="hPicks" id="hPicks">${ids.map(card).join('')}<button class="hPick empty" data-id=""><span class="hThumb">⌀</span><b>${t('slot_empty')}</b></button></div>${ids.length ? '' : `<p class="small" style="text-align:center">${t('slot_none', { k: kn })}</p>`}`, [[t('close'), null, true]]);
+  $('#hPicks').onclick = e => {
+    const b = e.target.closest('.hPick'); if (!b) return;
+    if (HM.place(home, slotId, b.dataset.id || null)) { sfx.ok(); saveSoon(true); $('#modal').classList.remove('on'); renderRoom(rmDisp); const el = $(`#rmProps [data-slot="${slotId}"]`); if (el) { el.classList.add('hSpark'); setTimeout(() => el.classList.remove('hSpark'), 700); } }
+  };
+}
+// the walls' perspective: t = 0 at the back corner, 1 at the front; f = the height as a fraction of the wall
+const wallPt = (right, t, f) => { const fy = 46 + 34 * t, H = 38 + 42 * t; return [+((right ? 80 + 20 * t : 20 - 20 * t)).toFixed(2), +(fy - f * H).toFixed(2)]; };
+const wallPoly = (right, t0, t1, f0, f1, fill, extra = '') => `<polygon points="${[wallPt(right, t0, f0), wallPt(right, t1, f0), wallPt(right, t1, f1), wallPt(right, t0, f1)].map(p => p.join(',')).join(' ')}" fill="${fill}" ${extra}/>`;
+const MEDAL_FILL = { gold: '#ffd84a', silver: '#e4e8f0', bronze: '#d08a4a' };
+// the book shelves on the right wall, the certificate wall on the left wall, the trophies on the wardrobe, the name plaque and the statue stand (spec 13 §3.3, §3.5, §6)
+function rmDyn() {
+  const S = acadS(), certs = S.certs || [], rank = acadPassed(), lvl = wizLvl(), L = [];
+  // the certificate wall: five frames on the left wall, test 1 at the back to test 5 at the front; empty frames are waiting
+  for (let i = 0; i < 5; i++) {
+    const t0 = .1 + i * .17, t1 = t0 + .13, c = certs.find(x => x.test === i + 1), mid = (t0 + t1) / 2, [cx, cy] = wallPt(false, mid, .76), r = (.45 + .85 * mid).toFixed(2);
+    L.push(`<g data-act="cert" data-n="${i + 1}" ${c ? 'style="cursor:pointer"' : ''}>${wallPoly(false, t0, t1, .64, .9, c ? '#f6e7c0' : '#ffffff10', `stroke="${c ? '#6b4220' : '#ffffff55'}" stroke-width=".28" ${c ? '' : 'stroke-dasharray=".8 .6"'}`)}${c ? `${wallPoly(false, t0 + .015, t1 - .015, .67, .87, 'none', 'stroke="#b8975a" stroke-width=".12"')}<circle cx="${cx}" cy="${cy}" r="${r}" fill="${MEDAL_FILL[c.medal] || '#d08a4a'}" stroke="#2b1a0e" stroke-width=".18"/>` : ''}</g>`);
+  }
+  // the trophies stand on top of the wardrobe (from wizard level 15): a cup for each medal
+  const trOpen = lvl >= HM.SPECIAL.trophies.level;
+  L.push(`<g data-act="trophies" style="cursor:pointer">${wallPoly(false, .3, .7, .475, .5, trOpen ? '#a8743a' : '#6b4220a0', 'stroke="#4d2f12" stroke-width=".15"')}${trOpen ? [0, 1, 2, 3, 4].map(i => { const tm = .34 + i * .08, c = certs.find(x => x.test === i + 1), [bx, by] = wallPt(false, tm, .5), s = (38 + 42 * tm) / 80;
+    return c ? `<path d="M${(bx - 1.3 * s).toFixed(2)} ${(by - 3 * s).toFixed(2)}h${(2.6 * s).toFixed(2)}l${(-.5 * s).toFixed(2)} ${(1.9 * s).toFixed(2)}h${(-1.6 * s).toFixed(2)}z" fill="${MEDAL_FILL[c.medal] || '#d08a4a'}" stroke="#2b1a0e" stroke-width=".12"/><rect x="${(bx - .35 * s).toFixed(2)}" y="${(by - 1.1 * s).toFixed(2)}" width="${(.7 * s).toFixed(2)}" height="${(.7 * s).toFixed(2)}" fill="${MEDAL_FILL[c.medal] || '#d08a4a'}" stroke="#2b1a0e" stroke-width=".1"/><rect x="${(bx - .8 * s).toFixed(2)}" y="${(by - .4 * s).toFixed(2)}" width="${(1.6 * s).toFixed(2)}" height="${(.4 * s).toFixed(2)}" fill="#6b4220"/>` : ''; }).join('') : `<text x="${wallPt(false, .5, .5)[0]}" y="${wallPt(false, .5, .5)[1] - .5}" font-size="2.6" text-anchor="middle">🔒</text>`}</g>`);
+  // the book shelves on the right wall: the monster manual (from test 1), the spell book and the conjuration book (from rank 3)
+  const shelf = (f, act, openOk, onShelf, cover, mark) => {
+    const t0 = .22, t1 = .78, bt0 = .38, bt1 = .5, bf0 = f + .014, bf1 = f + .2, [lx, ly] = wallPt(true, .5, f + .09);
+    return `<g data-act="${act}" style="cursor:pointer">${wallPoly(true, t0, t1, f, f + .028, '#c58f58', 'stroke="#5e3a1d" stroke-width=".18"')}${wallPoly(true, t0, t1, f - .03, f, '#7a4d27')}
+      ${onShelf && openOk ? `${wallPoly(true, bt0, bt1, bf0, bf1, cover, 'stroke="#2b1a0e" stroke-width=".2"')}${wallPoly(true, bt0 + .01, bt0 + .025, bf0, bf1, '#0003')}${mark(bt0, bt1, bf0, bf1)}${wallPoly(true, bt1 + .02, bt1 + .09, bf0, bf1 - .03, '#e8d3b0', 'stroke="#8a6a44" stroke-width=".15"')}`
+        : `${wallPoly(true, bt0, bt1, bf0, bf1, 'none', 'stroke="#ffffff55" stroke-width=".25" stroke-dasharray=".7 .5"')}`}
+      ${openOk ? '' : `<text x="${lx}" y="${ly}" font-size="2.8" text-anchor="middle">🔒</text>`}</g>`;
+  };
+  const dot = (cx, cy, rr, fill) => `<circle cx="${cx}" cy="${cy}" r="${rr}" fill="${fill}"/>`;
+  const markIn = (right, bt0, bt1, bf0, bf1, fill) => { const [x, y] = wallPt(right, (bt0 + bt1) / 2, (bf0 + bf1) / 2); return dot(x, y, (.5 + .7 * (bt0 + bt1) / 2).toFixed(2), fill); };
+  L.push(shelf(.3, 'manual', manualOpen(), P.manual === 'home', '#b3261e', (a, b, c, d) => markIn(true, a, b, c, d, '#ffd166')));
+  L.push(shelf(.52, 'books', booksOffered(), booksHome(), '#4a3fb0', (a, b, c, d) => markIn(true, a, b, c, d, '#e8c4ff')));
+  L.push(shelf(.74, 'books', booksOffered(), booksHome(), '#b8860b', (a, b, c, d) => markIn(true, a, b, c, d, '#fff3c4')));
+  // the name plaque on the back wall (from wizard level 5)
+  const plOpen = lvl >= HM.SPECIAL.plaque.level, nm = (P.nick || '').slice(0, 14);
+  L.push(`<g data-act="plaque" style="cursor:pointer"><rect x="57" y="41" width="13" height="3.4" rx=".5" fill="${plOpen ? '#6b4220' : '#6b422080'}" stroke="#2b1a0e" stroke-width=".2"/>${plOpen ? `<text x="63.5" y="43.4" font-size="1.9" text-anchor="middle" fill="#ffe8a8" textLength="${Math.min(11, Math.max(4, nm.length * 1.1)).toFixed(1)}" lengthAdjust="spacingAndGlyphs">${esc(nm)}</text>` : `<text x="63.5" y="43.5" font-size="2.2" text-anchor="middle">🔒</text>`}</g>`);
+  return L.join('');
+}
+// the statue stand on the floor (from Academy test 5): the golden statue of the student stands on it
+function statueHtml() {
+  const home = homeOf(), open = acadPassed() >= HM.SPECIAL.statue.test, has = HM.count(home, 'a_statue') > 0, sc = rmDepth(60);
+  const art = open && has ? itemArt(HM.ITEMS.a_statue) : null;
+  return `<button class="hSlot floor statue${open ? '' : ' locked'}" data-act="statue" style="--x:85;--y:60;--s:${sc};--b:7.5;--z:${10 + 60};--ar:.6" aria-label="${t('statue_aria')}">${art ? `<span class="hArt">${art.svg}</span>` : `<svg viewBox="0 0 70 60" aria-hidden="true"><path d="M8 58H62L58 36H12Z" fill="#6b5a3a" stroke="#2b1a0e" stroke-width="1.3"/><rect x="14" y="30" width="42" height="9" rx="2" fill="#8a7448" stroke="#2b1a0e" stroke-width="1.3"/>${open ? '' : '<text x="35" y="22" font-size="22" text-anchor="middle">🔒</text>'}</svg>`}</button>`;
+}
+const manualOpen = () => !!(P && (acadPassed() >= 1 || P.manual === 'home'));   // the book of monsters shelf opens with Academy test 1 (spec 13 §3.3)
 function rmSetup() {
   if (rmInit) return; rmInit = true;
   const scene = $('#rmScene');
@@ -5523,31 +5621,27 @@ function rmSetup() {
   if (!(window.CSS && CSS.supports && CSS.supports('width', '1cqw'))) {   // older browsers: no container units, so the unit is set from the width instead
     const fit = () => scene.style.setProperty('--u', (scene.clientWidth / 100) + 'px'); fit(); window.addEventListener('resize', fit);
   }
-  // (the reading game's mouse parallax was removed: the room looked like it was shaking; --dx/--dy stay 0)
-  scene.addEventListener('pointerdown', e => {   // drag decorations: pointer capture, works with mouse and touch; a tap without moving says the name
-    const el = e.target.closest('.prop[data-id]'); if (!el || e.button > 0) return;
-    const id = el.dataset.id, it = ROOM_ITEMS[id], r0 = scene.getBoundingClientRect(), p0 = rmPos(id);
-    const offX = p0.x - (e.clientX - r0.left) / r0.width * 100, offY = p0.y - (e.clientY - r0.top) / r0.width * 100, sx = e.clientX, sy = e.clientY; let moved = false;
-    try { el.setPointerCapture(e.pointerId); } catch (x) {}
-    const move = ev => {
-      if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 6) return;
-      if (!moved) { moved = true; rmDragging = true; el.classList.add('drag'); }
-      const r = scene.getBoundingClientRect(); let x = (ev.clientX - r.left) / r.width * 100 + offX, y = (ev.clientY - r.top) / r.width * 100 + offY;
-      if (it.t === 'wall') { x = rmClamp(x, RM.x0 + 3, RM.x1 - 3); y = rmClamp(y, RM.y0 + 3, RM.y1 - 4); }
-      else { y = rmClamp(y, RM.y1 + 2, RM.front - 1); const m = rmFloorLeft(y) + 4; x = rmClamp(x, m, 100 - m); }
-      P.own.pos = P.own.pos || {}; P.own.pos[id] = { x: +x.toFixed(1), y: +y.toFixed(1) }; rmPlace(el, id);
-    };
-    const up = () => {
-      el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
-      el.classList.remove('drag'); rmDragging = false;
-      if (moved) saveSoon(true); else if (/^c_cert\d$/.test(id)) openCert(+id.slice(6)); else { const d = SHOP[id]; toast(`${d.em} ${nameOf(d)}`); if (findHeVoice()) playSound({ say: d.he }); }
-    };
-    el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  scene.addEventListener('click', e => {   // a tap on a place, a shelf, a certificate or a special place
+    const sl = e.target.closest('[data-slot]'); if (sl) { openSlot(sl.dataset.slot); return; }
+    const a = e.target.closest('[data-act]'); if (!a) return;
+    const act = a.dataset.act, rank = acadPassed(), lvl = wizLvl();
+    if (act === 'cert') { const c = (acadS().certs || []).find(x => x.test === +a.dataset.n); if (c) openCert(c.test); else toast(t('cert_wait', { n: a.dataset.n })); }
+    else if (act === 'manual') { if (manualOpen()) openManual(); else toast(t('shelf_test1')); }
+    else if (act === 'books') { if (booksOffered()) openBooks(); else toast(t('shelf_rank3')); }
+    else if (act === 'trophies') toast(lvl >= HM.SPECIAL.trophies.level ? t('trophies_t') : t('opens_level', { n: HM.SPECIAL.trophies.level }));
+    else if (act === 'plaque') toast(lvl >= HM.SPECIAL.plaque.level ? '🏷️ ' + P.nick : t('opens_level', { n: HM.SPECIAL.plaque.level }));
+    else if (act === 'statue') { const home = homeOf(); toast(rank >= HM.SPECIAL.statue.test && HM.count(home, 'a_statue') ? '🏆 ' + t('statue_t') : t('statue_locked')); }
   });
-  $('#tidyBtn').onclick = () => { P.own.pos = {}; renderRoom(rmDisp); saveSoon(true); toast(t('tidied')); };
+  $('#wallBtn').onclick = () => openColours('wall'); $('#floorBtn').onclick = () => openColours('floor');
 }
-function rmPlace(el, id) {
-  const p = rmPos(id); el.style.setProperty('--x', p.x); el.style.setProperty('--y', p.y); el.style.setProperty('--s', rmScale(id, p.y)); el.style.setProperty('--z', rmZ(id, p.y));
+// the wall and the floor colours, changed separately and for free; colours locked by tier show the rank that opens them (spec 13 §3.6)
+function openColours(which) {
+  const home = homeOf(), list = which === 'wall' ? HM.WALLS : HM.FLOORS, cur = home[which], rank = acadPassed();
+  const sw = c => { const lock = c.tier > rank, a = which === 'wall' ? c.top : c.far, b = which === 'wall' ? c.bot : c.near;
+    return `<button class="hCol${c.id === cur ? ' on' : ''}${lock ? ' lock' : ''}" data-id="${c.id}" style="background:linear-gradient(${a},${b})" aria-label="${tl([c.en, c.he])}"><b>${tl([c.en, c.he])}</b>${lock ? `<small>🔒 ${t('recipe_rank', { n: c.tier, name: tl(ACAD_RANK[c.tier - 1]) })}</small>` : ''}</button>`; };
+  modal(t(which === 'wall' ? 'wall_btn' : 'floor_btn'), `<div class="hCols" id="hCols">${list.map(sw).join('')}</div>`, [[t('close'), null, true]]);
+  $('#hCols').onclick = e => { const b = e.target.closest('.hCol'); if (!b) return; const c = list.find(x => x.id === b.dataset.id); if (c.tier > rank) { toast(t('recipe_rank', { n: c.tier, name: tl(ACAD_RANK[c.tier - 1]) })); return; }
+    home[which] = c.id; applyRoomColours(); saveSoon(true); $('#hCols').querySelectorAll('.hCol').forEach(x => x.classList.toggle('on', x.dataset.id === c.id)); };
 }
 function rmShown(disp) { return Object.keys(ING).filter(id => (disp[id] || 0) > 0).sort((a, b) => ING[b].r - ING[a].r); }   // rarest first; ties keep the list order
 // The mannequin at Home (owner, step 9): it holds the forged items that stay at HOME, up to MANQ_MAX of each kind; an item the student takes on quests leaves it,
@@ -5582,16 +5676,11 @@ function renderRoom(disp) {   // disp = the ingredient counts to show (they fill
   H.push(`<button class="rHit ${rmPanel === 'ing' ? 'on' : ''}" data-kind="ing" aria-label="${t('ing_shelf_aria')}" style="left:60%;top:${16.5 * 1.25}%;width:19.5%;height:${20.5 * 1.25}%"></button>`);
   POTION_IDS.forEach((id, i) => H.push(`<div class="rFlask ${(P.pot[id] || 0) ? '' : 'none'}" style="left:${24.8 + i * 3.7}%;top:${27 * 1.25}%">${potionSVG(id)}<i>${POTIONS[id].em}</i></div>`));
   rmShown(disp).slice(0, 6).forEach((id, i) => H.push(`<div class="rJar jarbox" data-jar="${id}" style="left:${JAR_SLOTS[i][0]}%;top:${JAR_SLOTS[i][1] * 1.25}%">${jarInner(id, disp[id])}</div>`));
-  for (const id of Object.keys(ROOM_ITEMS)) {
-    if (!P.own.decor.includes(id)) continue; const it = ROOM_ITEMS[id], d = SHOP[id], p = rmPos(id);
-    const inner = it.t === 'rug' ? `<div class="rRug${id === 'r_rug' ? ' glow' : ''}"></div>` : FURN_ART[id] ? `<span class="shadow"></span><span class="art">${FURN_ART[id]()}</span>` : it.t === 'floor' ? `<span class="shadow"></span><span class="em">${d.em}</span>` : `<span class="em">${d.em}</span>`;   // furniture: a big drawing
-    H.push(`<div class="prop ${it.t === 'wall' ? 'wall' : 'floor'} ${it.t === 'rug' ? 'rugwrap' : ''}" data-id="${id}" aria-label="${t('drag_aria', { n: nameOf(d) })}" style="--x:${p.x};--y:${p.y};--base:${it.b || 8};--s:${rmScale(id, p.y)};--z:${rmZ(id, p.y)}">${inner}</div>`);
-  }
-  if (wizLvl() >= CFG.MANUAL_FROM || P.manual === 'home') H.push(`<button class="rManual${P.manual === 'home' ? '' : ' gone'}" id="manualShelf" aria-label="${t('manual_t')}" title="${t('manual_t')}" style="left:39.4%;top:${41 * 1.25}%"><span>📕</span></button>`);   // the monster manual's place on the shelf
-  if (booksOffered()) H.push(`<button class="rManual${booksHome() ? '' : ' gone'}" id="booksShelf" aria-label="${t('books_t')}" title="${t('books_t')}" style="left:46%;top:${41 * 1.25}%"><span>📖</span></button>`);   // the books' place on the shelf (the same kind of shelf spot as the manual)
+  H.push(homeSlotsHtml(), statueHtml());   // the fixed places and the statue stand (spec 13)
   if ((P.ws && P.ws.on) || MAGIC_SLOTS.some(s => itemVer(s))) H.push(`<button class="rManq" id="manqBtn" aria-label="${t('manq_t')}" title="${t('manq_t')}" style="left:17%;top:${66 * 1.25}%">${manqSVG()}</button>`);   // the mannequin with the forged items
   H.push(`<button class="rCaul" id="caulBtn" aria-label="${t('brew_aria', { c: caulName(c) })}" style="--liq:${cau.liq};--liqa:${cau.liqa};--cs:${cau.cs}"><span class="aura"></span>${cauldronArt(c)}${[0, 1, 2, 3].map(i => `<i class="bub" style="left:${34 + i * 11}%;animation-delay:${i * .6}s"></i>`).join('')}<span class="caulLbl">${t('tap_brew', { c: caulName(c) })}</span></button>`);
-  $('#rmProps').innerHTML = H.join(''); renderRoomPanel();
+  $('#rmProps').innerHTML = H.join(''); $('#rmDyn').innerHTML = rmDyn(); applyRoomColours(); renderRoomPanel();
+  if (!window.HA) homeArt().then(h => { if (h && $('#home').classList.contains('on')) renderRoom(rmDisp); });   // the item pictures load on demand, then the room is drawn again
 }
 function renderRoomPanel() {   // the close-up under the room: big flasks and jars that are readable on a phone
   const p = $('#roomPanel');
@@ -5643,8 +5732,6 @@ function openRecipes() {   // tapping the cauldron
 $('#home').onclick = e => {
   if (e.target.closest('#caulBtn')) { openRecipes(); return; }
   if (e.target.closest('#wardBtn')) { openWardrobe(); return; }
-  if (e.target.closest('#manualShelf')) { openManual(); return; }
-  if (e.target.closest('#booksShelf')) { openBooks(); return; }
   if (e.target.closest('#manqBtn')) { openManq(); return; }
   if (e.target.closest('[data-close]')) { rmPanel = null; renderRoom(rmDisp); return; }
   const hit = e.target.closest('.rHit'); if (hit) { rmPanel = rmPanel === hit.dataset.kind ? null : hit.dataset.kind; renderRoom(rmDisp); if (rmPanel) $('#roomPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
@@ -6089,7 +6176,7 @@ const FURN_ART = {
 const FURN = [['f_couch', 'ספה', 'couch', '🛋️', 220, 25, 67, 70], ['f_table', 'שולחן סלון', 'coffee table', '☕', 110, 13, 67, 79], ['f_armchair', 'כורסה', 'armchair', '💺', 130, 12, 89, 73],
   ['f_bookcase', 'ספרייה', 'bookcase', '📚', 160, 11, 72, 52], ['f_fireplace', 'אח', 'fireplace', '🔥', 260, 20, 33, 52], ['f_bed', 'מיטה', 'bed', '🛏️', 240, 24, 25, 74],
   ['f_floorlamp', 'מנורה עומדת', 'floor lamp', '💡', 70, 6, 89, 57], ['f_desk', 'שולחן כתיבה', 'desk', '📝', 150, 16, 62, 56], ['f_piano', 'פסנתר', 'piano', '🎹', 320, 19, 40, 57], ['f_aquarium', 'אקווריום', 'aquarium', '🐠', 180, 14, 79, 58]];
-for (const [id, he, en, em, price, b, x, y] of FURN) { SHOP[id] = { id, kind: 'decor', big: true, he, nk: he, em, en, price }; ROOM_ITEMS[id] = { t: 'floor', b, x, y }; }
+for (const [id, he, en, em, price, b, x, y] of FURN) { SHOP[id] = { id, kind: 'decor', big: true, he, nk: he, em, en, price }; }
 const FURN_IDS = FURN.map(f => f[0]);
 const catalogSVG = () => `<svg viewBox="0 0 60 40" aria-hidden="true"><path d="M4 30 L30 36 L56 30 L56 6 L30 12 L4 6Z" fill="#7a2a3a" ${OL}/><path d="M30 12 V36" stroke="#2b1a0e" stroke-width="1.3"/>
   <path d="M7 9 L28 14 V32 L7 27Z" fill="#f3e6c4"/><path d="M53 9 L32 14 V32 L53 27Z" fill="#f3e6c4"/><path d="M10 22 h14 v4 h-14z M12 18 h10 v4 h-10z" fill="#6a4bd0"/><path d="M36 18 q5 -5 12 -2 v8 q-7 -2 -12 2z" fill="#c58f58"/><path d="M41 20 h4" stroke="#2b1a0e"/></svg>`;
@@ -6161,17 +6248,10 @@ FURN_ART.r_wheel = () => { const cols = ['#e53935', '#fb8c00', '#fdd835', '#43a0
   return `<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="27" fill="#f6efe0" ${OL}/>${cols.map((c, i) => { const a0 = i * Math.PI / 4 - Math.PI / 2, a1 = (i + 1) * Math.PI / 4 - Math.PI / 2; return `<path d="M30 30L${(30 + Math.cos(a0) * 24).toFixed(1)} ${(30 + Math.sin(a0) * 24).toFixed(1)}A24 24 0 0 1 ${(30 + Math.cos(a1) * 24).toFixed(1)} ${(30 + Math.sin(a1) * 24).toFixed(1)}Z" fill="${c}" stroke="#2b1a0e" stroke-width=".9"/>`; }).join('')}<circle cx="30" cy="30" r="5" fill="#fff" ${OL}/><text x="30" y="33" font-size="7" text-anchor="middle" font-weight="700" fill="#2b1a0e">⅛</text></svg>`; };
 FURN_ART.r_statue = () => { const hero = heroSVG(P.gender, '#e0b84a', '#f0cf6a', '#fff1b0', { beard: P.beard, pots: [] }).replace('<svg ', '<svg x="6" y="0" width="58" height="96" ');
   return `<svg viewBox="0 0 70 124" aria-hidden="true"><path d="M8 122H62L58 100H12Z" fill="#6b5a3a" ${OL}/><rect x="14" y="94" width="42" height="9" rx="2" fill="#8a7448" ${OL}/>${hero}<circle cx="35" cy="40" r="30" fill="#ffd166" opacity=".14"/></svg>`; };
-for (let i = 1; i <= 5; i++) FURN_ART['c_cert' + i] = () => certThumb(i);
-// [id, Hebrew, English, emoji, where it goes (floor / wall / rug), size, x, y]
-for (const [id, he, en, em, ty, b, x, y] of [['r_monsters', 'מדף ספר המפלצות', 'book-of-monsters shelf', '📚', 'wall', 9, 14, 31], ['r_lamp', 'מנורת קריאה', 'reading lamp', '💡', 'floor', 5.5, 12, 66], ['r_ball', 'כדור קריסטל', 'crystal ball', '🔮', 'floor', 5.5, 91, 66],
-  ['r_rug', 'שטיח זוהר', 'glowing rug', '🧶', 'rug', 0, 50, 77], ['r_wheel', 'גלגל השברים', 'fraction wheel', '🎡', 'wall', 8, 86, 30], ['r_statue', 'פסל זהב', 'golden statue', '🏆', 'floor', 8, 90, 80],
-  ...[[26, 31], [34, 31], [62, 43], [69, 43], [76, 43]].map(([x, y], i) => ['c_cert' + (i + 1), 'תעודה ' + (i + 1), 'certificate ' + (i + 1), '📜', 'wall', 6.5, x, y])]) {
-  SHOP[id] = { id, kind: 'decor', big: true, he, nk: he, em, en, price: 0 }; ROOM_ITEMS[id] = ty === 'rug' ? { t: 'rug', x, y } : { t: ty, b, x, y };
-}
 // a pass: the gifts for the room and the certificate go on the list of what the student owns (once)
-function acadGrant(k) {
-  const got = [...ACAD_GIFTS[k], 'c_cert' + (k + 1)];
-  P.own.decor = P.own.decor || []; got.forEach(id => { if (!P.own.decor.includes(id)) P.own.decor.push(id); });
+function acadGrant(k) {   // the gifts are free items in the collection, marked "new!" until they are placed (spec 13 §7); the certificate hangs on the wall by itself
+  const home = homeOf();
+  for (const id of ACAD_GIFTS[k]) { const g = HM.GIFT_OF_OLD[id]; if (g && !HM.count(home, g)) HM.give(home, g, 1); }
   return ACAD_GIFTS[k];
 }
 // the spells a test opens (its tier), for the graduation window: the ones the student can learn now are learned; the others say what they wait for

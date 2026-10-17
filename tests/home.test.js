@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const isNode = typeof module === 'object' && typeof require === 'function';
-  const HM = isNode ? require('../home.js') : globalThis.HM;
+  const HM = isNode ? require('../home.js') : globalThis.HM, HA = isNode ? require('../homeart.js') : globalThis.HA;
   const results = [];
   const test = (name, fn) => { try { fn(); results.push({ name, ok: true }); } catch (e) { results.push({ name, ok: false, msg: e.message }); } };
   const assert = (c, msg) => { if (!c) throw new Error(msg || 'assertion failed'); };
@@ -68,6 +68,14 @@
     assert(Object.values(h.slots).includes('lg_d_plant') && Object.values(h.slots).includes('lg_d_cactus'), 'both plants are placed in the two plant places');
     assert(HM.count(HM.migrate({ own: { decor: [] } }), 'sofa_0_0') === 1, 'a hero with nothing gets the plain starting room');
     assert(HM.migrate(p) === h, 'migrating twice changes nothing');
+  });
+  test('every tier 0 item has a picture (homeart.js): well-formed SVG with a width/height ratio', () => {
+    for (const it of Object.values(HM.ITEMS).filter(i => i.tier === 0 && i.buy)) {
+      const a = HA.draw(it.kind, it.v); assert(a && /^<svg viewBox="0 0 [\d.]+ [\d.]+"/.test(a.svg) && a.svg.endsWith('</svg>') && a.ar > 0.2 && a.ar < 6, it.id + ' picture');
+      const open = (a.svg.match(/<(path|rect|circle|ellipse|g|defs|linearGradient|stop)\b/g) || []).length; assert(open > 0, it.id + ' has shapes');
+      assert((a.svg.match(/<g[ >]/g) || []).length === (a.svg.match(/<\/g>/g) || []).length, it.id + ' balanced groups');
+    }
+    assert(HA.draw('sofa', 0).svg !== HA.draw('sofa', 1).svg && HA.draw('sofa', 1).svg !== HA.draw('sofa', 2).svg, 'the three variants differ');
   });
   test('wall and floor colours: 4 at tier 0, then 2 more of each at each of tiers 1 to 5 (a proposal), all different', () => {
     for (const list of [HM.WALLS, HM.FLOORS]) {
