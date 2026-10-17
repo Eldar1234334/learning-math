@@ -66,6 +66,78 @@ input[type=text],input[type=password],input[type=email]{width:100%;padding:14px;
 #mapHero svg{width:100%;height:100%}#mapHero.drag{transition:none;cursor:grabbing;z-index:6}#mapHero.walk svg{animation:hop .3s infinite alternate}
 @keyframes hop{to{transform:translateY(-6%)}}
 .potBar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:4px auto;max-width:760px}
+.acadOv{position:fixed;inset:0;background:#0009;z-index:90;display:flex;align-items:center;justify-content:center;padding:12px}
+.acadBox{background:#2a1b5c;border:2px solid #ffd166;border-radius:18px;padding:16px;max-width:460px;width:100%;color:#fff;max-height:92vh;overflow:auto;text-align:center}
+.acadBox h3{margin:4px 0 8px}.acadTop{font-size:.9rem;opacity:.9;margin-bottom:6px}.acadStory{font-size:1.15rem;font-weight:600;margin:6px 0 10px}
+.acadGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.acadGrid .opt{font-size:1.4rem}
+.acadPad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:240px;margin:6px auto}.acadPad .btn{grid-column:span 3}
+.acadPadShow{font-size:2rem;font-weight:700;direction:ltr;min-height:1.4em}.acadFb{min-height:1.4em;font-weight:600;color:#ffd166}
+.acadDums{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0}
+.acadDum{background:#0005;border:2px dashed #fff4;border-radius:12px;padding:4px 6px;min-width:58px;font-size:.8rem;opacity:.7}
+.acadDum.cur{border:2px solid #ffd166;opacity:1}.acadDum.down{opacity:.35;filter:grayscale(1)}
+.acadBadge{font-size:1.6rem;display:block;line-height:1.2}.acadDum .mk{display:flex;gap:3px;justify-content:center;margin-top:2px}
+.acadDum .mk i{width:9px;height:9px;border-radius:50%;background:#fff5}.acadDum .mk i.gold{background:#ffd166}
+.acadEq{font-size:2.2rem;font-weight:700;direction:ltr;margin:6px 0}
+.acadStageBox{display:flex;align-items:flex-end;justify-content:center;gap:4px;min-height:120px;padding:6px 0}
+.acadRow{display:flex;gap:2px;align-items:flex-end}.acadEx{width:44px;text-align:center;flex:none}.acadEx .exsvg{width:42px;height:92px}.acadEx small{display:block;font-size:.75rem}
+.acadDum2{width:38px;text-align:center;opacity:.8}.acadDum2 .dsvg{width:38px;height:70px;transition:transform .7s,opacity .7s}
+.acadDum2.cur{opacity:1}.acadDum2.cur .dsvg{filter:drop-shadow(0 0 6px #ffd166)}
+.acadDum2.down{opacity:.3}.acadDum2.down .dsvg{transform:rotate(80deg) translateY(10px)}
+.acadDum2.hit .dsvg{animation:acadShake .6s}.acadDum2.miss .dsvg{animation:acadFlash .6s}
+@keyframes acadShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes acadFlash{0%,100%{filter:none}50%{filter:brightness(1.8) hue-rotate(-40deg)}}
+.acadDum2 .mk{display:flex;gap:3px;justify-content:center;margin-top:2px}.acadDum2 .mk i{width:9px;height:9px;border-radius:50%;background:#fff5}
+.acadDum2 .mk i.gold{background:#ffd166}.acadDum2 .mk i.red{background:#ff5a5a}
+.acScene{position:relative;height:210px;border-radius:14px;overflow:hidden;margin-bottom:4px;background:#8fc3e8}
+.acBgSvg{position:absolute;inset:0;width:100%;height:100%}
+.acLeft,.acMid,.acRight{position:absolute;bottom:4px}
+.acLeft{left:4%;width:86px}.acLeft svg{width:100%;height:auto}
+.acRight{right:4%;width:86px;text-align:center}.acRight .exsvg,.acRight svg{width:100%;height:auto}.acRight small{display:block;font-size:.8rem;color:#fff}
+.acMid{left:50%;transform:translateX(-50%);width:130px;text-align:center}
+#foeBody .acBigDum .dsvg{width:88px;height:114px;}
+.acCrown{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:1.4rem}.acBigDum{position:relative}
+.acPair{display:flex;gap:0;align-items:flex-end}#foeBody .acPair .acBigDum .dsvg{width:68px;height:88px}
+.acBigDum .dsvg{width:110px;height:190px;transition:transform .7s,opacity .7s}
+.acBigDum.hit .dsvg{animation:acadShake .6s}.acBigDum.miss .dsvg{animation:acadFlash .6s}.acBigDum.down .dsvg{transform:rotate(80deg) translateY(10px);opacity:.4}
+.acBigDum .mk{display:flex;gap:5px;justify-content:center;margin-top:2px}.acBigDum .mk i{position:relative;width:14px;height:14px;border-radius:50%;border:2px solid #fffd;background:#0002;display:inline-block}
+.acBigDum .mk i.gold{background:#ffd166;border-color:#ffd166}.acBigDum .mk i.red{background:#fff3;border-color:#e8262a}.acBigDum .mk i.red::before,.acBigDum .mk i.red::after{width:90%;height:2px}
+.acProg{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#fff7;border-radius:12px;padding:4px 8px}
+.acProg i{width:10px;height:10px;border-radius:50%;background:#fff6}.acProg i.ok{background:#8f8}.acProg i.bad{background:#f66}.acProg i.cur{outline:2px solid #ffd166}
+.acPed{position:relative;width:100%;text-align:center}.acPedBase{height:26px;width:90%;margin:0 auto;border-radius:8px 8px 4px 4px;background:linear-gradient(#e8e0cf,#b9ad92)}
+.acPedItems{position:absolute;bottom:26px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:30px;font-size:1.3rem}
+#acExam{position:absolute;right:3%;bottom:7%;width:64px;text-align:center;z-index:3}#acExam svg{width:100%;height:auto;display:block}#acExam small{display:block;color:#fff;font-size:.7rem;opacity:.85;text-shadow:0 1px 2px #0008}
+#acTop{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;z-index:4;direction:ltr}
+.acPill{display:flex;gap:4px;align-items:center;background:#f7ebc3;border:2px solid #c9b270;border-radius:14px;padding:2px 10px;box-shadow:0 2px 0 #0003}.acPill i{width:9px;height:9px;border-radius:50%;background:#ddc98a;flex:none}.acPill i.ok{background:#5fbf5f}.acPill i.bad{background:#e85a5a}.acPill i.cur{background:#f7ebc3;box-shadow:0 0 0 2px #8a6a2a;width:11px;height:11px}
+#acTop .acHour{flex:none}
+#acName{position:absolute;top:17%;left:50%;transform:translateX(-50%);color:#fff;font-weight:600;font-size:.95rem;text-shadow:0 1px 3px #0009;z-index:2;white-space:nowrap}
+#foeBody.acCentre{position:absolute;left:50%;transform:translateX(-50%);bottom:14%;z-index:2;width:auto}
+#acDots{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;gap:6px;justify-content:center;z-index:3}#acDots i{width:12px;height:12px;border-radius:50%;display:inline-block;opacity:.55}#acDots i.cur{opacity:1;outline:2px solid #fff;outline-offset:1px}#acDots i.done{opacity:.3}
+.exBoxes{display:flex;gap:6px;justify-content:center;margin-top:6px}.exBoxes i{position:relative;width:26px;height:26px;border:2px solid #fffc;border-radius:6px;display:inline-block;background:#fff2}
+.exBoxes i.used::before,.exBoxes i.used::after,.acBigDum .mk i.red::before,.acBigDum .mk i.red::after{content:'';position:absolute;left:50%;top:50%;width:78%;height:3px;border-radius:2px;background:#e8262a;transform:translate(-50%,-50%) rotate(45deg)}
+.exBoxes i.used::after,.acBigDum .mk i.red::after{transform:translate(-50%,-50%) rotate(-45deg)}
+body.acadOn .side.foe{display:none}
+#foeBody.acNone{display:none}
+#acPed{position:absolute;left:50%;bottom:11%;transform:translateX(-50%);width:62px;z-index:2}#acPed .acPedSvg{width:100%;height:auto;display:block}
+#acPed.lit .acPedSvg circle:first-of-type{fill:#5a4a8a}
+#acPedItems{position:absolute;left:50%;bottom:36%;transform:translateX(-50%);width:120px;display:flex;flex-wrap:wrap;justify-content:center;gap:1px;font-size:1.05rem;line-height:1.1;text-align:center}
+#acPedItems .acPedItem b{font-size:.8rem;margin-left:1px}
+#acBubble{position:absolute;left:50%;top:44px;transform:translateX(-50%);max-width:58%;min-width:30%;background:#fff;color:#2a2050;border-radius:14px;padding:4px 10px;font-size:.74rem;font-weight:600;line-height:1.25;text-align:center;z-index:4;box-shadow:0 2px 0 #0003}
+#acBubble::after{content:'';position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
+.acBtnRow{display:flex;gap:10px;justify-content:center;margin:2px 0 4px}
+.grad{text-align:center}.gradTop{display:flex;gap:10px;align-items:center;justify-content:center}.gradHero{flex:0 0 38%}.gradHero svg{width:100%;height:auto;max-height:170px}.gradCert{flex:1;min-width:0}
+.cert{background:linear-gradient(135deg,#f9ecc8,#efd8a0);border:3px double #b8975a;border-radius:8px;padding:8px 8px 10px;color:#4a3318;text-align:center;position:relative;box-shadow:0 3px 0 #0003}
+.certTop{font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;opacity:.75}.certRank{font-size:1.05rem;font-weight:800;margin:2px 0}.certName{font-size:.95rem;font-weight:700;border-bottom:1px solid #b8975a;display:inline-block;padding:0 8px;margin-bottom:2px}
+.certLine,.certDate{font-size:.72rem;opacity:.85}.certSeal{width:36px;height:36px;border-radius:50%;margin:6px auto 0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;box-shadow:0 2px 0 #0004,inset 0 0 0 2px #fff6}
+.gradSay{margin:8px 0 2px}.medalWord{padding:0 8px;border:2px solid;border-radius:10px;color:#2a2050;font-weight:700}.gradNow{font-size:1.15rem;font-weight:800;color:#ffd166;margin:4px 0}.gradH{margin:6px 0 2px;font-size:.85rem;opacity:.85}
+.gSpells{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-height:92px;overflow:auto}.gSp{background:#ffffff22;border-radius:10px;padding:1px 7px;font-size:.78rem}.gSp small{opacity:.8}.gSp.wait{opacity:.7}.gSp i{font-style:normal;font-size:.7rem;opacity:.85}
+.gradHat,.gradGift{font-size:.85rem;margin:6px 0 0;display:flex;align-items:center;justify-content:center;gap:6px}
+.bookTake{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 2px;font-weight:600;cursor:pointer}.bookTake input{width:20px;height:20px}
+.certNote{margin:4px auto 0;padding:2px 8px;border:1px dashed #8a6a3a;border-radius:6px;font-size:.7rem;font-weight:700;color:#7a2a1a;background:#fff3d6aa}.gradNoBook{color:#ffd166;font-weight:700;margin:2px 0 6px}.vhNeed.noBook{cursor:default;opacity:.8}
+.newTag{color:#ffd166;font-weight:700}.rRug.glow{background:radial-gradient(ellipse,#fff3b0 0 10%,#2fc7b8 11% 34%,#fff3b0 35% 40%,#7a5cff 41% 66%,#fff3b0 67% 70%,#2fc7b8 71%);box-shadow:0 0 calc(var(--u)*2.2) #7af3e0cc,0 calc(var(--u)*.5) calc(var(--u)*.8) #0006}
+.acadBadge2{font-size:1.5rem;vertical-align:middle}.acPedItem{animation:acadPop .5s both}@keyframes acadPop{0%{transform:scale(0) translateY(20px);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+.acadDots{display:flex;gap:5px;justify-content:center;margin:2px 0 6px}.acadDots i{width:9px;height:9px;border-radius:50%;background:#fff3}
+.acadDots i.cur{outline:2px solid #ffd166}.acadDots i.done{background:#8f8}
+.acadBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .vhNeed{display:flex;align-items:center;justify-content:center;margin:0 auto 4px;width:46px;height:46px;border-radius:50%;border:2px solid #ffd166;background:#ffffff26;font-size:1.6rem;cursor:pointer;padding:0}
 .spellCard.hlItem{outline:3px solid #ffd166;box-shadow:0 0 18px #ffd166}
 .vhIco{width:58px;min-width:58px;height:72px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
@@ -991,6 +1063,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <button class="place" data-p="home" style="left:20%;top:74%"><span class="pIcon">🏡</span><span class="sign"><b data-t="pl_home"></b><small data-t="pl_home_d"></small></span></button>
     <button class="place" data-p="work" id="placeWork" style="left:50%;top:21%"><span class="pIcon">⚒️</span><span class="sign"></span></button>
     <button class="place" data-p="shop" style="left:80%;top:74%"><span class="pIcon">🏪</span><span class="sign"><b data-t="pl_shop"></b><small data-t="pl_shop_d"></small></span></button>
+    <button class="place" data-p="academy" id="placeAcad" style="left:50%;top:83%;display:none"><span class="pIcon"><svg viewBox="0 -8 80 72" style="width:64px;height:auto" aria-hidden="true"><rect x="6" y="56" width="68" height="6" rx="2" fill="#c9bfae"/><rect x="10" y="50" width="60" height="6" fill="#d8cdb8"/><rect x="14" y="26" width="52" height="24" fill="#efe6d2"/><path d="M8 28 L40 6 L72 28 Z" fill="#7a3f9c" stroke="#4d2466" stroke-width="2"/><path d="M14 29 L40 12 L66 29" fill="none" stroke="#ffd166" stroke-width="2"/><rect x="18" y="30" width="6" height="20" fill="#c9bfae"/><rect x="28" y="30" width="6" height="20" fill="#c9bfae"/><rect x="46" y="30" width="6" height="20" fill="#c9bfae"/><rect x="56" y="30" width="6" height="20" fill="#c9bfae"/><rect x="34" y="36" width="12" height="14" rx="6" fill="#5b3a7a"/><circle cx="40" cy="20" r="3" fill="#ffd166"/><path d="M40 6 V-6 M40 -6 L50 -3 L40 0" fill="#e5546b" stroke="#8a2a3a" stroke-width="1"/></svg></span><span class="sign"><b data-t="pl_acad"></b><small data-t="pl_acad_d"></small></span></button>
     <div id="mapHero" data-ta="your_hero"></div>
     <button class="owlBtn" id="owlBtn" title="Show me how to play" aria-label="Show me how to play"></button>
   </div>
@@ -1144,7 +1217,8 @@ const CFG = {
   VISITOR_SHARE: 0.4,   // spec 06 §6: about 40% of the normal stops are visitors from other elements (the area's own monsters are the rest)
   // the test build only (spec 07 §14): the test site lives under /learning-math/test/, and local preview runs on localhost; the live site never shows the Demo button
   DEMO_BUTTON: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),
-  POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, WORKSHOP_WIZ: 8,   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
+  ACADEMY: location.hostname === 'localhost' || /\/learning-math\/test\//.test(location.pathname),   // spec 08: the Academy is off on the live site until the owner approves it
+  POUCH: 5, MAX_HEARTS_POT: 5, MANUAL_FROM: 12, BOOKS_FROM: 30, WORKSHOP_WIZ: 8,   // BOOKS_FROM: (owner request) the wizard level that offers to leave the spell book and the conjuration book on the shelf (+1 potion; no books on quests)   // MANUAL_FROM: (p) the wizard level that offers to leave the monster manual at home (no weakness hints, +1 potion in the pouch)
     // potions that can be carried on a quest run; most hearts with a Heart potion
   SAFETY_RESTARTS: 2,       // after this many restarts in a row, the next try starts with one free extra heart (0 = off)
   MAX_LEVEL: 36,            // the math ladder; moving up and down follows spec 01 §6 (the rules are in math.js: ME.RULES)
@@ -1349,6 +1423,54 @@ const STR = {
   ws_light_t: ['💡 A light in the window!', '💡 אור בחלון!'], ws_light_b: ['You have grown into a stronger wizard, and the old workshop has lit up! Someone is inside, tinkering. Go and say hello!', 'נעשיתם קוסמים חזקים יותר, והסדנה הישנה נדלקה! מישהו בפנים מתקן משהו. לכו להגיד שלום!'],
   go_ws: ['Go to the workshop ▶', 'לסדנה ◀'], later: ['Later', 'אחר כך'], board_soon: ['📜 The notice board opens soon!', '📜 לוח המודעות ייפתח בקרוב!'],
   vh_ians: ['The spell brings how many {item}? Choose the number.', 'הכישוף מזמן כמה {item}? בחרו את המספר.'],
+  ac_t: ['🎓 The Academy: Test of Proficiency', '🎓 האקדמיה: מבחן המיומנות'],
+  pl_acad: ['The Academy', 'האקדמיה'], pl_acad_d: ['Test of Proficiency', 'מבחן המיומנות'],
+  ac_low_t: ['🎓 Practise your spells first', '🎓 תרגלו את הכישופים קודם'], ac_low_b: ['The examiner needs math level {m} before the test.', 'הבוחן צריך רמת חשבון {m} לפני המבחן.'],
+  ac_all_done: ['You have passed every Academy test.', 'עברתם את כל מבחני האקדמיה.'],
+  ac_offer_t: ['🎓 The Academy', '🎓 האקדמיה'], ac_offer: ['Your level bar is full! Visit the Academy for the Test of Proficiency.', 'סרגל הרמה שלכם מלא! בקרו באקדמיה למבחן המיומנות.'],
+  ac_go: ['Go to the Academy', 'לאקדמיה'], ac_rules_t: ['📋 Rules of the test', '📋 כללי המבחן'],
+  ac_qcount: ['{q} questions.', '{q} שאלות.'], ac_need: ['You need {n} of {q} right ({p}%).', 'צריך {n} מתוך {q} נכונות ({p}%).'],
+  ac_mistakes: ['Mistakes allowed:', 'טעויות מותרות:'], ac_no_hints: ['No hints, no potions, no hearts.', 'בלי רמזים, בלי שיקויים, בלי לבבות.'],
+  ac_win: ['You win: the rank {title}, and rewards.', 'תזכו בדרגה {title}, ובפרסים.'], ac_nothing_lost: ['A failed test loses nothing. You can try again at once.', 'מבחן שנכשל לא מאבד כלום. אפשר לנסות שוב מיד.'],
+  ac_building: ['The trial is being built. It comes in the next steps.', 'המבחן נבנה עכשיו. הוא יגיע בשלבים הבאים.'], ac_examiner: ['Show me what you can conjure!', 'הראו לי מה אתם יודעים לזמן!'],
+  ac_rules: ['{q} questions. You need {n} right. You may make {m} mistakes. Nothing is lost if you do not pass.', '{q} שאלות. צריך {n} נכונות. מותר {m} טעויות. אם לא תעברו, לא תאבדו כלום.'],
+  ac_start: ['Start', 'התחלה'], ac_not_yet: ['Not yet', 'לא עכשיו'], ac_fight_soon: ['The fighting trial comes soon.', 'מבחן הקרב יגיע בקרוב.'],
+  ac_progress: ['Question {k} of {q}', 'שאלה {k} מתוך {q}'], ac_pick_item: ['Which item does the villager need?', 'איזה פריט התושב צריך?'],
+  ac_type: ['Type the amount, then ✔', 'הקלידו את הכמות, ואז ✔'], ac_wrong_item: ['That is not what I need!', 'זה לא מה שאני צריך!'],
+  ac_right: ['Well done, wizard!', 'כל הכבוד, קוסם!'], ac_few: ['That is not enough!', 'זה לא מספיק!'], ac_many: ['That is too many!', 'זה יותר מדי!'],
+  ac_pass: ['You passed! {r} of {q} right. Medal: {medal}. You are now a {title}!', 'עברתם! {r} מתוך {q} נכונות. מדליה: {medal}. עכשיו אתם {title}!'],
+  ac_fail: ['Not this time: {r} of {q} right. You need {n}. Everything you have stays yours.', 'לא הפעם: {r} מתוך {q} נכונות. צריך {n}. כל מה שיש לכם נשאר אצלכם.'],
+  ac_enough: ['That is enough for today.', 'זה מספיק להיום.'], ac_again: ['Try again', 'לנסות שוב'], ac_back: ['Back to the map', 'חזרה למפה'], ac_cont: ['Continue ▶', 'המשך ◀'],
+  ac_fight_btn: ['⚔️ Fighting trial', '⚔️ מבחן הקרב'], ac_conj_btn: ['🪄 Conjuring trial', '🪄 מבחן הזימון'],
+  ac_fight_t: ['Hit this dummy with a spell it is weak to.', 'פגעו בבובה הזאת בכישוף שהיא חלשה נגדו.'],
+  ac_fight_multi: ['Hit it {k} of {n}: a different spell each time!', 'פגעו בה {k} מתוך {n}: כישוף אחר בכל פעם!'],
+  ac_hit: ['💥 A hit!', '💥 פגיעה!'], ac_aoe_t: ['One spell hits both dummies at once!', 'כישוף אחד פוגע בשתי הבובות יחד!'], ac_aoe_hit: ['💥💥 Two hits!', '💥💥 שתי פגיעות!'], ac_miss: ['That spell does not hurt it!', 'הכישוף הזה לא פוגע בה!'],
+  ac_learn_more: ['Learn more spells first. You can come back later.', 'למדו עוד כישופים קודם. אפשר לחזור מאוחר יותר.'],
+  ac_pick_card: ['Pick the card whose answer is a spell this dummy is weak to.', 'בחרו את הקלף שהתשובה שלו היא כישוף שהבובה חלשה נגדו.'],
+  ac_pick_answer: ['Now pick the right answer.', 'עכשיו בחרו את התשובה הנכונה.'],
+  ac_card_miss: ['That card does not give a spell it is weak to.', 'הקלף הזה לא נותן כישוף שהבובה חלשה נגדו.'],
+  ac_pick_item_card: ['Pick the card with the number of the item.', 'בחרו את הקלף עם מספר הפריט.'],
+  ac_pick_amount_card: ['Pick the card with the amount to conjure.', 'בחרו את הקלף עם הכמות לזימון.'],
+  ac_item_of: ['Item {k} of {n}', 'פריט {k} מתוך {n}'],
+  ac_dummy: ['Training dummy', 'דמות אימון'], ac_practice_tag: ['Practice', 'תרגול'],
+  ac_fight_title: ['The {el} dummy! Pick a card whose answer is a spell it is weak to.', 'דמות ה{el}! בחרו קלף שהתשובה שלו היא כישוף שהיא חלשה נגדו.'],
+  ac_practice: ['Practise first', 'תרגול לפני'], ac_take: ['Take the test', 'למבחן'], ac_not_now: ['Not now', 'לא עכשיו'],
+  ac_practice_done: ['You got {r} of 6. Ready for the real test?', 'ענו נכון על {r} מתוך 6. מוכנים למבחן האמיתי?'],
+  ac_facts: ['Facts to look at again:', 'עובדות לחזור עליהן:'],
+  cert_t: ['Certificate of the Academy', 'תעודת האקדמיה'], cert_line: ['{r} of {q} right', '{r} מתוך {q} נכונות'],
+  ac_grad_say: ['{r} of {q}, {medal} medal!', '{r} מתוך {q}, מדליית {medal}!'], ac_grad_now: ['You are now a {title}!', 'עכשיו אתם {title}!'],
+  ac_grad_spells: ['New spells:', 'כישופים חדשים:'], ac_grad_wait: ['Waiting for you:', 'מחכים לכם:'], ac_grad_mlvl: ['at math level {n}', 'ברמת חשבון {n}'], ac_grad_wlvl: ['at wizard level {n}', 'ברמת קוסם {n}'],
+  ac_grad_hat: ['A new hat: {hat}! Find it in the wardrobe.', 'כובע חדש: {hat}! חפשו אותו בארון הבגדים.'], ac_grad_gift: ['Gifts for your room: {items}. A certificate hangs on the wall.', 'מתנות לחדר שלכם: {items}. תעודה תלויה על הקיר.'],
+  wd_hat: ['Hat', 'כובע'], wd_nohat: ['No hat', 'בלי כובע'], ac_test_n: ['Test {n}', 'מבחן {n}'], ac_hat_lock: ['Pass Academy test {n} to get this hat.', 'עברו את מבחן האקדמיה {n} כדי לקבל את הכובע הזה.'], new_tag: ['new!', 'חדש!'],
+  ac_conj_go: ['Conjure!', 'זמנו!'], ac_conj_num: ['Now solve the card and type its answer: the number of the item.', 'עכשיו פתרו את הקלף והקלידו את התשובה: מספר הפריט.'],
+  ac_conj_say: ['Examiner {ex} says: conjure it!', 'הבוחן {ex} אומר: זמנו את זה!'],
+  ac_conj_pick: ['Pick the card whose answer is the number of the item.', 'בחרו את הקלף שהתשובה שלו היא מספר הפריט.'],
+  ac_conj_amount: ['Now work out how many to conjure, and type the amount.', 'עכשיו חשבו כמה לזמן, והקלידו את הכמות.'],
+  ac_seal: ['Pass Academy test {n} to unlock', 'עברו את מבחן האקדמיה {n} כדי לפתוח'],
+  ac_bar: ['Fill your level bar first. Then come back for the test.', 'מלאו קודם את סרגל הרמה. אחר כך חזרו למבחן.'],
+  ac_leave_quest: ['Leave the quest and go to the Academy', 'לעזוב את המסע וללכת לאקדמיה'], ac_finish_quest: ['Finish the quest first', 'קודם לסיים את המסע'],
+  ac_say_ans: ['Now solve it and type the answer.', 'עכשיו פתרו והקלידו את התשובה.'], ac_say_pick: ['Now pick the answer.', 'עכשיו בחרו את התשובה.'], ac_say_go: ['Cast!', 'שגרו!'],
+  ac_gold: ['gold', 'זהב'], ac_silver: ['silver', 'כסף'], ac_bronze: ['bronze', 'ארד'],
   vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'], vh_book_item: ['Find this item in the conjuration book', 'מצאו את הפריט הזה בספר הזימון'],
   vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. זמנו את השאר.'],
@@ -1442,6 +1564,14 @@ const STR = {
   manual_is_carried: ['The monster manual is in your bag: the fights show each monster’s weakness.', 'ספר המפלצות איתכם: בקרבות מופיעה נקודת התורפה של כל מפלצת.'],
   manual_is_home: ['Your monster manual is at home: the fights show no weaknesses, and you carry one more potion.', 'ספר המפלצות נמצא בבית: בקרבות לא מופיעות נקודות התורפה, ואתם לוקחים שיקוי אחד נוסף.'],
   manual_deal: ['Without the manual you can carry {n} potions on a quest.', 'בלי הספר אפשר לקחת {n} שיקויים למסע.'], manual_quest: ['Finish or leave your quest first, then you can change this.', 'קודם סיימו או עזבו את המסע, ואז אפשר לשנות.'],
+  books_t: ['The books', 'הספרים'],
+  books_offer: ['You are a Starwarden now! You may leave your spell book and your conjuration book on the shelf at Home: you can carry {n} potions instead of {m}, but the books will not be with you on quests. You can take them back from the shelf at Home any time.', 'אתם כבר שומרי כוכבים! אפשר להשאיר את ספר הכישופים ואת ספר הזימון על המדף בבית: אפשר לקחת {n} שיקויים במקום {m}, אבל הספרים לא יהיו איתכם במסעות. תמיד אפשר לקחת אותם בחזרה מהמדף בבית.'],
+  books_is_home: ['Your books are on the shelf at Home: you carry one more potion, and the books are not with you on quests.', 'הספרים על המדף בבית: אתם לוקחים שיקוי אחד נוסף, והספרים לא איתכם במסעות.'], books_is_carried: ['Your spell book and your conjuration book are with you.', 'ספר הכישופים וספר הזימון איתכם.'],
+  books_deal: ['Without the books you can carry {n} potions on a quest.', 'בלי הספרים אפשר לקחת {n} שיקויים למסע.'], books_leave: ['📖 Put them on the shelf', '📖 להניח על המדף'], books_keep: ['Keep carrying them', 'להמשיך לקחת אותם'], books_take: ['📖 Take them with me', '📖 לקחת אותם איתי'],
+  books_left: ['📖 The books are on the shelf. +1 potion in your pouch!', '📖 הספרים על המדף. ‎+1 שיקוי בתיק!'], books_taken: ['📖 The books are back in your bag.', '📖 הספרים חזרו לתיק.'], books_away: ['The books are on the shelf at Home. You cannot use them on a quest.', 'הספרים על המדף בבית. אי אפשר להשתמש בהם במסע.'],
+  books_potion_back: ['A potion went back to the shelf at Home.', 'שיקוי חזר למדף בבית.'], books_test_no: ['You left the books out of this test.', 'השארתם את הספרים מחוץ למבחן.'],
+  ac_book_take: ['Take my books to the test', 'לקחת את הספרים למבחן'], ac_book_note: ['Without the books the test is harder, and a special note goes on your certificate.', 'בלי הספרים המבחן קשה יותר, ובתעודה תירשם הערה מיוחדת.'],
+  cert_nobook: ['Completed without the spell book and the conjuration book', 'הושלם ללא ספר הכישופים וספר הזימון'], ac_grad_nobook: ['You passed without the books! A special note is on your certificate.', 'עברתם בלי הספרים! הערה מיוחדת נרשמה בתעודה.'],
   manual_leave: ['📕 Leave it at home', '📕 להשאיר בבית'], manual_keep: ['Keep carrying it', 'להמשיך לקחת אותו'], manual_take: ['📕 Take it with me', '📕 לקחת אותו איתי'],
   manual_left: ['📕 The manual stays at home. +1 potion in your pouch!', '📕 הספר נשאר בבית. ‎+1 שיקוי בתיק!'], manual_taken: ['📕 The manual is back in your bag.', '📕 הספר חזר לתיק.'],
   un_manual: ['📕 You may leave the monster manual at home', '📕 אפשר להשאיר את ספר המפלצות בבית'],
@@ -1916,6 +2046,7 @@ function heroSVG(g, color, skinIn, hairIn, look) {
   const hat = f
     ? `<ellipse cx="60" cy="38" rx="40" ry="8.5" fill="${dark}"/><path d="M28 38 Q48 26 56 -6 Q62 -14 80 -2 Q72 8 80 20 Q86 30 94 38 Z" fill="${color}"/><path d="M28 37 Q60 47 92 37 L92 31 Q60 41 28 31 Z" fill="#e0b84a"/><rect x="55" y="30" width="10" height="9" rx="1.5" fill="none" stroke="${dark}" stroke-width="2"/>`
     : `<ellipse cx="60" cy="38" rx="35" ry="8" fill="${dark}"/><path d="M28 38 Q50 28 58 -4 Q62 -12 78 0 Q74 10 80 20 Q86 30 92 38 Z" fill="${color}"/><path d="M30 37 Q60 46 90 37 L90 32 Q60 41 30 32 Z" fill="#e0b84a"/><polygon points="60,16 62.6,22 69,22 64,26 66,32 60,28 54,32 56,26 51,22 57.4,22" fill="#ffd166"/>`;
+  const hatSvg = look.hat === -1 ? '' : look.hat >= 1 && look.hat <= 5 ? rankHat(look.hat, f) : hat;   // the Academy's rank hats (spec 08 §7): -1 no hat, 0 the plain hat, 1 to 5 a rank hat
   const vials = pots.slice(0, 5).map((id, k) => `<rect x="${44.8 + k * 6.4}" y="125" width="4.6" height="8" rx="2.2" fill="${POTION_COL[id] || '#999'}" stroke="#ffffff88" stroke-width=".5"/>`).join('');
   const strings = pots.slice(0, 5).map((id, k) => `M${47.1 + k * 6.4} 118 V125`).join(' ');
   // a crown takes the place of the basic hat (spec 06 §3: no hat on a hat)
@@ -1932,11 +2063,11 @@ function heroSVG(g, color, skinIn, hairIn, look) {
    <circle cx="60" cy="52" r="24" fill="${skin}"/>
    <ellipse cx="51" cy="50" rx="4.6" ry="5" fill="#fff"/><ellipse cx="69" cy="50" rx="4.6" ry="5" fill="#fff"/><circle cx="52" cy="51" r="2.6" fill="#2a2340"/><circle cx="70" cy="51" r="2.6" fill="#2a2340"/>
    <circle cx="43" cy="60" r="3.4" fill="${cheek}" opacity=".55"/><circle cx="77" cy="60" r="3.4" fill="${cheek}" opacity=".55"/><circle cx="60" cy="57" r="2.6" fill="${nose}"/>
-   <path d="M53 64 Q60 69 67 64" fill="none" stroke="${mouth}" stroke-width="2" stroke-linecap="round"/>${beard}${faceAcc}${brows}${lashes}${fringe}${has('ac_crown') ? '' : hat}${head}${pet}</svg>`;
+   <path d="M53 64 Q60 69 67 64" fill="none" stroke="${mouth}" stroke-width="2" stroke-linecap="round"/>${beard}${faceAcc}${brows}${lashes}${fringe}${has('ac_crown') ? '' : hatSvg}${head}${pet}</svg>`;
 }
 // spec 06 §4: a magic item can be hidden on the hero (👁️ off). Its effect in quests is not changed: only the drawing reads this.
 const shownItems = p => { const m = p.items || {}, s = p.showItem || {}; return { amulet: s.amulet === false ? 0 : (m.amulet || 0), staff: s.staff === false ? 0 : (m.staff || 0), belt: s.belt === false ? 0 : (m.belt || 0) }; };
-const heroOf = p => heroSVG(p.gender, p.color, p.skin, p.hair, { style: p.style, acc: p.acc, beard: p.beard, items: shownItems(p), pots: typeof POTION_IDS === 'undefined' ? [] : POTION_IDS.filter(id => ((p.pot || {})[id] || 0) + ((p.carry || {})[id] || 0) > 0) });
+const heroOf = p => heroSVG(p.gender, p.color, p.skin, p.hair, { style: p.style, acc: p.acc, beard: p.beard, hat: p.academy && p.academy.hat, items: shownItems(p), pots: typeof POTION_IDS === 'undefined' ? [] : POTION_IDS.filter(id => ((p.pot || {})[id] || 0) + ((p.carry || {})[id] || 0) > 0) });
 // Villagers are people emoji: a skin-tone modifier goes right after the FIRST code point (before any zero-width joiner), e.g. 👩🏽‍🌾. Tones are dealt from a shuffled bag so they are evenly spread.
 const TONE_MODS = ['🏻', '🏼', '🏽', '🏾', '🏿'];
 const tonedEmoji = (e, k) => { const cp = [...e]; return cp[0] + TONE_MODS[k % 5] + cp.slice(1).join(''); };
@@ -1965,7 +2096,7 @@ function migrate(p) {
   if (p.mlvl == null) p.mlvl = Math.min(CFG.MAX_LEVEL, Math.max(1, p.tier || 1));   // test profiles from version 1
   delete p.tier; delete p.hist;
   p.mhist = Array.isArray(p.mhist) ? p.mhist : []; p.mfacts = p.mfacts || {}; p.mplace = p.mplace || 0; p.grade = p.grade || ME.gradeOf(p.mlvl);
-  if (!Array.isArray(p.spells)) p.spells = SB.book(p.mlvl, SB.wizLevel(p.xp || 0)).learned.map(s => s.id);   // the spells this student has learned (spec 01 §8); they are never taken away
+  if (!Array.isArray(p.spells)) p.spells = SB.book(p.mlvl, SB.wizLevel(p.xp || 0), undefined, CFG.ACADEMY ? (p.academy && p.academy.passed) || 0 : undefined).learned.map(s => s.id);   // the spells this student has learned (spec 01 §8); they are never taken away
   p.wlvl = p.wlvl || SB.wizLevel(p.xp || 0);   // the wizard level last seen (to notice a new one)
   p.quest = p.quest || {};
   for (const k of ['battle', 'peace']) {   // len 0 = the run is not rolled yet; act = a quest run is in progress
@@ -2111,6 +2242,9 @@ async function checkSchoolOpen() {   // schools spec §3.5: a suspended school: 
 /* ====================== SCREENS / MODAL ====================== */
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  if (typeof refreshAcademy === 'function') refreshAcademy();   // the Academy icon shows on the map and the menu while a test is ready
+  if (typeof applyBookLock === 'function') applyBookLock();   // the books are not available on a quest when they are on the shelf at Home
+  if ((id === 'menu' || id === 'journey') && typeof academyOfferCheck === 'function') academyOfferCheck(id === 'journey');   // §3.2: the offer, once per tier
   document.body.classList.toggle('peace', (id === 'game' || id === 'journey') && G.quest === 'peace');
   window.scrollTo(0, 0);
 }
@@ -2203,10 +2337,10 @@ function askLookOnce() {   // existing heroes: one friendly, skippable question
 let WD = null, wdTab = 'robe';
 const wdChip = (key, id, emo, on, locked, price, extra = '') => `<button class="wdChip ${on ? 'on' : ''} ${locked ? 'lock' : ''}" data-k="${key}" data-id="${id}">${emo}${locked ? `<small>🔒 ${price}</small>` : ''}${extra}</button>`;
 function openWardrobe() {
-  G.quest = null; WD = { color: P.color, style: P.style || null, skin: P.skin || DEFAULT_SKIN, hair: P.hair || null, beard: P.beard || 'short', acc: Object.assign({}, P.acc), showItem: Object.assign({ amulet: true, staff: true, belt: true }, P.showItem) }; wdTab = 'robe'; show('wardrobe'); drawWardrobe();
+  G.quest = null; WD = { color: P.color, style: P.style || null, skin: P.skin || DEFAULT_SKIN, hair: P.hair || null, beard: P.beard || 'short', acc: Object.assign({}, P.acc), showItem: Object.assign({ amulet: true, staff: true, belt: true }, P.showItem), hat: (P.academy && P.academy.hat) || 0, newHat: (P.academy && P.academy.newHat) || null }; wdTab = 'robe'; show('wardrobe'); drawWardrobe();
 }
 function drawWardrobe() {
-  $('#wdPrev').innerHTML = heroSVG(P.gender, WD.color, WD.skin, WD.hair, { style: WD.style, acc: WD.acc, beard: WD.beard, items: shownItems({ items: P.items, showItem: WD.showItem }) });
+  $('#wdPrev').innerHTML = heroSVG(P.gender, WD.color, WD.skin, WD.hair, { style: WD.style, acc: WD.acc, beard: WD.beard, hat: WD.hat, items: shownItems({ items: P.items, showItem: WD.showItem }) });
   document.querySelectorAll('.wdTab').forEach(b => b.classList.toggle('on', b.dataset.tab === wdTab));
   const sw = (list, cur, key) => list.map((c, i) => `<button class="sw ${c === cur ? 'sel' : ''}" data-k="${key}" data-i="${i}" style="background:${c}" aria-label="${key}"></button>`).join('');
   const dot = c => `<span class="wdDot" style="background:${c}"></span>`;
@@ -2223,7 +2357,9 @@ function drawWardrobe() {
       return `<div class="wdMagicRow">${magicPic(s, itemVer(s))}<span class="wdMagicName"><b>${en}</b> <small>${verName(itemVer(s))}</small></span>
         <button class="wdChip ${on ? 'sel' : ''}" data-eye="${s}" aria-pressed="${on}">👁️ ${t(on ? 'wd_eye_on' : 'wd_eye_off')}</button></div>`; }).join('') : `<p class="wdWhy">${t('wd_magic_none')}</p>`);
   } else {
-    h = SLOTS.map(slot => `<div class="wdLbl">${t('slot_' + slot)}</div><div class="wdChips">${wdChip('acc-' + slot, '','<span class="wdEm">✖️</span>', !WD.acc[slot], false, 0, `<small>${t('none')}</small>`)}${ACCS.filter(a => a[1] === slot).map(a => { const own = P.wd.includes(a[0]); return wdChip('acc-' + slot, a[0], `<span class="wdEm">${a[4]}</span>`, WD.acc[slot] === a[0], !own, a[6]); }).join('')}</div>`).join('');
+    // the hats (spec 08 §7): No hat first, then the plain hat, then the rank hats; a hat that is not earned yet shows the test that opens it; a new one is marked
+    const hats = !CFG.ACADEMY ? '' : `<div class="wdLbl">${t('wd_hat')}</div><div class="wdChips">${wdChip('hat', 'n', '<span class="wdEm">✖️</span>', WD.hat === -1, false, 0, `<small>${t('wd_nohat')}</small>`)}${wdChip('hat', '0', hatIcon(0, 40), WD.hat === 0, false, 0)}${[1, 2, 3, 4, 5].map(n => wdChip('hat', String(n), hatIcon(n, 40), WD.hat === n, n > acadPassed(), t('ac_test_n', { n }), WD.newHat === n ? `<small class="newTag">${t('new_tag')}</small>` : '')).join('')}</div>`;
+    h = hats + SLOTS.map(slot => `<div class="wdLbl">${t('slot_' + slot)}</div><div class="wdChips">${wdChip('acc-' + slot, '','<span class="wdEm">✖️</span>', !WD.acc[slot], false, 0, `<small>${t('none')}</small>`)}${ACCS.filter(a => a[1] === slot).map(a => { const own = P.wd.includes(a[0]); return wdChip('acc-' + slot, a[0], `<span class="wdEm">${a[4]}</span>`, WD.acc[slot] === a[0], !own, a[6]); }).join('')}</div>`).join('');
   }
   $('#wdBody').innerHTML = h;
 }
@@ -2241,13 +2377,14 @@ $('#wardrobe').onclick = e => {
   const ch = e.target.closest('.wdChip');
   if (ch) {
     const k = ch.dataset.k, id = ch.dataset.id;
+    if (k === 'hat') { const n = id === 'n' ? -1 : +id; if (n > acadPassed()) toast(t('ac_hat_lock', { n })); else WD.hat = n; drawWardrobe(); return; }   // a hat the student has not earned says which test opens it
     if (id && !P.wd.includes(id)) { toast(t('wd_lock', { p: SHOP[id].price })); return; }
     if (k === 'style') WD.style = id ? ROBE_STYLES.find(s => s[0] === id)[1] : null;
     else { const slot = k.slice(4); if (id) WD.acc[slot] = id; else delete WD.acc[slot]; }
     drawWardrobe(); return;
   }
 };
-$('#wdSave').onclick = () => { P.color = WD.color; P.style = WD.style; P.skin = WD.skin; P.hair = WD.hair; P.beard = WD.beard; P.acc = WD.acc; P.showItem = WD.showItem; saveSoon(true); toast(t('wd_saved')); openHome(); };
+$('#wdSave').onclick = () => { P.color = WD.color; P.style = WD.style; P.skin = WD.skin; P.hair = WD.hair; P.beard = WD.beard; P.acc = WD.acc; P.showItem = WD.showItem; if (CFG.ACADEMY) { acadS().hat = WD.hat; acadS().newHat = null; } saveSoon(true); toast(t('wd_saved')); openHome(); };
 $('#wdBack').onclick = () => openHome();
 /* ----- install as an app (works from Chrome on Android) and keep a saved copy for offline play ----- */
 let installEvt = null;
@@ -2278,9 +2415,14 @@ const TITLES = [[1, 'Number Apprentice', 'שוליית המספרים', 'שול�
   [14, 'Spell Scribe', 'כותב הלחשים', 'כותבת הלחשים'], [21, 'Sage of Sums', 'חכם החשבון', 'חכמת החשבון'], [25, 'Master of Numbers', 'אמן המספרים', 'אמנית המספרים'],
   [29, 'Number Legend', 'אגדת המספרים', 'אגדת המספרים'], [30, 'Archmage of Numbers', 'ארכי־קוסם המספרים', 'ארכי־קוסמת המספרים']];
 const titleAt = (wl, gender) => { const r = TITLES.filter(x => x[0] <= wl).pop(); return LANG === 'he' ? r[gender === 'f' ? 3 : 2] : r[1]; };
-function rankOf(xp, gender) { return titleAt(SB.wizLevel(xp || 0), gender); }
-const wizLvl = () => SB.wizLevel(P.xp || 0);
-function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1); return wl >= SB.MAX_WIZ ? 100 : 100 * (P.xp - x0) / (x1 - x0); }   // progress to the next wizard level
+function rankOf(xp, gender) { return titleAt(SB.wizLevel(xp || 0, CFG.ACADEMY ? SB.MAX_WIZ_ACADEMY : undefined), gender); }
+// The Academy (spec 08 §1, §10.3): with the Academy on, the ladder runs to level 50 and the level stops at the top of the tier (9, 19, 29, 39, 49)
+// until that tier's test is passed; the XP stays banked and turns into levels at once on a pass. On the live game the top stays 30.
+const acadPassed = () => (P && P.academy && P.academy.passed) || 0;
+const acadCap = () => acadPassed() >= 5 ? SB.MAX_WIZ_ACADEMY : 9 + 10 * acadPassed();
+const wizLvl = () => CFG.ACADEMY ? Math.min(SB.wizLevel(P.xp || 0, SB.MAX_WIZ_ACADEMY), acadCap()) : SB.wizLevel(P.xp || 0);
+const tiersArg = () => CFG.ACADEMY ? acadPassed() : undefined;   // the tests passed, for the spell tiers; undefined = no gate (the live game)
+function xpPct() { const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1); return wl >= (CFG.ACADEMY ? SB.MAX_WIZ_ACADEMY : SB.MAX_WIZ) ? 100 : Math.min(100, 100 * (P.xp - x0) / (x1 - x0)); }   // progress to the next wizard level
 const xpLine = x => `<p class="small" style="text-align:center">⭐ +${x} XP</p>`;
 function openMenu() {
   pingPlayed();   // (home heroes: once a day)
@@ -2289,7 +2431,7 @@ function openMenu() {
   $('#menuHero').innerHTML = heroOf(P).replace('<svg ', '<svg style="height:100px" ');
   $('#menuWho').innerHTML = `${esc(P.nick)} <span class="modeBadge" role="button" tabindex="0" title="${t('m_' + heroMode(P))}">${MODE_BADGE[heroMode(P)]}</span>`; $('#backupBtn').style.display = heroMode(P) === 'school' ? 'none' : '';   // the hero's mode; device-only heroes can save a backup file
   const wl = wizLvl(), x0 = SB.xpFor(wl), x1 = SB.xpFor(wl + 1);
-  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + rankOf(P.xp, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
+  $('#menuRank').textContent = '🧙 ' + t('wiz_lvl', { n: wl }) + ' · ' + titleAt(wl, P.gender) + ' · ' + P.xp + ' XP' + (APP ? '' : t('my_number', { id: P.id }));
   $('#menuXp').style.width = xpPct() + '%';
   $('#menuTier').textContent = levelLbl(P.mlvl);
   const sec = P.sec[today()] || 0;
@@ -2306,7 +2448,7 @@ function openMenu() {
 }
 /* ----- the map: drag the hero onto a place, or tap the place; both end in the same walk-and-enter handler ----- */
 const START = { x: 50, y: 58 };
-const PLACES = { gate: { say: 'שער', door: [76, 52] }, board: { say: 'לוח', door: [24, 52] }, work: { say: 'סדנה', door: [50, 38] }, home: { say: 'בית', door: [20, 92] }, shop: { say: 'חנות', door: [80, 92] } };
+const PLACES = { gate: { say: 'שער', door: [76, 52] }, board: { say: 'לוח', door: [24, 52] }, work: { say: 'סדנה', door: [50, 38] }, home: { say: 'בית', door: [20, 92] }, shop: { say: 'חנות', door: [80, 92] }, academy: { say: 'אקדמיה', door: [50, 80] } };
 let walking = false;
 function tinker() { try { [0, .13, .3, .42, .6].forEach((d, i) => tone(i % 2 ? 520 : 380, .07, 'triangle', .05, d)); } catch (e) {} }   // a gentle tinkering from inside the shuttered workshop
 function workshopState() {   // the fifth place: shuttered until level 8, then it lights up (with a short celebration the first time)
@@ -2318,6 +2460,7 @@ function workshopState() {   // the fifth place: shuttered until level 8, then i
 function placeHero(x, y) { const h = $('#mapHero'); h.style.left = x + '%'; h.style.top = y + '%'; }
 function enterPlace(id) {
   if (TUT.on) { tutResolve(id); return; }   // the tutorial just notes where the hero arrived
+  if (id === 'academy') return academyEnter();   // the Academy building (spec 08 §3.3)
   if (id === 'gate') startQuest('battle');
   else if (id === 'board') { placeHero(START.x, START.y); startQuest('peace'); }   // the notice board starts the village run (spec 05), as the gate starts the fight run
 
@@ -3876,8 +4019,8 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
   renderVillager();
 }
 // the story: always a request ("I need N, I have A, please conjure the rest"), never a question
-function visitStory() {
-  const V = VS, p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), vars = { ...p.v };
+function visitStory(V = VS) {   // (the Academy's conjuring trial tells the same stories, for a question of its own)
+  const p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), vars = { ...p.v };
   if (p.retry) return t('vh_retry', { t: p.v.t, a: p.v.a, item: nm(p.v.t) });   // the second try after too few: a new small problem
   for (const k in (p.names || {})) vars[k] = nm(p.names[k]);   // the item's name for the number it goes with: "1 sack of flour", "3 sacks of flour"
   if (p.one) vars.one = vhLow(tl(HELPER.oneName(V.item)));   // "one bucket"
@@ -3898,13 +4041,14 @@ function visitPics() {
   return s.plus !== undefined ? pic(s.have) + '+' + pic(s.plus) : pic(s.have);
 }
 // the number pad of the amount (above 10, or a decimal): digits, a point for a decimal, ⌫ and ✔ to answer
-function visitPad() {
-  const V = VS, o = $('#opts'), dec = !Number.isInteger(V.p.amount), key = d => `<button class="opt num" data-vh="key" data-d="${d}">${d}</button>`;
+function visitPad(act = 'amt') {   // act: the answer the ✔ gives: the amount (amt) or the item's number (iamt)
+  const V = VS, o = $('#opts'), dec = act === 'amt' && !Number.isInteger(V.p.amount), key = d => `<button class="opt num" data-vh="key" data-d="${d}">${d}</button>`;
   o.className = 'opts pad'; o.style.display = 'block'; o.style.gridTemplateColumns = '';
   o.innerHTML = `<div class="vhPadShow" dir="ltr">${V.typed || '…'}</div><div class="vhPad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(key).join('')}<button class="opt num vhPadDel" data-vh="key" data-d="del">⌫</button>${dec ? key('.') : ''}<button class="btn vhPadOk ${dec ? 'dec' : ''}" data-vh="amt" data-n="${V.typed}" ${V.typed === '' ? 'disabled' : ''}>✔</button></div>`;
 }
 function visitShow() {
   const V = VS; if (!V || !$('#game').classList.contains('on')) return;
+  if (V.padPhase !== V.phase) { V.typed = ''; V.padPhase = V.phase; }   // a new question starts with an empty pad
   visitBars();
   $('#qTitle').textContent = V.project.name;
   // the project's tray sits on the stage, beneath the roof of the place (not in the question panel)
@@ -3919,7 +4063,7 @@ function visitShow() {
   if (V.phase === 'card') { $('#qSub').textContent = t('vh_card'); cardBtns(V.cards, 'card'); }
   else if (V.phase === 'calc') { $('#qSub').textContent = t('vh_calc'); if (HELPER.needsPad(V.p)) visitPad(); else numBtns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'amt', 'n'); }
   else if (V.phase === 'icard') { if (!V.itemCards) V.itemCards = HELPER.itemCards(V.item, P.mlvl || 1); $('#qSub').textContent = t('vh_item'); cardBtns(V.itemCards, 'icard'); }
-  else if (V.phase === 'ians') { if (!V.iAns) V.iAns = HELPER.itemAnswers(V.item.n); $('#qSub').textContent = t('vh_ians', { item: vhLow(tl(HELPER.nameFor(V.item, 1))) }); numBtns(V.iAns, 'iamt', 'n'); }
+  else if (V.phase === 'ians') { $('#qSub').textContent = t('vh_ians', { item: vhLow(tl(HELPER.nameFor(V.item, 1))) }); visitPad('iamt'); }
   else { $('#qSub').textContent = ''; }
   $('#fb').textContent = done ? t(V.phase === 'done' ? 'vh_done' : V.phase === 'left' ? 'vh_left' : 'vh_lost') : V.msg;
   // the potion row: the same potions as in a fight (with the village names), and the picture button in it; the owl, the sound and leaving for now below
@@ -4132,6 +4276,563 @@ function toast(msg) {
   e.textContent = msg; document.body.appendChild(e); setTimeout(() => e.remove(), 2800);
 }
 
+/* ----- The Academy (spec 08, v0.2): the Test of Proficiency. Two trials: the fighting trial (§4, dummies with an element each) and the conjuring
+   trial (§5, the village rules of §10.18: one mistake per question, no second try, no mana, no patience). Off on the live site (CFG.ACADEMY). ----- */
+const ACAD_TOP = k => 9 + 10 * k;                                      // the wizard level at which test k + 1 is taken (test 1 at level 9)
+const ACAD_MATH = [5, 7, 17, 21, 25];                                  // the math level each test needs (§2, §10.13)
+const ACAD_Q = [8, 10, 12, 14, 16], ACAD_NEED = [6, 8, 10, 12, 14], ACAD_PCT = [75, 80, 80, 85, 85];   // needed right = ceil(questions × pass mark) (spec 08 §2)    // questions, and the right answers needed (75–85%, rounded up)
+const ACAD_HITS = [[1], [1, 2], [2], [2, 3], [2, 3]];                  // the hits per dummy allowed in each test (§2)
+const ACAD_EL = ['fire', 'ice', 'dark', 'plant', 'storm', 'stone'];    // the six monster elements (spec 02 §2)
+// the element icons are drawn (spec 08 O11): an emoji can show as an empty box on some devices. Each is a shape on a 24 × 24 square.
+const ACAD_GLYPH = {
+  fire: '<path d="M12 2C13 7 18 9 18 15a6 6 0 0 1-12 0c0-3 2-5 3-7 1 2 2 2 3-6z" fill="#ff7a3d" stroke="#b3261e" stroke-width="1.2"/><path d="M12 12c2 2 3 3 3 5a3 3 0 0 1-6 0c0-2 2-3 3-5z" fill="#ffd166"/>',
+  ice: '<g stroke="#e8f8ff" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/></g><circle cx="12" cy="12" r="2.6" fill="#8fd8ff"/>',
+  dark: '<path d="M15 3a9 9 0 1 0 6 12 7 7 0 1 1-6-12z" fill="#d9ccff" stroke="#2f2457" stroke-width="1.2"/>',
+  plant: '<path d="M4 20C4 9 12 4 20 4c0 9-5 16-16 16z" fill="#5fbf5f" stroke="#2f7a2f" stroke-width="1.2"/><path d="M5 19L15 9" stroke="#2f7a2f" stroke-width="1.4" fill="none"/>',
+  storm: '<path d="M13 2L5 14h6l-2 8 10-13h-6z" fill="#ffe066" stroke="#8a6d00" stroke-width="1.2" stroke-linejoin="round"/>',
+  stone: '<path d="M3 18l3-9 7-3 6 4 2 8z" fill="#b8b8b8" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/><path d="M6 9l5 3 8-2M11 12l-1 6" stroke="#777" stroke-width="1" fill="none"/>'
+};
+const acadIcon = (el, em = 1.1) => `<svg class="acIco" viewBox="0 0 24 24" width="${em}em" height="${em}em" aria-hidden="true" style="vertical-align:-.22em">${ACAD_GLYPH[el]}</svg>`;   // inside text
+const acadGlyphAt = (el, x, y, s) => `<g transform="translate(${x - 12 * s} ${y - 12 * s}) scale(${s})">${ACAD_GLYPH[el]}</g>`;   // inside the dummy's drawing
+const ACAD_ELN = { fire: ['Fire', 'אש'], ice: ['Ice', 'קרח'], dark: ['Shadow', 'צל'], plant: ['Plant', 'צמח'], storm: ['Storm', 'סערה'], stone: ['Stone', 'אבן'] };
+const ACAD_RANK = [['Runeweaver', 'אורג הרונות'], ['Stormcaller', 'קורא הסערה'], ['Starwarden', 'שומר הכוכבים'], ['Eclipse Mage', 'מכשף הליקוי'], ['High Sorcerer', 'הקוסם העליון']];
+const acadS = () => P ? (P.academy = P.academy || { passed: 0, certs: [] }) : { passed: 0, certs: [] };   // (no hero yet on the sign-in screen)
+const acadNext = () => (acadS().passed < 5 ? acadS().passed : null);  // the next test to take (0 = test 1); tests are taken in order
+const acadBarFull = k => (P.xp || 0) >= SB.xpFor(ACAD_TOP(k) + 1);   // the level bar is full at the top of the tier (§1)
+const acadReady = () => CFG.ACADEMY && !!P && acadNext() !== null && wizLvl() >= ACAD_TOP(acadNext()) && acadBarFull(acadNext()) && (P.mlvl || 1) >= ACAD_MATH[acadNext()];
+let ACQ = null;   // the trial in progress
+function refreshAcademy() {   // the Academy icon sits next to the book buttons, and shows only while a test is ready
+  if (!P) return;
+  const ready = acadReady();
+  // the building on the map appears at the bottom once the wizard level of the next test is reached (the math level is checked when it is tapped)
+  const pa = $('#placeAcad'), next = acadNext();
+  if (pa) pa.style.display = CFG.ACADEMY && next !== null && wizLvl() >= ACAD_TOP(next) ? '' : 'none';
+  document.querySelectorAll('.bookBtn').forEach(b => {
+    let a = b.parentElement.querySelector('.acadBtn');
+    if (!a) { a = document.createElement('button'); a.className = 'ib acadBtn'; a.textContent = '🎓'; a.title = 'Academy'; a.onclick = showAcademy; b.after(a); }
+    a.style.display = ready ? '' : 'none';
+  });
+}
+// STEP 1 (spec 08 §3): the offer, the Academy window and the rules screen, in the game's own windows
+const ACAD_EXAMINER = k => (k % 2 === 0 ? 'Orin' : 'Odelia');   // §10.6: Orin for tests 1, 3, 5; Odelia for 2, 4
+// §3.2: the offer, once per tier, when the map opens
+// inside a quest (the path screen) the window has two buttons: leave the quest and go, or finish the quest first
+function academyOfferCheck(inQuest) {
+  if (!acadReady()) return;
+  const S = acadS(), k = acadNext();
+  if (inQuest) {
+    if (S.qOffered === k || $('#modal').classList.contains('on')) return;
+    S.qOffered = k; saveSoon(true);
+    return modal(t('ac_offer_t'), `<p>${t('ac_offer')}</p>`, [[t('ac_leave_quest'), () => { openMenu(); academyAsk(); }], [t('ac_finish_quest'), null, true]]);
+  }
+  if (S.offered === k) return;
+  S.offered = k; saveSoon(true);
+  modal(t('ac_offer_t'), `<p>${t('ac_offer')}</p>`, [[t('ac_go'), academyAsk], [t('later'), null, true]]);
+}
+function showAcademy() { if (!acadReady()) return; academyAsk(); }
+// the building: the Academy window if the math level is enough; otherwise the examiner says what is needed
+function academyEnter() {
+  const k = acadNext();
+  if (k === null) return toast(t('ac_all_done'));
+  if ((P.mlvl || 1) < ACAD_MATH[k]) return modal(t('ac_low_t'), `<p>${t('ac_low_b', { m: ACAD_MATH[k] })}</p>`, [[t('ok'), null]]);
+  if (!acadBarFull(k)) return modal(t('ac_t'), `<p>${t('ac_bar')}</p>`, [[t('ok'), null]]);
+  if (!acadReady()) return;
+  academyAsk();
+}
+// §3.4: the examiner says how many questions, that two mistakes are allowed and that nothing is lost; the student chooses the trial
+function academyAsk() {
+  const k = acadNext(), T = ACAD_Q[k], miss = T - ACAD_NEED[k];
+  if (!acadBuildRow(k, P.mlvl || 1, null)) return modal(t('ac_t'), `<p>${t('ac_learn_more')}</p>`, [[t('ok'), null]]);   // §4 gap 2: a test whose row cannot be built is not offered
+  modal(t('ac_t'), `<p><b>${ACAD_EXAMINER(k)}:</b> ${t('ac_examiner')}</p><p>${t('ac_rules', { q: T, n: ACAD_NEED[k], m: miss })}</p>`,
+    [[t('ac_fight_btn'), () => academyRules('fight')], [t('ac_conj_btn'), () => academyRules('conj')], [t('ac_not_yet'), null, true]]);
+}
+// §3.5: the rules screen before every start
+function academyRules(kind) {
+  const k = acadNext(), T = ACAD_Q[k], need = ACAD_NEED[k], miss = T - need, pct = ACAD_PCT[k];
+  const marks = Array.from({ length: miss }, () => '✖').join(' ');
+  const choose = CFG.ACADEMY && (wizLvl() >= CFG.BOOKS_FROM || k >= 2); let take = true;   // from test 3 (taken at wizard level 29) the student chooses whether to take the books to the test
+  modal(t('ac_rules_t'), `<div class="rulesList">
+    <div><span>❓</span>${t('ac_qcount', { q: T })}</div>
+    <div><span>✅</span>${t('ac_need', { n: need, q: T, p: pct })}</div>
+    <div><span>✖️</span>${t('ac_mistakes')} ${marks}</div>
+    <div><span>🙈</span>${t('ac_no_hints')}</div>
+    <div><span>🏆</span>${t('ac_win', { title: tl(ACAD_RANK[k]) })}</div>
+    </div>${choose ? `<label class="bookTake"><input type="checkbox" id="acBook" checked> 📖📜 ${t('ac_book_take')}</label><p class="small" style="text-align:center;margin-top:2px">${t('ac_book_note')}</p>` : ''}<p class="small" style="text-align:center">${t('ac_nothing_lost')}</p>`,
+    [[t('ac_start'), () => academyStart(kind, take, choose)], [t('ac_not_yet'), null, true]]);
+  const cb = $('#acBook'); if (cb) cb.onchange = () => { take = cb.checked; };
+}
+// the trials are built step by step: for now the start only says so
+function academyStart(kind, book = true, choice = false) {
+  ACQ = { k: acadNext(), phase: 'rules', kind, book, choice, i: 0, right: 0, mist: 0, qs: [], dummies: [], typed: '', msg: '', busy: false, practice: false };
+  acadStart();
+}
+/* ---- the fighting trial (§4) ---- */
+// the learned spells that hurt this element, whose number is in the key pool at this math level (whole numbers only: the answer is typed)
+const sk = v => v.n + '/' + v.d;   // a spell's number as a key (fractions and decimals too)
+function acadWeak(el, lvl) {
+  const seen = new Set(), out = [];
+  for (const id of P.spells || []) {
+    const s = SB.BY_ID[id]; if (!s || !s.v || seen.has(sk(s.v))) continue;
+    if (CB.relation(s, el) !== 'weak' || CB.levelFor(s.v, lvl, Math.random) == null) continue;
+    seen.add(sk(s.v)); out.push(s);
+  }
+  return out;
+}
+// the AOE spells the student has learned (fx 'area': they hit every monster weak to the element), whole numbers in the key pool at this level
+function acadAoe(lvl) {
+  const seen = new Set(), out = [];
+  for (const id of P.spells || []) {
+    const s = SB.BY_ID[id]; if (!s || !s.v || !s.fx || s.fx.k !== 'area' || seen.has(sk(s.v))) continue;
+    if (CB.levelFor(s.v, lvl, Math.random) == null) continue;
+    seen.add(sk(s.v)); out.push(s);
+  }
+  return out;
+}
+// the row of dummies and its questions (§4). The hits add up to the question count plus the AOE questions: an AOE question is one
+// problem and one spell that hits two adjacent dummies (both weak to it, both still needing a hit with it). The questions come to exactly Q.
+function acadBuildRow(k, lvl, Qn) {
+  const Q = Qn || ACAD_Q[k], opts = ACAD_HITS[k], pool = ACAD_EL.map(el => ({ el, sp: acadWeak(el, lvl) })), aoeAll = acadAoe(lvl);
+  const shuffle = a => a.sort(() => Math.random() - 0.5);
+  for (let tries = 0; tries < 700; tries++) {
+    const A = tries < 450 && aoeAll.length && Math.random() < 0.6 ? (Math.random() < 0.5 ? 1 : 2) : 0;   // the AOE questions of this row (one or two: the hits must fit the dummies' counts); the last tries build a row without one
+    const dummies = []; let rem = Q + A, prev = null, aoeLeft = A, ok = true;
+    while (rem > 0 && ok) {
+      const hs = opts.filter(h => h <= rem && (rem - h === 0 || rem - h >= Math.min(...opts)));
+      if (!hs.length) { ok = false; break; }
+      const h = rnd(hs), cands = acadShuffle(pool.filter(p => (!prev || p.el !== prev.el) && p.sp.length >= h));
+      if (!cands.length) { ok = false; break; }
+      let c = cands[0], shared = null;
+      if (aoeLeft > 0 && prev && prev.pairNext == null && prev.need >= (prev.pairPrevN != null ? 2 : 1)) {   // pair with the previous dummy
+        for (const cc of cands) {
+          const s = aoeAll.find(a => CB.relation(a, cc.el) === 'weak' && CB.relation(a, prev.el) === 'weak' && sk(a.v) !== prev.pairPrevN);   // a middle dummy of two pairs needs two different area spells
+          if (s) { c = cc; shared = s; break; }
+        }
+      }
+      let spells;
+      if (shared) {
+        spells = [shared, ...acadShuffle(c.sp.filter(x => sk(x.v) !== sk(shared.v)))].slice(0, h);
+        const keep = [shared]; if (prev.pairPrevS) keep.push(prev.pairPrevS);
+        prev.spells = [...keep, ...prev.spells.filter(x => !keep.some(y => sk(y.v) === sk(x.v)))].slice(0, prev.need);
+        prev.pairNext = sk(shared.v); aoeLeft--;
+      } else spells = acadShuffle(c.sp.slice()).slice(0, h);
+      const d = { el: c.el, need: h, hits: 0, spells, pairNext: null, pairPrevN: shared ? sk(shared.v) : null, pairPrevS: shared };
+      dummies.push(d); rem -= h; prev = d;
+    }
+    if (!ok || aoeLeft > 0) continue;
+    // one question per hit; an AOE question covers the dummy and the next one (one entry each)
+    const qs = [], done = new Set();
+    dummies.forEach((d, j) => d.spells.forEach(s => {
+      const key = j + ':' + sk(s.v); if (done.has(key)) return;
+      const pair = d.pairNext === sk(s.v) && j + 1 < dummies.length;
+      if (pair) done.add((j + 1) + ':' + sk(s.v));
+      const ql = CB.levelFor(s.v, lvl, Math.random), p = ql ? ME.make(ql, { target: s.v }) : null;   // the question is made at the current level, or at the nearest earlier level that can make the number (as the fights review)
+      if (p && ME.eq(p.a, s.v)) qs.push({ d: j, d2: pair ? j + 1 : null, s, p });
+    }));
+    // the row must be sound: each dummy is asked exactly as many times as it needs hits, with different spells, and the questions come to Q
+    const sound = dummies.every((d, j) => { const asked = qs.filter(q => q.d === j || q.d2 === j).map(q => sk(q.s.v)); return asked.length === d.need && new Set(asked).size === asked.length && new Set(d.spells.map(s => sk(s.v))).size === d.spells.length; });
+    if (qs.length === Q && sound) return { dummies, qs };
+  }
+  return null;   // no valid row: the test is not offered (gap 2)
+}
+/* ---- starting, answering, and the end ---- */
+const ACAD_ITEMS = [1, 1, 2, 2, 3];   // the conjuring trial: items per question (the more advanced tests conjure more items)
+// the trial's questions. Fighting (spec 08 §4, as the fight): step 1 the card whose answer is the spell, step 2 its answer.
+// Conjuring (§5): for each item, step 1 the card whose answer is the item's number, step 2 the card with the amount to conjure.
+function acadStart() {   // the questions are built now, from the student's current math level (never above it)
+  const k = ACQ.k, lvl = P.mlvl || 1;
+  if (!ACQ.kind) ACQ.kind = 'conj';
+  ACQ.Q = ACQ.practice ? 6 : ACAD_Q[k]; ACQ.need = ACAD_NEED[k]; ACQ.allowed = ACQ.practice ? 99 : ACQ.Q - ACQ.need;
+  ACQ.facts = []; ACQ.results = []; ACQ.placed = null; ACQ.right = 0; ACQ.mist = 0; ACQ.i = 0; ACQ.j = 0; ACQ.msg = ''; ACQ.busy = false;
+  if (ACQ.kind === 'fight') {
+    const row = acadBuildRow(k, lvl, ACQ.Q);
+    if (!row) { ACQ.phase = 'result'; ACQ.text = t('ac_learn_more'); ACQ.buttons = [[t('ac_back'), 'close']]; return acadRender(); }
+    ACQ.dummies = row.dummies;
+    ACQ.qs = row.qs.map(q => {   // step 1 shows four cards: the one whose answer is the spell, and three problems whose answers the dummy is not weak to
+      // a wrong card never gives a number the dummy is weak to: every learned spell that hurts its element is kept out, not only the chosen ones
+      const bad = new Set();
+      [q.d, q.d2].filter(j => j != null).forEach(j => (P.spells || []).forEach(id => { const s = SB.BY_ID[id]; if (s && s.v && CB.relation(s, ACQ.dummies[j].el) === 'weak') bad.add(sk(s.v)); }));
+      const others = [];
+      for (let n = 0; n < 200 && others.length < 3; n++) {
+        const p = ME.make(lvl, {}); if (!p || !p.a) continue;
+        if (bad.has(sk(p.a)) || ME.eq(p.a, q.s.v) || others.some(o => ME.eq(o.a, p.a))) continue;
+        others.push(p);
+      }
+      // step 2: the answer is typed on a number pad (whole numbers and decimals); a fraction answer is picked, as in the game
+      const typed = ME.isWhole(q.s.v) || q.s.v.k === 'dec';
+      return Object.assign(q, { cards: acadShuffle([q.p, ...others]), choices: typed ? null : acadShuffle([q.s.v, ...ME.distractors(q.p, 3)]) });
+    });
+    ACQ.onGame = true; acGameEnter(); ACQ.phase = 'fpick'; return acadRender();
+  }
+  // conjuring: each question is a request for one item (more items in the later tests), only items unlocked at the current math level
+  const m = ACAD_ITEMS[k], pool = HELPER.reachable(lvl);   // the examiner asks (no villager on the stage)
+  ACQ.qs = Array.from({ length: ACQ.Q }, () => ({
+    items: acadShuffle(pool.slice()).slice(0, m).map(item => ({ item, p: HELPER.makeAmount(lvl, Math.random, { item, others: pool.filter(o => o.n !== item.n) }), icards: HELPER.itemCards(item, lvl, Math.random) }))
+  }));
+  ACQ.shown = null; ACQ.vmood = null; ACQ.spoke = null; ACQ.typed = '';
+  ACQ.onGame = true; acGameEnter(); ACQ.phase = 'citem'; acadRender();
+}
+function acadShuffle(a) { return a.sort(() => Math.random() - 0.5); }
+// one question is over: right only when every step of it was right. A wrong step is the one mistake of the question.
+function acadQDone(ok, fact) {
+  ACQ.busy = true; if (ok) ACQ.right++; else ACQ.mist++;
+  if (!ok && fact) ACQ.facts.push({ p: fact, ok: false });   // the amount that was missed, for the weak-spot memory
+  ACQ.results[ACQ.i] = ok;
+  if (ok && ACQ.msg === '') ACQ.msg = t('ac_right');
+  ACQ.fxP = null; acadRender();
+  const fightOk = ok ? (ACQ.lastDown && ACQ.lastDown.length ? 1100 : 800) : 1000;   // the spec's pauses start when the spell's effect is over
+  const wait = ms => Promise.resolve(ACQ.fxP).then(() => sleep(ms));   // the pause starts when the effect is over
+  wait(ACQ.kind === 'fight' ? fightOk : (ok ? 1500 : 3400)).then(() => {
+    if (!ACQ) return;
+    ACQ.busy = false; ACQ.i++; ACQ.j = 0; ACQ.msg = ''; ACQ.typed = ''; ACQ.shown = null; ACQ.vmood = null; ACQ.hold = false; ACQ.lastHit = null; ACQ.lastMiss = null; ACQ.lastDown = null;
+    if (ACQ.mist > ACQ.allowed) return acadFinish(true);   // more mistakes than allowed: the test stops at once
+    if (ACQ.i >= ACQ.Q) return acadFinish(false);
+    ACQ.phase = ACQ.kind === 'fight' ? 'fpick' : 'citem'; acadRender();
+  });   // the spec's pauses: fights 0.8 s / 1.1 s, conjuring 1.5 s / a wrong answer 3.4 s
+}
+const ACAD_COL = { fire: '#ff7a3d', ice: '#8fd8ff', dark: '#4a3f7a', plant: '#5fbf5f', storm: '#9aa7ff', stone: '#9e9e9e' };   // the dummy's colour: its element
+// a training dummy (spec 08 §4, drawn as the Hebrew game's): a round head with crossed eyes and a smile, arms out on a post, and its element in three places
+// (both hands and the belly), with a glow of the element's colour behind it
+function acadDummySvg(el) {
+  const c = ACAD_COL[el];
+  return `<svg class="dsvg" viewBox="0 0 100 130" aria-hidden="true"><defs><radialGradient id="acAu${el}"><stop offset="0" stop-color="${c}" stop-opacity=".75"/><stop offset=".6" stop-color="${c}" stop-opacity=".35"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="50" cy="64" rx="48" ry="60" fill="url(#acAu${el})"/>
+    <rect x="46" y="86" width="8" height="30" fill="#6b4a2b"/><ellipse cx="50" cy="118" rx="24" ry="6" fill="#4a3320"/>
+    <rect x="12" y="42" width="76" height="13" rx="6.5" fill="#c9a06a" stroke="#a07a45" stroke-width="1.5"/>
+    <path d="M30 46Q50 40 70 46L66 92Q50 98 34 92Z" fill="#d8b97f" stroke="#a07a45" stroke-width="1.5"/>
+    <circle cx="50" cy="26" r="16" fill="#ecd196" stroke="#a07a45" stroke-width="1.5"/><path d="M35 21Q50 6 65 21Q50 14 35 21Z" fill="#8b6a3a"/>
+    <path d="M42 22l5 5m0-5l-5 5M53 22l5 5m0-5l-5 5" stroke="#5a3b1d" stroke-width="1.8" stroke-linecap="round"/><path d="M42 32Q50 38 58 32" fill="none" stroke="#5a3b1d" stroke-width="1.8" stroke-linecap="round"/>
+    ${acadGlyphAt(el, 16, 42, 1)}${acadGlyphAt(el, 84, 42, 1)}${acadGlyphAt(el, 50, 70, 1.25)}</svg>`;
+}
+// the examiner (as the Hebrew game's): a wizard in a maroon star hat, round glasses, a long white beard and a red robe, holding a scroll
+function acadExaminerSvg(conj) {   // the conjuring trial's examiner wears blue and purple (picture 16), the fighting one maroon and red (picture 15)
+  const hat = conj ? '#2f5aa8' : '#6e2a3e', brim = conj ? '#244a8c' : '#54202f', robe = conj ? '#4a3f9a' : '#a8372f';
+  return `<svg class="exsvg" viewBox="0 0 60 120" aria-hidden="true"><ellipse cx="32" cy="116" rx="22" ry="4" fill="#0003"/>
+    <path d="M14 58Q30 48 46 58L52 110Q30 118 8 110Z" fill="${robe}"/><path d="M9 104Q30 113 51 104" stroke="#e8b83a" stroke-width="4" fill="none"/>
+    <rect x="19" y="108" width="9" height="7" rx="3" fill="#3a2a1a"/><rect x="32" y="108" width="9" height="7" rx="3" fill="#3a2a1a"/>
+    <path d="M18 36Q30 84 42 36Q30 46 18 36Z" fill="#fff" stroke="#e6e0d6" stroke-width="1"/>
+    <circle cx="30" cy="30" r="11" fill="#f5d6b8"/><circle cx="24" cy="34" r="2.2" fill="#f0a89a" opacity=".6"/><circle cx="36" cy="34" r="2.2" fill="#f0a89a" opacity=".6"/>
+    <circle cx="25.5" cy="29" r="4" fill="none" stroke="#d9a82b" stroke-width="1.3"/><circle cx="34.5" cy="29" r="4" fill="none" stroke="#d9a82b" stroke-width="1.3"/><path d="M29.5 29h1" stroke="#d9a82b" stroke-width="1.3"/>
+    <circle cx="25.5" cy="29" r="1.1" fill="#3a2a1a"/><circle cx="34.5" cy="29" r="1.1" fill="#3a2a1a"/>
+    <path d="M16 24L30 -4L44 24Z" fill="${hat}"/><ellipse cx="30" cy="24" rx="17" ry="4.5" fill="${brim}"/><path d="M30 5l1.5 3.5 3.8.4-2.9 2.5.9 3.7L30 13l-3.3 2.1.9-3.7-2.9-2.5 3.8-.4z" fill="#ffd166"/>
+    <rect x="6" y="62" width="11" height="24" rx="5.5" fill="${robe}"/><g transform="rotate(-22 12 84)"><rect x="1" y="76" width="22" height="14" rx="2" fill="#f4e4b0" stroke="#b8975a"/><path d="M5 80h14M5 83.5h14M5 87h9" stroke="#b8975a" stroke-width="1"/></g><circle cx="12" cy="88" r="3.8" fill="#f5d6b8"/></svg>`;
+}
+// the backdrop of the test (as the Hebrew game's): the sky, the wall with arches, the pale floor, and two flag poles
+function acadBgSvg() {
+  const arches = [0, 1, 2, 3, 4].map(i => { const x = -22 + i * 88; return `<path d="M${x} 130V92Q${x} 56 ${x + 37} 56Q${x + 74} 56 ${x + 74} 92V130Z" fill="#6e6451"/>`; }).join('');
+  return `<svg class="acBgSvg" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">
+    <rect width="400" height="200" fill="#8fbde8"/><rect y="38" width="400" height="92" fill="#a89d86"/>${arches}
+    <rect y="128" width="400" height="72" fill="#dcc99f"/><rect y="126" width="400" height="4" fill="#b3a68a"/><rect y="176" width="400" height="3" fill="#b89a62"/>
+    <rect x="58" y="10" width="4" height="78" fill="#8a5a2b"/><path d="M62 12H100L90 24L100 36H62Z" fill="#c63a2e"/>
+    <rect x="338" y="10" width="4" height="78" fill="#8a5a2b"/><path d="M342 12H380L370 24L380 36H342Z" fill="#c63a2e"/></svg>`;
+}
+// the progress across the top of the stage (a cream pill with a dot per question) and the mistakes allowed (empty boxes under the wizard, a red X in each used one)
+function acadTopRender() {
+  $('#acTop .acPill').innerHTML = ACQ.qs.map((x, i) => `<i class="${ACQ.results[i] === true ? 'ok' : ACQ.results[i] === false ? 'bad' : i === ACQ.i ? 'cur' : ''}"></i>`).join('');
+  $('#hearts').innerHTML = ACQ.practice ? `<span class="exMarks">${t('ac_practice_tag')}</span>` : `<span class="exBoxes">${Array.from({ length: ACQ.allowed }, (_, m) => `<i class="${m < ACQ.mist ? 'used' : ''}"></i>`).join('')}</span>`;
+}
+function acadRender() {
+  if (!ACQ) return;
+  if (ACQ.phase === 'result') return acadResultModal();
+  return ACQ.kind === 'conj' ? conjRenderGame() : fightRenderGame();   // both trials run on the game's own screen
+}
+/* ---- the conjuring trial on the village screen (as the Hebrew game's conjuring trial): a dark hall with columns, the pedestal with the orb in the
+   middle, the wizard on the left, the examiner on the right, and the villager's request in a speech bubble. Step 1: the card whose answer is the item's
+   number; step 2: the amount, typed on the number pad. One mistake per question, no second try (spec 08 §5). ---- */
+// the dark hall (picture 16): columns, two glowing discs, the archway in the middle, the dark floor
+function acadHallSvg() {
+  const col = (x, w) => `<rect x="${x}" y="0" width="${w}" height="178" fill="#4a3f86"/><rect x="${x + w * 0.62}" y="0" width="${w * 0.38}" height="178" fill="#3d3372"/><rect x="${x - 6}" y="170" width="${w + 12}" height="12" fill="#6b5fb0"/>`;
+  const disc = x => `<circle cx="${x}" cy="30" r="24" fill="#4a3d5c"/><circle cx="${x}" cy="30" r="10" fill="#ffd166"/>`;
+  return `<svg class="acBgSvg" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">
+    <rect width="400" height="200" fill="#2a2252"/><rect y="0" width="400" height="176" fill="#251d4a"/>
+    <path d="M142 178V74Q142 22 200 22Q258 22 258 74V178Z" fill="#1a1436"/><path d="M178 22Q200 8 222 22" fill="#ffd166" opacity=".55"/>
+    ${disc(62)}${disc(338)}${col(20, 34)}${col(104, 26)}${col(270, 26)}${col(346, 34)}
+    <rect y="176" width="400" height="24" fill="#38305f"/><rect y="176" width="400" height="3" fill="#4d4382"/></svg>`;
+}
+// the pedestal with the orb; the conjured items appear above it, one by one
+const acadPedSvg = () => `<svg class="acPedSvg" viewBox="0 0 80 100" aria-hidden="true"><ellipse cx="40" cy="96" rx="30" ry="4" fill="#0006"/>
+  <defs><radialGradient id="acOrb" cx=".4" cy=".35"><stop offset="0" stop-color="#6a5f94" stop-opacity=".55"/><stop offset="1" stop-color="#1f1936" stop-opacity=".2"/></radialGradient></defs>
+  <path d="M22 70H58L64 96H16Z" fill="#a89fdc"/><rect x="12" y="62" width="56" height="9" rx="3" fill="#8f84c8"/>
+  <circle cx="40" cy="34" r="27" fill="#3a3150"/><circle cx="40" cy="34" r="27" fill="url(#acOrb)"/><ellipse cx="30" cy="22" rx="8" ry="5" fill="#fff" opacity=".18"/></svg>`;
+// the wizard shoots a magic from his staff at the pedestal (its look grows with the wizard tier, as in the village); where it lands the items appear
+async function acadConjFx() {
+  const w = wizLvl(), tier = w >= 19 ? 4 : w >= 13 ? 3 : w >= 7 ? 2 : 1, shot = ['✨', '🌟', '💫', '🔮'][tier - 1], ped = $('#acPed');
+  try { await fly(shot, $('#heroSvg'), ped, { trail: true, size: 1.8 }); } catch (e) {}
+  if (!ACQ || !ped.isConnected) return;
+  ACQ.hold = false; sfx.up(); burst('✨', 10, ped); flashStage();
+  const pi = $('#acPedItems'); if (pi) pi.innerHTML = acadPedItems();
+  ped.classList.toggle('lit', !!(ACQ.shown && ACQ.shown.length));
+  if (ACQ.shown && ACQ.shown.some(p => p.n > 6)) floatText('+' + ACQ.shown[ACQ.shown.length - 1].n, '#ffd166', ped);
+}
+const acadPedItems = () => ACQ.hold ? '' : (ACQ.shown || []).map((pl, gi) => pl.n > 9
+  ? `<span class="acPedItem" style="animation-delay:${gi * 0.4}s">${pl.em}<b>×${pl.n}</b></span>`
+  : Array.from({ length: pl.n }, (_, i) => `<span class="acPedItem" style="animation-delay:${(gi * 9 + i) * 0.12}s">${pl.em}</span>`).join('')).join('');
+function conjRenderGame() {
+  const q = ACQ.qs[ACQ.i], x = q.items[ACQ.j], citem = ACQ.phase === 'citem', story = visitStory({ p: x.p, item: x.item, extra: null });
+  $('#acBubble').innerHTML = story;
+  if (ACQ.shot) ACQ.hold = true;   // the items wait for the magic to land
+  $('#acPedItems').innerHTML = acadPedItems(); $('#acPed').classList.toggle('lit', !ACQ.hold && !!(ACQ.shown && ACQ.shown.length));
+  acadTopRender(); $('#acName').textContent = '';
+  $('#acDots').innerHTML = q.items.length > 1 ? q.items.map((_, j) => `<i style="background:#ffd166" class="${j < ACQ.j ? 'done' : j === ACQ.j ? 'cur' : ''}"></i>`).join('') : '';   // the items of this request
+  $('#qTitle').textContent = t('ac_conj_say', { ex: ACAD_EXAMINER(ACQ.k) });
+  $('#qSub').textContent = t(citem ? 'ac_conj_pick' : ACQ.phase === 'cnum' ? 'ac_conj_num' : 'ac_conj_amount');
+  $('#qBig').innerHTML = (ACQ.phase === 'cnum' && ACQ.pickCard ? `<div class="acEq" dir="ltr">${HELPER.cardText(ACQ.pickCard)}</div>` : '') + `<div class="acBtnRow">${ACQ.book ? `<button class="vhNeed" data-ac="bookItem" title="${t('vh_book_item')}">${x.item.em}</button>` : `<span class="vhNeed noBook">${x.item.em}</span>`}<button class="vhNeed" data-ac="hear" title="🔊">🔊</button></div>`;   // without the book the item's icon does not open it
+  const o = $('#opts'); o.className = 'opts' + (citem ? ' cards' : ' pad'); o.style.display = ''; o.style.gridTemplateColumns = citem ? '1fr 1fr' : ''; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
+  o.innerHTML = citem
+    ? x.icards.map((c, i) => `<button class="opt card" data-ac="icard" data-i="${i}"><span class="cardEx" dir="ltr">${HELPER.cardText(c)}</span></button>`).join('')
+    : `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${ACQ.phase === 'cnum' ? '✔' : t('ac_conj_go')}</button>`;
+  $('#fb').textContent = ACQ.msg || '';
+  if (ACQ.shot) { ACQ.shot = null; ACQ.fxP = acadConjFx(); }
+  const key = ACQ.i + ':' + ACQ.j;   // the story is read aloud (spec 08 §6): automatically for math levels 1–12, and with the 🔊 button
+  if (ACQ.spoke !== key && !ACQ.busy) { ACQ.spoke = key; if ((P.mlvl || 1) <= 12) vhSpeak(story); }
+}
+function acadClick(e) {
+  const b = e.target.closest && e.target.closest('[data-ac]'); if (!b || !ACQ) return;
+  const a = b.dataset.ac;
+  if (a === 'bookItem') { if (!ACQ.book) return toast(t('books_test_no')); const x = ACQ.qs[ACQ.i].items[ACQ.j]; conjTab = HELPER.themeOf(x.item).k; return openConjBook(); }   // the conjuration book, on the item's theme (the item is not marked)
+  if (a === 'hear') { const x = ACQ.qs[ACQ.i].items[ACQ.j]; return vhSpeak(visitStory({ p: x.p, item: x.item, extra: null })); }
+  if (ACQ.busy) return;
+  const i = +b.dataset.i, q = ACQ.qs[ACQ.i];
+  if (a === 'key' && ['fsolve', 'cnum', 'camount'].includes(ACQ.phase)) {   // the number pad: digits, a point, and delete; only the display changes
+    const k = b.dataset.k, cur = ACQ.typed || '';
+    ACQ.typed = k === '⌫' ? cur.slice(0, -1) : cur.length < 8 && !(k === '.' && cur.includes('.')) ? cur + k : cur;
+    const sh = $('#padShow'); if (sh) sh.textContent = ACQ.typed || '…'; return;
+  }
+  if (a === 'go') return acadSubmit();
+  if (ACQ.kind === 'fight') {
+    const d = ACQ.dummies[q.d];
+    if (a === 'card' && ACQ.phase === 'fpick') {   // step 1: the card whose answer is a spell this dummy is weak to
+      if (q.cards[i] === q.p) { ACQ.phase = 'fsolve'; ACQ.msg = ''; ACQ.typed = ''; return acadRender(); }
+      acadSnap([q.d]); d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d; ACQ.shot = { hit: false, cast: null, targets: [q.d] };
+      ACQ.msg = t('ac_card_miss'); return acadQDone(false, q.p);
+    }
+    if (a === 'num' && ACQ.phase === 'fsolve') return acadAnswer(q.choices[i]);   // a fraction answer is picked from the buttons
+    return;
+  }
+  const x = q.items[ACQ.j];
+  if (a === 'icard' && ACQ.phase === 'citem') {   // step 1: the card whose answer is the item's number
+    const c = x.icards[i];
+    if (HELPER.itemCardOk(c, x.item)) { ACQ.phase = 'cnum'; ACQ.pickCard = c; ACQ.msg = ''; ACQ.typed = ''; sfx.ok(); return acadRender(); }   // the right card: now its answer, the item's number
+    return acadWrongItem(HELPER.wrongItemFor(c), x);
+  }
+}
+// a wrong item (a wrong card, or a wrong number for the card): it appears on the pedestal and the examiner reacts; the question ends here, with one mistake
+function acadWrongItem(w, x) {
+  ACQ.shown = w ? [{ em: w.em, n: 1 }] : []; ACQ.shot = true; sfx.bad();
+  ACQ.msg = w ? t('vh_wrong_item', { em: w.em, got: hpItemName(w, 1), want: hpItemName(x.item, 2) }) : t('ac_wrong_item');
+  return acadQDone(false, null);
+}
+// step 1b: the answer of the item card, typed: it must be the item's number
+function acadItemNum(k) {
+  const x = ACQ.qs[ACQ.i].items[ACQ.j];
+  if (k === x.item.n) { ACQ.phase = 'camount'; ACQ.msg = ''; ACQ.typed = ''; sfx.ok(); return acadRender(); }
+  return acadWrongItem(HELPER.itemOf(k), x);
+}
+// ✔ on the number pad (or Enter): the fighting answer, or the amount to conjure
+function acadSubmit() {
+  if (!ACQ || ACQ.busy) return;
+  const v = ME.parse(ACQ.typed || ''); if (!v) return;
+  if (ACQ.kind === 'fight') { if (ACQ.phase === 'fsolve') acadAnswer(v); } else if (ACQ.phase === 'cnum') acadItemNum(ME.num(v)); else if (ACQ.phase === 'camount') acadAmount(ME.num(v));
+}
+// step 2: the amount. Right: the items appear on the pedestal and the villager says thank you (then the next item, or the question is right).
+// Wrong: the items stay on the pedestal and the villager says only "too many" or "not enough"; the right amount is never shown. One mistake, no second try.
+function acadAmount(k) {
+  const q = ACQ.qs[ACQ.i], x = q.items[ACQ.j], r = HELPER.checkAmount(k, x.p.amount);
+  ACQ.shown = ACQ.shown || [];
+  if (r.ok) {
+    ACQ.shown.push({ em: x.item.em, n: x.p.amount }); ACQ.vmood = 'happy'; ACQ.msg = t('ac_right'); ACQ.shot = true; sfx.win();
+    if (ACQ.j + 1 < q.items.length) {
+      ACQ.busy = true; acadRender();
+      Promise.resolve(ACQ.fxP).then(() => sleep(1100)).then(() => { if (!ACQ) return; ACQ.busy = false; ACQ.j++; ACQ.phase = 'citem'; ACQ.msg = ''; ACQ.typed = ''; ACQ.vmood = null; acadRender(); });
+      return;
+    }
+    return acadQDone(true);
+  }
+  ACQ.shown.push({ em: x.item.em, n: Math.max(0, Math.min(Math.round(k), 12)) }); ACQ.vmood = 'wait'; ACQ.shot = true; sfx.bad();
+  ACQ.msg = r.kind === 'few' ? t('ac_few') : t('ac_many');
+  return acadQDone(false, x.p);
+}
+// step 2: the answer of the card is cast as the spell; right, it hits (an AOE question hits both dummies); wrong, it is the question's one mistake
+// what the dummies showed before this question, so the markers and the fall wait for the spell to arrive
+function acadSnap(targets) { ACQ.snap = {}; targets.forEach(j => { const x = ACQ.dummies[j]; ACQ.snap[j] = { hits: x.hits, miss: x.miss || 0 }; }); }
+function acadAnswer(v) {
+  const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], targets = q.d2 != null ? [q.d, q.d2] : [q.d];
+  acadSnap(targets);
+  if (ME.eq(v, q.s.v)) {
+    targets.forEach(j => ACQ.dummies[j].hits++);
+    ACQ.msg = t(q.d2 != null ? 'ac_aoe_hit' : 'ac_hit'); ACQ.lastHit = targets; ACQ.lastDown = targets.filter(j => ACQ.dummies[j].hits >= ACQ.dummies[j].need);
+    ACQ.shot = { hit: true, spell: q.s, targets };
+    return acadQDone(true);
+  }
+  d.miss = Math.min((d.miss || 0) + 1, d.need - d.hits); ACQ.lastMiss = q.d;
+  const other = SB.cast(v, P.spells || []);   // the wrong number is cast as the spell it is (it bounces off), or fizzles when it is no spell
+  ACQ.shot = { hit: false, cast: other && CB.relation(other, d.el) !== 'weak' ? other : null, targets: [q.d] };
+  ACQ.msg = t('ac_miss'); acadQDone(false, q.p);
+}
+// the spell effects of the fight (arrows, area scenes, a bounce, a fizzle), played on the trial's stage
+async function acadCastFx(s) {
+  await sleep(40);
+  const hero = $('#heroSvg'), bigs = [...document.querySelectorAll('#foeBody .acBigDum')], hit = bigs.filter(b => s.targets.includes(+b.dataset.j));
+  const nodes = hit.map(b => b.querySelector('.dsvg') || b), done = () => { if (!ACQ) return; ACQ.snap = null; acadPips(); };
+  const heroFizzle = async () => { burst('💨', 6, '#heroSvg'); $('#heroBox').classList.add('fizzle'); setTimeout(() => $('#heroBox').classList.remove('fizzle'), 450); await sleep(500); };
+  try {
+    if (!nodes.length) return done();
+    if (s.hit) {
+      const sp = s.spell, em = SB.ELEMENTS[sp.el].em, glow = EL_GLOW[sp.el], size = tierSize(sp.power);
+      if (sp.fx && sp.fx.k === 'area') { const fx = AREA_FX[sp.fam] || AREA_FX[sp.id]; await (fx ? fx(nodes, { size, glow, spell: sp }) : rainOn(em, nodes, { size, glow })); }
+      else await fly(em, hero, nodes[0], { size, glow, trail: true, arrow: [2, 3, 5].includes(sp.fam) ? sp.el : null });
+      sfx.hit(); done();
+      nodes.forEach((n, i) => { burst(em, 9, n); burst('💥', 3, n); floatText('💥', '#ffd166', n); const b = hit[i]; b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 650); });
+      hit.forEach(b => { const x = ACQ.dummies[+b.dataset.j]; if (x.hits >= x.need) setTimeout(() => b.classList.add('down'), 450); });   // the dummy collapses
+    } else {
+      if (s.cast) { const sp = s.cast; await fly(SB.ELEMENTS[sp.el].em, hero, nodes[0], { size: tierSize(sp.power), glow: EL_GLOW[sp.el], trail: true, bounce: true }); } else await heroFizzle();
+      done(); hit.forEach(b => { b.classList.add('miss'); setTimeout(() => b.classList.remove('miss'), 650); });
+    }
+  } catch (e) { done(); }
+}
+// the markers under a dummy: gold for a hit, red with a cross for a mistake, empty for a hit still to come
+const acadPipsHtml = (x, st) => Array.from({ length: x.need }, (_, m) => `<i class="${m < st.hits ? 'gold' : m < st.hits + st.miss ? 'red' : ''}"></i>`).join('');
+function acadPips() { document.querySelectorAll('#foeBody .acBigDum').forEach(b => { const x = ACQ.dummies[+b.dataset.j]; b.querySelector('.mk').innerHTML = acadPipsHtml(x, { hits: x.hits, miss: x.miss || 0 }); }); }
+document.addEventListener('keydown', e => {   // typing on a keyboard also works for the trial's number pad
+  if (!ACQ || !ACQ.onGame || !['fsolve', 'cnum', 'camount'].includes(ACQ.phase) || ACQ.busy || !$('#padShow')) return;
+  const k = e.key === 'Backspace' ? '⌫' : /^[0-9.]$/.test(e.key) ? e.key : null;
+  if (e.key === 'Enter') return acadSubmit();
+  if (!k) return;
+  const cur = ACQ.typed || '';
+  ACQ.typed = k === '⌫' ? cur.slice(0, -1) : cur.length < 8 && !(k === '.' && cur.includes('.')) ? cur + k : cur;
+  $('#padShow').textContent = ACQ.typed || '…';
+});
+// the spell flies from the typed answer to the dummy (or both dummies of an AOE question); the shot is set by the answer
+function acadFly(shot) {
+  const src = $('#acadBox .acadPadShow'); if (!src) return;
+  shot.targets.forEach(j => { const to = $(`#acadBox .acadDum2[data-j="${j}"] .dsvg`); if (to) fly(shot.emoji, src, to, { trail: true, size: 1.2 }); });
+}
+// the weak-spot memory (§6): the wrong answers of a real test are kept for practice in normal play; the right ones are not; a closed test records nothing
+function acadApplyFacts() {
+  if (ACQ.practice) return;
+  (ACQ.facts || []).forEach(f => {
+    if (f.ok) return;
+    if (f.p.e) { ME.noteFact(P.mfacts, f.p, false); return; }   // a fighting problem: already a problem of the game
+    // a conjuring amount: the game's own problem with the same answer, in any of its forms (sum, difference, product …), at the level that can make it
+    const tv = Number.isInteger(f.p.amount) ? ME.I(f.p.amount) : ME.parse(String(f.p.amount)), ql = tv ? CB.levelFor(tv, P.mlvl || 1, Math.random) : null, p = ql ? ME.make(ql, { target: tv }) : null;
+    if (p) { f.review = p; ME.noteFact(P.mfacts, p, false); }
+  });
+  saveSoon(true);
+}
+// the facts to look at again (up to 8: the missed problems, with their answers)
+function acadFactsHtml() {
+  const wrong = (ACQ.facts || []).filter(f => !f.ok).slice(0, 8);
+  return wrong.length ? `<p class="small">${t('ac_facts')}</p>` + wrong.map(f => `<div dir="ltr">${f.review ? exprHtml(f.review.e, f.review.a) : f.p.e ? exprHtml(f.p.e, f.p.a) : HELPER.cardText(f.p.expr) + ' = ' + f.p.amount}</div>`).join('') : '';
+}
+// the practice run (§6): 6 questions with the same rules, no marks, no pass or fail
+function acadPracticeEnd() {
+  ACQ.phase = 'result'; ACQ.text = t('ac_practice_done', { r: ACQ.right });
+  ACQ.buttons = [[t('ac_take'), 'take'], [t('ac_not_now'), 'close']]; acadRender();
+}
+function acadFinish(early) {
+  if (ACQ.practice) return acadPracticeEnd();
+  acadApplyFacts();
+  const k = ACQ.k, pass = ACQ.right >= ACQ.need, pct = ACQ.right / ACQ.Q;
+  ACQ.phase = 'result';
+  if (pass) {   // a pass: the next test opens, the level bar turns into the level of the tier's top + 1, and the rank rises by one
+    // one action sets it all (spec 08 §1, §7): the rank, the level, the spell tier, the certificate, the new hat (offered, not put on) and the gifts
+    const S = acadS(), cert = { test: k + 1, right: ACQ.right, q: ACQ.Q, medal: pct >= 0.93 ? 'gold' : pct >= 0.87 ? 'silver' : 'bronze', date: today() };
+    if (ACQ.choice && !ACQ.book) cert.noBook = true;   // the student left the books out of the test: a special note on the certificate
+    S.passed = k + 1; S.certs.push(cert); S.newHat = k + 1;
+    P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k) + 1));   // the banked XP turns into levels at once: the cap lifts with the pass
+    const gifts = acadGrant(k), sp = acadNewSpells(k);
+    saveSoon(true); sfx.win(); confetti(['🎓', '✨', '⭐']);
+    ACQ.text = acadGradHtml(cert, gifts, sp);   // the graduation window
+    ACQ.buttons = [[t('ac_cont'), 'close']];
+  } else {
+    ACQ.text = (early ? t('ac_enough') + ' ' : '') + t('ac_fail', { r: ACQ.right, q: ACQ.Q, n: ACQ.need });
+    ACQ.text += acadFactsHtml();
+    ACQ.buttons = [[t('ac_again'), 'again'], [t('ac_practice'), 'practice'], [t('ac_back'), 'close']];
+  }
+  acadRender(); refreshAcademy();
+}
+/* ----- The fighting trial on the game's own fight screen (as the Hebrew game): the same stage, the wizard, the dummy and the question panel,
+   with the examiner standing on the right. The rules are the math rules: card, then answer. ----- */
+const acadDummyTitle = el => t('ac_fight_title', { el: tl(ACAD_ELN[el]).toLowerCase() });   // the element as a word (its icon is already on the dummy)
+// the fight screen takes the trial: the stage, the examiner, the progress along the bottom, and the rest of the game's controls are hidden
+function acGameEnter() {
+  const conj = ACQ.kind === 'conj';
+  show('game'); setBookIcon(conj); VS = null;   // the conjuration book (📜) in the conjuring trial, the spell book in the fighting trial
+  $('#who').textContent = P.nick; $('#heroSvg').innerHTML = heroOf(P);
+  acadSetStage();
+  ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = 'none'; });
+  $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none'; $('#nextBtn').classList.add('hidden');
+  if (document.querySelector('#vhTray')) document.querySelector('#vhTray').remove();
+  if (!$('#acExam')) $('#stage').insertAdjacentHTML('beforeend', `<div id="acExam">${acadExaminerSvg(conj)}<small>${ACAD_EXAMINER(ACQ.k)}</small></div>`);
+  if (!$('#acDots')) $('#stage').insertAdjacentHTML('beforeend', '<div id="acDots"></div>');
+  $('#foeName').textContent = t('ac_dummy');
+  $('#foeBody').className = 'foeBody ' + (conj ? 'acNone' : 'acCentre');
+  applyBookLock();   // a test taken without the books hides the book buttons
+}
+// the arena of picture 15 (arches, flags, pale floor), the hourglass and the question progress across the top; the dummy in the centre
+function acadSetStage() {
+  const conj = ACQ.kind === 'conj';
+  const sb = $('#stageBg'); sb.dataset.key = conj ? 'acadHall' : 'acad'; sb.style.cssText = "position:absolute;inset:0"; sb.innerHTML = conj ? acadHallSvg() : acadBgSvg();
+  const vig = $('#stageVig'); if (vig) vig.style.display = "none";
+  document.body.classList.add('acadOn');
+  const hour = '<svg class="acHour" viewBox="0 0 24 34" width="24" height="34" aria-hidden="true"><path d="M3 2h18M3 32h18" stroke="#c9961a" stroke-width="3" stroke-linecap="round"/><path d="M5 3c0 9 6 10 7 14-1 4-7 5-7 14M19 3c0 9-6 10-7 14 1 4 7 5 7 14" fill="#ffe9a8" stroke="#c9961a" stroke-width="1.6"/><path d="M8 26c2-2 6-2 8 0v5H8z" fill="#f2b632"/></svg>';
+  if (!$('#acTop')) $('#stage').insertAdjacentHTML('beforeend', `<div id="acTop"><div class="acPill"></div>${hour}</div><div id="acName"></div>`);
+  // the conjuring trial: the pedestal with the orb in the middle, and the villager's speech bubble above it
+  ['#acPed', '#acBubble'].forEach(s => { const e = $(s); if (e) e.remove(); });
+  if (conj) $('#stage').insertAdjacentHTML('beforeend', `<div id="acPed">${acadPedSvg()}<div id="acPedItems"></div></div><div id="acBubble"></div>`);
+  const foe = $('#foeBody'); if (!ACQ.foeParent) { ACQ.foeParent = foe.parentElement; ACQ.foeNext = foe.nextSibling; }   // the dummy moves into the stage, so it can stand in the centre (the conjuring trial has none)
+  $('#stage').appendChild(foe); foe.classList.remove('acCentre', 'acVill'); foe.classList.add(conj ? 'acNone' : 'acCentre'); if (conj) foe.innerHTML = '';
+}
+// leaving the trial: the game's own screens and controls come back
+function acGameExit(was) {   // `was`: the trial that has just been left (acadExit clears ACQ first)
+  const A = was || ACQ, foe = $('#foeBody'); foe.classList.remove('acCentre', 'acNone'); foe.innerHTML = ''; setBookIcon(false); if (A && A.foeParent) A.foeParent.insertBefore(foe, A.foeNext && A.foeNext.parentNode === A.foeParent ? A.foeNext : null);   // the dummy goes back to its place on the fight screen
+  ACQ = null; refreshAcademy(); applyBookLock();
+  document.body.classList.remove('acadOn'); ['#acExam', '#acDots', '#acTop', '#acName', '#acPed', '#acBubble'].forEach(s => { const e = $(s); if (e) e.remove(); }); $('#foeBody').classList.remove('acCentre', 'acNone'); $('#stageBg').dataset.key = '';
+  ['#potBar', '#itemBar', '#abandonBtn'].forEach(s => { const e = $(s); if (e) e.style.display = ''; });
+  $('#vhBar').style.display = 'none'; $('#vhPics').style.display = 'none';
+  openMenu();
+}
+function acadExit() { const was = ACQ, wasGame = ACQ && ACQ.onGame; ACQ = null; const ov = $('#academy'); if (ov) ov.style.display = 'none'; refreshAcademy(); if (wasGame) return acGameExit(was); }
+// the buttons of a result or a rules screen
+function acadDo(a) {
+  if (a === 'close') return acadExit();
+  if (a === 'start') return acadStart();
+  if (a === 'again' || a === 'take') { const kind = ACQ.kind; acadExit(); return academyRules(kind); }   // the rules screen comes before every start of the real test (§3.5)
+  if (a === 'practice') { ACQ.practice = true; return acadStart(); }
+}
+// the fight screen of the trial: the dummy with its element in three places, the hit markers, the progress, and the question panel
+function fightRenderGame() {
+  const q = ACQ.qs[ACQ.i], d = ACQ.dummies[q.d], fpick = ACQ.phase === 'fpick';
+  // one dummy, or for an AOE question the two adjacent dummies side by side (both are hit by the one spell). While a spell is on its way the dummy
+  // still shows what it showed before (acadSnap); its marker, its shake and its fall come when the spell arrives (acadCastFx).
+  const one = j => {
+    const x = ACQ.dummies[j], st = ACQ.snap && ACQ.snap[j] ? ACQ.snap[j] : { hits: x.hits, miss: x.miss || 0 }, crown = j === ACQ.dummies.length - 1 && x.need >= 2 ? `<b class="acCrown">👑</b>` : '';
+    return `<div class="acBigDum ${st.hits >= x.need ? 'down' : ''}${j === q.d || j === q.d2 ? ' cur' : ''}" data-j="${j}">${crown}${acadDummySvg(x.el)}<div class="mk">${acadPipsHtml(x, st)}</div></div>`;
+  };
+  $('#foeBody').innerHTML = q.d2 != null ? `<div class="acPair">${one(q.d)}${one(q.d2)}</div>` : one(q.d);
+  // the mistakes allowed: empty boxes under the wizard, a cross in each one used (the practice run has none)
+  $('#hearts').innerHTML = ACQ.practice ? `<span class="exMarks">${t('ac_practice_tag')}</span>` : `<span class="exBoxes">${Array.from({ length: ACQ.allowed }, (_, m) => `<i class="${m < ACQ.mist ? 'used' : ''}"></i>`).join('')}</span>`;
+  $('#acTop .acPill').innerHTML = ACQ.qs.map((x, i) => `<i class="${ACQ.results[i] === true ? 'ok' : ACQ.results[i] === false ? 'bad' : i === ACQ.i ? 'cur' : ''}"></i>`).join('');
+  $('#acName').textContent = t('ac_dummy');
+  $('#acDots').innerHTML = ACQ.dummies.map((x, j) => `<i style="background:${ACAD_COL[x.el]}" class="${x.hits >= x.need ? 'done' : j === q.d ? 'cur' : ''}"></i>`).join('');
+  const pad = !fpick && !q.choices;   // step 2 is typed on the number pad (spec 08 §2); a fraction answer is picked
+  $('#qTitle').innerHTML = fpick ? acadDummyTitle(d.el) : t(pad ? 'ac_say_ans' : 'ac_say_pick');
+  $('#qSub').textContent = q.d2 != null ? t('ac_aoe_t') : (d.need > 1 ? t('ac_fight_multi', { k: d.hits + 1, n: d.need }) : (fpick ? t('ac_pick_card') : ''));
+  $('#qBig').innerHTML = fpick ? '' : `<div class="acEq" dir="ltr">${exprHtml(q.p.e)}</div>`;
+  const o = $('#opts'); o.className = 'opts' + (fpick ? ' cards' : pad ? ' pad' : ''); o.style.display = ''; o.style.gridTemplateColumns = pad ? '' : '1fr 1fr'; o.style.flexWrap = ''; o.style.justifyContent = ''; o.style.gap = '';
+  o.innerHTML = fpick
+    ? q.cards.map((c, i) => `<button class="opt card" data-ac="card" data-i="${i}"><span class="cardEx" dir="ltr">${exprHtml(c.e)}</span></button>`).join('')
+    : pad
+      ? `<div class="padShow" dir="ltr" id="padShow">${esc(ACQ.typed || '') || '…'}</div>` + ['7', '8', '9', '⌫', '4', '5', '6', '.', '1', '2', '3', '0'].map(k => `<button class="opt num padKey" data-ac="key" data-k="${k}">${k}</button>`).join('') + `<button class="btn padGo" data-ac="go">${t('ac_say_go')}</button>`
+      : q.choices.map((v, i) => `<button class="opt num" data-ac="num" data-i="${i}">${ME.fmtHtml(v)}</button>`).join('');
+  $('#fb').textContent = ACQ.msg || '';
+  if (ACQ.shot) { const s = ACQ.shot; ACQ.shot = null; ACQ.fxP = acadCastFx(s); }   // the spell's effect, as in the fight
+}
+// the result of the fighting trial: the game's own box
+function acadResultModal() {
+  modal(t('ac_t'), ACQ.text, ACQ.buttons.map(([l, a]) => [l, () => acadDo(a)]));
+}
+$('#opts').addEventListener('click', e => { if (ACQ && ACQ.onGame) acadClick(e); });   // the trial's buttons on the fight screen
+$('#qBig').addEventListener('click', e => { if (ACQ && ACQ.onGame) acadClick(e); });   // the item's icon (the conjuration book) and 🔊 in the conjuring trial
 /* ====================== THE FIGHT (spec 00 §3, combat.js) ====================== */
 // A turn: pick one of the problem cards (answers hidden) → from math level 5, say the answer (the incantation) → the answer is cast as the spell
 // with that number (weakness: damage · own element: the monster heals · other element: no effect · no spell: fizzle) → the monster's turn.
@@ -4440,7 +5141,25 @@ function isLocked(place) {   // during a quest run you cannot go home, to the sh
 }
 // The monster manual (owner decision): from wizard level MANUAL_FROM the student may leave it at home: the fights show no weakness hints,
 // and the pouch holds one more potion. Its place is on the small shelf at Home (owner decision): tap it there to take it or put it back.
-const pouchSize = () => CFG.POUCH + (P && P.manual === 'home' ? 1 : 0);
+const pouchSize = () => CFG.POUCH + (P && P.manual === 'home' ? 1 : 0) + (booksHome() ? 1 : 0);
+/* The books (owner request, with the Academy): from wizard level BOOKS_FROM the student may leave the spell book and the conjuration book on the shelf at Home
+   for one more potion in the pouch. The books are then not available during a quest (the map and Home still show them). The student may also choose, at each
+   test from that level, whether to take the books to the test; a student who does not gets a special note on the certificate. */
+const booksHome = () => !!(CFG.ACADEMY && P && P.books === 'home');
+const booksOffered = () => !!(CFG.ACADEMY && P && (wizLvl() >= CFG.BOOKS_FROM || P.books === 'home'));
+const booksLocked = () => booksHome() && (G.quest === 'battle' || G.quest === 'peace') && !(ACQ && ACQ.onGame);   // on a quest, with the books on the shelf
+const testNoBook = () => !!(ACQ && ACQ.onGame && !ACQ.book);   // a test taken without the books
+function applyBookLock() { const hide = booksLocked() || testNoBook(); document.querySelectorAll('.bookBtn').forEach(b => { b.style.display = hide ? 'none' : ''; }); }
+function fitPouch() {   // the pouch got smaller: the extra potions go back to the shelf at Home
+  let moved = 0; while (carried() > pouchSize()) { const id = [...POTION_IDS].reverse().find(i => (P.carry[i] || 0) > 0); P.carry[id]--; P.pot[id] = (P.pot[id] || 0) + 1; moved++; }
+  if (moved) toast(t('books_potion_back'));
+}
+function openBooks() {
+  if (runOf()) { modal(t('books_t'), `<p>${t('manual_quest')}</p>`, [[t('ok'), null]]); return; }
+  const home = booksHome();
+  modal(t('books_t'), `<p>${t(home ? 'books_is_home' : 'books_is_carried')}</p><p>${t('books_deal', { n: pouchSize() + (home ? 0 : 1) })}</p>`,
+    [[t(home ? 'books_take' : 'books_leave'), () => { P.books = home ? 'carry' : 'home'; if (home) fitPouch(); saveSoon(true); toast(t(home ? 'books_taken' : 'books_left')); applyBookLock(); if ($('#home').classList.contains('on')) renderRoom(rmDisp); }], [t('close'), null, true]]);
+}
 function openManual() {
   if (P.quest.battle.act) { modal(t('manual_t'), `<p>${t('manual_quest')}</p>`, [[t('ok'), null]]); return; }
   const home = P.manual === 'home';
@@ -4574,7 +5293,7 @@ function spellCard(s, sealed, isNew) {
   const el = SB.ELEMENTS[s.el], ty = SB.TYPES[s.type];
   return `<div class="spellCard${sealed ? ' sealed' : ''}${isNew ? ' new' : ''}">${spellNum(s)}<div class="sName">${tl(s.nm)}</div>
     <div class="sTags"><span>${el.em} ${tl(el.nm)}</span><span>${ty.em} ${tl(ty.nm)}</span></div>
-    <div class="sFx">${SB.describe(s, LANG)}</div>${sealed ? `<div class="sLock">${t('unlocks_at', { n: s.greq })}</div>` : ''}</div>`;
+    <div class="sFx">${SB.describe(s, LANG)}</div>${sealed ? `<div class="sLock">${CFG.ACADEMY && !SB.isTierOpen(s, acadPassed()) ? t('ac_seal', { n: SB.testNeed(s) }) : t('unlocks_at', { n: s.greq })}</div>` : ''}</div>`;
 }
 let bookSort = 'tier';   // 'tier' (the tabs: 1–9, 11–19, Enhanced …), 'num' (every spell in number order) or 'type' (a tab per spell type)
 // the conjuration book (the village, spec 05): the same look as the spell book; the items with their numbers, locked until their math level
@@ -4599,7 +5318,7 @@ function openBook(kind = 'spell') {
   if (!P) return;
   if (kind === 'conj') return openConjBook();
   $('#bookTitle').textContent = t('book_t'); $('#bookSort').style.display = ''; $('#bookTabs').style.display = '';
-  const b = SB.book(P.mlvl, wizLvl(), P.spells), all = b.learned.concat(b.sealed);
+  const b = SB.book(P.mlvl, wizLvl(), P.spells, tiersArg()), all = b.learned.concat(b.sealed);
   const tabOf = s => bookSort === 'type' ? s.type : SB.tabOf(s);
   const TABS = bookSort === 'type' ? Object.keys(SB.TYPES).map(k => [k, SB.TYPES[k].nm, SB.TYPES[k].em]) : bookSort === 'num' ? [] : SB.TABS;
   const tabs = TABS.filter(([k]) => all.some(s => tabOf(s) === k));
@@ -4618,7 +5337,7 @@ function openBook(kind = 'spell') {
 }
 function closeBook() { $('#book').hidden = true; if (P && P.newSeen) { P.newSeen = null; saveSoon(); } if (TUT.on && TUT.wantClose) tutResolve('close'); }
 // a visit opens only the conjuration book; a fight only the spell book; the map has both buttons (data-book="conj" is the conjuration book)
-document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); const visit = G.quest === 'peace' && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
+document.addEventListener('click', e => { const b = e.target.closest('[data-book]'); if (b) { e.preventDefault(); if (booksLocked()) { toast(t('books_away')); return; } if (testNoBook()) { toast(t('books_test_no')); return; } const visit = G.quest === 'peace' && $('#game').classList.contains('on'); openBook(b.dataset.book === 'conj' || visit ? 'conj' : 'spell'); } });
 $('#bookClose').onclick = closeBook;
 $('#book').onclick = e => { const so = e.target.closest('[data-sort]'); if (so) { bookSort = so.dataset.sort; bookTab = null; openBook(); return; } const ct = e.target.closest('[data-ctab]'); if (ct) { conjTab = ct.dataset.ctab; openConjBook(); return; } const tb = e.target.closest('[data-tab]'); if (tb) { bookTab = tb.dataset.tab; openBook(); return; } if (e.target === $('#book')) closeBook(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#book').hidden) closeBook(); });
@@ -4651,7 +5370,7 @@ function checkSpells() {
   if (!P || $('#modal').classList.contains('on') || !$('#book').hidden || TUT.on) return;
   const wl = wizLvl(), from = P.wlvl || 1, wUp = wl > from; P.wlvl = Math.max(from, wl);
   const unl = wUp ? wizUnlocks(from, wl) : [];
-  const learned = SB.book(P.mlvl, wl, P.spells).learned, fresh = learned.filter(s => !P.spells.includes(s.id));
+  const learned = SB.book(P.mlvl, wl, P.spells, tiersArg()).learned, fresh = learned.filter(s => !P.spells.includes(s.id));
   if (!fresh.length && !unl.length) { if (wUp) { saveSoon(); toast(t('wiz_up', { n: wl })); } return; }
   const firstEnh = fresh.some(s => s.tier === 'enhanced') && !P.spells.some(id => SB.BY_ID[id] && SB.BY_ID[id].tier === 'enhanced');
   P.spells = P.spells.concat(fresh.map(s => s.id)); if (fresh.length) P.newSeen = fresh.map(s => s.id); saveSoon(true);
@@ -4662,8 +5381,12 @@ function checkSpells() {
   const spHtml = fresh.length ? (wUp ? `<h3 class="unlH">${spTitle}</h3>` : '') + (firstEnh ? `<p>${t('enhanced_b')}</p>` : '') + `<div class="newSpells">${shown.slice(0, 6).map(s => spellCard(s, false)).join('')}</div>` + (more ? `<p class="small">+${more}</p>` : '') + `<p class="small">${t('new_spell_tip')}</p>` : '';
   const offer = wUp && from < CFG.MANUAL_FROM && wl >= CFG.MANUAL_FROM && P.manual !== 'home';   // the monster manual moment (owner decision)
   const manHtml = offer ? `<div class="manualOffer"><p><b>📕 ${t('manual_t')}</b></p><p>${t('manual_offer', { n: CFG.POUCH + 1 })}</p></div>` : '';
-  const btns = offer ? [[t('manual_leave'), () => { P.manual = 'home'; saveSoon(true); toast(t('manual_left')); if ($('#menu').classList.contains('on')) openMenu(); }], [t('manual_keep'), null, true]] : fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]];
-  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + manHtml + spHtml, btns);
+  const offerBk = wUp && CFG.ACADEMY && from < CFG.BOOKS_FROM && wl >= CFG.BOOKS_FROM && P.books !== 'home';   // the books moment: leave the books on the shelf for one more potion
+  const bkHtml = offerBk ? `<div class="manualOffer"><p><b>📖 ${t('books_t')}</b></p><p>${t('books_offer', { n: pouchSize() + 1, m: pouchSize() })}</p></div>` : '';
+  const btns = offer ? [[t('manual_leave'), () => { P.manual = 'home'; saveSoon(true); toast(t('manual_left')); if ($('#menu').classList.contains('on')) openMenu(); }], [t('manual_keep'), null, true]]
+    : offerBk ? [[t('books_leave'), () => { P.books = 'home'; saveSoon(true); toast(t('books_left')); applyBookLock(); if ($('#menu').classList.contains('on')) openMenu(); }], [t('books_keep'), null, true]]
+    : fresh.length ? [[t('open_book'), openBook], [t('ok'), null, true]] : [[t('ok'), null]];
+  modal(wUp ? t('wiz_up', { n: wl }) : spTitle, unlHtml + manHtml + bkHtml + spHtml, btns);
 }
 /* ====================== HOME & CRAFTING ====================== */
 // A recipe lists the RARITY of each ingredient it needs (0 common ... 4 legendary), not the exact item. Every ingredient must be a different item.
@@ -4800,7 +5523,7 @@ function rmSetup() {
     const up = () => {
       el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
       el.classList.remove('drag'); rmDragging = false;
-      if (moved) saveSoon(true); else { const d = SHOP[id]; toast(`${d.em} ${nameOf(d)}`); if (findHeVoice()) playSound({ say: d.he }); }
+      if (moved) saveSoon(true); else if (/^c_cert\d$/.test(id)) openCert(+id.slice(6)); else { const d = SHOP[id]; toast(`${d.em} ${nameOf(d)}`); if (findHeVoice()) playSound({ say: d.he }); }
     };
     el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   });
@@ -4844,10 +5567,11 @@ function renderRoom(disp) {   // disp = the ingredient counts to show (they fill
   rmShown(disp).slice(0, 6).forEach((id, i) => H.push(`<div class="rJar jarbox" data-jar="${id}" style="left:${JAR_SLOTS[i][0]}%;top:${JAR_SLOTS[i][1] * 1.25}%">${jarInner(id, disp[id])}</div>`));
   for (const id of Object.keys(ROOM_ITEMS)) {
     if (!P.own.decor.includes(id)) continue; const it = ROOM_ITEMS[id], d = SHOP[id], p = rmPos(id);
-    const inner = it.t === 'rug' ? '<div class="rRug"></div>' : FURN_ART[id] ? `<span class="shadow"></span><span class="art">${FURN_ART[id]()}</span>` : it.t === 'floor' ? `<span class="shadow"></span><span class="em">${d.em}</span>` : `<span class="em">${d.em}</span>`;   // furniture: a big drawing
+    const inner = it.t === 'rug' ? `<div class="rRug${id === 'r_rug' ? ' glow' : ''}"></div>` : FURN_ART[id] ? `<span class="shadow"></span><span class="art">${FURN_ART[id]()}</span>` : it.t === 'floor' ? `<span class="shadow"></span><span class="em">${d.em}</span>` : `<span class="em">${d.em}</span>`;   // furniture: a big drawing
     H.push(`<div class="prop ${it.t === 'wall' ? 'wall' : 'floor'} ${it.t === 'rug' ? 'rugwrap' : ''}" data-id="${id}" aria-label="${t('drag_aria', { n: nameOf(d) })}" style="--x:${p.x};--y:${p.y};--base:${it.b || 8};--s:${rmScale(id, p.y)};--z:${rmZ(id, p.y)}">${inner}</div>`);
   }
   if (wizLvl() >= CFG.MANUAL_FROM || P.manual === 'home') H.push(`<button class="rManual${P.manual === 'home' ? '' : ' gone'}" id="manualShelf" aria-label="${t('manual_t')}" title="${t('manual_t')}" style="left:39.4%;top:${41 * 1.25}%"><span>📕</span></button>`);   // the monster manual's place on the shelf
+  if (booksOffered()) H.push(`<button class="rManual${booksHome() ? '' : ' gone'}" id="booksShelf" aria-label="${t('books_t')}" title="${t('books_t')}" style="left:46%;top:${41 * 1.25}%"><span>📖</span></button>`);   // the books' place on the shelf (the same kind of shelf spot as the manual)
   if ((P.ws && P.ws.on) || MAGIC_SLOTS.some(s => itemVer(s))) H.push(`<button class="rManq" id="manqBtn" aria-label="${t('manq_t')}" title="${t('manq_t')}" style="left:17%;top:${66 * 1.25}%">${manqSVG()}</button>`);   // the mannequin with the forged items
   H.push(`<button class="rCaul" id="caulBtn" aria-label="${t('brew_aria', { c: caulName(c) })}" style="--liq:${cau.liq};--liqa:${cau.liqa};--cs:${cau.cs}"><span class="aura"></span>${cauldronArt(c)}${[0, 1, 2, 3].map(i => `<i class="bub" style="left:${34 + i * 11}%;animation-delay:${i * .6}s"></i>`).join('')}<span class="caulLbl">${t('tap_brew', { c: caulName(c) })}</span></button>`);
   $('#rmProps').innerHTML = H.join(''); renderRoomPanel();
@@ -4903,6 +5627,7 @@ $('#home').onclick = e => {
   if (e.target.closest('#caulBtn')) { openRecipes(); return; }
   if (e.target.closest('#wardBtn')) { openWardrobe(); return; }
   if (e.target.closest('#manualShelf')) { openManual(); return; }
+  if (e.target.closest('#booksShelf')) { openBooks(); return; }
   if (e.target.closest('#manqBtn')) { openManq(); return; }
   if (e.target.closest('[data-close]')) { rmPanel = null; renderRoom(rmDisp); return; }
   const hit = e.target.closest('.rHit'); if (hit) { rmPanel = rmPanel === hit.dataset.kind ? null : hit.dataset.kind; renderRoom(rmDisp); if (rmPanel) $('#roomPanel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
@@ -5356,6 +6081,104 @@ for (const [id, hex, he, nk, em, en] of ROBE_EXTRA) SHOP[id] = { id, kind: 'wear
 for (const [id, style, he, nk, em, en, price] of ROBE_STYLES) SHOP[id] = { id, kind: 'wear', wtype: 'style', style, he, nk, em, en: en + ' robe', price };
 for (const [id, slot, he, nk, em, en, price] of ACCS) SHOP[id] = { id, kind: 'wear', wtype: 'acc', slot, he, nk, em, en, price };
 const owns = s => s.kind === 'caul' ? (P.own.caul || 0) >= s.lv : s.kind === 'decor' ? P.own.decor.includes(s.id) : s.kind === 'wear' ? P.wd.includes(s.id) : false;
+/* ----- The Academy's rewards (spec 08 §7): the five rank hats (each more detailed than the one before), the certificate, and the gifts for the home room ----- */
+const ACAD_HAT_NAMES = [['Rune Hat', 'כובע רונות'], ['Storm Hat', 'כובע סערה'], ['Star Hat', 'כובע כוכבים'], ['Eclipse Hat', 'כובע ליקוי'], ['High Sorcerer’s Crown', 'כתר הקוסם העליון']];
+// the gifts for the room, by test (spec 08 §7): decorations that share the room's own decoration list (they are given, never sold)
+const ACAD_GIFTS = [['r_monsters', 'r_lamp'], ['r_ball'], ['r_rug'], ['r_wheel'], ['r_statue']];
+const ACAD_GIFT_NAMES = { r_monsters: ['Book-of-monsters shelf', 'מדף ספר המפלצות'], r_lamp: ['Reading lamp', 'מנורת קריאה'], r_ball: ['Crystal ball', 'כדור קריסטל'], r_rug: ['Glowing rug', 'שטיח זוהר'], r_wheel: ['Fraction wheel', 'גלגל השברים'], r_statue: ['Golden statue', 'פסל זהב'] };
+const ACAD_MEDAL = { gold: ['#ffe066', '#c9961a'], silver: ['#f1f4f8', '#9aa4b2'], bronze: ['#f0b27a', '#a05a22'] };
+// the rank hat n (1 to 5), drawn on the hero's head in the shape of the plain hat; the higher the rank, the more detail (the last one glows softly, without pulsing)
+function rankHat(n, f) {
+  const rx = f ? 40 : 35, ry = f ? 8.5 : 8, cone = f ? 'M28 38 Q48 26 56 -6 Q62 -14 80 -2 Q72 8 80 20 Q86 30 94 38 Z' : 'M28 38 Q50 28 58 -4 Q62 -12 78 0 Q74 10 80 20 Q86 30 92 38 Z';
+  const band = f ? 'M28 37 Q60 47 92 37 L92 31 Q60 41 28 31 Z' : 'M30 37 Q60 46 90 37 L90 32 Q60 41 30 32 Z', tip = f ? [68, -10] : [66, -8];
+  const star = (x, y, r, c) => `<path d="M${x} ${y - r}L${x + r * .3} ${y - r * .3}L${x + r} ${y}L${x + r * .3} ${y + r * .3}L${x} ${y + r}L${x - r * .3} ${y + r * .3}L${x - r} ${y}L${x - r * .3} ${y - r * .3}Z" fill="${c}"/>`;
+  const trim = c => `<ellipse cx="60" cy="38" rx="${rx}" ry="${ry}" fill="none" stroke="${c}" stroke-width="1.8"/>`;
+  const base = (coneC, brimC, bandC) => `<ellipse cx="60" cy="38" rx="${rx}" ry="${ry}" fill="${brimC}"/><path d="${cone}" fill="${coneC}"/><path d="${band}" fill="${bandC}"/>`;
+  if (n === 1) return base('#3fa05e', '#2a6b40', '#2f8a4c') + trim('#e0b84a')
+    + `<path d="M46 35v6M46 36l3 2M60 35v6M57 37h6M74 35v6M72 36l4 4" stroke="#ffd166" stroke-width="1.5" fill="none" stroke-linecap="round"/>`
+    + `<path d="M61 9v16M61 13l6 4M61 19l6 4" stroke="#ffd166" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="${tip[0]}" cy="${tip[1]}" r="2.6" fill="#ffd166"/>`;
+  if (n === 2) return base('#6b7a8f', '#55627a', '#5a6880') + trim('#d5dbe6')
+    + `<path d="M34 38L40 33L45 39L51 33L56 39L62 33L67 39L73 33L78 39L84 34" stroke="#ffe14d" stroke-width="2" fill="none" stroke-linejoin="round"/>`
+    + `<path d="M64 8l-7 10h5l-3 9l9-12h-5z" fill="#ffd166" stroke="#b8860b" stroke-width=".7"/>` + [[50, 22], [72, 24], [56, 3], [72, 8], [48, 31]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.4" fill="#e6ebf2"/>`).join('');
+  if (n === 3) return base('#4a2a8a', '#35206a', '#cfd6e8') + trim('#aab2c8')
+    + `<path d="M32 37Q60 45 88 37" stroke="#e0b84a" stroke-width="1.8" fill="none"/>` + star(55, 21, 5.5, '#dfe5f2') + star(68, 10, 3.6, '#dfe5f2') + star(48, 29, 2.6, '#dfe5f2')
+    + `<path d="M55 43A6 6 0 1 0 66 43A4.6 4.6 0 1 1 55 43Z" fill="#ffd166"/><circle cx="${tip[0]}" cy="${tip[1]}" r="3" fill="#dfe5f2"/>`;
+  if (n === 4) return base('#15131f', '#0c0b14', '#e8a21a') + trim('#e8a21a')
+    + `<path d="M40 34v5M40 36l3 2M52 35v5M49 37h6M66 34v5M64 36l4 3M80 35v5" stroke="#1a1424" stroke-width="1.5" fill="none" stroke-linecap="round"/>`
+    + `<circle cx="62" cy="16" r="6" fill="#0c0b14" stroke="#e8a21a" stroke-width="2"/>` + Array.from({ length: 8 }, (_, i) => { const a = i * Math.PI / 4; return `<path d="M${(62 + Math.cos(a) * 8.5).toFixed(1)} ${(16 + Math.sin(a) * 8.5).toFixed(1)}L${(62 + Math.cos(a) * 12).toFixed(1)} ${(16 + Math.sin(a) * 12).toFixed(1)}" stroke="#e8a21a" stroke-width="1.4" stroke-linecap="round"/>`; }).join('')
+    + `<circle cx="${tip[0]}" cy="${tip[1]}" r="2.8" fill="#e8a21a"/>`;
+  return `<circle cx="${tip[0]}" cy="${tip[1] + 4}" r="17" fill="#ffe08a" opacity=".22"/>` + base('#1c2a6a', '#121c4a', '#e0b84a') + trim('#ffd166')
+    + `<path d="M45 33L47 14L54 22L60 9L66 22L73 14L75 33Z" fill="#ffd166" stroke="#b8860b" stroke-width="1"/><circle cx="47.5" cy="15" r="2.2" fill="#e53935"/><circle cx="60" cy="11" r="2.4" fill="#2b7bff"/><circle cx="72.5" cy="15" r="2.2" fill="#2ecc71"/>`
+    + star(tip[0] + 10, tip[1] + 2, 3.4, '#fff6b0') + star(tip[0] - 8, tip[1] - 6, 2.6, '#fff6b0') + star(tip[0] + 2, tip[1] - 11, 2.2, '#fff6b0');
+}
+// the hat on its own, for the wardrobe chips and the graduation window (n = 0 is the plain hat)
+const hatIcon = (n, w = 44) => `<svg viewBox="20 -22 80 72" width="${w}" height="${Math.round(w * .9)}" aria-hidden="true">${n >= 1 ? rankHat(n, false) : `<ellipse cx="60" cy="38" rx="35" ry="8" fill="#4a3070"/><path d="M28 38 Q50 28 58 -4 Q62 -12 78 0 Q74 10 80 20 Q86 30 92 38 Z" fill="#6b3fa8"/><path d="M30 37 Q60 46 90 37 L90 32 Q60 41 30 32 Z" fill="#e0b84a"/>`}</svg>`;
+// the certificate, full size: a parchment with the rank, the student's name, the date and the medal seal
+function certHtml(c) {
+  const m = ACAD_MEDAL[c.medal] || ACAD_MEDAL.bronze;
+  return `<div class="cert"><div class="certTop">${t('cert_t')}</div><div class="certRank">${tl(ACAD_RANK[c.test - 1])}</div><div class="certName">${esc(P.nick)}</div>
+    <div class="certLine">${t('cert_line', { r: c.right, q: c.q })}</div>${c.noBook ? `<div class="certNote">${t('cert_nobook')}</div>` : ''}<div class="certDate">${esc(c.date)}</div>
+    <div class="certSeal" style="background:radial-gradient(circle at 35% 30%,${m[0]},${m[1]})"><span>★</span></div></div>`;
+}
+function openCert(n) {
+  const c = acadS().certs.find(x => x.test === n); if (!c) return;
+  modal(t('cert_t'), certHtml(c), [[t('close'), null]]);
+}
+// the certificate on the home wall: a small parchment with the medal seal
+const certThumb = n => { const c = (acadS().certs || []).find(x => x.test === n), m = ACAD_MEDAL[(c && c.medal) || 'bronze'];
+  return `<svg viewBox="0 0 60 46" aria-hidden="true"><rect x="3" y="3" width="54" height="40" rx="3" fill="#f6e7c0" ${OL}/><rect x="7" y="7" width="46" height="32" rx="2" fill="none" stroke="#b8975a" stroke-width="1"/>
+    <path d="M14 15H46M18 20H42" stroke="#8a6a3a" stroke-width="2" stroke-linecap="round"/><path d="M20 26H40" stroke="#b8975a" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M38 36L36 44L41 41L46 44L44 36Z" fill="${m[1]}"/><circle cx="41" cy="33" r="7" fill="${m[0]}" stroke="${m[1]}" stroke-width="1.4"/><path d="M41 28.5l1.4 3 3.2.4-2.4 2.2.7 3.2-2.9-1.7-2.9 1.7.7-3.2-2.4-2.2 3.2-.4z" fill="${m[1]}"/></svg>`; };
+// the gifts: decorations with their own drawings (they stand on the floor or hang on the wall, and can be dragged like the rest)
+FURN_ART.r_monsters = () => `<svg viewBox="0 0 64 46" aria-hidden="true"><rect x="2" y="34" width="60" height="8" rx="2" fill="#7a4d27" ${OL}/><rect x="6" y="40" width="5" height="5" fill="#5e3a1d"/><rect x="53" y="40" width="5" height="5" fill="#5e3a1d"/>
+  <rect x="6" y="10" width="9" height="24" rx="1" fill="#6a4bd0" ${OL}/><rect x="16" y="6" width="9" height="28" rx="1" fill="#c0392b" ${OL}/><rect x="26" y="12" width="9" height="22" rx="1" fill="#2f9e6a" ${OL}/>
+  <rect x="36" y="8" width="11" height="26" rx="1" fill="#e8d3b0" ${OL}/><circle cx="41.5" cy="18" r="3.6" fill="#fff" stroke="#2b1a0e"/><circle cx="41.5" cy="18" r="1.5" fill="#2b1a0e"/><path d="M37 26q4.5 3 9 0" stroke="#2b1a0e" stroke-width="1.2" fill="none"/>
+  <path d="M38 8l1.5-4 2 3 2-3 1.5 4" fill="#c0392b" ${OL}/><rect x="49" y="14" width="8" height="20" rx="1" fill="#e0b84a" ${OL}/></svg>`;
+FURN_ART.r_lamp = () => `<svg viewBox="0 0 40 84" aria-hidden="true"><ellipse cx="20" cy="80" rx="13" ry="3.6" fill="#4a2f1a" ${OL}/><rect x="18" y="34" width="4" height="46" fill="#8a5a2b" ${OL}/>
+  <circle cx="20" cy="30" r="22" fill="#ffd166" opacity=".22"/><path d="M6 32L11 8H29L34 32Z" fill="#ffd98a" ${OL}/><path d="M11 8H29L28 14H12Z" fill="#ffe9b0"/><circle cx="20" cy="30" r="4" fill="#fff3c4"/></svg>`;
+FURN_ART.r_ball = () => `<svg viewBox="0 0 50 58" aria-hidden="true"><path d="M12 56H38L34 46H16Z" fill="#6a4bd0" ${OL}/><rect x="10" y="52" width="30" height="5" rx="2" fill="#4a3399" ${OL}/>
+  <circle cx="25" cy="26" r="21" fill="#8fd0ff" fill-opacity=".55" ${OL}/><circle cx="25" cy="26" r="21" fill="url(#rBall)"/><defs><radialGradient id="rBall" cx=".35" cy=".3"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".5" stop-color="#9b7bff" stop-opacity=".35"/><stop offset="1" stop-color="#3a2a8a" stop-opacity=".5"/></radialGradient></defs>
+  <path d="M25 14l2.2 5.6 5.8.4-4.5 3.7 1.5 5.7-5-3.2-5 3.2 1.5-5.7-4.5-3.7 5.8-.4z" fill="#fff6b0"/><ellipse cx="16" cy="14" rx="4.5" ry="2.8" fill="#fff" opacity=".6" transform="rotate(-30 16 14)"/></svg>`;
+FURN_ART.r_wheel = () => { const cols = ['#e53935', '#fb8c00', '#fdd835', '#43a047', '#1e88e5', '#8e24aa', '#ec407a', '#26a69a'];
+  return `<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="27" fill="#f6efe0" ${OL}/>${cols.map((c, i) => { const a0 = i * Math.PI / 4 - Math.PI / 2, a1 = (i + 1) * Math.PI / 4 - Math.PI / 2; return `<path d="M30 30L${(30 + Math.cos(a0) * 24).toFixed(1)} ${(30 + Math.sin(a0) * 24).toFixed(1)}A24 24 0 0 1 ${(30 + Math.cos(a1) * 24).toFixed(1)} ${(30 + Math.sin(a1) * 24).toFixed(1)}Z" fill="${c}" stroke="#2b1a0e" stroke-width=".9"/>`; }).join('')}<circle cx="30" cy="30" r="5" fill="#fff" ${OL}/><text x="30" y="33" font-size="7" text-anchor="middle" font-weight="700" fill="#2b1a0e">⅛</text></svg>`; };
+FURN_ART.r_statue = () => { const hero = heroSVG(P.gender, '#e0b84a', '#f0cf6a', '#fff1b0', { beard: P.beard, pots: [] }).replace('<svg ', '<svg x="6" y="0" width="58" height="96" ');
+  return `<svg viewBox="0 0 70 124" aria-hidden="true"><path d="M8 122H62L58 100H12Z" fill="#6b5a3a" ${OL}/><rect x="14" y="94" width="42" height="9" rx="2" fill="#8a7448" ${OL}/>${hero}<circle cx="35" cy="40" r="30" fill="#ffd166" opacity=".14"/></svg>`; };
+for (let i = 1; i <= 5; i++) FURN_ART['c_cert' + i] = () => certThumb(i);
+// [id, Hebrew, English, emoji, where it goes (floor / wall / rug), size, x, y]
+for (const [id, he, en, em, ty, b, x, y] of [['r_monsters', 'מדף ספר המפלצות', 'book-of-monsters shelf', '📚', 'wall', 9, 14, 31], ['r_lamp', 'מנורת קריאה', 'reading lamp', '💡', 'floor', 5.5, 12, 66], ['r_ball', 'כדור קריסטל', 'crystal ball', '🔮', 'floor', 5.5, 91, 66],
+  ['r_rug', 'שטיח זוהר', 'glowing rug', '🧶', 'rug', 0, 50, 77], ['r_wheel', 'גלגל השברים', 'fraction wheel', '🎡', 'wall', 8, 86, 30], ['r_statue', 'פסל זהב', 'golden statue', '🏆', 'floor', 8, 90, 80],
+  ...[[26, 31], [34, 31], [62, 43], [69, 43], [76, 43]].map(([x, y], i) => ['c_cert' + (i + 1), 'תעודה ' + (i + 1), 'certificate ' + (i + 1), '📜', 'wall', 6.5, x, y])]) {
+  SHOP[id] = { id, kind: 'decor', big: true, he, nk: he, em, en, price: 0 }; ROOM_ITEMS[id] = ty === 'rug' ? { t: 'rug', x, y } : { t: ty, b, x, y };
+}
+// a pass: the gifts for the room and the certificate go on the list of what the student owns (once)
+function acadGrant(k) {
+  const got = [...ACAD_GIFTS[k], 'c_cert' + (k + 1)];
+  P.own.decor = P.own.decor || []; got.forEach(id => { if (!P.own.decor.includes(id)) P.own.decor.push(id); });
+  return ACAD_GIFTS[k];
+}
+// the spells a test opens (its tier), for the graduation window: the ones the student can learn now are learned; the others say what they wait for
+function acadNewSpells(k) {
+  const tier = SB.SPELLS.filter(s => SB.testNeed(s) === k + 1), b = SB.book(P.mlvl || 1, wizLvl(), P.spells, tiersArg()), now = [], wait = [];
+  for (const s of tier) (b.learned.includes(s) ? now : wait).push(s);
+  const fresh = b.learned.filter(s => !P.spells.includes(s.id));
+  if (fresh.length) { P.spells = P.spells.concat(fresh.map(s => s.id)); P.newSeen = (P.newSeen || []).concat(fresh.map(s => s.id)); }
+  const num = (a, c) => ME.num(a.v) - ME.num(c.v);
+  return { now: now.sort(num), wait: wait.sort(num) };
+}
+// the graduation window (spec 08 §7): the wizard with the new hat, the certificate, the examiner reading the result, the new rank, and what unlocked
+function acadGradHtml(c, gifts, sp) {
+  const k = c.test - 1, medal = t('ac_' + c.medal), m = ACAD_MEDAL[c.medal];
+  const hero = heroSVG(P.gender, P.color, P.skin || DEFAULT_SKIN, P.hair, { style: P.style, acc: P.acc, beard: P.beard, hat: k + 1, items: shownItems(P) });
+  const chip = s => `<span class="gSp">${ME.fmtHtml(s.v)} <small>${tl(s.nm)}</small></span>`;
+  const wait = s => `<span class="gSp wait">${ME.fmtHtml(s.v)} <small>${tl(s.nm)}</small> <i>${P.mlvl < s.mreq ? t('ac_grad_mlvl', { n: s.mreq }) : t('ac_grad_wlvl', { n: s.greq })}</i></span>`;
+  return `<div class="grad"><div class="gradTop"><div class="gradHero">${hero}</div><div class="gradCert">${certHtml(c)}</div></div>
+    <p class="gradSay"><b>${ACAD_EXAMINER(k)}:</b> ${t('ac_grad_say', { r: c.right, q: c.q, medal: `<span class="medalWord" style="background:${m[0]};border-color:${m[1]}">${medal}</span>` })}</p>
+    <p class="gradNow">${t('ac_grad_now', { title: tl(ACAD_RANK[k]) })}</p>${c.noBook ? `<p class="gradNoBook">📖 ${t('ac_grad_nobook')}</p>` : ''}
+    ${sp.now.length ? `<p class="gradH">${t('ac_grad_spells')}</p><div class="gSpells">${sp.now.map(chip).join('')}</div>` : ''}
+    ${sp.wait.length ? `<p class="gradH">${t('ac_grad_wait')}</p><div class="gSpells">${sp.wait.map(wait).join('')}</div>` : ''}
+    <p class="gradHat">${hatIcon(k + 1, 40)} ${t('ac_grad_hat', { hat: tl(ACAD_HAT_NAMES[k]) })}</p>
+    <p class="gradGift">${t('ac_grad_gift', { items: gifts.map(id => tl(ACAD_GIFT_NAMES[id])).join(', ') })}</p></div>`;
+}
 function whyNot(s) {   // why this item cannot be bought right now ('' = it can)
   if (owns(s)) return t('have_it');
   if (s.kind === 'caul' && s.lv > (P.own.caul || 0) + 1) return t('buy_iron_first');
@@ -5766,7 +6589,14 @@ function startDemo() {
     village() { window.__forceMon = null; act('peace', ['s0', 's1', 'B']); toast('🏘️ Village run: 2 stops, then the festival'); },
     visit() { window.__forceMon = null; act('peace', ['s0', 'B']); toast('🏘️ Village run: 1 stop, then the festival'); },
     imp(v) { window.__forceImp = v; toast(v ? '⏳ The next villagers are impatient' : '🙂 Villagers are normal again'); },
-    pics(v) { window.__picsAll = !!v; toast(v ? '🖼 Pictures at every level, free' : '🖼 Pictures only at the low levels'); }
+    pics(v) { window.__picsAll = !!v; toast(v ? '🖼 Pictures at every level, free' : '🖼 Pictures only at the low levels'); },
+    acad(k) {   // the Academy test k (1–5): the wizard is at its level bar, the math level is enough, and the earlier tests are passed
+      P.academy = { passed: k - 1, certs: (P.academy && P.academy.certs) || [] }; P.mlvl = Math.max(P.mlvl || 1, ACAD_MATH[k - 1]);
+      P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1) + 1)); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
+    },
+    acadReset() { P.academy = { passed: 0, certs: [] }; ACQ = null; acadRender(); refreshAcademy(); toast('🎓 Academy progress reset: test 1 is next'); },
+    acadPass() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = ACQ.need; acadFinish(false); },   // the result screen of a pass, at once
+    acadFail() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = 0; acadFinish(false); }   // the result screen of a fail, at once
   };
   window.demo = D;
   const css = document.createElement('style');
@@ -5778,6 +6608,8 @@ function startDemo() {
     '<h4>Math level</h4>' + Array.from({ length: CFG.MAX_LEVEL }, (_, i) => B(i + 1, `level(${i + 1})`)).join('') + B('Show locked workshop', 'fresh()') +
     '<h4>Wizard level (opens spell types)</h4>' + [1, 3, 5, 8, 10, 12, 15, 18, 22, 30].map(n => B(n, `wiz(${n})`)).join('') + B('📖 Open the spell book', 'book()') +
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
+    '<h4>Academy (spec 08): conjuring trial</h4>' + [1, 2, 3, 4, 5].map(k => B('🎓 Test ' + k, `acad(${k})`)).join('') +
+    B('↺ Reset Academy', 'acadReset()') + B('✅ Pass it now', 'acadPass()') + B('❌ Fail it now', 'acadFail()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
     B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +

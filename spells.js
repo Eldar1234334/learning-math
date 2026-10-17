@@ -101,10 +101,15 @@
   const isGameOpen = (s, wlvl) => wlvl >= s.greq;
   // the book for a student: learned (both gates open), sealed (math open, wizard closed), and nothing else is shown.
   // known: spells the student learned before (they stay learned even if the math level goes down).
-  function book(mlvl, wlvl, known) {
+  // The Academy (spec 08 §1): a spell tier opens only when its test is passed. testNeed(s) is the number of tests a spell needs
+  // (basic 0; enhanced and 11–19: 1; greater and 110–190: 2; legendary: 3; special: 4; the rare 625: 5). `passed` is the number of tests
+  // passed; when it is left out (the live game, before the Academy) the tiers are not gated.
+  const testNeed = s => s.id === '625' ? 5 : { base: 0, strong: 1, enhanced: 1, greater: 2, enhStrong: 2, legendary: 3, family: 4 }[s.tier] || 0;
+  const isTierOpen = (s, passed) => passed == null || passed >= testNeed(s);
+  function book(mlvl, wlvl, known, passed) {
     const k = new Set(known || []), learned = [], sealed = [];
     for (const s of SPELLS) {
-      if (k.has(s.id) || (isMathOpen(s, mlvl) && isGameOpen(s, wlvl))) learned.push(s);
+      if (k.has(s.id) || (isMathOpen(s, mlvl) && isGameOpen(s, wlvl) && isTierOpen(s, passed))) learned.push(s);
       else if (isMathOpen(s, mlvl)) sealed.push(s);
     }
     return { learned, sealed };
@@ -116,7 +121,8 @@
   /* ---- wizard level (spec 03 §5.1): XP to go from level g to g + 1 = 40 + 20 × g; at most level 30 ---- */
   const MAX_WIZ = 30, xpStep = g => 40 + 20 * g;
   const xpFor = lv => { let x = 0; for (let g = 1; g < lv; g++) x += xpStep(g); return x; };   // the XP at which level lv starts
-  const wizLevel = xp => { let lv = 1; while (lv < MAX_WIZ && xp >= xpFor(lv + 1)) lv++; return lv; };
+  // `max` lets the Academy raise the top to level 50 (spec 08 §10.3); the live game stays at 30
+  const wizLevel = (xp, max) => { const top = max || MAX_WIZ; let lv = 1; while (lv < top && xp >= xpFor(lv + 1)) lv++; return lv; };
 
   /* ---- texts for the book (both languages) ---- */
   const TXT = {
@@ -172,6 +178,6 @@
   const TABS = [['base', ['1–9', '1–9']], ['strong', ['11–19', '11–19']], ['enhanced', ['Enhanced', 'מוגברים']], ['greater', ['Greater', 'עליונים']], ['legendary', ['Legendary', 'אגדיים']], ['family', ['Special', 'מיוחדים']]];
   const tabOf = s => s.tier === 'enhStrong' ? 'greater' : s.tier;   // 110–190 sit with the hundreds
 
-  const SB = { ELEMENTS, TYPES, TIERS, SPELLS, BY_ID, STARTING, TABS, tabOf, book, cast, describe, isMathOpen, isGameOpen, MAX_WIZ, xpStep, xpFor, wizLevel };
+  const SB = { ELEMENTS, TYPES, TIERS, SPELLS, BY_ID, STARTING, TABS, tabOf, book, cast, describe, isMathOpen, isGameOpen, testNeed, isTierOpen, MAX_WIZ, MAX_WIZ_ACADEMY: 50, xpStep, xpFor, wizLevel };
   if (typeof module === 'object' && module.exports) module.exports = SB; else root.SB = SB;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
