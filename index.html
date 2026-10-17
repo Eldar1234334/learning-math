@@ -2529,7 +2529,7 @@ function bdRender() {
   $('#bdTitle').textContent = (S.type === 'machine' ? GEO.MACHINES[S.id].em + ' ' : '') + tl(S.title); $('#bdVillage').textContent = S.type === 'machine' ? tl([GEO.SCROLLS[S.scroll].en, GEO.SCROLLS[S.scroll].he]) : S.type === 'project' ? t('bd_at', { v: tl(S.village) }) : t('bd_asks', { v: tl(S.village) });
   $('#bdUnits').title = t('bd_units', { u: P.units === 'metric' ? t('bd_metric') : t('bd_imperial') }); $('#bdUnits').setAttribute('aria-label', $('#bdUnits').title);
   $('#bdDots').innerHTML = S.steps.map((_, k) => `<i class="${k < BD.i ? 'done' : k === BD.i ? 'on' : ''}"></i>`).join('');
-  $('#bdQ').textContent = tl(st.text); $('#bdFb').textContent = ''; $('#bdFb').className = 'bdFb'; BD.typed = ''; if (st.kind !== 'conjure') BD.item = null;
+  $('#bdQ').textContent = tl(st.text); $('#bdFb').textContent = ''; $('#bdFb').className = 'bdFb'; BD.typed = ''; BD.item = null;
   const a = $('#bdAns');
   if (st.kind === 'pick') a.innerHTML = `<div class="bdPick">${st.choices.map((c, k) => `<button class="opt" data-bd="pick" data-k="${k}">${c.pic ? (SHAPE_EM[c.pic] || '') + ' ' : ''}${esc(tl(c.label))}</button>`).join('')}</div>`;
   else if (st.kind === 'conjure' && !BD.item) a.innerHTML = `<p class="small">${t('bd_pick_item')}</p><div class="bdItems">${GEO.learned(P, GEO.ITEM[st.item].sec).map(i => `<button class="opt" data-bd="item" data-id="${i.id}"><span class="em">${i.em}</span>${esc(tl(i.one))}</button>`).join('')}</div>`;
