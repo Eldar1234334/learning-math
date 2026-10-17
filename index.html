@@ -4235,7 +4235,7 @@ function toast(msg) {
    trial (§5, the village rules of §10.18: one mistake per question, no second try, no mana, no patience). Off on the live site (CFG.ACADEMY). ----- */
 const ACAD_TOP = k => 9 + 10 * k;                                      // the wizard level at which test k + 1 is taken (test 1 at level 9)
 const ACAD_MATH = [5, 7, 17, 21, 25];                                  // the math level each test needs (§2, §10.13)
-const ACAD_Q = [8, 10, 12, 14, 16], ACAD_NEED = [6, 8, 10, 12, 14];    // questions, and the right answers needed (75–85%, rounded up)
+const ACAD_Q = [8, 10, 12, 14, 16], ACAD_NEED = [6, 8, 10, 12, 14], ACAD_PCT = [75, 80, 80, 85, 85];   // needed right = ceil(questions × pass mark) (spec 08 §2)    // questions, and the right answers needed (75–85%, rounded up)
 const ACAD_HITS = [[1], [1, 2], [2], [2, 3], [2, 3]];                  // the hits per dummy allowed in each test (§2)
 const ACAD_EL = ['fire', 'ice', 'dark', 'plant', 'storm', 'stone'];    // the six monster elements (spec 02 §2)
 // the element icons are drawn (spec 08 O11): an emoji can show as an empty box on some devices. Each is a shape on a 24 × 24 square.
@@ -4303,7 +4303,7 @@ function academyAsk() {
 }
 // §3.5: the rules screen before every start
 function academyRules(kind) {
-  const k = acadNext(), T = ACAD_Q[k], need = ACAD_NEED[k], miss = T - need, pct = Math.round(100 * ACAD_NEED[k] / T);
+  const k = acadNext(), T = ACAD_Q[k], need = ACAD_NEED[k], miss = T - need, pct = ACAD_PCT[k];
   const marks = Array.from({ length: miss }, () => '✖').join(' ');
   modal(t('ac_rules_t'), `<div class="rulesList">
     <div><span>❓</span>${t('ac_qcount', { q: T })}</div>
@@ -4357,7 +4357,7 @@ function acadBuildRow(k, lvl, Qn) {
       let c = cands[0], shared = null;
       if (aoeLeft > 0 && prev && prev.pairNext == null && prev.need >= (prev.pairPrevN != null ? 2 : 1)) {   // pair with the previous dummy
         for (const cc of cands) {
-          const s = aoeAll.find(a => CB.relation(a, cc.el) === 'weak' && CB.relation(a, prev.el) === 'weak');
+          const s = aoeAll.find(a => CB.relation(a, cc.el) === 'weak' && CB.relation(a, prev.el) === 'weak' && sk(a.v) !== prev.pairPrevN);   // a middle dummy of two pairs needs two different area spells
           if (s) { c = cc; shared = s; break; }
         }
       }
@@ -4381,7 +4381,9 @@ function acadBuildRow(k, lvl, Qn) {
       const ql = CB.levelFor(s.v, lvl, Math.random), p = ql ? ME.make(ql, { target: s.v }) : null;   // the question is made at the current level, or at the nearest earlier level that can make the number (as the fights review)
       if (p && ME.eq(p.a, s.v)) qs.push({ d: j, d2: pair ? j + 1 : null, s, p });
     }));
-    if (qs.length === Q) return { dummies, qs };
+    // the row must be sound: each dummy is asked exactly as many times as it needs hits, with different spells, and the questions come to Q
+    const sound = dummies.every((d, j) => { const asked = qs.filter(q => q.d === j || q.d2 === j).map(q => sk(q.s.v)); return asked.length === d.need && new Set(asked).size === asked.length && new Set(d.spells.map(s => sk(s.v))).size === d.spells.length; });
+    if (qs.length === Q && sound) return { dummies, qs };
   }
   return null;   // no valid row: the test is not offered (gap 2)
 }
