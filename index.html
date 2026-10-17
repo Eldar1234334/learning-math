@@ -439,6 +439,7 @@ body.noAnim .wizBadge::after{animation:none}@media(prefers-reduced-motion:reduce
 #menu .top .grow #menuWho{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px}
 @media(max-width:560px){#menu .top{flex-wrap:wrap}#menu .top .vctl{flex:1 0 100%;justify-content:flex-end}#game .top{flex-wrap:wrap}#game .top .vctl{flex:1 0 100%;justify-content:flex-end}}
 .bdCard{margin:8px auto;max-width:560px}.bdDots{display:flex;gap:8px;justify-content:center;margin-bottom:6px}.bdDots i{width:12px;height:12px;border-radius:50%;background:#ffffff33;border:2px solid #ffffff66}.bdDots i.on{background:#ffd166;border-color:#ffd166}.bdDots i.done{background:#6fd08c;border-color:#6fd08c}
+.yardList{display:flex;flex-direction:column;gap:8px;margin-top:6px}.yardRow{display:flex;align-items:center;gap:10px;text-align:start;background:#ffffff14;border:2px solid #ffffff33;color:#fff;border-radius:14px;padding:8px 12px;font:inherit;cursor:pointer}.yardRow.locked{opacity:.55}.yardRow .yEm{font-size:2rem}.yardRow .yTx{display:flex;flex-direction:column;flex:1}.yardRow .yTx small{opacity:.85}.yardRow .yN{font-weight:700;color:#ffd166}
 #bdAns .vhPad{grid-template-columns:repeat(3,1fr);max-width:300px;margin:0 auto}#bdAns .vhPad .opt{grid-column:auto!important;min-width:0}#bdAns .vhPad .opt.num{font-size:1.4rem}
 .bdWho{font-size:3rem;line-height:1.1}.bdQ{font-size:1.2rem;font-weight:600;margin:6px 0 4px;min-height:3.2rem}.bdFb{min-height:1.5rem;margin-bottom:6px;color:#ffd9a0}.bdFb.good{color:#9bf0b0}
 .bdPick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bdPick .opt{font-size:1.1rem}.bdItems{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.bdItems .opt{display:flex;flex-direction:column;align-items:center;gap:2px}.bdItems .em{font-size:1.8rem}
@@ -1185,6 +1186,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
     <div class="rVig"></div>
   </div>
   <div class="wsCards" id="wsCards"></div>
+  <div class="center" style="margin:10px 0"><button class="btn" id="yardBtn"></button></div>
   <div class="small center" style="opacity:.7;margin:10px 0" data-t="ws_foot"></div>
 </section>
 
@@ -1576,6 +1578,11 @@ const STR = {
   book_t: ['📖 Spell book', '📖 ספר הכישופים'], book_btn: ['Spell book', 'ספר הכישופים'],
   book_info: ['Every spell has a number that never changes. The answer to a problem casts the spell with that number. · Math level {m} · Wizard level {w}', 'לכל כישוף יש מספר שלעולם לא משתנה. התשובה לתרגיל מטילה את הכישוף עם המספר הזה. · שלב {m} · דרגת קוסם {w}'],
   unlocks_at: ['🔒 Unlocks at wizard level {n}', '🔒 נפתח בדרגת קוסם {n}'], power: ['Power {p}', 'עוצמה {p}'], wiz_lvl: ['Wizard level {n}', 'דרגת קוסם {n}'], wiz_badge: ['Lv {n} · {r}', 'דרגה {n} · {r}'], rank0: ['Apprentice', 'שוליה'], lc_math: ['Math level {n}', 'שלב חשבון {n}'], lc_grade: ['Grade {n}', 'כיתה {h}'], lc_title: ['Your levels', 'הדרגות שלכם'], lc_close: ['Close', 'סגירה'],
+  yd_btn: ['The engineering yard', 'חצר ההנדסה'], yd_title: ['The engineering yard', 'חצר ההנדסה'], yd_tip: ['Build war machines here. Each one needs its Academy rank and its geometry level.', 'כאן בונים מכונות מצור. לכל אחת דרושים הדרגה באקדמיה ושלב הגיאומטריה שלה.'], yd_ready: ['Ready to build', 'אפשר לבנות'],
+  yd_wiz: ['The yard opens at wizard level {n}', 'החצר נפתחת בדרגת קוסם {n}'], yd_rank: ['Opens at rank {n} ({r})', 'נפתח בדרגה {n} ({r})'], yd_geo: ['Needs geometry level {n}', 'דרוש שלב גיאומטריה {n}'], yd_mine: ['Your machines:', 'המכונות שלכם:'],
+  yd_scroll_tip: ['Choose the scroll (the design). A better scroll makes a stronger machine.', 'בחרו מגילה (תכנית). מגילה טובה יותר נותנת מכונה חזקה יותר.'], yd_power: ['Power {n}×', 'עוצמה {n}×'], yd_free: ['free', 'חינם'], yd_poor_s: ['not enough copper', 'אין מספיק נחושת'],
+  yd_poor_t: ['Not enough copper', 'אין מספיק נחושת'], yd_poor_b: ['This scroll costs {c} copper, and you do not have enough now. The machine was not built.', 'המגילה הזו עולה {c} נחושת ואין לכם מספיק עכשיו. המכונה לא נבנתה.'],
+  yd_built: ['The {m} is built! 🔨', '{m} נבנה! 🔨'], yd_back: ['Back to the yard', 'חזרה לחצר'],
   bd_board: ['The notice board', 'לוח המודעות'], bd_board_b: ['What will you do today?', 'מה תעשו היום?'], bd_help: ['Help villagers', 'לעזור לתושבים'], bd_build: ['🔨 Build', '🔨 לבנות'], bd_locked: ['Build opens at wizard level {n}', 'בנייה נפתחת בדרגת קוסם {n}'],
   bd_at: ['At {v}', 'ב{v}'], bd_asks: ['{v} needs a hand', '{v} צריך עזרה'], bd_units: ['Units: {u} (tap to change)', 'יחידות: {u} (הקישו כדי לשנות)'], bd_metric: ['metric', 'מטרי'], bd_imperial: ['imperial', 'אימפריאלי'], bd_units_next: ['from the next job', 'מהעבודה הבאה'],
   bd_pick_item: ['Which thing do you conjure?', 'מה מקסימים?'], bd_how_many: ['How many {n}?', 'כמה {n}?'], bd_wrong_item: ['That is not what I asked for! I need {n}.', 'לא את זה ביקשתי! אני צריך {n}.'], bd_try: ['Not quite. Try again.', 'לא בדיוק. נסו שוב.'], bd_good: ['Well done!', 'כל הכבוד!'], bd_del: ['Delete', 'מחיקה'],
@@ -2519,13 +2526,13 @@ function startBuild() {
 const bdStep = () => BD.S.steps[BD.i];
 function bdRender() {
   const S = BD.S, st = bdStep(); if (st.item) GEO.learn(P, st.item);
-  $('#bdTitle').textContent = tl(S.title); $('#bdVillage').textContent = S.type === 'project' ? t('bd_at', { v: tl(S.village) }) : t('bd_asks', { v: tl(S.village) });
+  $('#bdTitle').textContent = (S.type === 'machine' ? GEO.MACHINES[S.id].em + ' ' : '') + tl(S.title); $('#bdVillage').textContent = S.type === 'machine' ? tl([GEO.SCROLLS[S.scroll].en, GEO.SCROLLS[S.scroll].he]) : S.type === 'project' ? t('bd_at', { v: tl(S.village) }) : t('bd_asks', { v: tl(S.village) });
   $('#bdUnits').title = t('bd_units', { u: P.units === 'metric' ? t('bd_metric') : t('bd_imperial') }); $('#bdUnits').setAttribute('aria-label', $('#bdUnits').title);
   $('#bdDots').innerHTML = S.steps.map((_, k) => `<i class="${k < BD.i ? 'done' : k === BD.i ? 'on' : ''}"></i>`).join('');
   $('#bdQ').textContent = tl(st.text); $('#bdFb').textContent = ''; $('#bdFb').className = 'bdFb'; BD.typed = ''; if (st.kind !== 'conjure') BD.item = null;
   const a = $('#bdAns');
   if (st.kind === 'pick') a.innerHTML = `<div class="bdPick">${st.choices.map((c, k) => `<button class="opt" data-bd="pick" data-k="${k}">${c.pic ? (SHAPE_EM[c.pic] || '') + ' ' : ''}${esc(tl(c.label))}</button>`).join('')}</div>`;
-  else if (st.kind === 'conjure' && !BD.item) a.innerHTML = `<p class="small">${t('bd_pick_item')}</p><div class="bdItems">${GEO.learned(P, 'village').map(i => `<button class="opt" data-bd="item" data-id="${i.id}"><span class="em">${i.em}</span>${esc(tl(i.one))}</button>`).join('')}</div>`;
+  else if (st.kind === 'conjure' && !BD.item) a.innerHTML = `<p class="small">${t('bd_pick_item')}</p><div class="bdItems">${GEO.learned(P, GEO.ITEM[st.item].sec).map(i => `<button class="opt" data-bd="item" data-id="${i.id}"><span class="em">${i.em}</span>${esc(tl(i.one))}</button>`).join('')}</div>`;
   else bdPad();
 }
 function bdPad() {
@@ -2535,7 +2542,7 @@ function bdPad() {
 }
 function bdWrong(msg) { BD.sm++; BD.mist++; sfx.bad(); BD.typed = ''; $('#bdFb').className = 'bdFb'; $('#bdFb').textContent = msg; if ($('#bdAns .vhPadShow')) $('#bdAns .vhPadShow').textContent = '…'; }
 function bdRight() {
-  const st = bdStep(); sfx.ok(); const mv = GEO.record(P, BD.sm === 0, 'build'); P.xp += 3; BD.xp += 3; P.builds.steps++;   // a village step: 3 XP, counts toward the geometry level only (spec 11 §10)
+  const st = bdStep(); sfx.ok(); const mv = GEO.record(P, BD.sm === 0, 'build'); if (BD.S.type !== 'machine') { P.xp += 3; BD.xp += 3; } P.builds.steps++;   // a village step: 3 XP, counts toward the geometry level only (spec 11 §10)
   if (st.teach) GEO.learn(P, st.teach);
   $('#bdFb').className = 'bdFb good'; $('#bdFb').textContent = '✔ ' + t('bd_good');
   if (mv) toast(`📐 ${t('lc_geo', { n: P.geo.level })}: ${tl(GEO.topicOf(P.geo.level))}`);
@@ -2544,6 +2551,14 @@ function bdRight() {
 }
 function bdFinish() {
   const S = BD.S; let extra = '';
+  if (S.type === 'machine') {   // assembled (spec 11 §6.3): the machine joins her collection; the scroll's copper is paid now; 10 XP (+5 with no mistakes), no coins
+    const M = GEO.MACHINES[S.id], sc = GEO.SCROLLS[S.scroll], ok = GEO.addMachine(P, S.id, S.scroll), x = ok ? 10 + (BD.mist === 0 ? 5 : 0) : 0; P.xp += x; saveSoon(true);
+    if (ok) { sfx.win(); confetti([M.em, '🔨', '✨', '⚙️']); }
+    const glow = sc.glow ? `box-shadow:0 0 22px 6px ${sc.glow}` : '';
+    modal(ok ? t('yd_built', { m: tl([M.en, M.he]) }) : t('yd_poor_t'), ok ? `<div style="text-align:center"><div style="font-size:4rem;display:inline-block;border-radius:50%;padding:4px 12px;${glow}">${M.em}</div><p>${sc.em} ${tl([sc.en, sc.he])}${sc.cost ? ' · −' + walletHtml(sc.cost) : ''}</p><p>⭐ +${x} XP</p></div>` : `<p>${t('yd_poor_b', { c: sc.cost })}</p>`,
+      [[t('yd_back'), () => { BD = null; openWorkshop(); setTimeout(openYard, 50); }], [t('bd_map'), () => { BD = null; openMenu(); }, true]]);
+    return;
+  }
   if (S.type === 'project') { const x = 10 + (BD.mist === 0 ? 5 : 0); P.xp += x; BD.xp += x; const c = jCoins(2); BD.coins = c; P.builds.projects[S.id] = (P.builds.projects[S.id] || 0) + 1; extra = `<p style="text-align:center">🪙 ${walletHtml(c)}</p>`; sfx.win(); confetti(['🔨', '🪵', '✨', '🏗️']); }
   else sfx.up();
   saveSoon(true);
@@ -2564,6 +2579,33 @@ $('#build').onclick = e => {
     else if (GEO.check(st, n)) bdRight(); else bdWrong(t('bd_try'));
   }
 };
+/* ----- engineering, step 3 (spec 11 §6): the yard, a second desk in the workshop where machines are built. A machine opens by wizard level 5, Academy rank and geometry level. ----- */
+const yardLockText = lk => lk.why === 'wiz' ? t('yd_wiz', { n: lk.n }) : lk.why === 'rank' ? t('yd_rank', { n: lk.n, r: lk.n ? tl(ACAD_RANK[lk.n - 1]) : '' }) : t('yd_geo', { n: lk.n });
+function yardState() {   // the yard button in the workshop
+  const b = $('#yardBtn'); if (!b) return; const show = !!CFG.ENGINEERING; b.parentNode.style.display = show ? '' : 'none';
+  const open = wizLvl() >= GEO.YARD_WIZ; b.textContent = open ? '🏗️ ' + t('yd_btn') : '🔒 ' + t('yd_btn'); b.classList.toggle('ghost', !open);
+}
+function openYard() {
+  if (wizLvl() < GEO.YARD_WIZ) { toast(t('yd_wiz', { n: GEO.YARD_WIZ })); return; }
+  GEO.place(P); const rank = acadPassed(), own = GEO.machinesOf(P);
+  const rows = Object.values(GEO.MACHINES).map(m => { const lk = GEO.machineLock(P, m.id, rank, wizLvl()), n = own.filter(x => x.type === m.id).length;
+    return `<button class="yardRow${lk ? ' locked' : ''}" data-yard="${m.id}" ${lk ? 'aria-disabled="true"' : ''}><span class="yEm">${m.em}</span><span class="yTx"><b>${esc(tl([m.en, m.he]))}</b><small>${lk ? '🔒 ' + esc(yardLockText(lk)) : esc(t('yd_ready'))}</small></span>${n ? `<span class="yN">×${n}</span>` : ''}</button>`; }).join('');
+  const mine = own.length ? `<p class="small" style="margin-top:8px">${t('yd_mine')} ${own.map(x => { const sc = GEO.SCROLLS[x.scroll], M = GEO.MACHINES[x.type]; return `<span style="${sc.glow ? 'text-shadow:0 0 8px ' + sc.glow : ''}">${M.em}${sc.em}</span>`; }).join(' ')}</p>` : '';
+  modal('🏗️ ' + t('yd_title'), `<p class="small">${t('yd_tip')}</p><div class="yardList">${rows}</div>${mine}`, [[t('close'), null, true]]);
+  $('#mBody').onclick = e => { const r = e.target.closest('[data-yard]'); if (!r) return; const lk = GEO.machineLock(P, r.dataset.yard, rank, wizLvl()); if (lk) { toast(yardLockText(lk)); return; } $('#modal').classList.remove('on'); pickScroll(r.dataset.yard); };
+}
+function pickScroll(id) {   // the scroll (design): Sketch is free; Enchanted and Ancient cost copper and make the machine more powerful
+  const M = GEO.MACHINES[id], coins = Math.floor(P.coins || 0);
+  const rows = Object.values(GEO.SCROLLS).map(s => { const poor = coins < s.cost; return `<button class="yardRow${poor ? ' locked' : ''}" data-scroll="${s.id}" ${poor ? 'aria-disabled="true"' : ''}><span class="yEm" style="${s.glow ? 'text-shadow:0 0 10px ' + s.glow : ''}">${s.em}</span><span class="yTx"><b>${esc(tl([s.en, s.he]))}</b><small>${t('yd_power', { n: s.power })} · ${s.cost ? walletHtml(s.cost) : t('yd_free')}${poor ? ' · ' + t('yd_poor_s') : ''}</small></span></button>`; }).join('');
+  modal(M.em + ' ' + tl([M.en, M.he]), `<p class="small">${t('yd_scroll_tip')}</p><div class="yardList">${rows}</div>`, [[t('not_now'), () => openYard(), true]]);
+  $('#mBody').onclick = e => { const r = e.target.closest('[data-scroll]'); if (!r) return; const s = GEO.SCROLLS[r.dataset.scroll]; if (coins < s.cost) { toast(t('yd_poor_b', { c: s.cost })); return; } $('#modal').classList.remove('on'); startMachineBuild(id, s.id); };
+}
+function startMachineBuild(id, scroll) {
+  GEO.place(P); P.grimoire = P.grimoire || { village: [], machine: [] }; P.builds = P.builds || { steps: 0, projects: {} };
+  BD = { S: GEO.machineSession(P, id, scroll, { units: P.units, mlvl: P.mlvl }), i: 0, mist: 0, sm: 0, typed: '', item: null, xp: 0, coins: 0 };
+  G.quest = null; show('build'); saveSoon(); bdRender();
+}
+$('#yardBtn').onclick = openYard;
 $('#bdBack').onclick = () => { BD = null; openMenu(); };
 $('#bdBook').onclick = bdBook;
 $('#bdUnits').onclick = () => { P.units = P.units === 'metric' ? 'imperial' : 'metric'; saveSoon(); toast('📏 ' + (P.units === 'metric' ? t('bd_metric') : t('bd_imperial')) + ' · ' + t('bd_units_next')); bdRender(); };
@@ -6005,7 +6047,7 @@ function renderWorkshop() {
   $('#wsBack').innerHTML = ''; $('#wsCounter').innerHTML = ''; $('#wsFront').innerHTML = '';
   $('#wsProps').innerHTML = `<div class="shP shMerchant" style="--x:73;--y:56" aria-label="${t('artificer')}">${artificerSVG(skin)}</div><div class="shP shSay" id="wsSay" style="--x:52;--y:40">${t(wsSay)}</div>`;
   if (!window.CSS || !CSS.supports || !CSS.supports('width', '1cqw')) { const sc = $('#wsScene'); sc.style.setProperty('--u', (sc.clientWidth / 100) + 'px'); }
-  renderWsCards();
+  renderWsCards(); yardState();
 }
 let wsSay = 'ws_say';   // what the artificer says (a STR key)
 const canSlots = slots => { const need = {}; slots.forEach(s => { need[s] = (need[s] || 0) + 1; }); return Object.entries(need).every(([r, n]) => ownedOf(+r).length >= n); };
@@ -6750,6 +6792,9 @@ function startDemo() {
     geoLevel(n) { GEO.place(P); P.geo.level = +n; P.geo.hist = []; saveSoon(); toast('📐 Geometry level ' + n + ': ' + tl(GEO.topicOf(+n))); },
     geoAnswers(ok) { const kind = 'siege'; let mv = ''; for (let i = 0; i < 10 && !mv; i++) mv = GEO.record(P, !!ok, kind); toast('📐 ' + (mv ? 'moved ' + mv + ' → geometry level ' + P.geo.level : 'no move yet (level ' + GEO.place(P).level + ')')); },
     build() { startBuild(); },
+    rank(n) { n = Math.max(0, Math.min(5, +n)); P.academy = Object.assign(P.academy || { certs: [] }, { passed: n }); P.xp = Math.max(P.xp, n ? SB.xpFor(ACAD_TOP(n - 1) + 1) : 0); saveSoon(); toast('🎓 Rank ' + n); },
+    yard() { openWorkshop(); setTimeout(openYard, 100); },
+    copper(n) { P.coins = (P.coins || 0) + +n; saveSoon(); toast('🪙 +' + n + ' copper'); },
     geoUnits() { P.units = P.units === 'metric' ? 'imperial' : 'metric'; saveSoon(); toast('📏 ' + P.units); },
     geoTask(lv) { const t = lv ? GEO.task(+lv, { units: P.units, mlvl: P.mlvl }) : GEO.taskFor(P, { units: P.units }); if (!t) { toast('No task for geometry level ' + lv + ' yet'); return; }
       const ans = t.kind === 'pick' ? t.choices[t.answer].label : t.kind === 'conjure' ? [t.amount + ' × ' + t.item] : [String(t.answer)];
@@ -6770,7 +6815,7 @@ function startDemo() {
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Academy (spec 08): conjuring trial</h4>' + [1, 2, 3, 4, 5].map(k => B('🎓 Test ' + k, `acad(${k})`)).join('') +
     B('↺ Reset Academy', 'acadReset()') + B('✅ Pass it now', 'acadPass()') + B('❌ Fail it now', 'acadFail()') +
-    '<h4>Engineering (spec 11): geometry level</h4>' + B('📐 Place me', 'geoPlace()') + Array.from({ length: 12 }, (_, i) => B(i + 1, `geoLevel(${i + 1})`)).join('') + B('🧩 A task at my level', 'geoTask()') + B('✅ Answer right until it moves', 'geoAnswers(1)') + B('❌ Answer wrong until it moves', 'geoAnswers(0)') + B('📏 Metric / imperial', 'geoUnits()') + B('🔨 Start a Build job', 'build()') +
+    '<h4>Engineering (spec 11): geometry level</h4>' + B('📐 Place me', 'geoPlace()') + Array.from({ length: 12 }, (_, i) => B(i + 1, `geoLevel(${i + 1})`)).join('') + B('🧩 A task at my level', 'geoTask()') + B('✅ Answer right until it moves', 'geoAnswers(1)') + B('❌ Answer wrong until it moves', 'geoAnswers(0)') + B('📏 Metric / imperial', 'geoUnits()') + B('🔨 Start a Build job', 'build()') + [0, 1, 2, 3].map(n => B('🎓 Rank ' + n, `rank(${n})`)).join('') + [22, 26, 29].map(n => B('📐 ' + n, `geoLevel(${n})`)).join('') + B('🪙 +300 copper', 'copper(300)') + B('🏗️ Open the yard', 'yard()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
     B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +

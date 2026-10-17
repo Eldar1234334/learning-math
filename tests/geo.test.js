@@ -103,6 +103,33 @@
     assert(GEO.badAmountText({}, 3, 'en') === 'Not quite. Count again.', 'a default reaction');
   });
 
+  test('machines open by wizard level 5 (the yard), Academy rank and geometry level (spec 11 §6.2)', () => {
+    const p = { mlvl: 1 }; GEO.place(p); const L = (id, rank, w, g) => { p.geo.level = g; return GEO.machineLock(p, id, rank, w); };
+    assert(L('ram', 0, 4, 10).why === 'wiz' && L('ram', 0, 5, 9).why === 'geo' && L('ram', 0, 5, 10) === null, 'the ram: wizard level 5, rank 0, geometry level 10');
+    assert(L('ballista', 0, 12, 12).why === 'rank' && L('ballista', 1, 12, 11).why === 'geo' && L('ballista', 1, 12, 12) === null, 'the ballista: rank 1, geometry level 12');
+    assert(L('catapult', 2, 20, 21).why === 'geo' && L('catapult', 2, 20, 22) === null && L('catapult', 1, 20, 36).why === 'rank', 'the catapult: rank 2, geometry level 22');
+    assert(L('trebuchet', 3, 30, 26) === null && L('trebuchet', 3, 30, 25).why === 'geo' && L('tower', 3, 30, 28).why === 'geo' && L('tower', 3, 30, 29) === null && L('tower', 2, 30, 36).why === 'rank', 'the trebuchet 26 and the siege tower 29, both rank 3');
+    for (const m of Object.values(GEO.MACHINES)) assert(m.en && m.he && m.em && m.parts.length === 3 && m.parts.every(x => GEO.ITEM[x] && GEO.ITEM[x].sec === 'machine'), 'machine ' + m.id);
+    assert(GEO.MACHINES.ram.he === 'איל ניגוח' && GEO.MACHINES.tower.he === 'מגדל מצור' && GEO.SCROLLS.sketch.cost === 0 && GEO.SCROLLS.enchanted.cost === 100 && GEO.SCROLLS.ancient.cost === 200 && GEO.SCROLLS.ancient.power === 3, 'names, prices and power');
+  });
+  test('building a machine: measure, then conjure parts whose rarity the scroll decides (spec 11 §6.3, §6.4)', () => {
+    const rarity = { common: 0, uncommon: 1, rare: 2 };
+    for (const id of Object.keys(GEO.MACHINES)) for (const sc of ['sketch', 'enchanted', 'ancient']) for (const mlvl of [8, 14, 30]) for (let k = 0; k < 20; k++) {
+      const p = { mlvl, units: k % 2 ? 'metric' : 'imperial' }, S = GEO.machineSession(p, id, sc, { rnd }), M = GEO.MACHINES[id], rars = GEO.SCROLLS[sc].rars;
+      assert(S.type === 'machine' && S.steps.length === 1 + rars.length && S.steps[0].kind === 'number' && S.steps[0].level === M.geo, `${id}/${sc} steps`);
+      assert(S.steps[0].answer >= 2 && S.steps[0].answer <= GEO.maxProd(mlvl) && Number.isInteger(S.steps[0].answer), `${id} answer ${S.steps[0].answer} at math level ${mlvl}`);
+      rars.forEach((r, i) => { const st = S.steps[1 + i]; assert(st.kind === 'conjure' && GEO.ITEM[st.item].rar === r && st.item === M.parts[rarity[r]], `${id}/${sc} part ${i}`); });
+      assert(S.steps[1].amount === S.steps[0].answer && S.steps.every(s => !/undefined|NaN/.test(s.text.join(' '))), 'the first conjure repeats the measure answer');
+    }
+  });
+  test('machines owned: the scroll\'s copper is paid when it is built, never below zero', () => {
+    const p = { coins: 150, mlvl: 14 }; assert(GEO.addMachine(p, 'ram', 'sketch') && p.coins === 150 && GEO.machinesOf(p).length === 1, 'the Sketch Scroll is free');
+    assert(GEO.addMachine(p, 'ram', 'enchanted') && p.coins === 50 && GEO.machinesOf(p).length === 2, 'Enchanted: 100 copper');
+    assert(!GEO.addMachine(p, 'ram', 'ancient') && p.coins === 50 && GEO.machinesOf(p).length === 2, 'Ancient: 200 copper, not enough');
+    assert(GEO.machinesOf(p).map(m => m.scroll).join() === 'sketch,enchanted', 'each copy keeps its scroll');
+    const q = { mlvl: 14 }; GEO.place(q); GEO.learn(q, 'starsteel'); assert(q.grimoire.machine.includes('starsteel') && GEO.learned(q, 'machine').some(i => i.id === 'starsteel'), 'a machine part is learned in its own section');
+  });
+
   const failed = results.filter(r => !r.ok);
   if (isNode) {
     for (const r of results) console.log((r.ok ? 'ok   ' : 'FAIL ') + r.name + (r.ok ? '' : '\n      ' + r.msg));
