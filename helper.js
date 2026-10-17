@@ -250,6 +250,11 @@
   }
   // the amount is typed on a pad when it has more than one digit to find in the buttons (above 10) or a decimal point
   const needsPad = p => !Number.isInteger(p.amount) || p.amount > 10;
+  // after a wrong amount that was too few (spec 05 §4.1): the villager counts, and the second try is a new small problem from the new situation,
+  // "I need 10. Now I have 9. Conjure the rest." The need is the first answer's total, the have is everything conjured so far.
+  function retryProblem(p, total, have) {
+    return { kind: p.kind, retry: true, nums: [total, have], amount: total - have, expr: { a: total, op: '−', b: have }, level: p.level, v: { t: total, a: have }, names: { item: total } };
+  }
   // the second part of a two-part request (spec 05 §8, wizard level 9): one story names a second item and how its amount follows from the first:
   // "After that, conjure the ropes: 3 more than the first amount." The first amount a is known (the student has worked it out);
   // the second amount is a + k, a − k, or k for each one of a (from level 11). The answer is never a number of the story.
@@ -331,5 +336,5 @@
     if (item.n === 60) return n === 1 ? ['torn', 'נקרעה'] : ['torn', 'נקרעו'];
     return n === 1 ? ['broke', genderOf(item) === 'f' ? 'נשברה' : 'נשבר'] : ['broke', 'נשברו'];
   };
-  return { BOOK, THEMES, themeOf, breakWord, PATIENCE, patienceFor, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, makeSecond, needsPad, oneName, measureOf, fmtN, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
+  return { BOOK, THEMES, themeOf, breakWord, PATIENCE, patienceFor, genderOf, storyName, itemOf, itemByHe, nameFor, reachable, isBeginner, amountLevel, plan, storyTypes, makeAmount, amountCards, makeSecond, retryProblem, needsPad, oneName, measureOf, fmtN, exprFor, cardText, cardValue, itemCards, itemCardOk, itemAnswers, wrongItemFor, checkAmount, spend, visitOver, isImpatient };
 });

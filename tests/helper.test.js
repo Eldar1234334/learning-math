@@ -130,6 +130,18 @@
     const kinds = new Set(); for (let i = 0; i < 300; i++) kinds.add(H.makeSecond(40, 20, rnd).rel);
     assert(kinds.has('more') && kinds.has('less') && kinds.has('each'), 'all three relations appear: ' + [...kinds]);
   });
+  test('the second try after too few is a new small problem: the need minus what is there now', () => {
+    const p = H.makeAmount(9, rnd, {});
+    for (let have = 1; have < p.amount; have++) {
+      const q = H.retryProblem(p, p.amount, have);
+      assert(q.retry && q.kind === p.kind && q.amount === p.amount - have && q.nums[0] === p.amount && q.nums[1] === have, 'retry numbers');
+      assert(H.cardValue(q.expr) === q.amount, 'retry card value');
+      const r = H.checkAmount(q.amount, q.amount); assert(r.ok, 'the new answer is checked as usual');
+    }
+    // a second wrong try that is still too few: the have grows, the need stays
+    const q1 = H.retryProblem(p, 20, 12), q2 = H.retryProblem(q1, 20, 12 + 3);
+    assert(q1.amount === 8 && q2.amount === 5 && q2.v.t === 20 && q2.v.a === 15, 'cumulative have');
+  });
   test('the card step: four cards, the story card fits, values all different', () => {
     for (let i = 0; i < 200; i++) {
       const p = H.makeAmount(i % 2 ? 4 : 2, rnd), cards = H.amountCards(p, rnd);

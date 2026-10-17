@@ -1352,6 +1352,7 @@ const STR = {
   vh_pics: ['🖼 Show pictures', '🖼 הראו תמונות'], vh_book_item: ['Find this item in the conjuration book', 'מצאו את הפריט הזה בספר הזימון'],
   vh_wrong_num: ['That is not the number of this spell. Try again!', 'זה לא המספר של הכישוף הזה. נסו שוב!'],
   vh_change: ['I need {t} {item}. I have {a}. Conjure the rest.', 'אני צריך {t} {item}. יש לי {a}. זמנו את השאר.'],
+  vh_retry: ['I need {t} {item}. Now I have {a}. Conjure the rest.', 'אני צריך {t} {item}. עכשיו יש לי {a}. זמנו את השאר.'],
   vh_join: ['I have {a} {item}, and my friend gives me {b} more. Conjure as many as I have now.', 'יש לי {a} {item}, והחבר שלי נותן לי עוד {b}. זמנו כמה שיש לי עכשיו.'],
   vh_separate: ['I had {t} {item}. I gave {b} to my neighbour. Conjure as many as I have left.', 'היו לי {t} {item}. נתתי {b} לשכן. זמנו כמה שנשארו לי.'], vh_broke: ['broke', 'נשברו'],
   vh_groups: ['I have {g} boxes. Each box needs {n} {item}. Conjure it all.', 'יש לי {g} קופסאות. בכל קופסה צריך {n} {item}. זמנו את הכול.'],
@@ -3809,7 +3810,7 @@ function storyTally(kind, right) {
 }
 // a mistake: counted (no mistakes = a bonus), it costs mana, it is logged for the math level, and a Lucky chance potion can undo it
 const vhMiss = card => {
-  const V = VS; V.snap = { st: { ...V.st }, phase: V.phase, mist: V.mist || 0, card: card || null };
+  const V = VS; V.snap = { st: { ...V.st }, phase: V.phase, mist: V.mist || 0, card: card || null, p: V.p };
   V.mist = (V.mist || 0) + 1; vhLog(false); return HELPER.spend(V.st, false);
 };
 // the math level: each answer in a village visit counts like an answer in a fight; a right answer with pictures counts as half
@@ -3877,6 +3878,7 @@ function visitBars() {   // the wizard's mana (blue) sits where the fight shows 
 // the story: always a request ("I need N, I have A, please conjure the rest"), never a question
 function visitStory() {
   const V = VS, p = V.p, nm = n => vhLow(tl(HELPER.storyName(V.item, n))), vars = { ...p.v };
+  if (p.retry) return t('vh_retry', { t: p.v.t, a: p.v.a, item: nm(p.v.t) });   // the second try after too few: a new small problem
   for (const k in (p.names || {})) vars[k] = nm(p.names[k]);   // the item's name for the number it goes with: "1 sack of flour", "3 sacks of flour"
   if (p.one) vars.one = vhLow(tl(HELPER.oneName(V.item)));   // "one bucket"
   if (p.kind === 'start') vars.left = tl([p.v.r === 1 ? 'is left' : 'are left', p.v.r === 1 ? (HELPER.genderOf(V.item) === 'f' ? 'נשארה' : 'נשאר') : 'נשארו']);
@@ -3951,7 +3953,7 @@ function usePotionVisit(id) {
   }
   if (id === 'second') {   // Lucky chance: the last mistake is undone and the student answers again
     if (!V.snap) { toast(t('second_after')); return; }
-    spend(); const s = V.snap; V.st = s.st; V.phase = s.phase; V.mist = s.mist; if (s.card) s.card.gone = false; V.snap = null; V.msg = t('second_done'); return visitShow();
+    spend(); const s = V.snap; V.st = s.st; V.phase = s.phase; V.mist = s.mist; V.p = s.p; if (s.card) s.card.gone = false; V.snap = null; V.msg = t('second_done'); return visitShow();
   }
   if (id === 'super') {   // Miracle: the villager is happy at once (once per chapter, as in a fight)
     const qs = P.quest[G.quest]; if (qs.ch === P.superCh) { toast(t('super_used', { p: t('vpot_super') })); return; }
@@ -3986,7 +3988,7 @@ function conjureShot(em, n, proj) {
   fly(shot, $('#heroSvg'), $('#vhTray') || $('#foeBody'), { trail: true, size: 1.6 }).then(landed, landed);
 }
 function visitCraft() {   // the item is crafted: a shot from the staff onto the tray; a big amount floats as a number
-  const V = VS, n = V.p.amount, dn = Math.max(1, Math.ceil(n)), em = V.item.em, thanks = t('vh_ok', { items: n <= 6 && Number.isInteger(n) ? em.repeat(n) : em + ' ×' + n });
+  const V = VS, n = V.p.retry ? V.p.v.t : V.p.amount, dn = Math.max(1, Math.ceil(n)), em = V.item.em, thanks = t('vh_ok', { items: n <= 6 && Number.isInteger(n) ? em.repeat(n) : em + ' ×' + n });
   conjureShot(em, dn, V.project);
   return thanks;
 }
@@ -4057,8 +4059,10 @@ function visitClick(e) {   // the answers, cards and buttons of the visit (the f
       V.st = HELPER.spend(V.st, true); vhLog(true); sfx.ok(); V.msg = '';
       return visitRoundDone();
     }
+    const p0 = V.p, have0 = p0.retry ? p0.v.a : 0, total = p0.retry ? p0.v.t : p0.amount;   // what the villager has so far and what is needed in all
     V.st = vhMiss(); sfx.bad(); V.typed = '';
-    V.msg = r.kind === 'few' ? t('vh_few', { have: r.have, more: r.more }) : t('vh_many', { have: r.have, extra: r.extra });
+    if (r.kind === 'few') { V.msg = t('vh_few', { have: have0 + r.have, more: r.more }); V.p = HELPER.retryProblem(p0, total, have0 + r.have); }   // the villager counts; the second try is a new small problem (spec 05 §4.1)
+    else V.msg = t('vh_many', { have: have0 + r.have, extra: r.extra });   // too many: the extra items disappear, the same question again
     if (visitAfter()) return; return visitShow();
   }
   if (act === 'icard' && V.phase === 'icard') {   // step 1: the card whose answer is the item's number
