@@ -30,6 +30,31 @@
     }
     assert(n === 36 * Object.keys(BR.RECIPES).length, 'recipes ' + n);
   });
+  test('brewing by rank (spec 04 §3.2): which potions each rank can brew, and what goes in the cauldron', () => {
+    const open = r => Object.keys(BR.FROM_RANK).filter(p => BR.potionOpen(p, r)).sort().join();
+    assert(open(0) === 'heart,sound' && open(1) === 'heart,power,second,sound' && open(2) === open(1) && open(3) === 'heart,power,second,sound,super', 'potions by rank: ' + [0, 1, 2, 3].map(open).join(' | '));
+    assert(BR.potionOpen('forge1', 0) && BR.potionOpen('forge2', 0), 'the forge has no rank');
+    assert(BR.rareFor('sound', 0).length === 0 && BR.rareFor('sound', 1).length === 1 && BR.rareFor('power', 1).length === 2, 'Hint has no stone at rank 0, one from rank 1');
+    assert(BR.herbLinesFor('heart', 0) === 1 && BR.herbLinesFor('sound', 0) === 1 && BR.herbLinesFor('power', 1) === 2 && BR.herbLinesFor('heart', 2) === 2 && BR.herbLinesFor('heart', 3) === BR.RECIPES.heart.herbs && BR.herbLinesFor('super', 4) === 1, 'herb lines by rank');
+    assert(!BR.liquidOk(0) && !BR.liquidOk(2) && BR.liquidOk(3) && BR.liquidOk(undefined), 'liquids from rank 3');
+  });
+  test('rank 0: one herb line, no liquid, every math level; ranks 1 and 2: two herb lines, no liquid; rank 3: the full recipe with the liquid', () => {
+    for (let m = 1; m <= 36; m++) {
+      for (const potion of ['heart', 'sound']) {
+        const r0 = BR.recipe({ potion, mlvl: m, owned, rnd, rank: 0 }); assert(r0, 'rank 0 recipe ' + potion + ' at ' + m);
+        assert(r0.lines.length === 1 && r0.lines[0].kind === 'herb' && ME.eq(r0.lines[0].p.a, r0.lines[0].amount), 'rank 0 is one herb line: ' + potion + ' at ' + m);
+        const a = ME.num(r0.lines[0].amount), hi = BR.HERB_RANGE[potion][1] * r0.batch; assert(ME.isWhole(r0.lines[0].amount) && a >= 2 && a <= hi, 'rank 0 amount ' + a + ' (' + potion + ' at ' + m + ')');
+      }
+      for (const potion of ['heart', 'sound', 'power', 'second']) {
+        const r1 = BR.recipe({ potion, mlvl: m, owned, rnd, rank: 1 }); assert(r1, 'rank 1 recipe ' + potion + ' at ' + m);
+        assert(r1.lines.length === 2 && r1.lines.every(l => l.kind === 'herb') && r1.lines[0].herb !== r1.lines[1].herb, 'rank 1 is two herb lines of two herbs: ' + potion + ' at ' + m);
+      }
+      const r3 = BR.recipe({ potion: 'sound', mlvl: m, owned, rnd, rank: 3 }); assert(r3.lines.length === 2 && r3.lines[1].kind === 'liquid', 'rank 3 has the liquid at ' + m);
+      const h3 = BR.recipe({ potion: 'heart', mlvl: m, owned, rnd, rank: 3 }); assert(h3.lines.length === 3 && h3.lines[2].kind === 'liquid', 'rank 3 Heart: two herb lines and the liquid at ' + m);
+    }
+    let lo = 99, hi = 0; for (let k = 0; k < 200; k++) { const r = BR.recipe({ potion: 'heart', mlvl: 5, owned, rnd, rank: 0 }), a = ME.num(r.lines[0].amount); lo = Math.min(lo, a); hi = Math.max(hi, a); }
+    assert(lo >= 4 && hi <= 10, 'a Heart potion at rank 0 asks for 4 to 10 herbs: ' + lo + ' to ' + hi);
+  });
   test('most herb lines come from the easy step itself (the whole-number levels)', () => {
     let here = 0, all = 0; for (let k = 0; k < 200; k++) { const m = 2 + (k % 18), r = BR.recipe({ potion: 'heart', mlvl: m, owned, rnd }); for (const l of r.lines.filter(l => l.kind === 'herb')) { all++; if (l.p.lv === BR.easy(m)) here++; } }
     assert(here / all > .65, 'own level ' + (here / all).toFixed(2));   // about 0.7: some easy steps cannot make small amounts (level 5 starts at 10), so those lines come from review

@@ -1564,6 +1564,7 @@ const STR = {
   manual_is_carried: ['The monster manual is in your bag: the fights show each monster’s weakness.', 'ספר המפלצות איתכם: בקרבות מופיעה נקודת התורפה של כל מפלצת.'],
   manual_is_home: ['Your monster manual is at home: the fights show no weaknesses, and you carry one more potion.', 'ספר המפלצות נמצא בבית: בקרבות לא מופיעות נקודות התורפה, ואתם לוקחים שיקוי אחד נוסף.'],
   manual_deal: ['Without the manual you can carry {n} potions on a quest.', 'בלי הספר אפשר לקחת {n} שיקויים למסע.'], manual_quest: ['Finish or leave your quest first, then you can change this.', 'קודם סיימו או עזבו את המסע, ואז אפשר לשנות.'],
+  recipe_rank: ['Opens at rank {n} ({name})', 'נפתח בדרגה {n} ({name})'],
   books_t: ['The books', 'הספרים'],
   books_offer: ['You are a Starwarden now! You may leave your spell book and your conjuration book on the shelf at Home: you can carry {n} potions instead of {m}, but the books will not be with you on quests. You can take them back from the shelf at Home any time.', 'אתם כבר שומרי כוכבים! אפשר להשאיר את ספר הכישופים ואת ספר הזימון על המדף בבית: אפשר לקחת {n} שיקויים במקום {m}, אבל הספרים לא יהיו איתכם במסעות. תמיד אפשר לקחת אותם בחזרה מהמדף בבית.'],
   books_is_home: ['Your books are on the shelf at Home: you carry one more potion, and the books are not with you on quests.', 'הספרים על המדף בבית: אתם לוקחים שיקוי אחד נוסף, והספרים לא איתכם במסעות.'], books_is_carried: ['Your spell book and your conjuration book are with you.', 'ספר הכישופים וספר הזימון איתכם.'],
@@ -5408,9 +5409,12 @@ const RECIPES = BR.RECIPES;   // herb lines, rare items and the cauldron of each
 const rarKind = r => t('rar_' + r), rarity = r => t('rarity_' + r);   // what kind of ingredient (herb, stone, …) and how rare (Common … Legendary)
 const slotsText = r => { const c = {}; r.rare.forEach(s => { c[s] = (c[s] || 0) + 1; }); return [t('herb_lines', { n: r.herbs })].concat(Object.entries(c).map(([s, n]) => `${n} ${t((n > 1 ? 'rars_' : 'rar_') + s)}`)).join(' + '); };
 const ownedOf = rar => Object.keys(ING).filter(id => ING[id].r === rar && (P.inv[id] || 0) > 0);
-function canBrew(id) {   // enough different rare items of each needed rarity, and herbs for the herb lines (at least 2 of a kind)?
-  const need = {}; RECIPES[id].rare.forEach(s => { need[s] = (need[s] || 0) + 1; });
-  return Object.entries(need).every(([r, n]) => ownedOf(+r).length >= n) && ownedOf(0).filter(h => (P.inv[h] || 0) >= BR.CFG.MIN_HERB_LINE).length >= RECIPES[id].herbs;
+// Brewing by rank (spec 04 §3.2): the Academy rank decides what goes in the cauldron and which potions can be brewed (brew.js). The forge's recipes have no rank.
+const brewRank = () => acadPassed();
+const rankedRecipe = id => ({ herbs: BR.herbLinesFor(id, brewRank()), rare: BR.rareFor(id, brewRank()) });   // the recipe as this rank sees it
+function canBrew(id) {   // this rank can brew it, and enough different rare items of each needed rarity, and herbs for the herb lines (at least 2 of a kind)?
+  const R = rankedRecipe(id), need = {}; R.rare.forEach(s => { need[s] = (need[s] || 0) + 1; });
+  return BR.potionOpen(id, brewRank()) && Object.entries(need).every(([r, n]) => ownedOf(+r).length >= n) && ownedOf(0).filter(h => (P.inv[h] || 0) >= BR.CFG.MIN_HERB_LINE).length >= R.herbs;
 }
 /* ----- Home: the hero's room (2.5D: one perspective room drawn in SVG, props placed in scene units, 1 unit = 1% of the scene width) ----- */
 // Back wall x20..80, y8..46; floor trapezoid below it; vanishing point (50,30). Floor items get smaller and slip behind others toward the back wall.
@@ -5630,9 +5634,9 @@ function openHome() {
 function openRecipes() {   // tapping the cauldron
   const c = P.own.caul || 0;
   modal(t('recipes_t', { c: caulName(c) }), '<div id="homeRecipes"></div>', [[t('close'), null, true]]);
-  $('#homeRecipes').innerHTML = POTION_IDS.map(id => { const r = RECIPES[id], locked = r.caul > c, ok = !locked && canBrew(id);
+  $('#homeRecipes').innerHTML = POTION_IDS.map(id => { const r = RECIPES[id], rk = BR.FROM_RANK[id] || 0, rankLocked = !BR.potionOpen(id, brewRank()), locked = r.caul > c || rankLocked, ok = !locked && canBrew(id);
     return `<div class="recipe ${locked ? 'locked' : ''}"><span class="packBottle">${potionSVG(id)}<i>${POTIONS[id].em}</i></span>
-      <div class="grow"><b>${pBoth(id)}</b><div class="small">${pDesc(id)}</div><div class="small">${t('needs', { x: slotsText(r) })}${locked ? ` · 🔒 ${caulName(r.caul)}` : ''}</div></div>
+      <div class="grow"><b>${pBoth(id)}</b><div class="small">${pDesc(id)}</div><div class="small">${t('needs', { x: slotsText(rankedRecipe(id)) })}${rankLocked ? ` · 🔒 ${t('recipe_rank', { n: rk, name: tl(ACAD_RANK[rk - 1]) })}` : r.caul > c ? ` · 🔒 ${caulName(r.caul)}` : ''}</div></div>
       <button class="btn" data-brew="${id}" ${ok ? '' : 'disabled'}>${locked ? '🔒' : ok ? t('brew_btn') : t('need_more')}</button></div>`; }).join('');
   $('#homeRecipes').onclick = e => { const b = e.target.closest('[data-brew]'); if (b && !b.disabled) pickIngredients(b.dataset.brew); };
 }
@@ -5656,7 +5660,7 @@ $('#brewBack').onclick = () => { saveSoon(true); BW && BW.forge ? openWorkshop()
    Each herb and liquid line is one scored answer (½ up, 1 down). All right: the potion(s), +3 XP per line. A wrong line: a worked example, and the ingredients may be lost (spec 03 §6.4). ----- */
 // the potion's rare items: the student chooses which one for each slot; from the multiplication levels also how many potions (a batch)
 function pickIngredients(potion) {
-  const R = RECIPES[potion], chosen = R.rare.map(() => null), canBatch = BR.easy(P.mlvl) >= BR.CFG.BATCH_FROM; let batch = 1;
+  const R = { rare: BR.rareFor(potion, brewRank()) }, chosen = R.rare.map(() => null), canBatch = BR.easy(P.mlvl) >= BR.CFG.BATCH_FROM; let batch = 1;   // (the rare items this rank uses)
   const top = BR.maxBatch(R.rare, rarePool(), ownedOf(0).reduce((a, id) => a + (P.inv[id] || 0), 0)), most = () => top;   // short of a chosen item? others of its kind fill in (rarePlan)
   if (!R.rare.length && !canBatch) { startBrew(potion, [], 1); return; }
   const render = () => {
@@ -5675,8 +5679,9 @@ let BW = null;   // the brew on the table: { potion, rare, batch, r (the recipe)
 function rarePool() { const pool = {}; [1, 2, 3, 4].forEach(r => { pool[r] = {}; ownedOf(r).forEach(id => { pool[r][id] = P.inv[id]; }); }); return pool; }
 function startBrew(potion, rare, batch) {
   const owned = {}; ownedOf(0).forEach(id => { owned[id] = P.inv[id]; });
-  let use = BR.rarePlan(RECIPES[potion].rare, rare, rarePool(), batch); if (!use) { batch = 1; use = BR.rarePlan(RECIPES[potion].rare, rare, rarePool(), 1); }
-  const r = use && BR.recipe({ potion, mlvl: P.mlvl, owned, batch, avoid: G.recent || [] });
+  const slots = BR.rareFor(potion, brewRank());
+  let use = BR.rarePlan(slots, rare, rarePool(), batch); if (!use) { batch = 1; use = BR.rarePlan(slots, rare, rarePool(), 1); }
+  const r = use && BR.recipe({ potion, mlvl: P.mlvl, owned, batch, rank: brewRank(), avoid: G.recent || [] });
   if (!r) { toast(t('need_herbs')); return; }
   $('#modal').classList.remove('on'); G.quest = 'brew'; G.noCount = false; BW = { potion, rare, use, batch: r.batch, r, k: r.lines.map(() => 0), done: false };
   G.recent = (G.recent || []).concat(r.lines.map(l => l.p.key)).slice(-CFG.RECENT * 2);
@@ -5793,7 +5798,7 @@ async function brewGo() {
   if (BW.forge) {   // a wrong blueprint: try again (a new blueprint) or back to the workshop
     const F = BW.forge; modal(t('brew_fail_t'), ex + `<p>${t(lost ? 'brew_lost' : 'brew_kept')}</p>`, [[t('brew_again'), () => { BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), 1) && !wsWhy(F.slot) ? startForgeBrew(F.slot, BW.rare) : openWorkshop(); }], [t('back_ws'), openWorkshop, true]]); return;
   }
-  modal(t('brew_fail_t'), ex + `<p>${t(lost ? 'brew_lost' : 'brew_kept')}</p>`, [[t('brew_again'), () => { const ok = BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), BW.batch) || BR.rarePlan(RECIPES[BW.potion].rare, BW.rare, rarePool(), 1); ok ? startBrew(BW.potion, BW.rare, BW.batch) : toRecipes(); }], [t('back_recipes'), toRecipes], [t('back_home'), openHome, true]]);
+  modal(t('brew_fail_t'), ex + `<p>${t(lost ? 'brew_lost' : 'brew_kept')}</p>`, [[t('brew_again'), () => { const sl = BR.rareFor(BW.potion, brewRank()), ok = BR.rarePlan(sl, BW.rare, rarePool(), BW.batch) || BR.rarePlan(sl, BW.rare, rarePool(), 1); ok ? startBrew(BW.potion, BW.rare, BW.batch) : toRecipes(); }], [t('back_recipes'), toRecipes], [t('back_home'), openHome, true]]);
 }
 // the picture model of a worked example (spec 04 §1): dots for small sums, an array for multiplication, groups for division, a bar for fractions, the jug for liquids
 function workModel(ln) {

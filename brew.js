@@ -31,6 +31,16 @@
     forge1: { caul: 0, herbs: 2, rare: [3] },       // the Artificer's blueprint for an epic item (spec 04 §5.2): 1 epic ingredient + herb lines + a liquid
     forge2: { caul: 0, herbs: 2, rare: [4, 3], multi: true }   // the legendary upgrade: 1 legendary + 1 epic ingredient, at the current level, with a multi-step line
   };
+  /* ---- brewing by rank (spec 04 §3.2): the Academy rank (the tests passed) decides what goes in the cauldron and which potions can be brewed ----
+     rank 0: one ingredient type (herbs), one line, no stone, no liquid; Heart and Hint.  Ranks 1 and 2: two herb lines (herbs plus a second herb type),
+     the potion's stone or creature part, no liquid; adds Power and Second chance.  Rank 3 and up: the full recipe with the liquid (the jug); adds Super.
+     `rank` is left out for the Artificer's forge (owner decision: the forge keeps its own recipes) and for the older tests: the full recipe. */
+  const FROM_RANK = { heart: 0, sound: 0, power: 1, second: 1, super: 3 };            // the rank that opens each potion
+  const HERB_RANGE = { heart: [4, 10], sound: [3, 8], power: [3, 8], second: [3, 8], super: [3, 8] };   // herb units in one potion at a rank (spec 04 §3.4, approx.)
+  const potionOpen = (potion, rank) => rank == null || FROM_RANK[potion] == null || rank >= FROM_RANK[potion];
+  const rareFor = (potion, rank) => rank == null || rank >= 1 ? RECIPES[potion].rare : [];       // rank 0: no stone (Hint has none at rank 0)
+  const herbLinesFor = (potion, rank) => rank == null || rank >= 3 ? RECIPES[potion].herbs : rank >= 1 ? Math.max(2, RECIPES[potion].herbs) : 1;
+  const liquidOk = rank => rank == null || rank >= 3;
   const LIQUIDS = ['spring', 'moon', 'oil'];
   const easy = mlvl => Math.max(1, mlvl - 1);
   const lossChance = g => Math.min(CFG.LOSS[2], CFG.LOSS[0] + CFG.LOSS[1] * (g - 1));
@@ -42,14 +52,14 @@
   function herbProblem(t, L, avoid) { const n = levelFor(t, L); if (!n) return null; const p = ME.make(n, { target: ME.I(t), avoid }); return p ? Object.assign({}, p, { lv: n }) : null; }
   // o: { L (easy step), max (herb units owned of this herb, and the room left), keep (units to leave for the next lines), batch, rnd, avoid }
   function herbLine(o) {
-    const rnd = o.rnd || Math.random, b = o.batch || 1, cap = Math.min(o.max, CFG.MAX_HERBS * b), pk = a => a[Math.floor(rnd() * a.length)];
+    const rnd = o.rnd || Math.random, b = o.batch || 1, cap = Math.min(o.max, o.hmax ? o.hmax * b : CFG.MAX_HERBS * b), pk = a => a[Math.floor(rnd() * a.length)];
     if (b > 1) {   // a batch: "Each potion needs k leaves. Brew b potions." (multiplication)
       const kMax = Math.floor(cap / b); if (kMax < 1) return null; const k = kMax < 2 ? 1 : 2 + Math.floor(rnd() * (Math.min(kMax, 9) - 1));   // 2–9 each, if the herbs allow
       return { kind: 'herb', amount: ME.I(k * b), p: { lv: o.L, e: `${k} × ${b}`, a: ME.I(k * b), key: `batch ${k}×${b}`, form: 'batch', ops: { a: k, b, op: '×' } } };
     }
     if (cap < CFG.MIN_HERB_LINE) return null;
     // every amount that fits, sorted by where its problem comes from: the easy step itself, or a review level below it
-    const own = [], rev = []; for (let t = CFG.MIN_HERB_LINE; t <= cap; t++) { const n = levelFor(t, o.L); if (n === o.L) own.push(t); else if (n) rev.push(t); }
+    const own = [], rev = []; for (let t = Math.max(CFG.MIN_HERB_LINE, o.min || 0); t <= cap; t++) { const n = levelFor(t, o.L); if (n === o.L) own.push(t); else if (n) rev.push(t); }
     const roomy = a => a.filter(t => t !== CFG.MIN_HERB_LINE && t <= cap - (o.keep || 0));   // not always the smallest amount, and room left for the next line
     const first = rnd() < CFG.OWN_SHARE ? [own, rev] : [rev, own], pools = first.map(roomy).concat(first);
     for (const pool of pools) for (let tries = 0; tries < 4 && pool.length; tries++) {
@@ -93,19 +103,23 @@
   // owned: { herbId: count } (common ingredients); returns { L, batch, lines } or null when the student lacks herbs
   function recipe(o) {
     const rnd = o.rnd || Math.random, R = RECIPES[o.potion], L = o.L || easy(o.mlvl), b = Math.max(1, Math.min(o.batch || 1, CFG.BATCH_MAX)), avoid = new Set(o.avoid || []);
+    const rank = o.rank, ranked = rank != null && !!HERB_RANGE[o.potion], nHerb = ranked ? herbLinesFor(o.potion, rank) : R.herbs, hr = ranked ? HERB_RANGE[o.potion] : null;
     const herbs = Object.keys(o.owned).filter(id => o.owned[id] >= CFG.MIN_HERB_LINE).sort((x, y) => o.owned[y] - o.owned[x] || (rnd() < .5 ? -1 : 1));
-    if (herbs.length < R.herbs) return null;
+    if (herbs.length < nHerb) return null;
     const ratio = b === 1 && L >= CFG.RATIO_FROM && rnd() < CFG.RATIO_CHANCE;   // one ratio line in some recipes (single potions)
-    const lines = []; let room = CFG.MAX_HERBS * b;
-    for (let i = 0; i < R.herbs; i++) {
-      const id = herbs[i], left = R.herbs - i - 1, share = Math.max(CFG.MIN_HERB_LINE, room - left * CFG.MIN_HERB_LINE);
+    const lines = []; let room = (hr ? hr[1] : CFG.MAX_HERBS) * b;
+    for (let i = 0; i < nHerb; i++) {
+      const id = herbs[i], left = nHerb - i - 1, share = Math.max(CFG.MIN_HERB_LINE, room - left * CFG.MIN_HERB_LINE);
       let ln = null;
       if (ratio && i === 1) { const q = ratioLine(ME.num(lines[0].amount), L, Math.min(o.owned[id], room), rnd, 'herb'); if (q) ln = Object.assign({ kind: 'herb', ratio: lines[0].herb }, q); }
-      if (!ln) ln = herbLine({ L, max: Math.min(o.owned[id], share), keep: left * 3, batch: b, rnd, avoid }); if (!ln) return null;
+      const hl = min => herbLine({ L, max: Math.min(o.owned[id], share), keep: left * 3, batch: b, rnd, avoid, hmax: hr && hr[1], min });
+      if (!ln) ln = hl(hr && nHerb === 1 ? hr[0] : 0) || (hr && nHerb === 1 ? hl(0) : null);   // (at the very first levels the smallest amounts may be the only ones with a problem)
+      if (!ln) return null;
       ln.herb = id; lines.push(ln); avoid.add(ln.p.key); room -= ME.num(ln.amount);
     }
     let lq = null;
-    if (ratio && R.herbs === 1) { const q = ratioLine(ME.num(lines[0].amount), L, 20000, rnd, 'liquid'); if (q) lq = Object.assign({ kind: 'liquid', ratio: lines[0].herb, liquid: LIQUIDS[Math.floor(rnd() * LIQUIDS.length)], scale: jugScale(q.amount) }, q); }
+    if (!liquidOk(rank)) return { L, batch: b, lines };   // ranks 0 to 2: no liquids (the jug comes at rank 3)
+    if (ratio && nHerb === 1) { const q = ratioLine(ME.num(lines[0].amount), L, 20000, rnd, 'liquid'); if (q) lq = Object.assign({ kind: 'liquid', ratio: lines[0].herb, liquid: LIQUIDS[Math.floor(rnd() * LIQUIDS.length)], scale: jugScale(q.amount) }, q); }
     if (!lq) lq = liquidLine({ L, rnd, avoid }); if (lq) lines.push(lq);
     if (R.multi) { const sc = scaleLine(L, rnd); if (sc) lines.push(sc); }   // the legendary recipe: "3 times the epic recipe, plus ¼ of it more"
     return { L, batch: b, lines };
@@ -145,6 +159,6 @@
   // the student's amounts → which lines are right
   const check = (lines, amounts) => lines.map((ln, i) => !!amounts[i] && ME.eq(amounts[i], ln.amount));
 
-  const BR = { CFG, RECIPES, LIQUIDS, easy, lossChance, dropUnits, levelFor, herbLine, ratioLine, liquidLine, scaleLine, jugScale, recipe, rarePlan, maxBatch, check };
+  const BR = { CFG, RECIPES, FROM_RANK, HERB_RANGE, potionOpen, rareFor, herbLinesFor, liquidOk, LIQUIDS, easy, lossChance, dropUnits, levelFor, herbLine, ratioLine, liquidLine, scaleLine, jugScale, recipe, rarePlan, maxBatch, check };
   if (typeof module === 'object' && module.exports) module.exports = BR; else root.BR = BR;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
