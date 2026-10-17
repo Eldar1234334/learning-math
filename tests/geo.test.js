@@ -68,7 +68,7 @@
   test('taskFor: places the student first, then sets a task at the easy step', () => {
     const p = { mlvl: 8 }; const t = GEO.taskFor(p, { rnd }); assert(p.geo && p.geo.level === 7 && t.level === 7, 'placed at 7, the first level of grade 2: ' + t.level);
     p.geo.level = 9; assert(GEO.taskFor(p, { rnd }).level === 9, 'level 9 is a topic start');
-    p.geo.level = 12; assert(GEO.taskFor(p, { rnd }).level === 11, 'level 12 is set at 11');
+    p.geo.level = 8; assert(GEO.taskFor(p, { rnd }).level === 7, 'level 8 is set at 7'); p.geo.level = 12; assert(GEO.taskFor(p, { rnd }).level === 12, 'level 12 starts a topic: set at 12');
   });
 
   const failed = results.filter(r => !r.ok);
