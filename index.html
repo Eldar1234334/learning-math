@@ -5636,7 +5636,7 @@ function openRecipes() {   // tapping the cauldron
   modal(t('recipes_t', { c: caulName(c) }), '<div id="homeRecipes"></div>', [[t('close'), null, true]]);
   $('#homeRecipes').innerHTML = POTION_IDS.map(id => { const r = RECIPES[id], rk = BR.FROM_RANK[id] || 0, rankLocked = !BR.potionOpen(id, brewRank()), locked = r.caul > c || rankLocked, ok = !locked && canBrew(id);
     return `<div class="recipe ${locked ? 'locked' : ''}"><span class="packBottle">${potionSVG(id)}<i>${POTIONS[id].em}</i></span>
-      <div class="grow"><b>${pBoth(id)}</b><div class="small">${pDesc(id)}</div><div class="small">${t('needs', { x: slotsText(rankedRecipe(id)) })}${rankLocked ? ` · 🔒 ${t('recipe_rank', { n: rk, name: tl(ACAD_RANK[rk - 1]) })}` : r.caul > c ? ` · 🔒 ${caulName(r.caul)}` : ''}</div></div>
+      <div class="grow"><b>${pBoth(id)}</b><div class="small">${pDesc(id)}</div><div class="small">${t('needs', { x: slotsText(rankLocked ? { herbs: BR.herbLinesFor(id, rk), rare: BR.rareFor(id, rk) } : rankedRecipe(id)) })}${rankLocked ? ` · 🔒 ${t('recipe_rank', { n: rk, name: tl(ACAD_RANK[rk - 1]) })}` : r.caul > c ? ` · 🔒 ${caulName(r.caul)}` : ''}</div></div>
       <button class="btn" data-brew="${id}" ${ok ? '' : 'disabled'}>${locked ? '🔒' : ok ? t('brew_btn') : t('need_more')}</button></div>`; }).join('');
   $('#homeRecipes').onclick = e => { const b = e.target.closest('[data-brew]'); if (b && !b.disabled) pickIngredients(b.dataset.brew); };
 }
