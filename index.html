@@ -6301,12 +6301,13 @@ const SH = { BACK_Y0: 8, BACK_Y1: 46, FRONT: 80 };
 const SH_SLOTS = [[32.2, 36.8], [44.2, 36.8], [55.8, 36.8], [68.2, 36.8], [31.9, 51.2], [43.4, 51.2], [55.8, 51.2], [68.2, 51.2]];   // on the picture's two middle shelves (% of its width and height)
 const SH_SKINS = ['#f6cfa6', '#e8b98a', '#c68d5e', '#8d5a3b', '#5c3a24'];
 const strHash = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+const SHELF_KINDS = ['picture', 'clock', 'banner', 'mirror', 'lamp', 'plant', 'trinket', 'pet'];   // the small things on the daily shelf; furniture and the big items are only in the catalogue book
 function shopShelf() {   // today's 8 home items the hero can buy (open at their rank and math level, not owned yet when the day started); saved, so buying one leaves it on the shelf as SOLD until tomorrow
   const d = today(); let sh = P.shelf;
-  if (!sh || sh.d !== d || sh.v !== 2 || !Array.isArray(sh.ids)) {
-    const home = homeOf(), r = rngSeed(strHash(d + P.id)), arr = Object.values(HM.ITEMS).filter(it => it.buy && !HM.lock(it, acadPassed(), P.mlvl, home) && SHOP[it.id]);
+  if (!sh || sh.d !== d || sh.v !== 3 || !Array.isArray(sh.ids)) {
+    const home = homeOf(), r = rngSeed(strHash(d + P.id)), arr = Object.values(HM.ITEMS).filter(it => it.buy && SHELF_KINDS.includes(it.kind) && !HM.lock(it, acadPassed(), P.mlvl, home) && SHOP[it.id]);
     for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
-    sh = P.shelf = { d, v: 2, ids: arr.slice(0, 8).map(s => s.id), skin: Math.floor(r() * SH_SKINS.length) }; saveSoon();
+    sh = P.shelf = { d, v: 3, ids: arr.slice(0, 8).map(s => s.id), skin: Math.floor(r() * SH_SKINS.length) }; saveSoon();
   }
   return sh;
 }
