@@ -109,6 +109,64 @@
   // is the student's answer right? number: the typed number; pick: the chosen index; conjure: the conjured amount
   const check = (t, a) => t.kind === 'pick' ? a === t.answer : t.kind === 'conjure' ? a === t.amount : +a === t.answer;
 
-  const GEO = { CFG, TOPICS, FIRST, gradeOf, topicOf, easyLevel, placeFor, place, record, defaultUnits, UNITS, unitText, lengthText, SHAPES, maxProd, task, taskFor, check };
+  /* ---- the Builder's Grimoire (spec 11 §5.1): the conjuration book for buildings. Village items now; the machine parts come with the yard (step 3). ----
+     An item is learned at its geometry level (from) or when a project first needs it. */
+  const GRIMOIRE = [
+    { id: 'square', sec: 'village', from: 1, em: '🟦', one: ['square tile', 'אריח מרובע'], many: ['square tiles', 'אריחים מרובעים'] },
+    { id: 'post', sec: 'village', from: 2, em: '🚧', one: ['fence post', 'עמוד גדר'], many: ['fence posts', 'עמודי גדר'] },
+    { id: 'stick', sec: 'village', from: 4, em: '🥢', one: ['stick', 'מקל'], many: ['sticks', 'מקלות'] },
+    { id: 'plank', sec: 'village', from: 5, em: '🪵', one: ['plank', 'קרש'], many: ['planks', 'קרשים'] },
+    { id: 'seed', sec: 'village', from: 9, em: '🌱', one: ['seed', 'זרע'], many: ['seeds', 'זרעים'] },
+    { id: 'nail', sec: 'village', from: 10, em: '📌', one: ['nail', 'מסמר'], many: ['nails', 'מסמרים'] },
+    { id: 'brick', sec: 'village', from: 11, em: '🧱', one: ['brick', 'לבנה'], many: ['bricks', 'לבנים'] },
+    { id: 'tile', sec: 'village', from: 12, em: '🔶', one: ['roof tile', 'רעף'], many: ['roof tiles', 'רעפים'] }
+  ];
+  const ITEM = Object.fromEntries(GRIMOIRE.map(i => [i.id, i]));
+  const itemName = (id, n, lang) => ITEM[id][n === 1 ? 'one' : 'many'][lang === 'he' ? 1 : 0];
+  // the items the student has learned: by her geometry level, plus the ones a project taught her (p.grimoire = { village: [ids] })
+  function learned(p, sec) {
+    const lv = place(p).level, extra = (p.grimoire && p.grimoire.village) || [];
+    return GRIMOIRE.filter(i => (!sec || i.sec === sec) && (i.from <= lv || extra.includes(i.id)));
+  }
+  function learn(p, id) { p.grimoire = p.grimoire || { village: [] }; if (ITEM[id] && !learned(p).some(i => i.id === id)) p.grimoire.village.push(id); }
+
+  /* ---- Build: small jobs and village projects (spec 11 §5.2) ----
+     A session is { type: 'jobs' | 'project', id, title, village, steps }. A step is a task (number, pick or conjure) with a `role`: 'measure' or 'conjure'.
+     Below geometry level 10: three small jobs (tasks of the student's easy step). From level 10: a project with 2 to 4 steps (measure, then conjure). The projects that need the
+     area, perimeter, angle, volume and circle tasks (geometry levels 13 and up) come when those tasks do. */
+  const PROJECTS = {
+    bridge: { id: 'bridge', from: 10, village: ['Maple Bridge', 'גשר המייפל'], title: ['The bridge', 'הגשר'], make(o) {
+      const lim = maxProd(o.mlvl), m = unitText(o.units, 'medium', 'en'), mh = unitText(o.units, 'medium', 'he'), p = pick([2, 3, 4, 5], o.rnd), k = range(2, Math.max(2, Math.min(9, Math.floor(lim / p))), o.rnd), W = p * k;
+      const per = (W % 2 === 0 && o.rnd() < .5) ? 2 : 1, s = W / per;
+      return [
+        mk(12, 'number', [`The river is ${s} squares wide. Each square is ${per} ${m}. How wide is the river in ${m}?`, `הנהר ברוחב ${s} ריבועים. כל ריבוע הוא ${per} ${mh}. מה רוחב הנהר ב${mh}?`], { answer: W, role: 'measure' }),
+        mk(10, 'number', [`Each plank is ${p} ${m} long. How many planks close the ${W} ${m} gap?`, `כל קרש באורך ${p} ${mh}. כמה קרשים סוגרים את הפער של ${W} ${mh}?`], { answer: k, role: 'measure' }),
+        mk(10, 'conjure', [`Conjure the planks for the bridge.`, `הקסימו את הקרשים לגשר.`], { item: 'plank', amount: k, role: 'conjure', teach: 'plank',
+          bad: a => a < k ? [`${a} planks? The river is ${W} ${m}. The gap is not closed!`, `${a} קרשים? הנהר רחב ${W} ${mh}. הפער לא נסגר!`] : [`${a} planks is too many. Each plank is ${p} ${m}.`, `${a} קרשים זה יותר מדי. כל קרש באורך ${p} ${mh}.`] })
+      ]; } },
+    garden: { id: 'garden', from: 10, village: ['Sunny Hill', 'גבעת השמש'], title: ['The garden bed', 'ערוגת הירקות'], make(o) {
+      const lim = maxProd(o.mlvl), a = range(2, Math.min(6, Math.floor(lim / 2)), o.rnd), b = range(2, Math.max(2, Math.min(6, Math.floor(lim / a))), o.rnd);
+      return [
+        mk(10, 'number', [`The garden bed is ${a} squares wide and ${b} squares long. How many squares is it?`, `הערוגה ברוחב ${a} ריבועים ובאורך ${b} ריבועים. כמה ריבועים יש בה?`], { answer: a * b, w: a, h: b, role: 'measure' }),
+        mk(10, 'conjure', [`Plant one seed in every square. Conjure the seeds.`, `שותלים זרע אחד בכל ריבוע. הקסימו את הזרעים.`], { item: 'seed', amount: a * b, role: 'conjure', teach: 'seed',
+          bad: x => x < a * b ? [`${x} seeds? Some squares stay empty!`, `${x} זרעים? כמה ריבועים יישארו ריקים!`] : [`${x} seeds is too many. One seed for every square.`, `${x} זרעים זה יותר מדי. זרע אחד בכל ריבוע.`] })
+      ]; } }
+  };
+  const JOB_VILLAGERS = [['Mira', 'מירה'], ['Tomer', 'תומר'], ['Dana', 'דנה'], ['Gil', 'גיל'], ['Noa', 'נועה']];
+  function buildSession(p, o) {
+    o = Object.assign({ rnd: Math.random, units: p.units || 'metric', mlvl: p.mlvl }, o || {});
+    const gl = place(p).level;
+    if (gl >= 10) { const proj = PROJECTS[pick(Object.keys(PROJECTS), o.rnd)]; return { type: 'project', id: proj.id, title: proj.title, village: proj.village, steps: proj.make(o) }; }
+    const steps = []; let prev = null;
+    for (let i = 0; i < 3; i++) { let t = null; for (let k = 0; k < 8; k++) { t = taskFor(p, o); if (!prev || t.text[0] !== prev.text[0]) break; } steps.push(Object.assign(t, { role: t.kind === 'conjure' ? 'conjure' : 'measure' })); prev = t; }
+    return { type: 'jobs', id: 'jobs', title: ['A small job', 'עבודה קטנה'], village: pick(JOB_VILLAGERS, o.rnd), steps };
+  }
+  // a conjure step: the right item and the right amount. Returns 'ok', 'item' (the wrong thing) or 'amount'.
+  const checkConjure = (step, itemId, amount) => itemId !== step.item ? 'item' : +amount === step.amount ? 'ok' : 'amount';
+  const badAmountText = (step, amount, lang) => (step.bad ? step.bad(amount) : ['Not quite. Count again.', 'לא בדיוק. ספרו שוב.'])[lang === 'he' ? 1 : 0];
+  const BUILD_WIZ = 5;   // Build opens at wizard level 5 (spec 11 §2, §6.1)
+
+  const GEO = { CFG, TOPICS, FIRST, gradeOf, topicOf, easyLevel, placeFor, place, record, defaultUnits, UNITS, unitText, lengthText, SHAPES, maxProd, task, taskFor, check,
+    GRIMOIRE, ITEM, itemName, learned, learn, PROJECTS, buildSession, checkConjure, badAmountText, BUILD_WIZ };
   if (typeof module === 'object' && module.exports) module.exports = GEO; else root.GEO = GEO;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

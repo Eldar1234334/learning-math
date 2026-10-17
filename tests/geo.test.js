@@ -71,6 +71,38 @@
     p.geo.level = 8; assert(GEO.taskFor(p, { rnd }).level === 7, 'level 8 is set at 7'); p.geo.level = 12; assert(GEO.taskFor(p, { rnd }).level === 12, 'level 12 starts a topic: set at 12');
   });
 
+  test('the Builder\'s Grimoire: items are learned by geometry level and by project; every item has both names', () => {
+    for (const i of GEO.GRIMOIRE) assert(i.id && i.em && i.one[0] && i.one[1] && i.many[0] && i.many[1], 'names of ' + i.id);
+    const p = { mlvl: 1 }; GEO.place(p); assert(GEO.learned(p).map(i => i.id).join() === 'square', 'a new student knows the square tile: ' + GEO.learned(p).map(i => i.id));
+    p.geo.level = 5; assert(GEO.learned(p).map(i => i.id).join() === 'square,post,stick,plank', 'by level 5');
+    GEO.learn(p, 'seed'); assert(GEO.learned(p).some(i => i.id === 'seed') && p.grimoire.village.length === 1, 'a project teaches an item'); GEO.learn(p, 'seed'); assert(p.grimoire.village.length === 1, 'once');
+    assert(GEO.itemName('plank', 1, 'en') === 'plank' && GEO.itemName('plank', 3, 'he') === 'קרשים', 'item names by number');
+  });
+  test('Build: three small jobs below geometry level 10, a project from level 10; the steps are well formed at every math level', () => {
+    for (const mlvl of [1, 6, 10, 14, 30]) for (let k = 0; k < 40; k++) {
+      const a = { mlvl, units: k % 2 ? 'metric' : 'imperial' }; GEO.place(a); a.geo.level = 1 + (k % 9);
+      const j = GEO.buildSession(a, { rnd }); assert(j.type === 'jobs' && j.steps.length === 3 && j.steps.every(s => s.text[0] && s.text[1] && /^(measure|conjure)$/.test(s.role)), 'jobs at geometry level ' + a.geo.level);
+      for (const s of j.steps) if (s.kind === 'conjure') assert(GEO.ITEM[s.item], 'a grimoire item: ' + s.item);
+      const b = { mlvl, units: k % 2 ? 'metric' : 'imperial' }; GEO.place(b); b.geo.level = 10 + (k % 8);
+      const pr = GEO.buildSession(b, { rnd }); assert(pr.type === 'project' && pr.steps.length >= 2 && pr.steps.length <= 4 && pr.steps[pr.steps.length - 1].kind === 'conjure' && pr.village[0] && pr.village[1], 'a project at geometry level ' + b.geo.level);
+      for (const s of pr.steps) assert(!/undefined|NaN/.test(s.text.join(' ')), 'text: ' + s.text.join(' | '));
+    }
+  });
+  test('the bridge and the garden bed: the maths chain through to the conjured amount (spec 11 §5.2)', () => {
+    for (let k = 0; k < 200; k++) {
+      const m = k % 2 ? 5 : 20, br = GEO.PROJECTS.bridge.make({ rnd, units: 'metric', mlvl: m }), W = br[0].answer, plank = +/Each plank is (\d+)/.exec(br[1].text[0])[1];
+      assert(W % plank === 0 && br[1].answer === W / plank && br[2].amount === br[1].answer && br[2].item === 'plank', `bridge ${W} / ${plank}`);
+      assert(W <= GEO.maxProd(m), 'the river fits the math level: ' + W);
+      const g = GEO.PROJECTS.garden.make({ rnd, units: 'metric', mlvl: m }); assert(g[0].answer === g[0].w * g[0].h && g[1].amount === g[0].answer && g[0].answer <= GEO.maxProd(m), 'garden ' + g[0].answer);
+    }
+  });
+  test('conjuring: the wrong item, the wrong amount (with the villager\'s reaction) and the right one', () => {
+    const br = GEO.PROJECTS.bridge.make({ rnd, units: 'metric', mlvl: 14 }), c = br[2];
+    assert(GEO.checkConjure(c, 'plank', c.amount) === 'ok' && GEO.checkConjure(c, 'post', c.amount) === 'item' && GEO.checkConjure(c, 'plank', c.amount + 1) === 'amount', 'results');
+    assert(/gap is not closed/.test(GEO.badAmountText(c, c.amount - 1, 'en')) && /הפער לא נסגר/.test(GEO.badAmountText(c, c.amount - 1, 'he')) && /too many/.test(GEO.badAmountText(c, c.amount + 1, 'en')), 'the bridge reactions');
+    assert(GEO.badAmountText({}, 3, 'en') === 'Not quite. Count again.', 'a default reaction');
+  });
+
   const failed = results.filter(r => !r.ok);
   if (isNode) {
     for (const r of results) console.log((r.ok ? 'ok   ' : 'FAIL ') + r.name + (r.ok ? '' : '\n      ' + r.msg));
