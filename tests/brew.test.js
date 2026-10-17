@@ -36,9 +36,9 @@
     assert(BR.potionOpen('forge1', 0) && BR.potionOpen('forge2', 0), 'the forge has no rank');
     assert(BR.rareFor('sound', 0).length === 0 && BR.rareFor('sound', 1).length === 1 && BR.rareFor('power', 1).length === 2, 'Hint has no stone at rank 0, one from rank 1');
     assert(BR.herbLinesFor('heart', 0) === 1 && BR.herbLinesFor('sound', 0) === 1 && BR.herbLinesFor('heart', 2) === 1 && BR.herbLinesFor('heart', 5) === 1 && BR.herbLinesFor('sound', 3) === 1 && BR.herbLinesFor('power', 1) === 2 && BR.herbLinesFor('second', 2) === 2 && BR.herbLinesFor('power', 3) === BR.RECIPES.power.herbs && BR.herbLinesFor('super', 4) === 1, 'herb lines by rank: Heart and Hint always one');
-    assert(!BR.liquidOk(0, 'power') && !BR.liquidOk(2, 'power') && BR.liquidOk(3, 'power') && BR.liquidOk(3, 'super') && BR.liquidOk(undefined) && !BR.liquidOk(3, 'heart') && !BR.liquidOk(5, 'sound'), 'liquids from rank 3, never for Heart and Hint');
+    assert(!BR.liquidOk(0, 'power') && !BR.liquidOk(2, 'power') && BR.liquidOk(3, 'power') && BR.liquidOk(3, 'super') && BR.liquidOk(undefined) && BR.liquidOk(3, 'heart') && BR.liquidOk(5, 'sound') && !BR.liquidOk(2, 'heart'), 'liquids from rank 3 for every potion, Heart and Hint included');
   });
-  test('Heart and Hint: one herb line at every rank; Power and Second chance: two herb lines at ranks 1 and 2, the full recipe with the liquid from rank 3', () => {
+  test('Heart and Hint: one herb line at every rank (plus the liquid from rank 3); Power and Second chance: two herb lines at ranks 1 and 2, the full recipe with the liquid from rank 3', () => {
     for (let m = 1; m <= 36; m++) {
       for (const potion of ['heart', 'sound']) {
         const r0 = BR.recipe({ potion, mlvl: m, owned, rnd, rank: 0 }); assert(r0, 'rank 0 recipe ' + potion + ' at ' + m);
@@ -49,7 +49,7 @@
         const r1 = BR.recipe({ potion, mlvl: m, owned, rnd, rank: 1 }); assert(r1, 'rank 1 recipe ' + potion + ' at ' + m);
         assert(r1.lines.length === 2 && r1.lines.every(l => l.kind === 'herb') && r1.lines[0].herb !== r1.lines[1].herb, 'rank 1 is two herb lines of two herbs: ' + potion + ' at ' + m);
       }
-      for (const potion of ['heart', 'sound']) for (const rk of [1, 2, 3, 5]) { const r = BR.recipe({ potion, mlvl: m, owned, rnd, rank: rk }); assert(r && r.lines.length === 1 && r.lines[0].kind === 'herb' && ME.eq(r.lines[0].p.a, r.lines[0].amount), 'Heart and Hint are one herb line at rank ' + rk + ': ' + potion + ' at ' + m); }
+      for (const potion of ['heart', 'sound']) for (const rk of [1, 2, 3, 5]) { const r = BR.recipe({ potion, mlvl: m, owned, rnd, rank: rk }), n = rk >= 3 ? 2 : 1; assert(r && r.lines.length === n && r.lines[0].kind === 'herb' && ME.eq(r.lines[0].p.a, r.lines[0].amount) && (n === 1 || r.lines[1].kind === 'liquid'), 'Heart and Hint: one herb line, plus the liquid from rank 3 (rank ' + rk + ', ' + potion + ' at ' + m + ')'); }
       const p3 = BR.recipe({ potion: 'power', mlvl: m, owned, rnd, rank: 3 }); assert(p3.lines.length === 2 && p3.lines[1].kind === 'liquid', 'rank 3 Power has the liquid at ' + m);
     }
     let lo = 99, hi = 0; for (let k = 0; k < 200; k++) { const r = BR.recipe({ potion: 'heart', mlvl: 5, owned, rnd, rank: 0 }), a = ME.num(r.lines[0].amount); lo = Math.min(lo, a); hi = Math.max(hi, a); }
