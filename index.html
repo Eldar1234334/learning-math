@@ -6071,8 +6071,8 @@ FURN_ART.r_statue = () => { const hero = heroSVG(P.gender, '#e0b84a', '#f0cf6a',
 for (let i = 1; i <= 5; i++) FURN_ART['c_cert' + i] = () => certThumb(i);
 // [id, Hebrew, English, emoji, where it goes (floor / wall / rug), size, x, y]
 for (const [id, he, en, em, ty, b, x, y] of [['r_monsters', 'מדף ספר המפלצות', 'book-of-monsters shelf', '📚', 'wall', 9, 14, 31], ['r_lamp', 'מנורת קריאה', 'reading lamp', '💡', 'floor', 5.5, 12, 66], ['r_ball', 'כדור קריסטל', 'crystal ball', '🔮', 'floor', 5.5, 91, 66],
-  ['r_rug', 'שטיח זוהר', 'glowing rug', '🧶', 'rug', 0, 50, 79], ['r_wheel', 'גלגל השברים', 'fraction wheel', '🎡', 'wall', 8, 86, 30], ['r_statue', 'פסל זהב', 'golden statue', '🏆', 'floor', 8, 8, 78],
-  ...[1, 2, 3, 4, 5].map(n => ['c_cert' + n, 'תעודה ' + n, 'certificate ' + n, '📜', 'wall', 6.5, 36 + (n - 1) * 8, 22])]) {
+  ['r_rug', 'שטיח זוהר', 'glowing rug', '🧶', 'rug', 0, 50, 77], ['r_wheel', 'גלגל השברים', 'fraction wheel', '🎡', 'wall', 8, 86, 30], ['r_statue', 'פסל זהב', 'golden statue', '🏆', 'floor', 8, 90, 80],
+  ...[[26, 31], [34, 31], [62, 43], [69, 43], [76, 43]].map(([x, y], i) => ['c_cert' + (i + 1), 'תעודה ' + (i + 1), 'certificate ' + (i + 1), '📜', 'wall', 6.5, x, y])]) {
   SHOP[id] = { id, kind: 'decor', big: true, he, nk: he, em, en, price: 0 }; ROOM_ITEMS[id] = ty === 'rug' ? { t: 'rug', x, y } : { t: ty, b, x, y };
 }
 // a pass: the gifts for the room and the certificate go on the list of what the student owns (once)
