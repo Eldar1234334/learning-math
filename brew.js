@@ -32,8 +32,8 @@
     forge2: { caul: 0, herbs: 2, rare: [4, 3], multi: true }   // the legendary upgrade: 1 legendary + 1 epic ingredient, at the current level, with a multi-step line
   };
   /* ---- brewing by rank (spec 04 §3.2): the Academy rank (the tests passed) decides what goes in the cauldron and which potions can be brewed ----
-     (owner decision, final) Heart and Hint: ONE herb line at every rank.  Rank 0: Heart and Hint only, one herb line, no rare item, no liquid.  Ranks 1 and 2: Power and Second chance too, with two herb lines (two herb types) and their rare items (a fixed pick, never a math question), no liquid.
-     Rank 3 and up: the full recipe with the liquid (the jug) for Power, Second chance and Super (adds Super).  Rare items are never a math question.
+     (owner decision, final) Heart and Hint: ONE herb line at every rank, plus the liquid line from rank 3.  Rank 0: Heart and Hint only, one herb line, no rare item, no liquid.  Ranks 1 and 2: Power and Second chance too, with two herb lines (two herb types) and their rare items (a fixed pick, never a math question), no liquid.
+     Rank 3 and up: every potion also has a liquid line (the jug): Heart and Hint = one herb line + the liquid; Power, Second chance and Super = the full recipe + the liquid.  Rare items are never a math question.
      `rank` is left out for the Artificer's forge (owner decision: the forge keeps its own recipes) and for the older tests: the full recipe. */
   const FROM_RANK = { heart: 0, sound: 0, power: 1, second: 1, super: 3 };            // the rank that opens each potion
   const HERB_RANGE = { heart: [4, 10], sound: [3, 8], power: [3, 8], second: [3, 8], super: [3, 8] };   // herb units in one potion at a rank (spec 04 §3.4, approx.)
@@ -41,7 +41,7 @@
   const rareFor = (potion, rank) => rank == null || rank >= 1 ? RECIPES[potion].rare : [];       // rank 0: no stone (Hint has none at rank 0)
   const ONE_LINE = { heart: 1, sound: 1 };   // Heart and Hint are always one herb line, at every rank (owner decision: only the math level makes them harder)
   const herbLinesFor = (potion, rank) => rank == null ? RECIPES[potion].herbs : ONE_LINE[potion] || (rank >= 3 ? RECIPES[potion].herbs : Math.max(2, RECIPES[potion].herbs));
-  const liquidOk = (rank, potion) => rank == null || (rank >= 3 && !ONE_LINE[potion]);   // the jug from rank 3, but never for Heart and Hint (their one line is herbs)
+  const liquidOk = (rank, potion) => rank == null || rank >= 3;   // the jug (a liquid line) for every potion from rank 3, Heart and Hint included (owner decision)
   const LIQUIDS = ['spring', 'moon', 'oil'];
   const easy = mlvl => Math.max(1, mlvl - 1);
   const lossChance = g => Math.min(CFG.LOSS[2], CFG.LOSS[0] + CFG.LOSS[1] * (g - 1));
