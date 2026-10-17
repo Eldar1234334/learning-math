@@ -1204,6 +1204,7 @@ body.peace .hpbar>i{background:linear-gradient(90deg,#ffd166,#3ddc97);width:0}
 <script src="brew.js"></script>
 <script src="shop.js"></script>
 <script src="helper.js"></script>
+<script src="geo.js"></script>
 <script>
 'use strict';
 /* App mode: the installed app (or ?mode=app). It keeps everything on the device only: no password, sign-in by email, no cloud, no teacher area. The web version is unchanged. */
@@ -1565,7 +1566,7 @@ const STR = {
   // the spell book (spec 02)
   book_t: ['📖 Spell book', '📖 ספר הכישופים'], book_btn: ['Spell book', 'ספר הכישופים'],
   book_info: ['Every spell has a number that never changes. The answer to a problem casts the spell with that number. · Math level {m} · Wizard level {w}', 'לכל כישוף יש מספר שלעולם לא משתנה. התשובה לתרגיל מטילה את הכישוף עם המספר הזה. · שלב {m} · דרגת קוסם {w}'],
-  unlocks_at: ['🔒 Unlocks at wizard level {n}', '🔒 נפתח בדרגת קוסם {n}'], power: ['Power {p}', 'עוצמה {p}'], wiz_lvl: ['Wizard level {n}', 'דרגת קוסם {n}'], wiz_badge: ['Lv {n} · {r}', 'דרגה {n} · {r}'], rank0: ['Apprentice', 'שוליה'], lc_math: ['Math level {n}', 'שלב חשבון {n}'], lc_grade: ['Grade {n}', 'כיתה {h}'], lc_title: ['Your levels', 'הדרגות שלכם'], lc_close: ['Close', 'סגירה'], lc_aria: ['Show my levels', 'הצגת הדרגות שלי'],
+  unlocks_at: ['🔒 Unlocks at wizard level {n}', '🔒 נפתח בדרגת קוסם {n}'], power: ['Power {p}', 'עוצמה {p}'], wiz_lvl: ['Wizard level {n}', 'דרגת קוסם {n}'], wiz_badge: ['Lv {n} · {r}', 'דרגה {n} · {r}'], rank0: ['Apprentice', 'שוליה'], lc_math: ['Math level {n}', 'שלב חשבון {n}'], lc_grade: ['Grade {n}', 'כיתה {h}'], lc_title: ['Your levels', 'הדרגות שלכם'], lc_close: ['Close', 'סגירה'], lc_geo: ['Geometry level {n}', 'שלב גיאומטריה {n}'], lc_aria: ['Show my levels', 'הצגת הדרגות שלי'],
   new_spell_t: ['✨ You learned a new spell!', '✨ למדתם כישוף חדש!'], new_spells_t: ['✨ You learned {n} new spells!', '✨ למדתם {n} כישופים חדשים!'],
   enhanced_t: ['✨ Your spells became enhanced!', '✨ הכישופים שלכם התחזקו!'],
   enhanced_b: ['The same digits ×10 are stronger versions of your spells: 3 Fire Bolt → 30 Enhanced Fire Bolt.', 'אותן ספרות ×10 הן גרסאות חזקות יותר של הכישופים שלכם: 3 חץ אש ← 30 חץ אש מוגבר.'],
@@ -2108,6 +2109,7 @@ function migrate(p) {
   const blankUses = () => ({ amulet: 0, staff: 0, belt: 0 });
   if (p.mlvl == null) p.mlvl = Math.min(CFG.MAX_LEVEL, Math.max(1, p.tier || 1));   // test profiles from version 1
   delete p.tier; delete p.hist;
+  p.units = p.units === 'imperial' || p.units === 'metric' ? p.units : GEO.defaultUnits(p.lang);   // spec 11 §4: metric in Hebrew, imperial in English; the student can switch
   p.mhist = Array.isArray(p.mhist) ? p.mhist : []; p.mfacts = p.mfacts || {}; p.mplace = p.mplace || 0; p.grade = p.grade || ME.gradeOf(p.mlvl);
   if (!Array.isArray(p.spells)) p.spells = SB.book(p.mlvl, SB.wizLevel(p.xp || 0), undefined, CFG.ACADEMY ? (p.academy && p.academy.passed) || 0 : undefined).learned.map(s => s.id);   // the spells this student has learned (spec 01 §8); they are never taken away
   p.wlvl = p.wlvl || SB.wizLevel(p.xp || 0);   // the wizard level last seen (to notice a new one)
@@ -2461,7 +2463,7 @@ let lvlPinned = false, lvlOwner = null;
 function lvlCardHtml() {
   const lv = P.mlvl || 1, g = (ME.LV[lv] && ME.LV[lv].g) || 1;
   return `<button class="lcX" data-lcx="1" aria-label="${t('lc_close')}">✕</button><div class="lcTitle">${t('lc_title')}</div>
-    <div class="lcRow"><span class="lcIco">🔢</span><span><b>${t('lc_math', { n: lv })}</b> · ${t('lc_grade', { n: g, h: 'אבגדהו'[g - 1] + '׳' })} · <bdi dir="ltr">${esc(tierName(lv))}</bdi></span></div>`;   // (the geometry row 📐 comes with the engineering patch)
+    <div class="lcRow"><span class="lcIco">🔢</span><span><b>${t('lc_math', { n: lv })}</b> · ${t('lc_grade', { n: g, h: 'אבגדהו'[g - 1] + '׳' })} · <bdi dir="ltr">${esc(tierName(lv))}</bdi></span></div>${P.geo ? `<div class="lcRow"><span class="lcIco">📐</span><span><b>${t('lc_geo', { n: P.geo.level })}</b> · ${t('lc_grade', { n: GEO.gradeOf(P.geo.level), h: 'אבגדהו'[GEO.gradeOf(P.geo.level) - 1] + '׳' })} · <bdi dir="ltr">${esc(tl(GEO.topicOf(P.geo.level)))}</bdi></span></div>` : ''}`;   // the geometry row 📐 (spec 14 §4.2) appears once the student has opened engineering: no XP, no bar
 }
 function showLvlCard(av, pin) {
   if (!P || !av) return; let c = $('#lvlCard');
@@ -6663,6 +6665,14 @@ function startDemo() {
       P.academy = { passed: k - 1, certs: (P.academy && P.academy.certs) || [] }; P.mlvl = Math.max(P.mlvl || 1, ACAD_MATH[k - 1]);
       P.xp = Math.max(P.xp, SB.xpFor(ACAD_TOP(k - 1) + 1)); goMenu(); toast('🎓 Academy test ' + k + ' is open'); showAcademy();
     },
+    // spec 11 (engineering, step 1): the geometry level, its placement and tasks
+    geoPlace() { delete P.geo; GEO.place(P); saveSoon(); toast('📐 Placed at geometry level ' + P.geo.level + ' (grade ' + GEO.gradeOf(P.geo.level) + ')'); },
+    geoLevel(n) { GEO.place(P); P.geo.level = +n; P.geo.hist = []; saveSoon(); toast('📐 Geometry level ' + n + ': ' + tl(GEO.topicOf(+n))); },
+    geoAnswers(ok) { const kind = 'siege'; let mv = ''; for (let i = 0; i < 10 && !mv; i++) mv = GEO.record(P, !!ok, kind); toast('📐 ' + (mv ? 'moved ' + mv + ' → geometry level ' + P.geo.level : 'no move yet (level ' + GEO.place(P).level + ')')); },
+    geoUnits() { P.units = P.units === 'metric' ? 'imperial' : 'metric'; saveSoon(); toast('📏 ' + P.units); },
+    geoTask(lv) { const t = lv ? GEO.task(+lv, { units: P.units, mlvl: P.mlvl }) : GEO.taskFor(P, { units: P.units }); if (!t) { toast('No task for geometry level ' + lv + ' yet'); return; }
+      const ans = t.kind === 'pick' ? t.choices[t.answer].label : t.kind === 'conjure' ? [t.amount + ' × ' + t.item] : [String(t.answer)];
+      modal('📐 ' + tl(t.topic) + ' (geometry level ' + t.level + ', ' + t.kind + ')', `<p>${esc(tl(t.text))}</p>${t.choices ? '<p class="small">' + t.choices.map(c => esc(tl(c.label))).join(' · ') + '</p>' : ''}<p class="small">Answer: <b>${esc(tl(ans))}</b></p>`, [[t.level ? 'Another' : 'Another', () => demo.geoTask(lv)], ['Close', null, true]]); },
     acadReset() { P.academy = { passed: 0, certs: [] }; ACQ = null; acadRender(); refreshAcademy(); toast('🎓 Academy progress reset: test 1 is next'); },
     acadPass() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = ACQ.need; acadFinish(false); },   // the result screen of a pass, at once
     acadFail() { if (!ACQ || !ACQ.qs.length) { showAcademy(); acadStart(); } ACQ.right = 0; acadFinish(false); }   // the result screen of a fail, at once
@@ -6679,6 +6689,7 @@ function startDemo() {
     '<h4>Go to</h4>' + B('🗺️ Map', 'map()') + B('⚒️ Workshop', 'workshop()') + B('🏡 Home', 'home()') + B('🏪 Shop', 'shop()') +
     '<h4>Academy (spec 08): conjuring trial</h4>' + [1, 2, 3, 4, 5].map(k => B('🎓 Test ' + k, `acad(${k})`)).join('') +
     B('↺ Reset Academy', 'acadReset()') + B('✅ Pass it now', 'acadPass()') + B('❌ Fail it now', 'acadFail()') +
+    '<h4>Engineering (spec 11): geometry level</h4>' + B('📐 Place me', 'geoPlace()') + Array.from({ length: 12 }, (_, i) => B(i + 1, `geoLevel(${i + 1})`)).join('') + B('🧩 A task at my level', 'geoTask()') + B('✅ Answer right until it moves', 'geoAnswers(1)') + B('❌ Answer wrong until it moves', 'geoAnswers(0)') + B('📏 Metric / imperial', 'geoUnits()') +
     '<h4>Quests</h4>' + B('⚔️ Start monster quest', 'fight()') + B('⏭️ Jump near the boss', 'nearBoss()') +
     '<h4>Village run (spec 05)</h4>' + B('🏘️ 2 stops, then the festival', 'village()') + B('🏘️ 1 stop, then the festival', 'visit()') +
     B('⏳ Impatient villagers', 'imp(true)') + B('🙂 Normal villagers', 'imp(false)') + B('🖼 Pictures at every level', 'pics(true)') + B('🖼 Pictures only at low levels', 'pics(false)') +

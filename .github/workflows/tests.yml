@@ -25,5 +25,7 @@ jobs:
         run: node tests/shop.test.js
       - name: Run the villager visit tests (story problems, cards, number pad logic)
         run: node tests/helper.test.js
+      - name: Run the geometry track tests (engineering mode, spec 11)
+        run: node tests/geo.test.js
       - name: Check the balance goals (fight simulator, spec 03 §1)
         run: node tools/sim.js 60
